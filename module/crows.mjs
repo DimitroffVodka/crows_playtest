@@ -21,6 +21,7 @@ import {
   getDT, setDT, bumpDT, getDungeonEN
 } from "./helpers/dungeon-turn.mjs";
 import { takeRest, restoreSpellbookUds } from "./helpers/rest.mjs";
+import { gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait } from "./helpers/advancement.mjs";
 import { registerConditions } from "./conditions.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
@@ -46,6 +47,7 @@ Hooks.once("init", () => {
     applyDamage, applyHealing, repairArmor,
     castSpell, rollBacklash, lookupBacklash,
     takeRest, restoreSpellbookUds,
+    gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait,
     chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos },
     dt: { get: getDT, set: setDT, bump: bumpDT, end: endDungeonTurn, encounterCheck: rollEncounterCheck, getDungeonEN }
   });

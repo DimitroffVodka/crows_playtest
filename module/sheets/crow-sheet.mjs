@@ -107,7 +107,10 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       openItem: CrowSheet._onOpenItem,
       takeRest: CrowSheet._onTakeRest,
       endDt: CrowSheet._onEndDT,
-      encounterCheck: CrowSheet._onEncounterCheck
+      encounterCheck: CrowSheet._onEncounterCheck,
+      selectTree: CrowSheet._onSelectTree,
+      buyTrait: CrowSheet._onBuyTrait,
+      grantXp: CrowSheet._onGrantXp
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -116,6 +119,28 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static PARTS = { body: { template: "systems/crows/templates/actor/crow/sheet.hbs" } };
 
   _activeTab = "main";
+  _selectedTree = "alchemy";
+
+  /**
+   * Compendium-backed trait tree map cache. Loaded once per session by the
+   * first sheet that opens the Advancement tab; keyed by class so all
+   * crow sheets share it.
+   */
+  static _treeMap = null;
+  static async getTreeMap() {
+    if (CrowSheet._treeMap) return CrowSheet._treeMap;
+    const pack = game.packs.get("crows.crows-traits");
+    if (!pack) return null;
+    const docs = await pack.getDocuments();
+    const map = {};
+    for (const d of docs) {
+      const tree = d.system?.tree;
+      if (!tree) continue;
+      (map[tree] ??= []).push(d);
+    }
+    CrowSheet._treeMap = map;
+    return map;
+  }
 
   async _prepareContext(options) {
     const ctx = await super._prepareContext(options);
@@ -199,6 +224,50 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     } catch { ctx.dtCount = 0; ctx.dungeonEN = 6; }
     ctx.isGM = !!game.user?.isGM;
 
+    // Advancement tab data — only build when that tab is active to keep
+    // the trait-pack load cost off the critical path.
+    if (this._activeTab === "advancement") {
+      try {
+        const { bonusesEarned, nextBonusTXP, isTraitBuyable } = await import("../helpers/advancement.mjs");
+        const txp = sys.xp?.txp ?? 0;
+        ctx.bonusesEarned = bonusesEarned(txp);
+        ctx.nextBonusAt = nextBonusTXP(txp);
+
+        const treeMap = await CrowSheet.getTreeMap();
+        ctx.selectedTree = this._selectedTree;
+        ctx.treeList = CROWS.traitTrees;
+        if (treeMap && treeMap[this._selectedTree]) {
+          // Build a 4x3 grid keyed by tier/column. Each cell carries
+          // owned/buyable status + cost.
+          const grid = Array.from({ length: 4 }, (_, tIdx) => ({
+            tier: tIdx + 1,
+            cost: CROWS.traitTierXP[tIdx + 1],
+            cells: Array(3).fill(null)
+          }));
+          for (const trait of treeMap[this._selectedTree]) {
+            const tier = trait.system?.tier ?? 1;
+            const col = trait.system?.column ?? 1;
+            if (tier < 1 || tier > 4 || col < 1 || col > 3) continue;
+            const owned = this.document.items.some(i => i.type === "trait" && i.name === trait.name && i.system?.tree === trait.system.tree);
+            const buyCheck = owned ? null : isTraitBuyable(this.document, trait);
+            grid[tier - 1].cells[col - 1] = {
+              id: trait.id,
+              uuid: trait.uuid,
+              name: trait.name,
+              isStarting: !!trait.system.isStarting,
+              cost: CROWS.traitTierXP[tier],
+              owned,
+              buyable: !!buyCheck?.ok,
+              reason: buyCheck?.reason ?? (owned ? "owned" : "")
+            };
+          }
+          ctx.treeGrid = grid;
+        }
+      } catch (e) {
+        console.error("crows | advancement tab build failed", e);
+      }
+    }
+
     return ctx;
   }
 
@@ -281,5 +350,29 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (!game.user.isGM) { ui.notifications?.warn("Encounter check is GM-only."); return; }
     const { rollEncounterCheck } = await import("../helpers/dungeon-turn.mjs");
     await rollEncounterCheck({ label: "Ad-hoc" });
+  }
+
+  static async _onSelectTree(event, target) {
+    this._selectedTree = target.dataset.tree;
+    this.render();
+  }
+
+  static async _onBuyTrait(event, target) {
+    const treeMap = await CrowSheet.getTreeMap();
+    if (!treeMap) { ui.notifications?.warn("Traits compendium not available."); return; }
+    const id = target.dataset.traitId;
+    const trait = (treeMap[this._selectedTree] ?? []).find(t => t.id === id);
+    if (!trait) { ui.notifications?.warn("Trait not found in compendium."); return; }
+    const { purchaseTrait } = await import("../helpers/advancement.mjs");
+    await purchaseTrait(this.document, trait);
+    this.render();
+  }
+
+  static async _onGrantXp(event, target) {
+    if (!game.user.isGM) { ui.notifications?.warn("Grant XP is GM-only."); return; }
+    const amount = Number(target.dataset.amount) || 0;
+    const { gainXP } = await import("../helpers/advancement.mjs");
+    await gainXP(this.document, amount);
+    this.render();
   }
 }

@@ -228,10 +228,57 @@
     </div>
   </section>
 
-  {{!-- ADVANCEMENT TAB (M3 advancement UI placeholder) --}}
+  {{!-- ADVANCEMENT TAB: XP, advancement-bonus tally, trait-tree purchase --}}
   <section class="cc-tab cc-advancement {{#if (eq activeTab 'advancement')}}active{{/if}}">
-    <p>TXP {{system.xp.txp}} · Spendable XP {{system.xp.spendable}} · Next advancement at {{nextAdvancement}} TXP.</p>
-    <p class="cc-empty">Advancement spending UI lands in M3.</p>
+    <div class="cc-adv-header">
+      <div class="cc-adv-stat"><span class="cc-adv-label">TXP</span><strong>{{system.xp.txp}}</strong></div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">Spendable XP</span><strong>{{system.xp.spendable}}</strong></div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">Next bonus at</span><strong>{{nextBonusAt}} TXP</strong></div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">Skill/Stam bonuses</span><strong>{{bonusesEarned.skill}}</strong></div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">Characteristic adv.</span><strong>{{bonusesEarned.char}}</strong></div>
+      {{#if isGM}}
+        <button type="button" data-action="grantXp" data-amount="100" class="cc-adv-grant">+100 XP</button>
+        <button type="button" data-action="grantXp" data-amount="500" class="cc-adv-grant">+500 XP</button>
+        <button type="button" data-action="grantXp" data-amount="1000" class="cc-adv-grant">+1000 XP</button>
+      {{/if}}
+    </div>
+
+    <div class="cc-tree-picker">
+      {{#each treeList as |t|}}
+        <button type="button" data-action="selectTree" data-tree="{{t}}" class="cc-tree-chip {{#if (eq t ../selectedTree)}}active{{/if}}">{{t}}</button>
+      {{/each}}
+    </div>
+
+    {{#if treeGrid}}
+      <div class="cc-trait-grid">
+        {{#each treeGrid as |row|}}
+          <div class="cc-trait-row">
+            <div class="cc-tier-label">
+              <div class="ct-tier">Tier {{row.tier}}</div>
+              <div class="ct-cost">{{row.cost}} XP</div>
+            </div>
+            {{#each row.cells as |cell|}}
+              {{#if cell}}
+                <div class="cc-trait-cell {{#if cell.owned}}owned{{else if cell.buyable}}buyable{{else}}locked{{/if}}"
+                     {{#if cell.buyable}}data-action="buyTrait" data-trait-id="{{cell.id}}"{{/if}}
+                     title="{{cell.reason}}">
+                  <div class="ct-name">{{cell.name}}</div>
+                  <div class="ct-status">
+                    {{#if cell.owned}}<span class="ct-owned">✓ OWNED</span>
+                    {{else if cell.buyable}}<span class="ct-buy">Buy ({{cell.cost}} XP)</span>
+                    {{else}}<span class="ct-locked">🔒 locked</span>{{/if}}
+                  </div>
+                </div>
+              {{else}}
+                <div class="cc-trait-cell empty"><em>—</em></div>
+              {{/if}}
+            {{/each}}
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="cc-empty">Trait compendium not yet loaded.</p>
+    {{/if}}
   </section>
 
   {{!-- BIO TAB --}}
