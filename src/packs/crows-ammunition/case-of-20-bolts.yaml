@@ -1,0 +1,12 @@
+_id: crowsammocaseblt
+_key: "!items!crowsammocaseblt"
+name: Case of 20 Bolts
+type: ammunition
+system:
+  description: "<p>Ammunition for crossbows.</p>"
+  ammoFor: "crossbows"
+  countPerUnit: 20
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 5

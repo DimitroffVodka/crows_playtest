@@ -1,0 +1,31 @@
+_id: crowsspelldspch1
+_key: "!items!crowsspelldspch1"
+name: Deadspeech
+type: spellbook
+system:
+  description: "<p>The target can speak and must answer a number of questions you ask based on the casting honestly. The target has the same intellect it had in life. Your eyes are both compound and you can see in the dark.</p>"
+  discipline: necromancy
+  rank: 1
+  castType: maneuver
+  range:
+    kind: melee
+    value: 1
+  target: "1 corpse"
+  aoe:
+    shape: ""
+    size: ""
+  duration: "End of DT"
+  effectBands:
+    t1: "Target answers 1 question honestly"
+    t2: "Target answers 3 questions honestly"
+    t3: "Target answers 5 questions honestly"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 500

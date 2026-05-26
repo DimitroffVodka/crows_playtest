@@ -1,0 +1,12 @@
+_id: ctbene33blsdbnf0
+_key: "!items!ctbene33blsdbnf0"
+name: Blessed Benefaction
+type: trait
+system:
+  description: "<p>When you cast a benefaction spell, you harness the magic to make a creature within 5 squares of you blessed.</p>"
+  tree: benefaction
+  tier: 3
+  column: 3
+  connectsTo: ["Benefaction Ward", "Burn Blessings"]
+  isStarting: false
+  restActivity: false

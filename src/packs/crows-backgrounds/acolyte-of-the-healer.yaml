@@ -1,0 +1,12 @@
+_id: crowsbgacolhealr
+_key: "!items!crowsbgacolhealr"
+name: Acolyte of the Healer
+type: background
+system:
+  flavor: "You served the god of healing."
+  characteristicBonus: mind
+  stamina: 7
+  startingTrait: "Benefaction: Enhanced Healing"
+  skills: [alchemy, lift, religiousLore, benefaction, bashing]
+  equipment: ["holy symbol", lantern, mace, "oil flask"]
+  spellbooks: ["minor blessing", "minor healing"]

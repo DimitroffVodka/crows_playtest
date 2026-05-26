@@ -1,0 +1,12 @@
+_id: ctench31mstfmgc0
+_key: "!items!ctench31mstfmgc0"
+name: Most of Magic
+type: trait
+system:
+  description: "<p>When you finish a rest, you gain a magic charge for each magic item worn in a slot. You can spend a charge after you make a test to give it a +1 bonus. Old charges disappear when you gain new ones.</p>"
+  tree: enchantment
+  tier: 3
+  column: 1
+  connectsTo: ["Enchantransfer", "Energy Transfer"]
+  isStarting: false
+  restActivity: false

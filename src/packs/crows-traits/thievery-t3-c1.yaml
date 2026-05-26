@@ -1,0 +1,12 @@
+_id: ctthie31drksnss0
+_key: "!items!ctthie31drksnss0"
+name: Dark Senses
+type: trait
+system:
+  description: "<p>While you are not wearing armor and not wielding a shield, you treat dim light and darkness as if they were bright light until the end of the DT.</p>"
+  tree: thievery
+  tier: 3
+  column: 1
+  connectsTo: [Seeing Things]
+  isStarting: false
+  restActivity: false

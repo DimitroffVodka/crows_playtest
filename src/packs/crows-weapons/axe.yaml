@@ -1,0 +1,18 @@
+_id: crowsweap0axe001
+_key: "!items!crowsweap0axe001"
+name: Axe
+type: weapon
+img: icons/weapons/axes/axe-battle-worn.webp
+system:
+  description: "<p>A heavy one-handed chopping axe. Dismember.</p>"
+  type: chopping
+  range: { melee: 1, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "3 + S", t3: "7 + S" }
+  qualities: [dismember]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 1
+  stackMax: 1
+  cost: 12

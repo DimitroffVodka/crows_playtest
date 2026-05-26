@@ -1,0 +1,12 @@
+_id: ctalte23mrphsto0
+_key: "!items!ctalte23mrphsto0"
+name: Morphing Stone
+type: trait
+system:
+  description: "<p>A creature who holds the stone can use a maneuver to change it into the shape of a mace, maul, flail, or back to its original form. The stone gains the stats of its weapon form while retaining its own stats.</p>"
+  tree: alteration
+  tier: 2
+  column: 3
+  connectsTo: ["Alteration Stone", "Movement Stone"]
+  isStarting: false
+  restActivity: false

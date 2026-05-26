@@ -1,0 +1,12 @@
+_id: ctbene23bnfcwrd0
+_key: "!items!ctbene23bnfcwrd0"
+name: Benefaction Ward
+type: trait
+system:
+  description: "<p>When you cast a benefaction spell, you can harness the magic to ward a creature within 5 squares who gains AD equal to your Mind. The AD granted by this trait disappears at the end of a rest.</p>"
+  tree: benefaction
+  tier: 2
+  column: 3
+  connectsTo: ["First Responder", "Blessed Benefaction"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: ctarmo31wlofprt0
+_key: "!items!ctarmo31wlofprt0"
+name: Wall of Protection
+type: trait
+system:
+  description: "<p>While you have a shield equipped, you gain a +1 bonus on Agility RRs. When you make an Agility RR while wielding a shield, you can use a reaction to grant a +1 bonus to adjacent allies on the same RR.</p>"
+  tree: armor
+  tier: 3
+  column: 1
+  connectsTo: ["Hurl Shield", "Shield Bash"]
+  isStarting: false
+  restActivity: false

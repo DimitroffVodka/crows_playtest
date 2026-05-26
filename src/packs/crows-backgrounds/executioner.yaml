@@ -1,0 +1,12 @@
+_id: crowsbgexecutnr1
+_key: "!items!crowsbgexecutnr1"
+name: Executioner
+type: background
+system:
+  flavor: "You carried out capital punishment."
+  characteristicBonus: strength
+  stamina: 9
+  startingTrait: "Chopping: Chop 'Em Down"
+  skills: [lift, chopping, unarmed]
+  equipment: [chain, greataxe, ladder, lock, torch]
+  spellbooks: []

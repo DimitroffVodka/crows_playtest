@@ -1,0 +1,24 @@
+_id: crowsconspoisons
+_key: "!items!crowsconspoisons"
+name: Strong Poison Vial
+type: consumable
+system:
+  description: "<p>Apply to a weapon or 1 piece of ammo. The next time it deals damage to a creature before the end of the DT, they make a Strength RR.</p>"
+  useAction: maneuver
+  bands:
+    t1: "Thrice Boned"
+    t2: "Twice Boned"
+    t3: "No effect"
+  thrown:
+    isAttack: false
+    range: 0
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 250

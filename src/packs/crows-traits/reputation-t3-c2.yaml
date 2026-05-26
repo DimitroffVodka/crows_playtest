@@ -1,0 +1,13 @@
+_id: ctrepu32dbldsc00
+_key: "!items!ctrepu32dbldsc00"
+name: Double Discount
+type: trait
+system:
+  description: "<p>Your Discount trait can apply to two merchants of your choice. You can change one or both once every cycle.</p>"
+  tree: reputation
+  tier: 3
+  column: 2
+  connectsTo:
+    - On Sale
+  isStarting: false
+  restActivity: false

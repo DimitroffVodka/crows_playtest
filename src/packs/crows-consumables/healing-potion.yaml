@@ -1,0 +1,24 @@
+_id: crowsconsheal001
+_key: "!items!crowsconsheal001"
+name: Healing Potion
+type: consumable
+system:
+  description: "<p>Consume to regain 1d6 Stamina, or remove 1 wound if Stamina is already at maximum.</p>"
+  useAction: maneuver
+  bands:
+    t1: ""
+    t2: ""
+    t3: ""
+  thrown:
+    isAttack: false
+    range: 0
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 100

@@ -1,0 +1,12 @@
+_id: crowsbgpugilist1
+_key: "!items!crowsbgpugilist1"
+name: Pugilist
+type: background
+system:
+  flavor: "You made a living battling it out with bare knuckles."
+  characteristicBonus: "agility or strength"
+  stamina: 9
+  startingTrait: "Unarmed: Pack a Punch"
+  skills: [climb, jump, unarmed]
+  equipment: [chalk, "light armor", "lore book (monsters)", "rage potion", torch]
+  spellbooks: []

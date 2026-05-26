@@ -1,0 +1,28 @@
+_id: crowsgear0merscl
+_key: "!items!crowsgear0merscl"
+name: Merchant's Scales
+type: gear
+system:
+  description: "<p>Used to determine the weight of Tiny objects and creatures that sit still.</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 50
+  weightless: false

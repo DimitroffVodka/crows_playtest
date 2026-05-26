@@ -1,0 +1,12 @@
+_id: crowsbgacolwarr1
+_key: "!items!crowsbgacolwarr1"
+name: Acolyte of the Warrior
+type: background
+system:
+  flavor: "You served the god of war."
+  characteristicBonus: "mind or strength"
+  stamina: 9
+  startingTrait: "Benefaction: First Responder"
+  skills: [religiousLore, benefaction, chopping]
+  equipment: [axe, "holy symbol", torch]
+  spellbooks: ["minor healing", "minor ward"]

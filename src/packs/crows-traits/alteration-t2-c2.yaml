@@ -1,0 +1,12 @@
+_id: ctalte22hooves00
+_key: "!items!ctalte22hooves00"
+name: Hooves
+type: trait
+system:
+  description: "<p>When you cast an alteration spell, you can harness the magic to change your feet into powerful hooves until the end of the DT. While you have these hooves, your speed increase by your Mind.</p>"
+  tree: alteration
+  tier: 2
+  column: 2
+  connectsTo: ["Grow Scales", "Horns"]
+  isStarting: false
+  restActivity: false

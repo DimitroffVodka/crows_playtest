@@ -1,0 +1,24 @@
+_id: crowsconsacidvls
+_key: "!items!crowsconsacidvls"
+name: Strong Acid Vial
+type: consumable
+system:
+  description: "<p>Pouring the vial onto a surface destroys up to 5 cubic feet of mundane matter.</p><p><strong>Action:</strong> You can make a ranged 5 attack with it using Agility.</p>"
+  useAction: action
+  bands:
+    t1: ""
+    t2: "7 + A"
+    t3: "14 + A"
+  thrown:
+    isAttack: true
+    range: 5
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 250

@@ -1,0 +1,12 @@
+_id: ctslas43scbbrd00
+_key: "!items!ctslas43scbbrd00"
+name: Scabbard
+type: trait
+system:
+  description: "<p>You gain an additional belt slot that can only hold slashing weapons.</p>"
+  tree: slashing
+  tier: 4
+  column: 3
+  connectsTo: []
+  isStarting: false
+  restActivity: false

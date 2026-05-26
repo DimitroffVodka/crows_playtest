@@ -1,0 +1,25 @@
+_id: crowsloot0magicr
+_key: "!items!crowsloot0magicr"
+name: Magic Ring
+type: gear
+system:
+  description: "<p><strong>Stack</strong> 10</p><p>Try it on. It'll feel like your big day!</p>"
+  subtype: ring
+  light:
+    enabled: false
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: activate
+    refuelWith: ""
+  isMagic: true
+  mystery: true
+  identified: false
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 10
+  quantity: 1
+  cost: 0

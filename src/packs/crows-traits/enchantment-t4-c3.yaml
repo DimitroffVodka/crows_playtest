@@ -1,0 +1,12 @@
+_id: ctench43fastfeet
+_key: "!items!ctench43fastfeet"
+name: Fast Feet
+type: trait
+system:
+  description: "<p>When you wear a magic item in your feet slot, you gain a +1 bonus to Agility RRs.</p>"
+  tree: enchantment
+  tier: 4
+  column: 3
+  connectsTo: ["Strong Back", "Five Steps Ahead"]
+  isStarting: false
+  restActivity: false

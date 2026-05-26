@@ -1,0 +1,12 @@
+_id: crowsbgbodygrd01
+_key: "!items!crowsbgbodygrd01"
+name: Bodyguard
+type: background
+system:
+  flavor: "You protected a person of importance."
+  characteristicBonus: strength
+  stamina: 9
+  startingTrait: "Armor: Interposing Arm"
+  skills: [endurance, hide, slashing]
+  equipment: ["ball bearings", "light armor", shield, sword, torch]
+  spellbooks: []

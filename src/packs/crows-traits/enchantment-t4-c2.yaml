@@ -1,0 +1,12 @@
+_id: ctench42fvstpshd
+_key: "!items!ctench42fvstpshd"
+name: Five Steps Ahead
+type: trait
+system:
+  description: "<p>When you start crafting a new enchanting item, the item automatically gains crafting points equal to 5d10 multiplied by your Mind.</p>"
+  tree: enchantment
+  tier: 4
+  column: 2
+  connectsTo: ["Lasting Items", "Energy Transfer", "Fast Feet"]
+  isStarting: false
+  restActivity: false

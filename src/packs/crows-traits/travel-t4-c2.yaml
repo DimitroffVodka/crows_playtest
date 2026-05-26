@@ -1,0 +1,12 @@
+_id: cttrav42thiswwy0
+_key: "!items!cttrav42thiswwy0"
+name: This Way
+type: trait
+system:
+  description: "<p>When you make a test related to the guide travel role while carrying a compass that doesn't result in the group getting or remaining lost, you and each creature traveling with increases their pace by 3.</p>"
+  tree: travel
+  tier: 4
+  column: 2
+  connectsTo: []
+  isStarting: false
+  restActivity: false

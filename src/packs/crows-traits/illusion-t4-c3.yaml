@@ -1,0 +1,12 @@
+_id: ctillu43tlpcnc00
+_key: "!items!ctillu43tlpcnc00"
+name: Telepathic Connection
+type: trait
+system:
+  description: "<p>When you use your Goodbye trait, you can choose another creature within 5 squares of you to become invisible instead of you.</p>"
+  tree: illusion
+  tier: 4
+  column: 3
+  connectsTo: []
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: ctelem12hrlthstr
+_key: "!items!ctelem12hrlthstr"
+name: Hurl the Storm
+type: trait
+system:
+  description: "<p>When you cast a ranged elemental spell, the spell's range increases a number of squares equal to your Mind.</p>"
+  tree: elemental
+  tier: 1
+  column: 2
+  connectsTo: ["Elemental Mastery"]
+  isStarting: true
+  restActivity: false

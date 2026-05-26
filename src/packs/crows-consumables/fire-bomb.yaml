@@ -1,0 +1,24 @@
+_id: crowsconsfirebmb
+_key: "!items!crowsconsfirebmb"
+name: Fire Bomb
+type: consumable
+system:
+  description: "<p>You throw the bomb up to 10 squares. It explodes in a 3-square cube. Each creature in the cube must make an Agility RR.</p>"
+  useAction: action
+  bands:
+    t1: "10 damage"
+    t2: "5 damage"
+    t3: "0 damage"
+  thrown:
+    isAttack: false
+    range: 10
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 250

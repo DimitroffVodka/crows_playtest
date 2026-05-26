@@ -1,0 +1,12 @@
+_id: ctunar31brkstff0
+_key: "!items!ctunar31brkstff0"
+name: Break Stuff
+type: trait
+system:
+  description: "<p>When you hit with a melee attack with an improvised weapon, you can break the weapon and deal additional damage equal to your Agility or Strength (your choice).</p>"
+  tree: unarmed
+  tier: 3
+  column: 1
+  connectsTo: [Bashing Benefits]
+  isStarting: false
+  restActivity: false

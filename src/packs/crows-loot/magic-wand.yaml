@@ -1,0 +1,25 @@
+_id: crowsloot0magicw
+_key: "!items!crowsloot0magicw"
+name: Magic Wand
+type: gear
+system:
+  description: "<p><strong>Stack</strong> 2</p><p>What does it do? C'mon just activate it. You know you wanna.</p>"
+  subtype: wand
+  light:
+    enabled: false
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: activate
+    refuelWith: ""
+  isMagic: true
+  mystery: true
+  identified: false
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 0

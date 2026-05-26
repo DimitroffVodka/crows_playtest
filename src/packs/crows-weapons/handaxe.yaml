@@ -1,0 +1,18 @@
+_id: crowsweap0haxe01
+_key: "!items!crowsweap0haxe01"
+name: Handaxe
+type: weapon
+img: icons/weapons/axes/axe-broad.webp
+system:
+  description: "<p>A light chopping axe that can be thrown. Dismember.</p>"
+  type: chopping
+  range: { melee: 1, ranged: 5 }
+  attackStat: either
+  damage: { t2: "2 + A or S", t3: "5 + A or S" }
+  qualities: [light, dismember]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 1
+  stackMax: 2
+  cost: 10

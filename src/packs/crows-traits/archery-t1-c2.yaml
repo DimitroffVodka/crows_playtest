@@ -1,0 +1,12 @@
+_id: ctarch12rngfndr0
+_key: "!items!ctarch12rngfndr0"
+name: Range Finder
+type: trait
+system:
+  description: "<p>While you wield a bow weapon, it's range increases by 2 squares. This bonus stacks with Greater Range.</p>"
+  tree: archery
+  tier: 1
+  column: 2
+  connectsTo: ["Greater Range"]
+  isStarting: true
+  restActivity: false

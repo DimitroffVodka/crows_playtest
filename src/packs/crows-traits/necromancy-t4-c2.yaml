@@ -1,0 +1,12 @@
+_id: ctnecr42spltnec0
+_key: "!items!ctnecr42spltnec0"
+name: Split Necromancy
+type: trait
+system:
+  description: "<p>When you cast a necromancy spell that has a target of 1 creature, object, ally, enemy, or target, you can target one additional qualifying target.</p>"
+  tree: necromancy
+  tier: 4
+  column: 2
+  connectsTo: []
+  isStarting: false
+  restActivity: false

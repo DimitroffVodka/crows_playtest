@@ -1,0 +1,36 @@
+_id: crowsmonbloodbb1
+_key: "!actors!crowsmonbloodbb1"
+name: Blood Creature B
+type: monster
+system:
+  power: 3
+  size: small
+  creatureType: blood
+  stamina: { value: 15, max: 15 }
+  speed:
+    value: 6
+    modes: [ { name: climb, value: 6 } ]
+  characteristics: { agility: 2, mind: -1, strength: 1 }
+  ad: 0
+  slots: 0
+  attacks:
+    - name: Bite
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 4
+      riderRef: "*"
+    - name: Tendril
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 4
+      riderRef: "*"
+  traits:
+    - name: Tendril Snare
+      effect: "<p>When this creature gets a tier 3 result on a tendril attack against a Medium or smaller target, the target is grabbed. While the target is grabbed this way, this creature's bite attack deals an additional 2 dam to them, and this creature can use a maneuver to deal 2 damage to the target.</p>"
+      uses: ""
+      linkedAttack: "Tendril"
+  colloquialNames: ["blood spider", "mouth eyes"]

@@ -1,0 +1,12 @@
+_id: ctblac32mrgncyrp
+_key: "!items!ctblac32mrgncyrp"
+name: Emergency Repairs
+type: trait
+system:
+  description: "<p>You can quickly repair a piece of armor while you are not in combat, restoring 1d6 AD to it. You can't use this trait again until you finish a rest. This trait stacks with Jury-Rig Repairs from the Armor tree.</p>"
+  tree: blacksmithing
+  tier: 3
+  column: 2
+  connectsTo: ["Repair, Repair", "Enchant Armor"]
+  isStarting: false
+  restActivity: false

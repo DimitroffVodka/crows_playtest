@@ -1,0 +1,12 @@
+_id: crowsbgpyromncr1
+_key: "!items!crowsbgpyromncr1"
+name: Pyromancer
+type: background
+system:
+  flavor: "You learned how to cast elemental spells that create and harness fire."
+  characteristicBonus: mind
+  stamina: 5
+  startingTrait: "Elemental: Make It Burn!"
+  skills: [alchemy, enchanting, magicLore, swim, elemental]
+  equipment: ["magnifying glass", string, torch]
+  spellbooks: ["fire hands", "fire lance"]

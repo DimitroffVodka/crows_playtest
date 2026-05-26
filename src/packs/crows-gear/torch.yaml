@@ -3,9 +3,26 @@ _key: "!items!crowsgear0torch1"
 name: Torch
 type: gear
 system:
+  description: "<p>Maneuver: Light 5/5</p><p>Fine (100 gc): 2 UD. Masterwork (200 gc): 3 UD.</p>"
   subtype: light
-  light: { enabled: true, bright: 5, dim: 5 }
-  usageDie: { enabled: true, udMax: 1, udCurrent: 1, expiry: dt }
+  light:
+    enabled: true
+    bright: 5
+    dim: 5
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
   slots: 1
-  stackMax: 5
-  cost: 1
+  stackMax: 2
+  quantity: 1
+  cost: 2
+  weightless: false

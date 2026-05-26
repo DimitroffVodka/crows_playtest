@@ -1,0 +1,12 @@
+_id: ctbash31cllsdmg0
+_key: "!items!ctbash31cllsdmg0"
+name: Collision Damage
+type: trait
+system:
+  description: "<p>When you force move a creature into an object with a bashing weapon attack, the creature takes additional damage equal to the forced movement remaining when they collide.</p>"
+  tree: bashing
+  tier: 3
+  column: 1
+  connectsTo: ["Further Back", "Knock 'Em Together"]
+  isStarting: false
+  restActivity: false

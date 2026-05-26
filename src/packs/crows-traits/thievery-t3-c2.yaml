@@ -1,0 +1,12 @@
+_id: ctthie32otfpack0
+_key: "!items!ctthie32otfpack0"
+name: Out of the Pack
+type: trait
+system:
+  description: "<p>Each of your backpack slot's number is reduced by 1 (minimum 1).</p>"
+  tree: thievery
+  tier: 3
+  column: 2
+  connectsTo: [Bursting Purse]
+  isStarting: false
+  restActivity: false

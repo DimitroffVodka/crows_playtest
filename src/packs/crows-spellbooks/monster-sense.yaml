@@ -1,0 +1,31 @@
+_id: crowsspellmonst1
+_key: "!items!crowsspellmonst1"
+name: Monster Sense
+type: spellbook
+system:
+  description: "<p>You know the exact location of creatures who aren't humans or animals within a number of squares of you based on the casting. You can detect them through walls, floors, and ceilings.</p>"
+  discipline: necromancy
+  rank: 0
+  castType: maneuver
+  range:
+    kind: self
+    value: 0
+  target: "Self"
+  aoe:
+    shape: aura
+    size: "1"
+  duration: "1 UD"
+  effectBands:
+    t1: "Detect within 1 square"
+    t2: "Detect within 5 squares"
+    t3: "Detect within 10 squares"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

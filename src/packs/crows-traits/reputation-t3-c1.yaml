@@ -1,0 +1,13 @@
+_id: ctrepu31clgrnd00
+_key: "!items!ctrepu31clgrnd00"
+name: Call Grandaddy
+type: trait
+system:
+  description: "<p>Your Call Daddy trait increase the AO chances by 10% instead of 5%.</p>"
+  tree: reputation
+  tier: 3
+  column: 1
+  connectsTo:
+    - And Grandmommy
+  isStarting: false
+  restActivity: false

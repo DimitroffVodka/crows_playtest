@@ -1,0 +1,18 @@
+_id: crowsweap0crsbow
+_key: "!items!crowsweap0crsbow"
+name: Crossbow
+type: weapon
+img: icons/weapons/crossbows/crossbow-simple-brown.webp
+system:
+  description: "<p>A mechanical ranged weapon. Reload required between shots.</p>"
+  type: bow
+  range: { melee: 0, ranged: 15 }
+  attackStat: agility
+  damage: { t2: "3 + A", t3: "6 + A" }
+  qualities: [reload]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 15

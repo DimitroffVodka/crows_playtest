@@ -1,0 +1,12 @@
+_id: ctalch21alcheph0
+_key: "!items!ctalch21alcheph0"
+name: Alchemy Epiphany
+type: trait
+system:
+  description: "<p>When you make a crafting roll for an alchemy item, you get a crit when the dice without modifiers equal 18, 19, or 20.</p>"
+  tree: alchemy
+  tier: 2
+  column: 1
+  connectsTo: ["Midnight Oil", "Eschew Ingredients"]
+  isStarting: false
+  restActivity: false

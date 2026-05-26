@@ -1,0 +1,12 @@
+_id: ctstab33stbcrt00
+_key: "!items!ctstab33stbcrt00"
+name: Stabbing Crit
+type: trait
+system:
+  description: "<p>You score a crit on stabbing weapon attacks when the dice without modifiers equal 18, 19, or 20.</p>"
+  tree: stabbing
+  tier: 3
+  column: 3
+  connectsTo: [Improved Stab]
+  isStarting: false
+  restActivity: false

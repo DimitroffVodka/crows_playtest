@@ -1,0 +1,12 @@
+_id: ctalte12grwscls0
+_key: "!items!ctalte12grwscls0"
+name: Grow Scales
+type: trait
+system:
+  description: "<p>When you cast an alteration spell, you can harness the magic to grow temporary scales on your body and gain AD equal to your Mind. The AD granted by this trait disappears at the end of a rest.</p>"
+  tree: alteration
+  tier: 1
+  column: 2
+  connectsTo: ["Hooves"]
+  isStarting: true
+  restActivity: false

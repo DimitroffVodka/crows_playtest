@@ -1,0 +1,12 @@
+_id: ctcamp11hrtymls0
+_key: "!items!ctcamp11hrtymls0"
+name: Hearty Meals
+type: trait
+system:
+  description: "<p>As a rest activity, you can turn a normal ration into something more if you have cook's utensils. The ration becomes a hearty ration (which has an equipment card).</p>"
+  tree: camping
+  tier: 1
+  column: 1
+  connectsTo: ["Leftovers"]
+  isStarting: true
+  restActivity: true

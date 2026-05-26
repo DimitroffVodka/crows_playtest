@@ -1,0 +1,18 @@
+_id: crowsweap0spear1
+_key: "!items!crowsweap0spear1"
+name: Spear
+type: weapon
+img: icons/weapons/polearms/spear-flared.webp
+system:
+  description: "<p>A thrusting pole weapon. Brutal.</p>"
+  type: stabbing
+  range: { melee: 1, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "3 + S", t3: "7 + S" }
+  qualities: [brutal]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 1
+  stackMax: 1
+  cost: 12

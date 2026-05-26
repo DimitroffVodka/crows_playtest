@@ -1,0 +1,12 @@
+_id: ctarmo33juryrig0
+_key: "!items!ctarmo33juryrig0"
+name: Jury-Rig Repairs
+type: trait
+system:
+  description: "<p>You can quickly repair a piece of armor while you are not in combat, restoring 1d6 AD to it. You can't use this trait again until you finish a rest. This trait stacks with Emergency Repairs from the Blacksmithing tree.</p>"
+  tree: armor
+  tier: 3
+  column: 3
+  connectsTo: ["Headgear", "Pierce This"]
+  isStarting: false
+  restActivity: false

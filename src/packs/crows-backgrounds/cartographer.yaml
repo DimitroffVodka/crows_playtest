@@ -1,0 +1,12 @@
+_id: crowsbgcartogr01
+_key: "!items!crowsbgcartogr01"
+name: Cartographer
+type: background
+system:
+  flavor: "You drew maps of villages, ruins, or wilderness areas so others could find their way."
+  characteristicBonus: mind
+  stamina: 7
+  startingTrait: "Travel: Orienteering"
+  skills: [historicalLore, monsterLore, natureLore, navigate, search]
+  equipment: [compass, journal, lantern, "lore book (historical)", "oil flask", "quill and inkpot"]
+  spellbooks: []

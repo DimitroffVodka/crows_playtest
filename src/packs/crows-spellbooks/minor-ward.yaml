@@ -1,0 +1,31 @@
+_id: crowsspellminwd1
+_key: "!items!crowsspellminwd1"
+name: Minor Ward
+type: spellbook
+system:
+  description: "<p>Target gains AD based on the casting.</p>"
+  discipline: benefaction
+  rank: 0
+  castType: maneuver
+  range:
+    kind: melee
+    value: 1
+  target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "No effect"
+    t2: "1+M AD"
+    t3: "3+M AD"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

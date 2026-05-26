@@ -1,0 +1,12 @@
+_id: ctconj13smmnngwr
+_key: "!items!ctconj13smmnngwr"
+name: Summoning Ward
+type: trait
+system:
+  description: "<p>Creatures you summon with conjuration spells have AD equal to their power.</p>"
+  tree: conjuration
+  tier: 1
+  column: 3
+  connectsTo: ["Blessed Summons"]
+  isStarting: true
+  restActivity: false

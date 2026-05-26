@@ -1,0 +1,12 @@
+_id: ctench21nchntrns
+_key: "!items!ctench21nchntrns"
+name: Enchantransfer
+type: trait
+system:
+  description: "<p>As a rest activity, choose two weapons or two suits of armor or two shields you can touch. At least one item must be magic. The magic properties of each item are swapped with the other.</p>"
+  tree: enchantment
+  tier: 2
+  column: 1
+  connectsTo: ["Material Transfer", "Most of Magic"]
+  isStarting: false
+  restActivity: true

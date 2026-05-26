@@ -1,0 +1,12 @@
+_id: ctarmo13stndstg0
+_key: "!items!ctarmo13stndstg0"
+name: Stand Strong
+type: trait
+system:
+  description: "<p>While you wear armor, you gain a +1 bonus on Strength RRs.</p>"
+  tree: armor
+  tier: 1
+  column: 3
+  connectsTo: ["Headgear"]
+  isStarting: true
+  restActivity: false

@@ -1,0 +1,28 @@
+_id: crowsgear0crfmed
+_key: "!items!crowsgear0crfmed"
+name: Crafting Material, Medium
+type: gear
+system:
+  description: "<p>Exact crafting material is determined by the Ref.</p>"
+  subtype: treasure
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: medium
+    value: 0
+  slots: 2
+  stackMax: 1
+  quantity: 1
+  cost: 0
+  weightless: false

@@ -1,0 +1,13 @@
+_id: ctrepu12discnt00
+_key: "!items!ctrepu12discnt00"
+name: Discount
+type: trait
+system:
+  description: "<p>Choose a merchant in your village. You can purchase items in that merchant's shop for 5% cheaper. You can change your choice of merchant once every cycle.</p>"
+  tree: reputation
+  tier: 1
+  column: 2
+  connectsTo:
+    - Here's One for Free
+  isStarting: true
+  restActivity: false

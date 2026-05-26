@@ -1,0 +1,31 @@
+_id: crowsspellsumob1
+_key: "!items!crowsspellsumob1"
+name: Summon Object
+type: spellbook
+system:
+  description: "<p>You create a mundane object that appears in any open slot in your inventory of your choice and lasts for the duration. The value of the object in gc is based on the casting.</p>"
+  discipline: conjuration
+  rank: 0
+  castType: maneuver
+  range:
+    kind: self
+    value: 0
+  target: "Self"
+  aoe:
+    shape: ""
+    size: ""
+  duration: "1 UD"
+  effectBands:
+    t1: "Object worth up to 10 gc"
+    t2: "Object worth up to 50 gc"
+    t3: "Object worth up to 100 gc"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

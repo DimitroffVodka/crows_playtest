@@ -1,0 +1,12 @@
+_id: ctbene32smfrme00
+_key: "!items!ctbene32smfrme00"
+name: Some For Me
+type: trait
+system:
+  description: "<p>When you cast a benefaction spell that restores Stamina for another creature or removes at least 1 of their wounds, you regain Stamina equal to your Mind plus the spell's rank.</p>"
+  tree: benefaction
+  tier: 3
+  column: 2
+  connectsTo: ["Many Blessings", "Stitching Magic"]
+  isStarting: false
+  restActivity: false

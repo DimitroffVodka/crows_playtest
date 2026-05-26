@@ -1,0 +1,12 @@
+_id: ctarmo41shldbs00
+_key: "!items!ctarmo41shldbs00"
+name: Shield Bash
+type: trait
+system:
+  description: "<p>When get a tier 3 result on the Knockback maneuver and force move the target while you have a shield equipped, the target is also knocked prone.</p>"
+  tree: armor
+  tier: 4
+  column: 1
+  connectsTo: ["Wall of Protection"]
+  isStarting: false
+  restActivity: false

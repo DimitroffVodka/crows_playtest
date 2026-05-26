@@ -1,0 +1,24 @@
+_id: crowsconsspeedpt
+_key: "!items!crowsconsspeedpt"
+name: Speed Potion
+type: consumable
+system:
+  description: "<p>Consume to increase your speed by 1.</p>"
+  useAction: maneuver
+  bands:
+    t1: ""
+    t2: ""
+    t3: ""
+  thrown:
+    isAttack: false
+    range: 0
+  duration: "1 UD"
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 100

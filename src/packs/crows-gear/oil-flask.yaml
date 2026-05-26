@@ -1,0 +1,28 @@
+_id: crowsgear0oilflk
+_key: "!items!crowsgear0oilflk"
+name: Oil Flask
+type: gear
+system:
+  description: "<p>Pint of oil. Consume to refuel a lantern.</p><p>Alchemy +1 | 1 of any Small or larger creature's fat | 5</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 5
+  weightless: false

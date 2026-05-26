@@ -1,0 +1,18 @@
+_id: crowsweap0graxe1
+_key: "!items!crowsweap0graxe1"
+name: Greataxe
+type: weapon
+img: icons/weapons/axes/axe-double.webp
+system:
+  description: "<p>A two-handed axe capable of devastating chopping blows. Dismember.</p>"
+  type: chopping
+  range: { melee: 1, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "4 + S", t3: "9 + S" }
+  qualities: [dismember]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 15

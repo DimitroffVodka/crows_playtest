@@ -1,0 +1,12 @@
+_id: ctelem43spltths0
+_key: "!items!ctelem43spltths0"
+name: Split the Sea
+type: trait
+system:
+  description: "<p>When you cast an elemental spell that has a target of 1 creature, object, ally, enemy, or target, you can target one additional qualifying target.</p>"
+  tree: elemental
+  tier: 4
+  column: 3
+  connectsTo: ["Might of Waves", "Spreading Storm"]
+  isStarting: false
+  restActivity: false

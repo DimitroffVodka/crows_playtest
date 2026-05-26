@@ -1,0 +1,12 @@
+_id: ctelem41brndnthb
+_key: "!items!ctelem41brndnthb"
+name: Burned in the Brain
+type: trait
+system:
+  description: "<p>As a rest activity, you can absorb an elemental spellbook. The book is destroyed, and you always wield it. It occupies no slots. If you use this rest activity again, you lose previously absorbed books.</p>"
+  tree: elemental
+  tier: 4
+  column: 1
+  connectsTo: ["Fire Ward", "Spreading Storm"]
+  isStarting: false
+  restActivity: true

@@ -1,0 +1,12 @@
+_id: crowsbgapprmage1
+_key: "!items!crowsbgapprmage1"
+name: Apprentice Mage
+type: background
+system:
+  flavor: "You studied several magic disciplines under a more experienced tutor."
+  characteristicBonus: mind
+  stamina: 5
+  startingTrait: "Alteration: Alteration Stone"
+  skills: [enchanting, magicLore, monsterLore, alteration, conjuration, elemental, illusion]
+  equipment: []
+  spellbooks: ["acid spit", jaunt, light, "take shape", thunder]

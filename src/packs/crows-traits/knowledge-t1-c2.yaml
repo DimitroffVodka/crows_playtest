@@ -1,0 +1,13 @@
+_id: ctknow12schmtcs0
+_key: "!items!ctknow12schmtcs0"
+name: Schematics
+type: trait
+system:
+  description: "<p>You can sketch a room with a journal, quill, and inkpot. As a rest activity, you can study the sketch. You gain a +2 bonus on tests made to interact with the room. It lasts until you finish a rest.</p>"
+  tree: knowledge
+  tier: 1
+  column: 2
+  connectsTo:
+    - Quick Reference
+  isStarting: true
+  restActivity: true

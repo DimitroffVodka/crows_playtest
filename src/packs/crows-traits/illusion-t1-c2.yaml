@@ -1,0 +1,13 @@
+_id: ctillu12lngdst00
+_key: "!items!ctillu12lngdst00"
+name: Long-Distance Illusion
+type: trait
+system:
+  description: "<p>When you cast a ranged illusion spell, the spell's range increases a number of squares equal to your Mind.</p>"
+  tree: illusion
+  tier: 1
+  column: 2
+  connectsTo:
+    - Mind Shatter
+  isStarting: true
+  restActivity: false

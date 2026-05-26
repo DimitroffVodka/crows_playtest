@@ -1,0 +1,12 @@
+_id: crowsbgfarmer001
+_key: "!items!crowsbgfarmer001"
+name: Farmer
+type: background
+system:
+  flavor: "You ploughed the fields and raise animals."
+  characteristicBonus: strength
+  stamina: 7
+  startingTrait: "Pets: Buddy"
+  skills: [blacksmithing, endurance, handleAnimal, lift, natureLore]
+  equipment: ["10-foot pole", "animal feed (6)", "goat (pet)", pot, torch]
+  spellbooks: []

@@ -1,0 +1,12 @@
+_id: ctunar42pckakck0
+_key: "!items!ctunar42pckakck0"
+name: Pack a Kick
+type: trait
+system:
+  description: "<p>When you get a tier 2 result with an unarmed or improvised weapon attack, the attack deals additional damage equal to your Agility or Strength.</p>"
+  tree: unarmed
+  tier: 4
+  column: 2
+  connectsTo: []
+  isStarting: false
+  restActivity: false

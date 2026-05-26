@@ -2,4 +2,13 @@ _id: crowsarmrshield1
 _key: "!items!crowsarmrshield1"
 name: Shield
 type: armor
-system: { armorType: shield, ad: 5, slots: 1, cost: 15 }
+system:
+  description: ""
+  armorType: shield
+  ad: 5
+  worn: false
+  enchantment: ""
+  qualityTier: standard
+  slots: 1
+  stackMax: 1
+  cost: 15

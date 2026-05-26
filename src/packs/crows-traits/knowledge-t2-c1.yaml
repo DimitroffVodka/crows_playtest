@@ -1,0 +1,13 @@
+_id: ctknow21spcrsrch
+_key: "!items!ctknow21spcrsrch"
+name: Specific Research
+type: trait
+system:
+  description: "<p>As a rest activity, you can read a lore book. Instead of gaining its normal benefits, you can ask the Ref up to three questions about the book's subject, which the Ref answers honestly if the answer isn't secret.</p>"
+  tree: knowledge
+  tier: 2
+  column: 1
+  connectsTo:
+    - Shared Knowledge
+  isStarting: false
+  restActivity: true

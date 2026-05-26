@@ -1,0 +1,12 @@
+_id: crowsbgassassin1
+_key: "!items!crowsbgassassin1"
+name: Assassin
+type: background
+system:
+  flavor: "You were a killer who either worked paid contracts or served a higher purpose in a shady organization."
+  characteristicBonus: agility
+  stamina: 5
+  startingTrait: "Thievery: Seize the Advantage"
+  skills: [climb, gymnastics, hide, pickLock, sneak, bow, slashing]
+  equipment: ["extra knife", "poison vial", "quiver of 20 arrows", shortbow, torch]
+  spellbooks: []

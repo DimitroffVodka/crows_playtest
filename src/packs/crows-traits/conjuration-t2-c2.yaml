@@ -1,0 +1,12 @@
+_id: ctconj22lngdstnc
+_key: "!items!ctconj22lngdstnc"
+name: Long Distance Jump
+type: trait
+system:
+  description: "<p>When you cast a conjuration spell that teleports a target, you can teleport the target an additional number of squares equal to your Mind. This trait stacks with Jumper.</p>"
+  tree: conjuration
+  tier: 2
+  column: 2
+  connectsTo: ["Jumper", "Baleful Teleport"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: crowsammoquivr01
+_key: "!items!crowsammoquivr01"
+name: Quiver of 20 Arrows
+type: ammunition
+system:
+  description: "<p>Ammunition for shortbows and longbows.</p>"
+  ammoFor: "shortbows and longbows"
+  countPerUnit: 20
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 5

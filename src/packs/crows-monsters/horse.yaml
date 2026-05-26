@@ -1,0 +1,25 @@
+_id: crowsmon0horse01
+_key: "!actors!crowsmon0horse01"
+name: Horse (Pet)
+type: monster
+system:
+  power: 4
+  size: large
+  creatureType: animal
+  stamina: { value: 10, max: 10 }
+  speed:
+    value: 8
+    modes: []
+  characteristics: { agility: 0, mind: -3, strength: 1 }
+  ad: 0
+  slots: 10
+  attacks:
+    - name: Hooves
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: ""
+  traits: []
+  colloquialNames: []

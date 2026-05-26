@@ -1,0 +1,12 @@
+_id: ctbene12enhhlng0
+_key: "!items!ctbene12enhhlng0"
+name: Enhanced Healing
+type: trait
+system:
+  description: "<p>When you cast a benefaction spell that restores Stamina to a target, the target regains additional Stamina equal to your Mind.</p>"
+  tree: benefaction
+  tier: 1
+  column: 2
+  connectsTo: ["Many Blessings"]
+  isStarting: true
+  restActivity: false

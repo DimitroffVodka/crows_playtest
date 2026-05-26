@@ -1,0 +1,12 @@
+_id: crowsbggladitr01
+_key: "!items!crowsbggladitr01"
+name: Gladiator
+type: background
+system:
+  flavor: "You fought deadly battles for entertainment of others."
+  characteristicBonus: strength
+  stamina: 9
+  startingTrait: "Stabbing: Bury the Point"
+  skills: [jump, lift, stabbing]
+  equipment: ["light armor", mirror, pike, "rage potion", torch]
+  spellbooks: []

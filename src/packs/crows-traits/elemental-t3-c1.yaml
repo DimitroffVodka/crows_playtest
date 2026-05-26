@@ -1,0 +1,12 @@
+_id: ctelem31fireward
+_key: "!items!ctelem31fireward"
+name: Fire Ward
+type: trait
+system:
+  description: "<p>When you cast an elemental spell, you gain a fire ward that lasts until the start of your next combat turn. When a creature deals damage to you with a melee attack while the ward is active, they take 1d10 damage.</p>"
+  tree: elemental
+  tier: 3
+  column: 1
+  connectsTo: ["Lingering Fire", "Burned in the Brain"]
+  isStarting: false
+  restActivity: false

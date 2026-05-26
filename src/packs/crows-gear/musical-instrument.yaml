@@ -1,0 +1,28 @@
+_id: crowsgear0musins
+_key: "!items!crowsgear0musins"
+name: Musical Instrument
+type: gear
+system:
+  description: "<p>This is a portable musical instrument, like a lute, lyre, mandolin, drum, or fife. When you play it, it must occupy both your hand slots.</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 100
+  weightless: false

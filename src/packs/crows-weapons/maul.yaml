@@ -1,0 +1,18 @@
+_id: crowsweap0maul01
+_key: "!items!crowsweap0maul01"
+name: Maul
+type: weapon
+img: icons/weapons/hammers/hammer-war-steel.webp
+system:
+  description: "<p>A massive two-handed bashing weapon. Bashing, Pummeling.</p>"
+  type: bashing
+  range: { melee: 1, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "4 + S", t3: "8 + S" }
+  qualities: [pummeling]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 15

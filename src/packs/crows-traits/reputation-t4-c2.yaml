@@ -1,0 +1,12 @@
+_id: ctrepu42onsale00
+_key: "!items!ctrepu42onsale00"
+name: On Sale
+type: trait
+system:
+  description: "<p>Items affect by your Discount trait are 10% cheaper for you instead of 5%.</p>"
+  tree: reputation
+  tier: 4
+  column: 2
+  connectsTo: []
+  isStarting: false
+  restActivity: false

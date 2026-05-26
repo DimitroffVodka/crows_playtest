@@ -1,0 +1,13 @@
+_id: ctillu13frlght00
+_key: "!items!ctillu13frlght00"
+name: Free Light
+type: trait
+system:
+  description: "<p>When you cast an illusion spell, you can choose to have an object held or carried by you or a willing ally glow with 0/5 light until the end of the DT.</p>"
+  tree: illusion
+  tier: 1
+  column: 3
+  connectsTo:
+    - Strong Glow
+  isStarting: true
+  restActivity: false

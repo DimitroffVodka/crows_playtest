@@ -1,0 +1,24 @@
+_id: crowsconsanimfd1
+_key: "!items!crowsconsanimfd1"
+name: Animal Feed
+type: consumable
+system:
+  description: "<p>A day's worth of food for a pet. Must be consumed during a rest to get the benefit of resting.</p>"
+  useAction: maneuver
+  bands:
+    t1: ""
+    t2: ""
+    t3: ""
+  thrown:
+    isAttack: false
+    range: 0
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 6
+  quantity: 1
+  cost: 1

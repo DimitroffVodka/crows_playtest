@@ -1,0 +1,13 @@
+_id: ctknow33mprvbmb0
+_key: "!items!ctknow33mprvbmb0"
+name: Improvised Bomb
+type: trait
+system:
+  description: "<p>As a rest activity, you can make 1 fire bomb without any materials or crafting rolls. The bomb becomes useless at the end of your next rest.</p>"
+  tree: knowledge
+  tier: 3
+  column: 3
+  connectsTo:
+    - Special Item
+  isStarting: false
+  restActivity: true

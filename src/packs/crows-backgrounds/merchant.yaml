@@ -1,0 +1,12 @@
+_id: crowsbgmerchnt01
+_key: "!items!crowsbgmerchnt01"
+name: Merchant
+type: background
+system:
+  flavor: "You were a merchant who traveled from village to village, tading your wares."
+  characteristicBonus: mind
+  stamina: 7
+  startingTrait: "Camping: Plotting"
+  skills: [historicalLore, lift, navigate, search, sleightOfHand]
+  equipment: [journal, lantern, "merchant's scales", "oil flask", "quill and ink pot", "50 gold coins"]
+  spellbooks: []

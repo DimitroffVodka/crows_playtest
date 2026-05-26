@@ -1,0 +1,13 @@
+_id: ctpets23dngncrt0
+_key: "!items!ctpets23dngncrt0"
+name: Dungeon Critter
+type: trait
+system:
+  description: "<p>Squeezing doesn't halve the speed of or grant a bonus to attack the pets you own.</p>"
+  tree: pets
+  tier: 2
+  column: 3
+  connectsTo:
+    - Charge
+  isStarting: false
+  restActivity: false

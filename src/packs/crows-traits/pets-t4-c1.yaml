@@ -1,0 +1,12 @@
+_id: ctpets41bsthrt00
+_key: "!items!ctpets41bsthrt00"
+name: Beastheart
+type: trait
+system:
+  description: "<p>When you take the Command maneuver, you can command up to two pets you own.</p>"
+  tree: pets
+  tier: 4
+  column: 1
+  connectsTo: []
+  isStarting: false
+  restActivity: false

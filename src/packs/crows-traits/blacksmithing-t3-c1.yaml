@@ -1,0 +1,12 @@
+_id: ctblac31mdwthspr
+_key: "!items!ctblac31mdwthspr"
+name: Made with Spirit
+type: trait
+system:
+  description: "<p>You can ignore the material requirements for crafting a blacksmithing item if the item's crafting goal is 100 or lower.</p>"
+  tree: blacksmithing
+  tier: 3
+  column: 1
+  connectsTo: ["Smithing Epiphany", "No Waste"]
+  isStarting: false
+  restActivity: false

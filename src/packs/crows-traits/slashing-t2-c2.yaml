@@ -1,0 +1,12 @@
+_id: ctslas22dncaway0
+_key: "!items!ctslas22dncaway0"
+name: Dance Away
+type: trait
+system:
+  description: "<p>When you counter, you can take the Shift maneuver as part of the counter while you are wielding a slashing weapon.</p>"
+  tree: slashing
+  tier: 2
+  column: 2
+  connectsTo: [Follow Up, Break the Blade]
+  isStarting: false
+  restActivity: false

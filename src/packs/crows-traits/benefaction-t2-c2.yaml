@@ -1,0 +1,12 @@
+_id: ctbene22mnyblss0
+_key: "!items!ctbene22mnyblss0"
+name: Many Blessings
+type: trait
+system:
+  description: "<p>When you cast a benefaction spell that makes the spell's target blessed, they gain 1 additional blessed level.</p>"
+  tree: benefaction
+  tier: 2
+  column: 2
+  connectsTo: ["Enhanced Healing", "Some For Me"]
+  isStarting: false
+  restActivity: false

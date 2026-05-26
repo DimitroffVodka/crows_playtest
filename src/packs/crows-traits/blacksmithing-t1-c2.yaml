@@ -1,0 +1,12 @@
+_id: ctblac12rmrxprt0
+_key: "!items!ctblac12rmrxprt0"
+name: Armor Expert
+type: trait
+system:
+  description: "<p>When you make a crafting roll for an armor item, double the result to determine the number of crafting points added to the project.</p>"
+  tree: blacksmithing
+  tier: 1
+  column: 2
+  connectsTo: ["Repair, Repair"]
+  isStarting: true
+  restActivity: false

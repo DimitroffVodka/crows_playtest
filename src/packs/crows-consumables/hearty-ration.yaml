@@ -1,0 +1,24 @@
+_id: crowsconshrtrtn1
+_key: "!items!crowsconshrtrtn1"
+name: Hearty Ration
+type: consumable
+system:
+  description: "<p>When you consume this ration during a rest, you remove 1 additional wound.</p>"
+  useAction: maneuver
+  bands:
+    t1: ""
+    t2: ""
+    t3: ""
+  thrown:
+    isAttack: false
+    range: 0
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 6
+  quantity: 1
+  cost: 2

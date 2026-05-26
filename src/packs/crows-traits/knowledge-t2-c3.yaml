@@ -1,0 +1,13 @@
+_id: ctknow23lbldinv0
+_key: "!items!ctknow23lbldinv0"
+name: Labeled Inventory
+type: trait
+system:
+  description: "<p>Each of your backpack slot's number is reduced by 1 (minimum 1), making it easier to pull equipment from your backpack.</p>"
+  tree: knowledge
+  tier: 2
+  column: 3
+  connectsTo:
+    - Improvised Bomb
+  isStarting: false
+  restActivity: false

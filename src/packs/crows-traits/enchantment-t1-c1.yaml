@@ -1,0 +1,12 @@
+_id: ctench11mtrltrns
+_key: "!items!ctench11mtrltrns"
+name: Material Transfer
+type: trait
+system:
+  description: "<p>As a rest activity, choose two armor or weapon items you can touch, such as iron heavy armor and a steel sword. The materials used in each item are magically swapped.</p>"
+  tree: enchantment
+  tier: 1
+  column: 1
+  connectsTo: ["Enchantransfer"]
+  isStarting: true
+  restActivity: true

@@ -1,0 +1,12 @@
+_id: ctbash32bashcrt0
+_key: "!items!ctbash32bashcrt0"
+name: Bashing Crit
+type: trait
+system:
+  description: "<p>You score a crit on bashing weapon attacks when the dice without modifiers equal 18, 19, or 20.</p>"
+  tree: bashing
+  tier: 3
+  column: 2
+  connectsTo: ["Big Ain't Nothing", "Bashing Holster"]
+  isStarting: false
+  restActivity: false

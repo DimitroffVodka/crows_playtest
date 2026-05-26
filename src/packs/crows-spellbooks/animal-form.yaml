@@ -1,0 +1,31 @@
+_id: crowsspellanfrm1
+_key: "!items!crowsspellanfrm1"
+name: Animal Form
+type: spellbook
+system:
+  description: "<p>You gain the stats and form of an animal. Your gear is assumed by your form. If you die, you revert back. Your animal form's maximum power is based on the casting.</p>"
+  discipline: alteration
+  rank: 0
+  castType: maneuver
+  range:
+    kind: self
+    value: 0
+  target: "Self"
+  aoe:
+    shape: ""
+    size: ""
+  duration: "1 UD"
+  effectBands:
+    t1: "Tier 0 animal form"
+    t2: "Tier 2 animal form"
+    t3: "Tier 4 animal form"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

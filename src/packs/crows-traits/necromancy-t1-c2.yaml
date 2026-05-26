@@ -1,0 +1,13 @@
+_id: ctnecr12dstnecr0
+_key: "!items!ctnecr12dstnecr0"
+name: Distant Necromancy
+type: trait
+system:
+  description: "<p>When you cast a ranged necromancy spell, the spell's range increases a number of squares equal to your Mind.</p>"
+  tree: necromancy
+  tier: 1
+  column: 2
+  connectsTo:
+    - Necromancy Mastery
+  isStarting: true
+  restActivity: false

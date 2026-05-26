@@ -1,0 +1,28 @@
+_id: crowsgear0ladder
+_key: "!items!crowsgear0ladder"
+name: Ladder
+type: gear
+system:
+  description: "<p>A collapsable ladder.</p><p>Maneuver: The ladder expands 10 feet.</p><p>Fine (500 gc): The ladder expands 20 feet. Masterwork (1,000 gc): The ladder expands 30 feet.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 2
+  stackMax: 1
+  quantity: 1
+  cost: 30
+  weightless: false

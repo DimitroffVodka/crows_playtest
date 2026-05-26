@@ -1,0 +1,31 @@
+_id: crowsspellminbl1
+_key: "!items!crowsspellminbl1"
+name: Minor Blessing
+type: spellbook
+system:
+  description: "<p>You touch a creature and grant them a blessing based on the casting.</p>"
+  discipline: benefaction
+  rank: 0
+  castType: action
+  range:
+    kind: melee
+    value: 1
+  target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "No effect"
+    t2: "Blessed"
+    t3: "Blessed Twice"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

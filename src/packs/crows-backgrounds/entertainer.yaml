@@ -1,0 +1,12 @@
+_id: crowsbgentrtain1
+_key: "!items!crowsbgentrtain1"
+name: Entertainer
+type: background
+system:
+  flavor: "You were an acrobat, dancer, and/or musician."
+  characteristicBonus: agility
+  stamina: 5
+  startingTrait: "Camping: Song of Rest"
+  skills: [climb, endurance, gymnastics, handleAnimal, historicalLore, jump, sleightOfHand]
+  equipment: ["10-foot pole", chalk, mirror, "musical instrument (lute)", torch]
+  spellbooks: []

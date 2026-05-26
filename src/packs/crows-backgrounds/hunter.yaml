@@ -1,0 +1,12 @@
+_id: crowsbghunter001
+_key: "!items!crowsbghunter001"
+name: Hunter
+type: background
+system:
+  flavor: "You tracked animals in the wild and foraged for food."
+  characteristicBonus: agility
+  stamina: 5
+  startingTrait: "Travel: Foraging Expert"
+  skills: [handleAnimal, hide, natureLore, navigate, sneak, swim, bow]
+  equipment: ["animal feed (6)", "dog (pet)", "quiver of 20 arrows", shortbow, torch]
+  spellbooks: []

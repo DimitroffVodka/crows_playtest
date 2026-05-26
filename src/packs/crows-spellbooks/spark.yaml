@@ -1,0 +1,31 @@
+_id: crowsspellspark1
+_key: "!items!crowsspellspark1"
+name: Spark
+type: spellbook
+system:
+  description: "<p>You hurl crackling sparks at up to 2 targets within range.</p>"
+  discipline: elemental
+  rank: 0
+  castType: attack
+  range:
+    kind: ranged
+    value: 5
+  target: "2 targets"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: ""
+    t2: "1+M damage"
+    t3: "3+M damage"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

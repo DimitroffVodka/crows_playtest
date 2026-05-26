@@ -1,0 +1,31 @@
+_id: crowsspellrepar1
+_key: "!items!crowsspellrepar1"
+name: Repair
+type: spellbook
+system:
+  description: "<p>You touch a damaged object and cause it to regain Stamina based on the casting.</p>"
+  discipline: alteration
+  rank: 0
+  castType: maneuver
+  range:
+    kind: melee
+    value: 1
+  target: "1 obj."
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "No effect"
+    t2: "1+M Stamina regained"
+    t3: "4+M Stamina regained"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

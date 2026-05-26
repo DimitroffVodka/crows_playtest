@@ -1,0 +1,12 @@
+_id: ctalte21altrmst0
+_key: "!items!ctalte21altrmst0"
+name: Alteration Mastery
+type: trait
+system:
+  description: "<p>Non-doom tier 1 results of rank 0 and 1 alteration spells you cast don't add to the chaos count. Your alteration spells of rank 2 and higher are treated as 2 ranks lower when they trigger a backlash.</p>"
+  tree: alteration
+  tier: 2
+  column: 1
+  connectsTo: ["Lasting Alteration", "Improved Animal"]
+  isStarting: false
+  restActivity: false

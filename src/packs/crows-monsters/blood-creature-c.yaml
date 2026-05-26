@@ -1,0 +1,36 @@
+_id: crowsmonbloodcc1
+_key: "!actors!crowsmonbloodcc1"
+name: Blood Creature C
+type: monster
+system:
+  power: 3
+  size: small
+  creatureType: blood
+  stamina: { value: 40, max: 40 }
+  speed:
+    value: 5
+    modes: [ { name: climb, value: 5 } ]
+  characteristics: { agility: 0, mind: 0, strength: 2 }
+  ad: 0
+  slots: 0
+  attacks:
+    - name: Punch
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 4
+      dmgT3: 8
+      riderRef: ""
+    - name: Clot
+      toHit: 2
+      range: "Ranged 10"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 7
+      riderRef: ""
+  traits:
+    - name: Malleable
+      effect: "<p>This creature can fit through spaces as small as 1 inch wide and never needs to squeeze.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: ["blood brute", "tiny arms"]

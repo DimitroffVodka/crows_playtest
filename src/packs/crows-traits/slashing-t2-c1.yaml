@@ -1,0 +1,12 @@
+_id: ctslas21swftblk0
+_key: "!items!ctslas21swftblk0"
+name: Swift Block
+type: trait
+system:
+  description: "<p>You can add your Agility to the Parry quality of any slashing weapon you wield.</p>"
+  tree: slashing
+  tier: 2
+  column: 1
+  connectsTo: [Knife Chucker, Follow Up]
+  isStarting: false
+  restActivity: false

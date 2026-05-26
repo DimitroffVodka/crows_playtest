@@ -1,0 +1,12 @@
+_id: ctalch13potntpt0
+_key: "!items!ctalch13potntpt0"
+name: Potent Potion
+type: trait
+system:
+  description: "<p>Healing potions you craft restore additional Stamina equal to your Mind or remove 1 additional wound if the drinker is already at full Stamina.</p>"
+  tree: alchemy
+  tier: 1
+  column: 3
+  connectsTo: ["Lasting Brew"]
+  isStarting: true
+  restActivity: false

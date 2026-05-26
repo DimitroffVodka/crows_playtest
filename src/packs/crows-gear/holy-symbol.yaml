@@ -1,0 +1,28 @@
+_id: crowsgear0holysm
+_key: "!items!crowsgear0holysm"
+name: Holy Symbol
+type: gear
+system:
+  description: "<p>A symbol of your god. Can be worn in the neck slot, but isn't magic.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 15
+  weightless: false

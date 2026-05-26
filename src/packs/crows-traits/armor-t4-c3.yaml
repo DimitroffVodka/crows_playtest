@@ -1,0 +1,12 @@
+_id: ctarmo43prctis00
+_key: "!items!ctarmo43prctis00"
+name: Pierce This
+type: trait
+system:
+  description: "<p>When you take piercing damage you can turn it into regular damage (no action required). Once you use this trait, you can't use it again until you finish a rest.</p>"
+  tree: armor
+  tier: 4
+  column: 3
+  connectsTo: ["Jury-Rig Repairs"]
+  isStarting: false
+  restActivity: false

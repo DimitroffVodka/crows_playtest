@@ -1,0 +1,18 @@
+_id: crowsweap0mace01
+_key: "!items!crowsweap0mace01"
+name: Mace
+type: weapon
+img: icons/weapons/maces/mace-steel-rune.webp
+system:
+  description: "<p>A one-handed mace. Heavy enough to punish, light enough to swing in one hand.</p>"
+  type: bashing
+  range: { melee: 1, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "3 + S", t3: "6 + S" }
+  qualities: [pummeling]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 1
+  stackMax: 1
+  cost: 12

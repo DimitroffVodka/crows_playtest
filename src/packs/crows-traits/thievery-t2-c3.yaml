@@ -1,0 +1,12 @@
+_id: ctthie23abvtall0
+_key: "!items!ctthie23abvtall0"
+name: Above It All
+type: trait
+system:
+  description: "<p>You gain a +2 bonus to tests made to climb, jump, swim, or do gymnastics while you are not wearing armor.</p>"
+  tree: thievery
+  tier: 2
+  column: 3
+  connectsTo: [Dodgy]
+  isStarting: false
+  restActivity: false

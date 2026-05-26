@@ -1,0 +1,28 @@
+_id: crowsgear0lantrn
+_key: "!items!crowsgear0lantrn"
+name: Lantern
+type: gear
+system:
+  description: "<p>UD: 2 (Refuel w oil; DT). Maneuver: Light 10/10.</p><p>Fine (1,000 gc): 3 UD. Masterwork (2,000 gc): 4 UD.</p>"
+  subtype: light
+  light:
+    enabled: true
+    bright: 10
+    dim: 10
+  usageDie:
+    enabled: true
+    udMax: 2
+    udCurrent: 2
+    expiry: refuel
+    refuelWith: "oil flask"
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 25
+  weightless: false

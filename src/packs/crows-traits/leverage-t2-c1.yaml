@@ -1,0 +1,13 @@
+_id: ctleve21rcyclng0
+_key: "!items!ctleve21rcyclng0"
+name: Recycling
+type: trait
+system:
+  description: "<p>When a potion is consumed, you can retrieve the vial that is left behind. When you have 10 vials from the same potion, you can collect the residue into one vial to create a potion of that type as a rest activity.</p>"
+  tree: leverage
+  tier: 2
+  column: 1
+  connectsTo:
+    - Organ Harvester
+  isStarting: false
+  restActivity: true

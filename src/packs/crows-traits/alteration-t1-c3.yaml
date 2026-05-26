@@ -1,0 +1,12 @@
+_id: ctalte13altrsto0
+_key: "!items!ctalte13altrsto0"
+name: Alteration Stone
+type: trait
+system:
+  description: "<p>As a rest activity, you can create an alteration stone (which has an equipment card). This stone disappears if you create a new one.</p>"
+  tree: alteration
+  tier: 1
+  column: 3
+  connectsTo: ["Morphing Stone"]
+  isStarting: true
+  restActivity: true

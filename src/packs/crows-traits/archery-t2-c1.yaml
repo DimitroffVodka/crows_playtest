@@ -1,0 +1,12 @@
+_id: ctarch21aim00000
+_key: "!items!ctarch21aim00000"
+name: Aim
+type: trait
+system:
+  description: "<p>You can use a maneuver to aim while you have a bow weapon equipped. If you make an attack with that weapon before the end of this turn, the attack gains a +1 bonus.</p>"
+  tree: archery
+  tier: 2
+  column: 1
+  connectsTo: ["Point Blank", "Walls Can't Save You"]
+  isStarting: false
+  restActivity: false

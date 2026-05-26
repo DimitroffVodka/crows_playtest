@@ -1,0 +1,12 @@
+_id: ctench33strngbck
+_key: "!items!ctench33strngbck"
+name: Strong Back
+type: trait
+system:
+  description: "<p>When you wear a magic item in your waist slot, you gain a +1 bonus to Strength RRs.</p>"
+  tree: enchantment
+  tier: 3
+  column: 3
+  connectsTo: ["Mind Protection", "Fast Feet"]
+  isStarting: false
+  restActivity: false

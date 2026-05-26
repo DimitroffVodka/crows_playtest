@@ -1,0 +1,12 @@
+_id: crowsbgthief0001
+_key: "!items!crowsbgthief0001"
+name: Thief
+type: background
+system:
+  flavor: "You burgled places for money, either on your own or as part of a guild."
+  characteristicBonus: agility
+  stamina: 5
+  startingTrait: "Thievery: Stealthy"
+  skills: [gymnastics, hide, pickLock, sabotage, search, sleightOfHand, sneak]
+  equipment: [crowbar, "grappling hook", "knife (extra)", "lockpick set", torch]
+  spellbooks: []

@@ -1,0 +1,12 @@
+_id: ctarmo23headgr00
+_key: "!items!ctarmo23headgr00"
+name: Headgear
+type: trait
+system:
+  description: "<p>While you wear armor or a magic item in your head slot, you gain a +1 bonus on Mind RRs.</p>"
+  tree: armor
+  tier: 2
+  column: 3
+  connectsTo: ["Stand Strong", "Jury-Rig Repairs"]
+  isStarting: false
+  restActivity: false

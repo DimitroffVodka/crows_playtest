@@ -1,0 +1,12 @@
+_id: ctalch43alchblt0
+_key: "!items!ctalch43alchblt0"
+name: Alchemy Bell
+type: trait
+system:
+  description: "<p>You gain a third belt slot that can only be used to hold alchemy items.</p>"
+  tree: alchemy
+  tier: 4
+  column: 3
+  connectsTo: ["Potion to Gas", "Don't Waste a Drop"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,13 @@
+_id: ctnecr31ylsffr00
+_key: "!items!ctnecr31ylsffr00"
+name: You'll Suffer
+type: trait
+system:
+  description: "<p>When you cast a necromancy spell that targets a creature, you can choose to take 1d6 P damage before you roll to gain a +1 bonus on the casting against that creature.</p>"
+  tree: necromancy
+  tier: 3
+  column: 1
+  connectsTo:
+    - Sacrifice
+  isStarting: false
+  restActivity: false

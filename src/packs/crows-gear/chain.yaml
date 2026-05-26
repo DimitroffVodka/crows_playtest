@@ -1,0 +1,28 @@
+_id: crowsgear0chain1
+_key: "!items!crowsgear0chain1"
+name: Chain
+type: gear
+system:
+  description: "<p>A 10-foot length of iron chain.</p><p>Blacksmithing +1 | 1 iron bar | 5</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 5
+  weightless: false

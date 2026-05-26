@@ -1,0 +1,12 @@
+_id: ctslas32fllwup00
+_key: "!items!ctslas32fllwup00"
+name: Follow Up
+type: trait
+system:
+  description: "<p>When you push a target with the Knockback maneuver while wielding a slashing weapon, you can move into any space they vacated without provoking opportunity attacks as part of the maneuver.</p>"
+  tree: slashing
+  tier: 3
+  column: 2
+  connectsTo: [On the Move]
+  isStarting: false
+  restActivity: false

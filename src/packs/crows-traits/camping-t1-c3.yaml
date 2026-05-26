@@ -1,0 +1,12 @@
+_id: ctcamp13sngfrst0
+_key: "!items!ctcamp13sngfrst0"
+name: Song of Rest
+type: trait
+system:
+  description: "<p>As a rest activity, you can play a song on an instrument. At the end of the rest, each ally who rested with you is blessed.</p>"
+  tree: camping
+  tier: 1
+  column: 3
+  connectsTo: ["Song of Travel"]
+  isStarting: true
+  restActivity: true

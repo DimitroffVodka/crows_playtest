@@ -1,0 +1,12 @@
+_id: ctthie42brstprs0
+_key: "!items!ctthie42brstprs0"
+name: Bursting Purse
+type: trait
+system:
+  description: "<p>You can carry an additional 500 gc in a coin purse.</p>"
+  tree: thievery
+  tier: 4
+  column: 2
+  connectsTo: []
+  isStarting: false
+  restActivity: false

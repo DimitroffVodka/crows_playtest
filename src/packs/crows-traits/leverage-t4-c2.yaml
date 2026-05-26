@@ -1,0 +1,12 @@
+_id: ctleve42grndrl00
+_key: "!items!ctleve42grndrl00"
+name: Groundroll
+type: trait
+system:
+  description: "<p>You don't need a bedroll, bed, or similar soft surface to sleep on to get the benefit of resting.</p>"
+  tree: leverage
+  tier: 4
+  column: 2
+  connectsTo: []
+  isStarting: false
+  restActivity: false

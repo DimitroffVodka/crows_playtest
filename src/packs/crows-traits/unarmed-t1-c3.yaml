@@ -1,0 +1,12 @@
+_id: ctunar13xtrapsh0
+_key: "!items!ctunar13xtrapsh0"
+name: Extra Push
+type: trait
+system:
+  description: "<p>While you have at least 1 hand slot free and push a target with the Knockback maneuver, you can push them 1 additional square.</p>"
+  tree: unarmed
+  tier: 1
+  column: 3
+  connectsTo: [Big Push]
+  isStarting: true
+  restActivity: false

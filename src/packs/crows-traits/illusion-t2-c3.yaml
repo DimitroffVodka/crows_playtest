@@ -1,0 +1,13 @@
+_id: ctillu23strnglw0
+_key: "!items!ctillu23strnglw0"
+name: Strong Glow
+type: trait
+system:
+  description: "<p>The light granted by your Free Light trait becomes 5/5.</p>"
+  tree: illusion
+  tier: 2
+  column: 3
+  connectsTo:
+    - Goodbye
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: ctcamp21lftvrs00
+_key: "!items!ctcamp21lftvrs00"
+name: Leftovers
+type: trait
+system:
+  description: "<p>As a rest activity, you can use cook's utensils and rations to make a meal for you and each human with you. You use half as many rations as there are humans. This meal counts as rations for the rest.</p>"
+  tree: camping
+  tier: 2
+  column: 1
+  connectsTo: ["Hearty Meals", "Kitchen Alchemy"]
+  isStarting: false
+  restActivity: true

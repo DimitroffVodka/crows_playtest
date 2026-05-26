@@ -1,0 +1,24 @@
+_id: crowsconssooth01
+_key: "!items!crowsconssooth01"
+name: Soothing Candy
+type: consumable
+system:
+  description: "<p>Consume a candy to remove 1 boned level from yourself.</p>"
+  useAction: maneuver
+  bands:
+    t1: ""
+    t2: ""
+    t3: ""
+  thrown:
+    isAttack: false
+    range: 0
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 10
+  quantity: 1
+  cost: 0

@@ -1,0 +1,14 @@
+_id: crowsarmrmediu01
+_key: "!items!crowsarmrmediu01"
+name: Medium Armor
+type: armor
+system:
+  description: ""
+  armorType: medium
+  ad: 10
+  worn: false
+  enchantment: ""
+  qualityTier: standard
+  slots: 3
+  stackMax: 1
+  cost: 150

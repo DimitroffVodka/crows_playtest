@@ -2,4 +2,13 @@ _id: crowsarmrheavy01
 _key: "!items!crowsarmrheavy01"
 name: Heavy Armor
 type: armor
-system: { armorType: heavy, ad: 15, slots: 4, cost: 400 }
+system:
+  description: ""
+  armorType: heavy
+  ad: 15
+  worn: false
+  enchantment: ""
+  qualityTier: standard
+  slots: 4
+  stackMax: 1
+  cost: 400

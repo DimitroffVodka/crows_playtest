@@ -1,0 +1,12 @@
+_id: ctslas13swrdply0
+_key: "!items!ctslas13swrdply0"
+name: Swordplay
+type: trait
+system:
+  description: "<p>You can add your Strength to the Parry quality of any slashing weapon you wield.</p>"
+  tree: slashing
+  tier: 1
+  column: 3
+  connectsTo: [Intercepting Blade]
+  isStarting: true
+  restActivity: false

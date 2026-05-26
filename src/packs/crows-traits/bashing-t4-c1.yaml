@@ -1,0 +1,12 @@
+_id: ctbash41knckemtg
+_key: "!items!ctbash41knckemtg"
+name: Knock 'Em Together
+type: trait
+system:
+  description: "<p>When you force move a creature into another with a bashing weapon attack, both creatures take damage equal to the forced movement remaining when they collide.</p>"
+  tree: bashing
+  tier: 4
+  column: 1
+  connectsTo: ["Collision Damage", "Bashing Holster"]
+  isStarting: false
+  restActivity: false

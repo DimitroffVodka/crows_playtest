@@ -1,0 +1,12 @@
+_id: ctelem22lmntlmst
+_key: "!items!ctelem22lmntlmst"
+name: Elemental Mastery
+type: trait
+system:
+  description: "<p>Non-doom tier 1 results of rank 0 and 1 elemental spells you cast don't add to the chaos count. Your elemental spells of rank 2 and higher are treated as 2 ranks lower when they trigger a backlash.</p>"
+  tree: elemental
+  tier: 2
+  column: 2
+  connectsTo: ["Hurl the Storm", "Selective Storm"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: ctarch41spltshot
+_key: "!items!ctarch41spltshot"
+name: Split Shot
+type: trait
+system:
+  description: "<p>When you make an attack with a bow, you can use twice as much ammunition and select two targets within range for the attack.</p>"
+  tree: archery
+  tier: 4
+  column: 1
+  connectsTo: ["Walls Can't Save You"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: crowsbgcook00001
+_key: "!items!crowsbgcook00001"
+name: Cook
+type: background
+system:
+  flavor: "You worked as a cook at a tavern or organization."
+  characteristicBonus: any
+  stamina: 7
+  startingTrait: "Camping: Hearty Meals"
+  skills: [alchemy, endurance, lift, natureLore, slashing]
+  equipment: ["cook's utensils", "hearty ration (2)", pot, torch]
+  spellbooks: []

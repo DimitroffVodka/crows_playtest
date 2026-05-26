@@ -1,0 +1,28 @@
+_id: crowsgear0enchts
+_key: "!items!crowsgear0enchts"
+name: Enchanter's Tools
+type: gear
+system:
+  description: "<p>Required to make crafting rolls for enchanting items.</p><p>Fine (500 gc): Enchanting crafting rolls gain a +1 bonus. Masterwork (1,000 gc): Enchanting crafting rolls gain a +2 bonus.</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 15
+  weightless: false

@@ -1,0 +1,12 @@
+_id: crowsbgacolgardr
+_key: "!items!crowsbgacolgardr"
+name: Acolyte of the Gardner
+type: background
+system:
+  flavor: "You served the god of nature."
+  characteristicBonus: mind
+  stamina: 5
+  startingTrait: "Enchantment: Material Transfer"
+  skills: [handleAnimal, natureLore, navigate, religiousLore, swim, benefaction, elemental]
+  equipment: ["holy symbol", torch]
+  spellbooks: ["fire hands", "minor healing", spark]

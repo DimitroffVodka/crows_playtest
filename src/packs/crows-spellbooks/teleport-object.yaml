@@ -1,0 +1,31 @@
+_id: crowsspelltlobj1
+_key: "!items!crowsspelltlobj1"
+name: Teleport Object
+type: spellbook
+system:
+  description: "<p>You teleport the target a number of squares based on the casting. You can teleport it into a willing creature's open hand slot, including yours.</p>"
+  discipline: conjuration
+  rank: 0
+  castType: maneuver
+  range:
+    kind: ranged
+    value: 10
+  target: "1 obj."
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "No effect"
+    t2: "5+M squares"
+    t3: "10+M squares"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

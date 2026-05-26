@@ -1,0 +1,13 @@
+_id: ctleve33lghtout0
+_key: "!items!ctleve33lghtout0"
+name: Lights Out
+type: trait
+system:
+  description: "<p>If you damage another creature with a torch attack, you can choose to have the torch be extinguished and destroyed in the attack. The damage is doubled.</p>"
+  tree: leverage
+  tier: 3
+  column: 3
+  connectsTo:
+    - Fire Bomb
+  isStarting: false
+  restActivity: false

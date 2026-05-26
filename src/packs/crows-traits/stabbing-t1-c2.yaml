@@ -1,0 +1,12 @@
+_id: ctstab12brypoint
+_key: "!items!ctstab12brypoint"
+name: Bury the Point
+type: trait
+system:
+  description: "<p>When you hit a creature with a melee stabbing weapon attack, you can deal twice as much damage as you normally would, but the weapon becomes useless until you use a rest activity to fix it.</p>"
+  tree: stabbing
+  tier: 1
+  column: 2
+  connectsTo: [Spinning Shaft]
+  isStarting: true
+  restActivity: false

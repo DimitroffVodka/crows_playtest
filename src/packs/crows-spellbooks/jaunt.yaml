@@ -1,0 +1,31 @@
+_id: crowsspell0jaunt
+_key: "!items!crowsspell0jaunt"
+name: Jaunt
+type: spellbook
+system:
+  description: "<p>You teleport a number of squares based on the casting.</p>"
+  discipline: conjuration
+  rank: 0
+  castType: maneuver
+  range:
+    kind: self
+    value: 0
+  target: "Self"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "No effect"
+    t2: "5+M squares"
+    t3: "10+M squares"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

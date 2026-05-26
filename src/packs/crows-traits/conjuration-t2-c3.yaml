@@ -1,0 +1,12 @@
+_id: ctconj23blssdsmm
+_key: "!items!ctconj23blssdsmm"
+name: Blessed Summons
+type: trait
+system:
+  description: "<p>When you summon a creature with a conjuration spell, they are blessed.</p>"
+  tree: conjuration
+  tier: 2
+  column: 3
+  connectsTo: ["Summoning Ward", "Improved Summons"]
+  isStarting: false
+  restActivity: false

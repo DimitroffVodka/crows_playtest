@@ -1,0 +1,28 @@
+_id: crowsgear0bedrol
+_key: "!items!crowsgear0bedrol"
+name: Bedroll
+type: gear
+system:
+  description: "<p>You must rest on a bedroll if you don't have a bed available.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 5
+  weightless: false

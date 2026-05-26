@@ -1,0 +1,12 @@
+_id: crowsbgknight001
+_key: "!items!crowsbgknight001"
+name: Knight
+type: background
+system:
+  flavor: "You were a knight in the service of a noble or a hedge knight in service to no one other than yourself."
+  characteristicBonus: strength
+  stamina: 9
+  startingTrait: "Slashing: Swordplay"
+  skills: [handleAnimal, historicalLore, slashing]
+  equipment: ["animal feed (6)", greatsword, "horse (pet)", lantern, "light armor", "oil flask"]
+  spellbooks: []

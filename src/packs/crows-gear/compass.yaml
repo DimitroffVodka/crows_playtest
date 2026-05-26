@@ -1,0 +1,28 @@
+_id: crowsgear0compas
+_key: "!items!crowsgear0compas"
+name: Compass
+type: gear
+system:
+  description: "<p>When you make a test related to the guide travel role and carry a compass, the test gains a +1 bonus.</p><p>Fine (1,000 gc): The bonus rises to +2. Masterwork (2,000 gc): The bonus rises to +3.</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 3
+  quantity: 1
+  cost: 10
+  weightless: false

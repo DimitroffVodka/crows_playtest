@@ -1,0 +1,31 @@
+_id: crowsspellstrm01
+_key: "!items!crowsspellstrm01"
+name: Stream
+type: spellbook
+system:
+  description: "<p>You unleash a stream of elemental force in a line, hitting all creatures in its path.</p>"
+  discipline: elemental
+  rank: 0
+  castType: attack
+  range:
+    kind: ranged
+    value: 1
+  target: "All creatures"
+  aoe:
+    shape: line
+    size: "L 5 x W 1"
+  duration: instant
+  effectBands:
+    t1: "0 damage"
+    t2: "2+M damage"
+    t3: "4+M damage"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

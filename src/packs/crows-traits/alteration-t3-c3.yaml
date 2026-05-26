@@ -1,0 +1,12 @@
+_id: ctalte33mvmnsto0
+_key: "!items!ctalte33mvmnsto0"
+name: Movement Stone
+type: trait
+system:
+  description: "<p>Add the following benefits to those your stone can confer: You can breathe underwater and gain a swimming speed equal to your speed. You gain a climbing speed equal to your speed.</p>"
+  tree: alteration
+  tier: 3
+  column: 3
+  connectsTo: ["Morphing Stone", "Spell Stone"]
+  isStarting: false
+  restActivity: false

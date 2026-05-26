@@ -1,0 +1,14 @@
+_id: crowsarmrlight01
+_key: "!items!crowsarmrlight01"
+name: Light Armor
+type: armor
+system:
+  description: ""
+  armorType: light
+  ad: 5
+  worn: false
+  enchantment: ""
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 50

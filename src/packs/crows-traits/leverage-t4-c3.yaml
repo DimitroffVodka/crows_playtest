@@ -1,0 +1,12 @@
+_id: ctleve43firebmb0
+_key: "!items!ctleve43firebmb0"
+name: Fire Bomb
+type: trait
+system:
+  description: "<p>You can use a lit lantern like a fire bomb. The lantern and its oil are destroyed after being used this way.</p>"
+  tree: leverage
+  tier: 4
+  column: 3
+  connectsTo: []
+  isStarting: false
+  restActivity: false

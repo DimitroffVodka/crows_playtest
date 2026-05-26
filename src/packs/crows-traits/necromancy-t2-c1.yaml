@@ -1,0 +1,13 @@
+_id: ctnecr21mncrs000
+_key: "!items!ctnecr21mncrs000"
+name: Many Curses
+type: trait
+system:
+  description: "<p>When you cast a necromancy spell and get a tier 3 result that makes the spell's target boned, they gain 1 additional boned level.</p>"
+  tree: necromancy
+  tier: 2
+  column: 1
+  connectsTo:
+    - You'll Suffer
+  isStarting: false
+  restActivity: false

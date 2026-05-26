@@ -1,0 +1,18 @@
+_id: crowsweap0halbrd
+_key: "!items!crowsweap0halbrd"
+name: Halberd
+type: weapon
+img: icons/weapons/polearms/halberd-crescent-glowing.webp
+system:
+  description: "<p>A two-handed chopping polearm with extended reach. Dismember.</p>"
+  type: chopping
+  range: { melee: 2, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "3 + S", t3: "7 + S" }
+  qualities: [dismember]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 15

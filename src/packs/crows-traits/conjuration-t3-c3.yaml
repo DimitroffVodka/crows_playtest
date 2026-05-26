@@ -1,0 +1,12 @@
+_id: ctconj33mprvdsmm
+_key: "!items!ctconj33mprvdsmm"
+name: Improved Summons
+type: trait
+system:
+  description: "<p>When you cast a conjuration spell that allows you to summon a monster, you can summon a monster with power equal to what the spell says plus your Mind.</p>"
+  tree: conjuration
+  tier: 3
+  column: 3
+  connectsTo: ["Blessed Summons", "Telepathic Connection"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,18 @@
+_id: crowsweap0glaive
+_key: "!items!crowsweap0glaive"
+name: Glaive
+type: weapon
+img: icons/weapons/polearms/glaive-worn.webp
+system:
+  description: "<p>A two-handed slashing polearm with extended reach. Disengage, Parry 6.</p>"
+  type: slashing
+  range: { melee: 2, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "3 + S", t3: "6 + S" }
+  qualities: [disengage, parry]
+  parryValue: 6
+  enchantment: ""
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 15

@@ -1,0 +1,12 @@
+_id: ctrepu43bldgeff0
+_key: "!items!ctrepu43bldgeff0"
+name: Building Efficiency
+type: trait
+system:
+  description: "<p>The merchant affected by your Favorite Customer trait operates as if they were 1 level higher than their actual level.</p>"
+  tree: reputation
+  tier: 4
+  column: 3
+  connectsTo: []
+  isStarting: false
+  restActivity: false

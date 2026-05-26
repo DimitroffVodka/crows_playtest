@@ -1,0 +1,12 @@
+_id: ctarmo42scndskn0
+_key: "!items!ctarmo42scndskn0"
+name: Second Skin
+type: trait
+system:
+  description: "<p>Armor you wear occupies 1 fewer slots.</p>"
+  tree: armor
+  tier: 4
+  column: 2
+  connectsTo: ["Immovable"]
+  isStarting: false
+  restActivity: false

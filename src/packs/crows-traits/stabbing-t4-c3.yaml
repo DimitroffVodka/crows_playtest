@@ -1,0 +1,12 @@
+_id: ctstab43imprstb0
+_key: "!items!ctstab43imprstb0"
+name: Improved Stab
+type: trait
+system:
+  description: "<p>You score a crit on stabbing weapon attacks when the dice without modifiers equal 17, 18, 19, or 20.</p>"
+  tree: stabbing
+  tier: 4
+  column: 3
+  connectsTo: []
+  isStarting: false
+  restActivity: false

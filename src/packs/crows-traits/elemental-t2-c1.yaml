@@ -1,0 +1,12 @@
+_id: ctelem21lngrngfr
+_key: "!items!ctelem21lngrngfr"
+name: Lingering Fire
+type: trait
+system:
+  description: "<p>At the start of your combat turn, you can choose a creature you dealt damage to with an elemental spell on your last turn (no action required). The creature takes damage equal to your Mind.</p>"
+  tree: elemental
+  tier: 2
+  column: 1
+  connectsTo: ["Burn Baby", "Fire Ward"]
+  isStarting: false
+  restActivity: false

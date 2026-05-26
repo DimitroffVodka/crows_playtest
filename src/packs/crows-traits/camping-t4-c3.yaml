@@ -1,0 +1,12 @@
+_id: ctcamp43bard0000
+_key: "!items!ctcamp43bard0000"
+name: Bard
+type: trait
+system:
+  description: "<p>When your allies activate the benefit of your Song of Rest trait, they are twice blessed.</p>"
+  tree: camping
+  tier: 4
+  column: 3
+  connectsTo: ["Delayed Inspiration", "Prepare Your Gear"]
+  isStarting: false
+  restActivity: false

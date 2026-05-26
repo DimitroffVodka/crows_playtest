@@ -1,0 +1,28 @@
+_id: crowsgear0crftny
+_key: "!items!crowsgear0crftny"
+name: Crafting Material, Tiny
+type: gear
+system:
+  description: "<p>Exact crafting material is determined by the Ref.</p>"
+  subtype: treasure
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: tiny
+    value: 0
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 0
+  weightless: false

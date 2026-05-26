@@ -1,0 +1,31 @@
+_id: crowsspellcrwtr1
+_key: "!items!crowsspellcrwtr1"
+name: Create Water
+type: spellbook
+system:
+  description: "<p>You make water that fills a vessel or falls from the air. The amount you make is based on the casting.</p>"
+  discipline: elemental
+  rank: 0
+  castType: maneuver
+  range:
+    kind: ranged
+    value: 10
+  target: "1 vessel or area"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "1 gallon"
+    t2: "5 gallons"
+    t3: "10 gallons"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

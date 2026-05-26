@@ -1,0 +1,12 @@
+_id: ctblac23wpnpgrd0
+_key: "!items!ctblac23wpnpgrd0"
+name: Weapon Upgrade I
+type: trait
+system:
+  description: "<p>When you craft a weapon, you can add the Brutal or Pummeling qualities to it if the weapon doesn't already have those qualities.</p>"
+  tree: blacksmithing
+  tier: 2
+  column: 3
+  connectsTo: ["Weapon Expert", "Weapon Upgrade II"]
+  isStarting: false
+  restActivity: false

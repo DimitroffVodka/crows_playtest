@@ -1,0 +1,12 @@
+_id: ctblac11dbldty00
+_key: "!items!ctblac11dbldty00"
+name: Double Duty
+type: trait
+system:
+  description: "<p>When you work on crafting a blacksmithing item as part of the Craft Equipment rest activity, you can make two crafting rolls for the item or make a second crafting roll for a different blacksmithing item.</p>"
+  tree: blacksmithing
+  tier: 1
+  column: 1
+  connectsTo: ["Smithing Epiphany"]
+  isStarting: true
+  restActivity: false

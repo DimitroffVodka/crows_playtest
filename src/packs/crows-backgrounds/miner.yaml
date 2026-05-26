@@ -1,0 +1,12 @@
+_id: crowsbgminer0001
+_key: "!items!crowsbgminer0001"
+name: Miner
+type: background
+system:
+  flavor: "You worked in mines, digging and hauling ore."
+  characteristicBonus: strength
+  stamina: 7
+  startingTrait: "Scavenging: Lasting Light"
+  skills: [climb, endurance, lift, navigate, stabbing]
+  equipment: [chalk, "grappling hook", lantern, "oil flask", pickaxe, shovel]
+  spellbooks: []

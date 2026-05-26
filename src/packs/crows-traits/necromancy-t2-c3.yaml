@@ -1,0 +1,13 @@
+_id: ctnecr23flwlkbl0
+_key: "!items!ctnecr23flwlkbl0"
+name: Flow Like Blood
+type: trait
+system:
+  description: "<p>When you cast a necromancy spell, you have an amorphous body and gear until the end of the DT. While in this state, you can fit through openings that are at least 1 inch square.</p>"
+  tree: necromancy
+  tier: 2
+  column: 3
+  connectsTo:
+    - Demon's Sight
+  isStarting: false
+  restActivity: false

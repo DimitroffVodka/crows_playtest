@@ -1,0 +1,12 @@
+_id: ctthie21frmshds0
+_key: "!items!ctthie21frmshds0"
+name: From the Shadows
+type: trait
+system:
+  description: "<p>When you make a weapon attack against a target you are hidden from using Agility, the attack gains a +3 bonus instead the normal +2 bonus for being hidden.</p>"
+  tree: thievery
+  tier: 2
+  column: 1
+  connectsTo: [Dark Senses]
+  isStarting: false
+  restActivity: false

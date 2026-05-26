@@ -2,15 +2,643 @@ _id: crowsruleconds01
 _key: "!journal!crowsruleconds01"
 name: Crows Rules Reference
 pages:
-  - _id: crowsrulpgcond01
-    _key: "!journal.pages!crowsruleconds01.crowsrulpgcond01"
+  - _id: crrlpgcondit0001
+    _key: "!journal.pages!crowsruleconds01.crrlpgcondit0001"
     name: Conditions
     type: text
     text:
-      content: "<h2>Conditions</h2><p>Blessed, Boned, Grabbed, Prone, Unconscious.</p>"
-  - _id: crowsrulpgresu01
-    _key: "!journal.pages!crowsruleconds01.crowsrulpgresu01"
-    name: Test Results
+      content: |
+        <h2>Conditions</h2>
+        <p>Conditions are temporary status effects that can harm or help a creature. Except for boned and blessed, you can only be under the effect of one instance of a condition at a time. If you gain a condition you already have, the new version ends the previous, including duration and any secondary effects associated with the condition.</p>
+        <h3>Blessed</h3>
+        <p>Your blessed level begins at 0. Each time you are blessed, your blessed level increases by 1. You gain a cumulative +1 bonus to all tests and deal a cumulative +1 damage with all attacks for each blessed level you have. Your blessed level becomes 0 at the end of a dungeon turn.</p>
+        <h3>Boned</h3>
+        <p>Your boned level begins at 0. Each time you are boned, your boned level increases by 1. You gain a cumulative -1 penalty to all tests and when you take damage, you take additional damage equal to each boned level you have. Your boned level becomes 0 at the end of a dungeon turn.</p>
+        <p><em>Blessed and boned cancel each other out 1 to 1. If you are blessed 2 and boned 3, you are effectively boned 1.</em></p>
+        <h3>Grabbed</h3>
+        <p>You can be grabbed by a creature, effect, or object. While you are grabbed, your speed is 0 and attacks against you gain a +1 bonus. If your grabber moves, you move with them. If the grabber is your size or smaller, their speed is halved while they have you grabbed. The grabber can use a maneuver to change your position relative to them, as long as you remain within range of the effect that grabbed you relative to the grabber's current position.</p>
+        <p>If the grabber moves further away from you than the range of the effect that grabbed you, you are no longer grabbed. The grab ends if the grabber willingly lets go or is killed, prone, or unconscious. You can attempt to end the grab with the Escape Grab maneuver (see Common Maneuvers).</p>
+        <h3>Prone</h3>
+        <p>While you are prone, you are lying on the ground and your speed is halved. You take a -1 penalty on melee attacks, melee attacks against you gain a +1 bonus, and ranged attacks against you take a -1 penalty. You can drop prone on your turn in combat (no action required). You can stand up from prone and end the prone condition as a maneuver as long as your speed is 1 or higher.</p>
+        <h3>Unconscious</h3>
+        <p>While you are unconscious, you are asleep (and when you sleep, you are unconscious). You are prone, your speed is 0, you can't take actions, maneuvers, or reactions, automatically get a doom result on all Agility and Strength tests, and have a -4 penalty on Mind tests made to notice anything about your surroundings. Attacks against you always achieve a tier 3 result (though the attacker can roll to see if they get a crit). If you take any damage while unconscious, you wake up and the condition ends. A creature who makes a loud noise, like shouting, wakes up each sleeping creature within 10 squares of them, ending this condition on those creatures.</p>
+
+  - _id: crrlpgtestres001
+    _key: "!journal.pages!crowsruleconds01.crrlpgtestres001"
+    name: Test Results & Tiers
     type: text
     text:
-      content: "<p>11 or less Tier 1; 12-16 Tier 2; 17+ Tier 3; natural 2-3 doom; natural 19-20 crit.</p>"
+      content: |
+        <h2>Test Results &amp; Tiers</h2>
+        <p>When the Ref decides a test is in order, the player rolls 2d10 and adds one of their crow's characteristics that the Ref deems applies to the task. Skills can add a +1 (or +2) bonus to the roll.</p>
+        <table>
+          <thead>
+            <tr><th>Result</th><th>Tier</th><th>Outcome</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>11 or lower</td><td>Tier 1</td><td>You didn't do what you set out to do; at the Ref's discretion you might suffer a set back.</td></tr>
+            <tr><td>12–16</td><td>Tier 2</td><td>You either partially, but not fully, accomplish your task or succeed fully at a cost. The Ref decides the outcome.</td></tr>
+            <tr><td>17 or higher</td><td>Tier 3</td><td>You do what you set out to do without any complication.</td></tr>
+          </tbody>
+        </table>
+        <h3>Circumstantial Modifiers</h3>
+        <p>The Ref can grant a test a +1 bonus for each significant environmental advantage and a -1 penalty for each disadvantage.</p>
+        <h3>Skills</h3>
+        <p>When you make a test, you can add one (and only one) applicable skill's bonus to the test if you have it. A starting PC's skills all have a bonus of +1, which can increase to +2 as part of the crow's advancement. Skills are: general skills (Alchemy, Blacksmithing, Climb, Enchanting, Endurance, Gymnastics, Handle Animal, Hide, Historical Lore, Jump, Lift, Magic Lore, Monster Lore, Nature Lore, Navigate, Pick Lock, Religious Lore, Sabotage, Search, Sleight of Hand, Sneak, Swim), spellcasting skills (Alteration, Benefaction, Conjuration, Elemental, Illusion, Necromancy), and weapon skills (Bashing, Bow, Chopping, Slashing, Stabbing, Unarmed).</p>
+        <h3>Assists</h3>
+        <p>An assist is a test you make to aid another creature with a different test. Make the assist before the other test. Outcomes:</p>
+        <ul>
+          <li><strong>Tier 1:</strong> The assisted test takes a -1 penalty.</li>
+          <li><strong>Tier 2:</strong> The assisted test gains a +1 bonus.</li>
+          <li><strong>Tier 3:</strong> The assisted test gains a +2 bonus.</li>
+        </ul>
+        <h3>Resistance Rolls</h3>
+        <p>Resistance rolls (RR) are tests a creature makes in response to danger, such as an explosion, mind-warping magic, or poison. Skills can't be applied to RRs. A crit on an RR can allow a creature to harm the creature or object forcing the roll or provide an automatic tier 3 result for an ally making the same test.</p>
+
+  - _id: crrlpgdoomcrit01
+    _key: "!journal.pages!crowsruleconds01.crrlpgdoomcrit01"
+    name: Doom & Crits
+    type: text
+    text:
+      content: |
+        <h2>Doom &amp; Crits</h2>
+        <h3>Critical Success (Crit)</h3>
+        <p>When the dice without any modifiers equal a 19 or 20, the result of the test is a critical success (crit). When you get a crit, you get a tier 3 result plus a bit extra, which could be due to your great skill or a lucky break. If you achieve a crit while searching a chest for traps, you find and disarm any traps without another test. A crit while climbing a cliff might mean you can carry an ally who then doesn't need to make the test.</p>
+        <h3>Doom</h3>
+        <p>When the dice without any modifiers equal a 2 or 3, the test result is a doom. You automatically get a tier 1 result and suffer a major setback. A doom while searching a chest for traps means you triggered the trap automatically and suffer the brunt of it without a chance to dodge the danger. Doom on a test to climb a cliff means you climb to the top of the cliff and then fall.</p>
+        <p>Unless otherwise noted, the Ref decides the exact outcome of crits and dooms.</p>
+        <h3>Crits on Attacks</h3>
+        <p>When you get a crit on an attack, you get another action that you must use immediately if this action is gained on a turn other than yours. If this action is gained on your turn, you can use it at any time during the turn it was gained.</p>
+        <h3>Trying Again</h3>
+        <p>When you fail a test, you can't attempt it again unless the circumstances of the test significantly change. The Ref decides when circumstances have changed enough for a new attempt.</p>
+        <h3>Hide and Sneak</h3>
+        <p>You can only make a test to hide from a creature if they aren't observing you. If you try to sneak by a creature, you must move at half your speed or slower or take a -2 penalty on the test. While you are hidden from another creature, you gain a +2 bonus on attacks against them, and they take a -2 penalty on RRs imposed by you. If you're hidden and take aggressive action, a creature notices you.</p>
+
+  - _id: crrlpgcombat0001
+    _key: "!journal.pages!crowsruleconds01.crrlpgcombat0001"
+    name: Combat Quick Reference
+    type: text
+    text:
+      content: |
+        <h2>Combat Quick Reference</h2>
+        <p>Combat happens in rounds. Each combatant gets a turn to act. The round ends after all combatants have had a turn.</p>
+        <h3>Who Goes First?</h3>
+        <p>At the start of each round, a player of the Ref's choice rolls 1d10. If the result is 6 or higher, the PCs and any NPC allies go first, followed by their enemies. If the result is 5 or lower, enemies go first. Players determine the order in which PCs and allies take turns; the Ref determines enemy order. This roll is repeated at the start of each round.</p>
+        <h3>Your Turn</h3>
+        <p>On your turn, you can take a maneuver and an action or use two maneuvers. You can also choose to only take one action or one maneuver, or do nothing.</p>
+        <h3>Surprised</h3>
+        <p>If combat begins with one or more creatures unaware of the others, those creatures are surprised. Surprised creatures can't take a turn and attacks against them gain a +1 bonus. After the first round of combat, surprised creatures are no longer surprised.</p>
+        <h3>Attacks</h3>
+        <p>There are two kinds of attacks: melee and ranged. When you make an attack, it must be made with a weapon or spellbook you are wielding. Weapon attacks use the appropriate weapon skill; spell attacks use the appropriate magic skill.</p>
+        <ul>
+          <li><strong>Tier 1 (miss):</strong> No damage or effects to your target.</li>
+          <li><strong>Tier 2 (hit):</strong> Deal damage as specified.</li>
+          <li><strong>Tier 3 (hit):</strong> Deal damage as specified.</li>
+        </ul>
+        <h3>Melee Unarmed Strike</h3>
+        <p><strong>2d10 + A or S + Unarmed skill</strong></p>
+        <ul>
+          <li>Tier 1: The target can counter.</li>
+          <li>Tier 2: 1 + A or S dam</li>
+          <li>Tier 3: 2 + A or S dam</li>
+        </ul>
+        <h3>Reactions</h3>
+        <p>Every round, each creature has 1 reaction they can use at any point on their turn or another creature's turn. Each reaction has a trigger and can only occur when that trigger happens. A reaction always happens after the triggering event resolves.</p>
+        <h3>Counter</h3>
+        <p>When a creature or object within reach of a melee weapon you are currently wielding makes a melee attack against you, uses the Grab or Knockback maneuver while targeting you, or attempts to escape being grabbed by you with Escape Grab and gets a tier 1 result, you can use your reaction to counter. If you do, you deal the tier 2 result of the weapon you're wielding to the triggering creature or object. If the triggering test result was doom, you deal the tier 3 result instead.</p>
+        <h3>Opportunity Attack</h3>
+        <p>When a creature moves out of your reach (unmodified by a weapon), you can use a reaction to make an attack with a weapon you are wielding against them before they leave your reach.</p>
+        <h3>Creature Sizes</h3>
+        <table>
+          <thead>
+            <tr><th>Size</th><th>Squares</th><th>Reach</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Tiny</td><td>1</td><td>1</td></tr>
+            <tr><td>Small</td><td>1</td><td>1</td></tr>
+            <tr><td>Medium</td><td>1</td><td>1</td></tr>
+            <tr><td>Large</td><td>2 × 2</td><td>2</td></tr>
+            <tr><td>Huge</td><td>3 × 3</td><td>2</td></tr>
+            <tr><td>Holy Shit!</td><td>4 × 4*</td><td>3</td></tr>
+          </tbody>
+        </table>
+        <p><em>*At the Ref's discretion, Holy Shit! creatures can be even bigger.</em></p>
+        <h3>Flanking</h3>
+        <p>When you and one or more allies are adjacent to the same enemy and on opposite sides of the enemy, you are flanking that enemy. While flanking an enemy, you gain a +1 bonus on melee attacks against them. You can't flank an enemy if you or the ally you're flanking with are boned, prone, grabbed, or grabbing a creature who isn't the target.</p>
+        <h3>High Ground</h3>
+        <p>If you are at least 1 square above a target, you gain a +1 bonus on attacks against them.</p>
+        <h3>Cover</h3>
+        <p>When you have line of effect to a creature or object but that target has at least half their form blocked by a solid object such as a tree, wall, or overturned table, the target has cover. You take a -2 penalty on attacks made against them.</p>
+        <h3>Damage and Death</h3>
+        <p>Every creature has Stamina. When a creature's AD is 0, damage is subtracted from their Stamina. When a PC (or hireling or pet) takes damage and their AD and Stamina are both 0, they take 1 wound for every 1 damage they take. Each wound fills up a backpack slot. When all backpack slots have wounds, they die. Ref-controlled creatures die when their Stamina reaches 0.</p>
+        <h3>Wounds</h3>
+        <p>For each slot occupied by a wound, the PC's speed is reduced by 1 (to a minimum of 0).</p>
+        <h3>Armor Defense (AD)</h3>
+        <p>Every suit of armor and shield has an AD. When a creature wearing armor or wielding a shield takes damage, it is subtracted from their armor's AD. When an item's AD drops to 0, it can no longer be used to stop damage. A PC can restore one item's AD as a rest activity.</p>
+        <h3>Piercing Damage</h3>
+        <p>Some damage is designated as piercing (P next to the amount). This damage ignores AD and is subtracted from a creature's Stamina first, then grants wounds if Stamina is 0.</p>
+
+  - _id: crrlpgmanvr00001
+    _key: "!journal.pages!crowsruleconds01.crrlpgmanvr00001"
+    name: Common Maneuvers
+    type: text
+    text:
+      content: |
+        <h2>Common Maneuvers</h2>
+        <p>The following maneuvers are available to all creatures. Some equipment or traits give you access to other maneuvers.</p>
+        <ul>
+          <li><strong>Move Speed:</strong> Move a number of squares up to your speed. You can break up this maneuver with your action or another maneuver.</li>
+          <li><strong>Shift:</strong> Move 1 square without provoking opportunity attacks.</li>
+          <li><strong>Command:</strong> Command a pet you control to use an action or maneuver. See Pets in Combat.</li>
+          <li><strong>Draw From Pack:</strong> Attempt to draw an item from your backpack (see Swapping Slots).</li>
+          <li><strong>Draw From Belt:</strong> Draw an item or two from your belt (see Swapping Slots).</li>
+          <li><strong>Pick Up Item:</strong> Pick up an unattended item within your reach, provided you have enough hand slots free to grab it.</li>
+          <li><strong>Stand Up:</strong> You must be prone and have a speed of at least 1 to use this maneuver. You stand up.</li>
+          <li><strong>Grab:</strong> Make the following test, targeting one creature of your size or smaller within your reach. You can only grab one creature this way at a time.<br/>
+            <em>2d10 + S + Unarmed skill</em><br/>
+            Tier 1: The target can counter.<br/>
+            Tier 2: The target is grabbed by you, and the target can counter.<br/>
+            Tier 3: The target is grabbed by you.
+          </li>
+          <li><strong>Escape Grab:</strong> If you are grabbed, make the following test to wrestle your way out of the grasp of your grabber.<br/>
+            <em>2d10 + A or S + Unarmed skill</em><br/>
+            Tier 1: The grabber can counter.<br/>
+            Tier 2: You are no longer grabbed, and the grabber can counter.<br/>
+            Tier 3: You are no longer grabbed and can move 1 square without provoking opportunity attacks.
+          </li>
+          <li><strong>Knockback:</strong> Make the following test, targeting one creature within your reach.<br/>
+            <em>2d10 + S + Unarmed skill</em><br/>
+            Tier 1: The target can counter.<br/>
+            Tier 2: Push 1<br/>
+            Tier 3: Push 2
+          </li>
+        </ul>
+        <h3>Ready an Action</h3>
+        <p>You can use your action to ready a specific action or maneuver that activates when a trigger you name is met. When the trigger you specified occurs, you can use your reaction to execute the action or maneuver. If the trigger hasn't occurred by your next turn, you must ready the action or maneuver again to be able to use a reaction to execute it.</p>
+        <h3>Forced Movement</h3>
+        <p><strong>Push X:</strong> The creature moves the target up to X squares away from them in a straight line, without moving them vertically.</p>
+        <p><strong>Slide X:</strong> The creature moves the target up to X squares in any direction, except vertically. A slide doesn't need to be a straight line.</p>
+        <p>Forced movement ignores difficult terrain and never provokes opportunity attacks or other reactions or effects that involve a creature moving unless specified. When you force move a target into damaging terrain or terrain that produces an effect, they are affected as if they had moved into it willingly. A creature can't be force moved into a space occupied by another creature or object.</p>
+
+  - _id: crrlpgduntrn0001
+    _key: "!journal.pages!crowsruleconds01.crrlpgduntrn0001"
+    name: Dungeon Turn
+    type: text
+    text:
+      content: |
+        <h2>Dungeon Turn</h2>
+        <p>Dungeon exploration occurs when the PCs explore a ruin, fortress, cave, or other location room by room. The rules generally refer to these locations as "dungeons."</p>
+        <p>When the PCs enter a dungeon, the first dungeon turn (DT) begins. Each DT is 30 minutes of real-world time. The Ref should track this time on their phone or some other timer and share the clock with the players.</p>
+        <h3>End of a Dungeon Turn</h3>
+        <p>At the end of a DT, PCs roll UD for items or effects, and the Ref should roll for an encounter.</p>
+        <h3>Dungeon Encounters</h3>
+        <p>The Ref should make an encounter check at the end of each DT and whenever the PCs do something within a dungeon that would attract a lot of attention, like making a lot of noise while breaking down a door with a hammer or setting fire to a huge tapestry and creating smelly smoke.</p>
+        <p>When the Ref makes an encounter check, they roll 1d6. If the number is equal to or higher than the encounter number (EN), then an encounter occurs. The default EN for a check is 6, but the Ref can lower the number to 5 if a dungeon's level is particularly crowded with creatures (more than twenty as a guideline) or if the PCs have left an inordinate amount of chaos and disorder (such as a trail of bodies) behind them. If both of these conditions are true, decrease the EN to 4.</p>
+        <h3>Usage Dice (UD)</h3>
+        <p>Certain equipment, spells, and other effects have a finite number of uses or a duration tracked in usage dice (UD). All UD are d6s. When the rules tell you to roll UD, roll all of the item or effect's dice. If a die rolled is a 1 or 2, that die is removed from the item or effect's UD total. When an effect's UD is 0, it ends. An effect's UD are always rolled at the end of each dungeon turn.</p>
+        <ul>
+          <li><strong>Useless:</strong> Item becomes practically useless after its UD are 0.</li>
+          <li><strong>Refuel:</strong> Maximum UD are restored when a PC uses the item indicated in the UD entry.</li>
+          <li><strong>Rest:</strong> Maximum UD are restored when the PC carrying it finishes a rest.</li>
+          <li><strong>Activate:</strong> Roll UD whenever you use the item as specified on the card.</li>
+          <li><strong>DT:</strong> Roll UD at the end of each dungeon turn.</li>
+        </ul>
+        <h3>Greed Bonus</h3>
+        <p>The Three rewards crows who venture bravely into dungeons and place greed over caution. If the PCs find treasure in the first three DTs of entering a dungeon for the first time, the treasure increases in value:</p>
+        <ul>
+          <li>1st DT: +15%</li>
+          <li>2nd DT: +10%</li>
+          <li>3rd DT: +5%</li>
+        </ul>
+        <p>This increase can't apply in that dungeon again to the group (or another group of PCs played by the same players).</p>
+        <h3>Light</h3>
+        <p>When an item or effect sheds light, it's listed as X/Y. X is the number of squares it sheds bright light in all directions and Y is the amount of dimlight it sheds in all directions after that.</p>
+        <ul>
+          <li><strong>Bright Light:</strong> Illuminates everything clearly. Sunlight and light that emanates directly from and closest to a source like a torch.</li>
+          <li><strong>Dim Light:</strong> Poorly illuminates, shrouding details in shadow like moonlight. Tests to discern details or search in dim light have a -2 penalty.</li>
+          <li><strong>Darkness:</strong> You take a -4 penalty to attacks and tests made to discern visual details in total darkness.</li>
+        </ul>
+        <h3>Common Hazards</h3>
+        <p><strong>Falling:</strong> When you fall 10 feet or more, you take 1d6 P damage per 10 feet fallen. You can use your reaction to make a RR (2d10 + A) to reduce the damage: Tier 1 no effect, Tier 2 reduce by 1d6, Tier 3 reduce by 2d6.</p>
+        <p><strong>Starvation:</strong> Each day you go without eating at least 1 ration worth of food, you gain a starvation wound. Remove starvation wounds when you eat 1 ration or equivalent food.</p>
+        <p><strong>Suffocation:</strong> If you can't breathe, the Ref tracks your time and movement as if you're in combat. You can hold your breath for a number of combat rounds equal to 3 + your Strength score. At the start of each round after this that you can't breathe, you take 1d6 damage.</p>
+
+  - _id: crrlpgresting001
+    _key: "!journal.pages!crowsruleconds01.crrlpgresting001"
+    name: Resting & Rest Activities
+    type: text
+    text:
+      content: |
+        <h2>Resting &amp; Rest Activities</h2>
+        <p>You can rest to regain your Stamina, lose wounds, and recharge some equipment, like spellbooks. To rest, you must spend at least 6 uninterrupted hours in-game in one place without engaging in strenuous activity, such as exploration or combat, and at least 4 of those hours must be spent sleeping on a bed, bedroll, or similarly comfy surface. While you rest, you must consume at least 1 ration or equivalent food. At the end of a rest, you regain all your Stamina and the number of wounds you have decreases by 1. You choose which wound you lose. Every 2 hours spent resting is one DT.</p>
+        <h3>Rest Encounters</h3>
+        <p>When you rest in a dungeon or out in the wilderness, the Ref should make one encounter check for every 2 hours spent resting. If you rest in a dungeon, the Ref should use Dungeon Encounters. If you rest during overland travel, the Ref should use Travel Encounters. If rest is interrupted by combat or other strenuous activity, the PCs must start resting again to gain the benefits of a rest.</p>
+        <h3>Rest Activities</h3>
+        <p>When you are not sleeping during a rest, you can engage in a light activity. The following rest activities are available to all PCs. Traits and other game rules can grant you additional rest activities. You can only perform one rest activity per rest and must complete the rest to gain the benefit of it.</p>
+        <ul>
+          <li><strong>Craft Equipment:</strong> Make a crafting roll to craft an item. See Crafting for more information.</li>
+          <li><strong>Harvest:</strong> Harvest the hide, an organ, or other crafting material from a corpse. See Crafting for more information.</li>
+          <li><strong>Identify Item:</strong> Choose one item you have that is magic. You experiment with the item and learn its properties when you finish the rest.</li>
+          <li><strong>Prepare for Task:</strong> Tell your Ref about a specific task in a specific location that requires a test that you want to prepare for. When you finish the rest, you gain a +2 bonus on tests made to perform the task. This bonus lasts until you finish another rest.</li>
+          <li><strong>Repair Armor:</strong> Repair a suit of armor or shield you have, restoring its AD to full when you finish the rest.</li>
+          <li><strong>Tend Wounds:</strong> Pick a creature who has at least 2 wounds who rests with you (can't choose yourself). You spend time tending to that person's wounds. When you and that person finish the rest, they lose 2 wounds instead of 1. A creature can only benefit from this activity once per rest.</li>
+        </ul>
+        <h3>Rest Activities in Town</h3>
+        <p>While in a village or other place with no chance of encounters, a PC may perform up to 4 rest activities without having to finish a rest per day. A rest activity typically takes about 2 hours of time, and most PCs need time for sleep, meals, socializing, shopping, and other chores while in town. The Tend Wounds activity can only benefit a creature once per day in town, and only after sleeping for at least 4 hours after the activity is completed.</p>
+
+  - _id: crrlpgrange00001
+    _key: "!journal.pages!crowsruleconds01.crrlpgrange00001"
+    name: Ranged Attacks & Movement
+    type: text
+    text:
+      content: |
+        <h2>Ranged Attacks &amp; Movement</h2>
+        <h3>Ranged Attacks</h3>
+        <p>To make a ranged attack against a creature or object, they must be within a number of squares equal to the range of the weapon or spell you wield. A ranged weapon attack can go further, and takes a -2 penalty for every 1 square the target is beyond normal range. Weapons with only a melee range are technically ranged 0.</p>
+        <p>When you get a miss on a ranged attack, any ammunition fired in the attack is destroyed. If the target was adjacent to one or more allies, your attack instead hits one of those allies chosen randomly by the Ref. You deal the tier 2 result of the weapon you made the attack with to that ally. If you rolled a doom on your attack, you instead deal the tier 3 result to your ally.</p>
+        <p>If you make a ranged attack against an adjacent creature, the attack takes a -1 penalty.</p>
+        <h3>Multiple Targets</h3>
+        <p>Unless noted otherwise, an attack targets one creature or object within its reach or range. If an attack can target more than one creature or object, you choose which creatures to target within your reach or range and make one attack that applies to all targets. You can't target the same creature more than once with an attack.</p>
+        <h3>Movement</h3>
+        <p>The distance you move in a single maneuver or action can't be greater than your speed. Most of the time when a creature is moving in combat, they can use the Move Speed maneuver to move a number of squares up to a number of squares equal to their speed.</p>
+        <h3>Difficult Terrain</h3>
+        <p>Brambles, rubble, and other obstacles are difficult terrain, which is hard to move through. Entering a square of difficult terrain costs an extra square of movement. You can't jump out of difficult terrain or use the Shift maneuver to enter or while within difficult terrain.</p>
+        <h3>Swimming and Climbing</h3>
+        <p>Entering a square that requires you to swim or climb costs an extra square of movement. The Ref may also require a test to see if it's even possible for you to swim or climb.</p>
+        <h3>Jumping</h3>
+        <p><strong>2d10 + A or S + Jump skill</strong></p>
+        <ul>
+          <li>Tier 1: You jump 0 squares.</li>
+          <li>Tier 2: You jump up to a distance of 2 squares with a height of 1 square.</li>
+          <li>Tier 3: You jump up to a distance equal to 2 + your Agility or Strength (minimum total distance 3 squares) with a height of 1 square.</li>
+        </ul>
+        <h3>Teleporting</h3>
+        <p>When you teleport, you move from one space to another instantaneously, bypassing obstacles. Teleporting doesn't provoke opportunity attacks or other effects triggered by moving. If you teleport while prone, you remain prone. If you teleport while grabbed, the condition ends for you.</p>
+        <h3>Inventory Slots</h3>
+        <p>Every PC has 2 hand slots, 2 belt slots, and 10 backpack slots (numbered 1–10). Many items take a single inventory slot. Others, like a ladder or a suit of heavy armor, take up more than one. One inventory slot can hold 5 potions, 3 locks, or 2 flasks of lantern oil. You can only stack items of the same kind in one inventory slot.</p>
+
+  - _id: crrlpgflanking01
+    _key: "!journal.pages!crowsruleconds01.crrlpgflanking01"
+    name: Line of Effect, Cover & Light
+    type: text
+    text:
+      content: |
+        <h2>Line of Effect, Cover &amp; Light</h2>
+        <h3>Line of Effect</h3>
+        <p>To target a creature or object with an attack, spell, or other effect, you must have line of effect to that target. If any solid object, such as a wall or pillar, completely blocks the target from you, then you don't have line of effect.</p>
+        <p>If you're not sure whether you have line of effect to a target, imagine drawing a straight line from any corner of the space you occupy on an encounter map to any corner of a space the target occupies. If one or more corners of your space connect to any corner of the target's space with no obstruction in between, you have line of effect to the target.</p>
+        <h3>Cover</h3>
+        <p>When you have line of effect to a creature or object but that target has at least half their form blocked by a solid object such as a tree, wall, or overturned table, the target has cover. You take a -2 penalty on attacks made against them.</p>
+        <h3>Concealment</h3>
+        <p>Fog, rain, and other obscurements that don't protect a creature's physical form are treated like dim light (for light fog, rain, and other effects) or darkness (for heavy fog, rain, and other effects).</p>
+        <h3>Invisibility</h3>
+        <p>If you are invisible, you are treated as if you are in darkness.</p>
+        <h3>Flanking</h3>
+        <p>When you and one or more allies are adjacent to the same enemy and on opposite sides of the enemy, you are flanking that enemy. While flanking an enemy, you gain a +1 bonus on melee attacks against them. You can't flank an enemy if you or the ally you're flanking with are boned, prone, grabbed, or grabbing a creature who isn't the target.</p>
+        <p>If you're unsure whether you and an ally are flanking a foe, imagine a line extending from the center of your space to the center of your ally's space. If that line passes through opposite sides or corners of the enemy's space, then you and your ally are flanking the enemy.</p>
+        <h3>High Ground</h3>
+        <p>If you are at least 1 square above a target, you gain a +1 bonus on attacks against them.</p>
+
+  - _id: crrlpgmagic00001
+    _key: "!journal.pages!crowsruleconds01.crrlpgmagic00001"
+    name: Spellcasting Basics
+    type: text
+    text:
+      content: |
+        <h2>Spellcasting Basics</h2>
+        <p>Spells are contained in the pages of spellbooks. Each spellbook has 1 or more UD, rolled whenever its spell is cast. When the spellbook's UD are 0, it has no magic and the spell can't be cast from its book until its usage dice are restored. A spellbook you carry regains all its UD when you finish a rest.</p>
+        <h3>Rank</h3>
+        <p>A spell's rank is from 0 to 5 and indicates its power. A higher rank means a more powerful spell.</p>
+        <h3>Discipline</h3>
+        <p>A spell's discipline describes the type of magic it harnesses and the spellcasting skill used for the test made to cast the spell.</p>
+        <ul>
+          <li><strong>Alteration:</strong> Physically changes matter</li>
+          <li><strong>Benefaction:</strong> Heals and buffs creatures</li>
+          <li><strong>Conjuration:</strong> Teleports and summons creatures and objects</li>
+          <li><strong>Elemental:</strong> Harnesses the power of air, earth, fire, and water</li>
+          <li><strong>Illusion:</strong> Creates effects that fool the senses</li>
+          <li><strong>Necromancy:</strong> Creates curses, poison, disease, and monsters</li>
+        </ul>
+        <h3>Casting Time</h3>
+        <ul>
+          <li><strong>Action:</strong> Use an action to cast the spell.</li>
+          <li><strong>Maneuver:</strong> Use a maneuver to cast the spell.</li>
+          <li><strong>Reaction:</strong> Cast the spell as a reaction in response to a trigger listed in its description.</li>
+          <li><strong>Out of Combat:</strong> This complex spell can't be cast in situations tracked in combat rounds. It can be cast outside of such situations and takes 10 minutes of in-game time to cast.</li>
+        </ul>
+        <h3>Casting</h3>
+        <p>Each time you cast a spell from a spellbook, you must make a Mind test and add the applicable spellcasting skill. The outcomes for each casting are listed in the spell's description. When you get a crit on a casting, you don't need to roll the spell's UD.</p>
+        <h3>Target</h3>
+        <ul>
+          <li><strong>Number:</strong> Typically 1, 2, or 3 — the number of creatures or objects you can target with this spell.</li>
+          <li><strong>Allies:</strong> Targets creatures friendly to you, including yourself.</li>
+          <li><strong>Enemy:</strong> Targets creatures hostile to you.</li>
+          <li><strong>Creature:</strong> Can target any creature other than you.</li>
+          <li><strong>Object:</strong> Can target any object not carried or worn by another creature.</li>
+          <li><strong>Summoned:</strong> Summons a creature or object within range into an unoccupied space within range.</li>
+          <li><strong>All:</strong> All of the specified targets within the spell's range or area of effect are targeted.</li>
+        </ul>
+        <h3>Area of Effect</h3>
+        <ul>
+          <li><strong>Aura X:</strong> Radius X in squares; always originates from and moves with you for the duration.</li>
+          <li><strong>Cube X:</strong> X is the length of each of the area's sides in squares.</li>
+          <li><strong>Line A × B:</strong> A is the line's length in squares; B equals the line's width and height in squares.</li>
+        </ul>
+        <h3>Duration</h3>
+        <ul>
+          <li><strong>Instant:</strong> The spell exists only in the instant it is cast.</li>
+          <li><strong>DT:</strong> The spell lasts until the end of the DT in which it is cast.</li>
+          <li><strong>UD:</strong> The spell is maintained through a specified number of UD, which are rolled at the end of each DT.</li>
+        </ul>
+        <h3>Summoned Creatures</h3>
+        <p>Some spells allow you to summon creatures. Unless specified otherwise, these creatures do as you command. They function like pets in combat except that you don't need to make a test to convince them to undertake dangerous actions.</p>
+
+  - _id: crrlpgbacklash01
+    _key: "!journal.pages!crowsruleconds01.crrlpgbacklash01"
+    name: Backlashes
+    type: text
+    text:
+      content: |
+        <h2>Magic Backlashes</h2>
+        <p>The chaotic, sentient force of magic doesn't like to be manipulated, and lashes out against those who seek to control it when their grasp of a spell is weak. A backlash happens when magic pushes back against the caster, intent on harming them.</p>
+        <p>When a backlash occurs, the Ref rolls a d100 + the rank of the triggering spell on the Backlashes table to determine the event that takes place. Backlashes occur instead of the spell that was meant to trigger them, but the caster still needs to roll the spellbook's UD.</p>
+        <p>If a backlash effect requires the spell have a target that is a creature, and the target of the spell is an object, the spellcaster becomes the target for purposes of the backlash effect. If the caster is suffering from a backlash with a duration (aside from being boned), and gets that same backlash again, the Ref should roll for a different backlash unless the backlash's effects stack. UD for backlash effects are rolled at the end of each DT.</p>
+        <p><strong>Two ways a backlash occurs:</strong> (1) A creature gets a doom on a casting. (2) The Chaos Count reaches 13 or higher (see Chaos Count).</p>
+        <table>
+          <thead>
+            <tr><th>d100 + Rank</th><th>Backlash Effect</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>01–02</td><td>Your head transforms into a donkey's head. You can't speak, only bray at a loud volume. This effect has 1 UD.</td></tr>
+            <tr><td>03–04</td><td>Your magic makes you feel so good that you are compelled to dance at all times. While under this effect, your speed is reduced by 2 and you have a -2 penalty to tests made to climb, hide, sneak, or swim. This effect has 1 UD.</td></tr>
+            <tr><td>05–06</td><td>You summon a ghostly, self-playing accordion that can't be destroyed and follows you wherever you go and plays polka loudly until the end of this DT. It is impossible to go anywhere without notice as this accordion plays.</td></tr>
+            <tr><td>07–08</td><td>Each time you speak between now and the end of this DT, roll a d10. On a 10, your words unleash a thunderous boom. Each creature within 3 squares of you takes 1d6 damage. If you are already suffering this backlash, the damage increases by 1d6.</td></tr>
+            <tr><td>09–10</td><td>Your mood becomes fiery and irritable. If you don't harm another creature before the end of this DT, then the fire inside you makes you take 1d6 P damage. If you are already suffering this backlash, the damage increases by 1d6.</td></tr>
+            <tr><td>11–12</td><td>Your body temperature drops, making you very cold until the end of this DT. During this time, your speed is reduced by 1 and if you start your turn submerged in water or soaked with water, you take 1d6 P damage. If you are already suffering this backlash, your speed is further reduced by 1.</td></tr>
+            <tr><td>13–14</td><td>Magic lightly muddles your mind. You are boned.</td></tr>
+            <tr><td>15–16</td><td>Magic greatly muddles your mind. You are twice boned.</td></tr>
+            <tr><td>17–18</td><td>Your body becomes seasoned by magic, making your bones and psyche brittle. The next time you take damage before the end of the DT, you take twice as much as you normally would.</td></tr>
+            <tr><td>19–20</td><td>A limb you use to hold items goes numb and can't be moved. The Ref picks one of your hand slots. You drop any item in that slot and you can't use the hand slot until the end of the DT.</td></tr>
+            <tr><td>21–22</td><td>Hungry magic erupts from your body and destroys the nearest 1d6 rations.</td></tr>
+            <tr><td>23–24</td><td>Your magic creates a thunderous boom that can be heard by all creatures within 100 squares of you. The curious ones come to investigate.</td></tr>
+            <tr><td>25–26</td><td>A powerful gust of wind pushes you and every creature within 10 squares of you 1d6 squares in a random direction determined by the Ref.</td></tr>
+            <tr><td>27–28</td><td>You infuse negative energy into yourself and take 1d6 damage.</td></tr>
+            <tr><td>29–30</td><td>You teleport 1d6 squares in a direction chosen by the Ref into an unoccupied space.</td></tr>
+            <tr><td>31–32</td><td>Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of cards equal to the result from the top of the deck. The last card pulled is a piece of equipment that turns into a goat under the Ref's control. The equipment remains a goat until the goat dies, at which point it transforms back into the original equipment.</td></tr>
+            <tr><td>33–34</td><td>Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of cards equal to the result from the top of the deck. The last card pulled is a piece of equipment that is teleported into the possession of another creature randomly chosen by the Ref within 20 squares of you.</td></tr>
+            <tr><td>35–36</td><td>Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of cards equal to the result from the top of the deck. The last card pulled is a piece of equipment that transforms into a feather duster until the end of this DT.</td></tr>
+            <tr><td>37–38</td><td>A sticky goo falls from the sky onto your body. Until this goo disappears at the end of this DT, your speed is reduced by 2. If you are already suffering the effect of this backlash, your speed is reduced an additional 2.</td></tr>
+            <tr><td>39–40</td><td>A noxious, unpleasant-smelling cloud of gas forms around your head and follows you wherever you go. This gas imposes a -1 penalty on all power rolls. This effect has 1 UD. If you already have a cloud of gas, its effects get stronger, and the penalty decreases by -1.</td></tr>
+            <tr><td>41–42</td><td>You open a channel into the target of the spell's mind and their worst fears are shared with your allies within 10 squares of them. Each ally takes 1d6 P damage.</td></tr>
+            <tr><td>43–44</td><td>You are compelled to speak only in rhyming couplets. If you fail to do so, you take 1d6 P damage. This effect has 1 UD.</td></tr>
+            <tr><td>45–46</td><td>Your body becomes porcelain. While in this form, whenever you take non-piercing damage, you take twice as much. This effect has 1 UD.</td></tr>
+            <tr><td>47–48</td><td>You are outlined in a supernatural light which makes it impossible for you to hide and easy to attack. Attacks against you gain +2 while this light is active. This effect has 1 UD.</td></tr>
+            <tr><td>49–50</td><td>Fire erupts from your body. You and each creature within 2 squares of you takes 1d6 damage.</td></tr>
+            <tr><td>51–52</td><td>You summon open a portal that unleashes a horde of demonic bees that flit through the local area and then fly back through the portal before it closes. You and each creature within 3 squares of you must make a Might RR.<br/>Tier 1: 6 damage; boned<br/>Tier 2: 3 damage<br/>Tier 3: No effect</td></tr>
+            <tr><td>53–54</td><td>Tentacles erupt from your body. You and each creature within 3 squares of you takes 1d6 damage. The tentacles become nonfunctional immediately after emerging and you gain three special wounds. You or a creature who can reach you can remove a special wound's worth of tentacles from your body with a bladed tool or weapon as an action without doing further harm to you. Once all these wounds are removed, so are all the tentacles.</td></tr>
+            <tr><td>55–56</td><td>You summon a load of dirt that falls from the sky, smashing down on you and each creature within 2 squares of you. Each affected creature must make an Agility RR.<br/>Tier 1: 6 damage; prone<br/>Tier 2: 3 damage<br/>Tier 3: No effect</td></tr>
+            <tr><td>57–58</td><td>Your magic summons 1d6 blood creatures who appear in unoccupied spaces within 5 squares of you. These creatures are hostile to you.</td></tr>
+            <tr><td>59–60</td><td>You are so overwhelmed with emotion that you fall prone and can't stand up, crawling wherever you wish to go. This effect has 1 UD.</td></tr>
+            <tr><td>61–62</td><td>Your hands become feet until the end of the DT. You gain +2 speed, but you can't hold or manipulate any objects with your hands while this effect lasts.</td></tr>
+            <tr><td>62–64</td><td>The ground beneath you and within 1 square of your turns to quicksand. Each creature standing on the ground must make an Agility RR.<br/>Tier 1: The creature is grappled by the sand (save ends). Each time they fail the save, they take 1d6 damage.<br/>Tier 2: The creature is restrained by the quicksand until the end of their next turn.<br/>Tier 3: The creature can move 2 squares.<br/>A non-grappled creature who enters the quicksand or starts their turn in it must make the Agility RR. If you are not touching the ground, roll for a different backlash.</td></tr>
+            <tr><td>65–66</td><td>You open a one-way viewing portal that follows you around wherever you go until the end of this DT. You can't sense anything on the other side of the portal, but anyone on the other side can see and hear through the portal. The other side of the portal appears near a personal enemy or rival of the Ref's choice.</td></tr>
+            <tr><td>67–68</td><td>You teleport up to 50 squares away in a horizontal direction chosen by the Ref into an unoccupied space.</td></tr>
+            <tr><td>69–70</td><td>You take 1d6 damage and become encased in earth from the neck down and are restrained. Another creature must use an action to free you. Each time you start a combat round encased in earth, you take 1d6 damage.</td></tr>
+            <tr><td>71–72</td><td>If the effect of the spell is good, you cast it and target the nearest enemy, regardless of the spell's range. If the effect of the spell is bad, you cast it and target yourself, regardless of the spell's range. The Ref determines if the spell is good or bad.</td></tr>
+            <tr><td>73–74</td><td>You get a full feeling in your stomach. At the start of each of your turns in combat, you must roll any die. On an odd result, you spend the turn vomiting slugs and can do nothing else. This effect has 1 UD.</td></tr>
+            <tr><td>75–76</td><td>The Ref randomly chooses 1d6 × 100 coins or a gem or other mundane treasure that you carry. It melts.</td></tr>
+            <tr><td>77–78</td><td>You transform into a frog. Your size is Tiny, your Stamina maximum is reduced to 1, you have 0 slots, and you lose all your skills. You have a climb and swim speed equal to your walking speed and Jump +2. This effect has 1 UD.</td></tr>
+            <tr><td>79–80</td><td>Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of cards equal to the result from the top of the deck. The last card pulled is a piece of equipment that is teleported off your person into a dungeon of the Ref's choice.</td></tr>
+            <tr><td>81–82</td><td>Your mouth and ears meld shut until you finish a rest. During this time, you can't speak or hear anything.</td></tr>
+            <tr><td>83–84</td><td>Your eyes become light sensitive. You treat bright light as if it were darkness. This effect has 2 UD.</td></tr>
+            <tr><td>85–86</td><td>You summon a cloud of buzzing, stinging insects that follow you around and don't allow you to rest until you feed them 1,000 pounds of flesh.</td></tr>
+            <tr><td>87–88</td><td>Your Strength score decreases by 1 until you finish a rest. This effect is cumulative.</td></tr>
+            <tr><td>89–90</td><td>Your Agility score decreases by 1 until you finish a rest. This effect is cumulative.</td></tr>
+            <tr><td>91–92</td><td>Your Mind score decreases by 1 until you finish a rest. This effect is cumulative.</td></tr>
+            <tr><td>93–94</td><td>Magic bursts forth from inside your body, causing you to suffer 1d6 wounds.</td></tr>
+            <tr><td>95–96</td><td>Lightning flies from your body. You and each creature within 5 squares of you takes 3d6 damage.</td></tr>
+            <tr><td>97–98</td><td>You become allergic to magic. Whenever you or any creature activates a magic item or casts a spell within 10 squares of you, you take 1d6 P damage. This effect has 2 UD.</td></tr>
+            <tr><td>99–100</td><td>Whenever you cast a spell, the result is treated as one tier lower. If you get a tier 1 result, it is treated as a doom. This effect has 2 UD.</td></tr>
+            <tr><td>101</td><td>Antlers grow from your head. If you cut these off, they instantly grow back. You can't wear hats or any type of headgear that isn't specially modified to fit your new noggin.</td></tr>
+            <tr><td>102</td><td>Your mind is warped by magic. The Ref randomly chooses a skill in which you have at least a +1 bonus and a skill in which you have no bonus. You lose the bonus to the skill you have and gain it in the skill you do not.</td></tr>
+            <tr><td>103</td><td>Magic within your body reshapes one of your hands into a deadly weapon. The Ref randomly chooses a mundane 1-handed weapon. Your hand is now this weapon. You can't ever use that hand slot to hold another object.</td></tr>
+            <tr><td>104</td><td>Magic lightning wracks your body with pain. Your Stamina is reduced to 0 and you gain 2d6 wounds.</td></tr>
+            <tr><td>105</td><td>A portal to Hell opens beneath you and sucks you into it as a chorus of demons laughs at your unfortunate fate. The portal shuts as your soul and body are forever sealed away.</td></tr>
+          </tbody>
+        </table>
+
+  - _id: crrlpgchaoscnt01
+    _key: "!journal.pages!crowsruleconds01.crrlpgchaoscnt01"
+    name: Chaos Count
+    type: text
+    text:
+      content: |
+        <h2>Chaos Count</h2>
+        <p>The Chaos Count (CC) is a secret number the Ref maintains during play and starts at 0. Each time a creature makes a casting from a spellbook and gets a tier 1 result that isn't a doom, the Ref rolls 1d6 + the spell's rank and adds the result to the CC. When a casting causes the CC to be 13 or higher, a backlash occurs and the CC resets to 0.</p>
+        <p>When a backlash is triggered by the Chaos Count, the Ref rolls d100 + rank of the spell that triggered the CC threshold, and consults the Backlashes table.</p>
+
+  - _id: crrlpgweather001
+    _key: "!journal.pages!crowsruleconds01.crrlpgweather001"
+    name: Weather Tables
+    type: text
+    text:
+      content: |
+        <h2>Weather Tables</h2>
+        <p>At the start of each new day traveling, the Ref should check for the weather by rolling on one of the appropriate weather tables below based on the climate or season in which the PCs travel.</p>
+        <h3>Cold of Winter Climate</h3>
+        <table>
+          <thead><tr><th>1d6</th><th>Weather</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Blizzard</td></tr>
+            <tr><td>2–5</td><td>Cold</td></tr>
+            <tr><td>6</td><td>Snow</td></tr>
+          </tbody>
+        </table>
+        <h3>Desert Climate</h3>
+        <table>
+          <thead><tr><th>1d6</th><th>Weather</th></tr></thead>
+          <tbody>
+            <tr><td>1–4</td><td>Heat wave (day) and cold (night)</td></tr>
+            <tr><td>5</td><td>Sandstorm</td></tr>
+            <tr><td>6</td><td>Thunderstorm</td></tr>
+          </tbody>
+        </table>
+        <h3>Fall Climate</h3>
+        <table>
+          <thead><tr><th>1d6</th><th>Weather</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Fog</td></tr>
+            <tr><td>2–5</td><td>Pleasant</td></tr>
+            <tr><td>6</td><td>Rain</td></tr>
+          </tbody>
+        </table>
+        <h3>Spring Climate</h3>
+        <table>
+          <thead><tr><th>1d6</th><th>Weather</th></tr></thead>
+          <tbody>
+            <tr><td>1–4</td><td>Pleasant</td></tr>
+            <tr><td>5</td><td>Rain</td></tr>
+            <tr><td>6</td><td>Thunderstorm</td></tr>
+          </tbody>
+        </table>
+        <h3>Summer or Tropical Climate</h3>
+        <table>
+          <thead><tr><th>1d6</th><th>Weather</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Heat wave</td></tr>
+            <tr><td>2–4</td><td>Pleasant</td></tr>
+            <tr><td>5</td><td>Rain</td></tr>
+            <tr><td>6</td><td>Thunderstorm</td></tr>
+          </tbody>
+        </table>
+        <h3>Weather Effects</h3>
+        <p><strong>Blizzard:</strong> Divide your base pace by 3. At the end of each hour you spend outside without cold weather gear, make a 2d10 + S + Endurance skill test: Tier 1 take 5d6 P dam; Tier 2 take 4d6 P dam; Tier 3 take 3d6 P dam. Take a -2 penalty for each previous test. Guides, scouts, and foragers take a -4 penalty on role tests.</p>
+        <p><strong>Cold:</strong> At the end of each hour outside without cold weather gear, make a 2d10 + S + Endurance skill test: Tier 1 take 3d6 P dam; Tier 2 take 2d6 P dam; Tier 3 take 1d6 P dam. Take a -1 penalty for each previous test. Guides, scouts, and foragers take a -2 penalty on role tests.</p>
+        <p><strong>Fog:</strong> Guides, scouts, and foragers take a -2 penalty on tests made to fulfill their roles.</p>
+        <p><strong>Heat Wave:</strong> Travel at half base pace without damage risk. Faster pace requires 2d10 + S + Endurance test: Tier 1 take 2d6 P dam; Tier 2 take 1d6 P dam; Tier 3 take no dam. All Strength tests to push travel further take a -2 penalty.</p>
+        <p><strong>Pleasant:</strong> No effect on travel.</p>
+        <p><strong>Rain:</strong> Base pace is halved. If carrying rations, make 2d10 + M + Nature Lore skill test: Tier 1 lose 1d6+1 rations to mold; Tier 2 lose 1 ration to mold; Tier 3 lose no rations. Guides, scouts, and foragers take a -2 penalty on role tests.</p>
+        <p><strong>Sandstorm:</strong> Divide your base pace by 3. Guides, scouts, and gatherers take a -4 penalty on role tests.</p>
+        <p><strong>Snow:</strong> Base pace is halved. Guides, scouts, and foragers take a -2 penalty on role tests. Snow also has the effects of Cold weather.</p>
+        <p><strong>Thunderstorm:</strong> Base pace is divided by 3. If carrying rations, make 2d10 + M + Nature Lore skill test: Tier 1 lose 2d6 rations to mold; Tier 2 lose 1d6 ration; Tier 3 lose no rations. Guides, scouts, and gatherers take a -4 penalty on role tests.</p>
+
+  - _id: crrlpgmiasma0001
+    _key: "!journal.pages!crowsruleconds01.crrlpgmiasma0001"
+    name: The Miasma & Effects
+    type: text
+    text:
+      content: |
+        <h2>The Miasma &amp; Effects</h2>
+        <p>Outdoor areas in Cornath are affected by a nearly invisible, magic haze called the Miasma. It's the result of the spells used during the Necromancer War. The Miasma lingers outside, but can't enter indoor areas. This phenomenon corrupts the souls of humans, making them commit selfish and wicked acts. Too much time in the Miasma can create a permanent change. While a human is boned, they can't lose any levels of the condition while within the Miasma. Every 24 hours a human spends within the Miasma, they must make the following test:</p>
+        <p><strong>2d10 + M + Endurance skill</strong></p>
+        <ul>
+          <li>Tier 1: The human is boned and must roll for a Miasma effect on the Miasma Effects table.</li>
+          <li>Tier 2: The human is boned.</li>
+          <li>Tier 3: No effect.</li>
+        </ul>
+        <p>When you roll on the Miasma Effects table, you roll 1d10 + your current boned level. If the result is an effect that is already affecting you, then roll again for a different result.</p>
+        <h3>Miasma Effects</h3>
+        <table>
+          <thead>
+            <tr><th>d10 + boned</th><th>Effect</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1–2</td><td>You become despondent. You only speak if spoken to first and give one-word responses until you exit the Miasma.</td></tr>
+            <tr><td>3–4</td><td>You become ravenous and greedy. You must eat at least 2 rations during a rest to get the benefits of a rest until you are out of the Miasma.</td></tr>
+            <tr><td>5–6</td><td>You enter a destructive rage and destroy one mundane item randomly chosen by the Ref from your backpack.</td></tr>
+            <tr><td>7–8</td><td>You become deceitful. You can only communicate in lies until you are out of the Miasma.</td></tr>
+            <tr><td>9–10</td><td>You grow lazy. You refuse to have any travel role until you are out of the Miasma.</td></tr>
+            <tr><td>11–12</td><td>You relish violence. In combat, you must keep pursuing and fighting your foes until you can no longer sense them. This effect ends when you are no longer boned.</td></tr>
+            <tr><td>13+</td><td>All of your other Miasma effects end and all your levels of boned disappear. You can't suffer any new Miasma effects and are permanently selfish and cruel. You become an NPC controlled by the Ref.</td></tr>
+          </tbody>
+        </table>
+
+  - _id: crrlpgtravel0001
+    _key: "!journal.pages!crowsruleconds01.crrlpgtravel0001"
+    name: Overland Travel
+    type: text
+    text:
+      content: |
+        <h2>Overland Travel</h2>
+        <p>Overland travel occurs when the PCs move from one location to another across vast swaths of land or explore to discover points of interest. Base pace is 12 miles per day (8 hours of travel, no breaks for water, meals, etc.). After this, you must rest if you wish to continue without taking damage.</p>
+        <h3>Terrain</h3>
+        <ul>
+          <li><strong>Normal:</strong> Natural ground without a lot of impediments, such as light forests and grasslands.</li>
+          <li><strong>Road:</strong> Traveling on a paved road or well-trod path doubles your base pace.</li>
+          <li><strong>Rough:</strong> Dense underbrush, mountains, and glaciers halve your base pace.</li>
+        </ul>
+        <h3>Pushing Further</h3>
+        <p>To move an extra distance equal to half your base pace (another 4 hours of travel time), make the following test: <strong>2d10 + S + Endurance skill</strong></p>
+        <ul>
+          <li>Tier 1: Take 3d6 P dam.</li>
+          <li>Tier 2: Take 2d6 P dam.</li>
+          <li>Tier 3: Take 1d6 P dam.</li>
+        </ul>
+        <p>A creature can make this test multiple times in a row without resting to keep pushing to move further, with a cumulative -2 penalty for each test to push repeated after the first.</p>
+        <h3>Travel Procedure</h3>
+        <ol>
+          <li>Determine the route's terrain type.</li>
+          <li>Determine the day's weather. PCs make any tests associated with it.</li>
+          <li>Each PC declares a travel role and makes a test related to the role.</li>
+          <li>Each human makes a test to resist the Miasma.</li>
+          <li>Run any point of interest scenes and roll for random encounters and resolve any that occur.</li>
+          <li>If the group decides to push to travel further, each should make a test to push. Resolve any random encounters and point of interest scenes that occur during these new travel stretches.</li>
+          <li>When the group rests, follow the procedure for resting and repeat the travel procedure for subsequent days of travel.</li>
+        </ol>
+        <h3>Travel Roles</h3>
+        <p>Each day you travel, assign a PC to the guide role. You can assign one PC to the scout role and any number of PCs to the forager and leader roles.</p>
+        <p><strong>Forager (2d10 + A or S):</strong> Tier 1: Finds no food. Tier 2: Procures 1 ration. Tier 3: Procures 3 rations. Takes a -2 penalty in a desert climate or habitat short on food sources.</p>
+        <p><strong>Guide (2d10 + M + Navigate skill):</strong> If the guide has traveled the route before or follows a map or road:<br/>
+        Tier 1: Group moves at normal pace toward destination.<br/>
+        Tier 2: Normal pace; the route gives scout and any foragers a +2 bonus on tests related to their role today.<br/>
+        Tier 3: As tier 2, and the group moves faster than normal and can travel up to 50% further during the initial travel portion of their journey without a test to push.<br/>
+        If the guide hasn't traveled the route before and has no map:<br/>
+        Tier 1: The group gets lost (see Lost).<br/>
+        Tier 2: Normal pace toward destination.<br/>
+        Tier 3: Normal pace; route gives scout and foragers a +2 bonus on role tests today.</p>
+        <p><strong>Leader (2d10 + M):</strong> Tier 1: Provides no bonus to allies. Tier 2: Leader's allies gain a +1 bonus to tests made to resist the effects of the Miasma. Tier 3: As tier 2, except the bonus is +2.</p>
+        <p><strong>Scout (2d10 + A or M):</strong> Tier 1: The day's EN decreases by 2. Tier 2: The day's EN decreases by 1. Tier 3: The day's EN remains the same.</p>
+        <h3>Lost</h3>
+        <p>While lost, a group doesn't know their exact position in the world. The Ref has two methods to determine where the crows end up.</p>
+        <h4>Lost Direction (No Hex Map)</h4>
+        <table>
+          <thead><tr><th>d10</th><th>Direction Traveled</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>North</td></tr>
+            <tr><td>2</td><td>Northeast</td></tr>
+            <tr><td>3</td><td>East</td></tr>
+            <tr><td>4</td><td>Southeast</td></tr>
+            <tr><td>5</td><td>South</td></tr>
+            <tr><td>6</td><td>Southwest</td></tr>
+            <tr><td>7</td><td>West</td></tr>
+            <tr><td>8</td><td>Northwest</td></tr>
+            <tr><td>9</td><td>Roll twice, ignoring this result if it's rolled again. The group moves the first direction for half of their journey and the other direction for the second half.</td></tr>
+            <tr><td>10</td><td>No progress (travel in circles)</td></tr>
+          </tbody>
+        </table>
+        <h4>Back on Track</h4>
+        <p>At the start of a travel day when lost, the guide makes the following test instead of the normal test they make to travel (<strong>2d10 + M + Navigate skill</strong>):</p>
+        <ul>
+          <li>Tier 1: The group remains lost.</li>
+          <li>Tier 2: The group isn't lost anymore and can move at a normal pace toward their destination.</li>
+          <li>Tier 3: As tier 2, but the guide's route gives the scout and any foragers a +2 bonus on tests related to their role today.</li>
+        </ul>
+
+  - _id: crrlpgcraft00001
+    _key: "!journal.pages!crowsruleconds01.crrlpgcraft00001"
+    name: Crafting
+    type: text
+    text:
+      content: |
+        <h2>Crafting</h2>
+        <p>While you rest or are in town, you can use to craft new equipment.</p>
+        <h3>Crafting Prerequisites</h3>
+        <ul>
+          <li><strong>Skill:</strong> Every craftable item has a skill and bonus associated with it. You must have the appropriate skill bonus in the prerequisite skill to craft it.</li>
+          <li><strong>Materials:</strong> Every craftable item requires raw materials listed on the item's card.</li>
+          <li><strong>Recipe:</strong> Every craftable item has a document of instructions to follow for crafting it. If you skill bonus in the prerequisite skill is higher than the item's prerequisite bonus, then you don't need a recipe to craft it.</li>
+          <li><strong>Tools:</strong>
+            <ul>
+              <li>Alchemy: Alchemist's tools</li>
+              <li>Blacksmithing: Blacksmith's tools</li>
+              <li>Enchanting: Enchanter's tools</li>
+            </ul>
+          </li>
+        </ul>
+        <h3>Crafting Goal &amp; Rolls</h3>
+        <p>Each craftable item has a crafting goal — a special number listed on its card. The higher the number, the longer it takes to make the item.</p>
+        <p>You can take the Craft Equipment rest activity to craft a piece of equipment you meet the prerequisites for. When you do, you make a crafting roll when you finish the rest. A crafting roll is a special Mind test that uses the item's prerequisite skill and doesn't have tiered outcomes — you calculate the total and record the result. When you make a crafting roll, the total — no matter how low — becomes crafting points that are accrued by the item you're creating. Even if you have a penalty on a crafting roll, the minimum total for the roll is 1, unless you get a doom result. If you get a doom result on a crafting roll, you accrue no new points for the item. If you obtain a crit on a crafting roll, you can make another crafting roll for the same item as part of the same rest activity.</p>
+        <p>When all of an item's crafting points equal or are greater than its crafting goal, the item is complete and the materials used to create it are expended.</p>
+        <h3>Multiple Crafters</h3>
+        <p>If another creature taking a rest with you meets the tool and skill prerequisites for an item you are crafting with the Craft Equipment activity, they can use their rest activity to undertake the task with you. Crafting rolls they make as part of this rest activity are accrued by the item as points.</p>
+        <h3>Harvesting Materials</h3>
+        <p>Some crafting materials must be harvested from a monster corpse with the Harvest rest activity. Each corpse can only provide 1 of a specific body part, such as blood, heart, or hide. You can only harvest 1 body part per rest activity, though multiple PCs can harvest body parts from the same corpse during a rest. Monster blood and organs are Tiny objects. Monster hides are one size smaller than the creature they come from.</p>
+        <h3>Identifying Magic Items</h3>
+        <p>When you encounter an unfamiliar magic item, you don't know automatically know its properties, but you can tell that it is magical. To discover an item's properties, you can ask an NPC who has expertise with the item, use the Identify Item rest activity, or attempt to activate it and observe the effects.</p>
+        <p>You can also make the following test to identify a magic item you hold (<strong>2d10 + M</strong>):</p>
+        <ul>
+          <li>Tier 1: You accidentally activate the item in a harmful way determined by the Ref.</li>
+          <li>Tier 2: You learn nothing about the item.</li>
+          <li>Tier 3: You learn all of the item's properties.</li>
+        </ul>
+        <p>You can only make this test once with an item.</p>

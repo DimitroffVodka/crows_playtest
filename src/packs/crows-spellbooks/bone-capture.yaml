@@ -1,0 +1,31 @@
+_id: crowsspellbonec1
+_key: "!items!crowsspellbonec1"
+name: Bone Capture
+type: spellbook
+system:
+  description: "<p>You attack a creature with necrotic magic that twists their bones.</p>"
+  discipline: necromancy
+  rank: 0
+  castType: attack
+  range:
+    kind: ranged
+    value: 5
+  target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "No effect"
+    t2: "Boned"
+    t3: "Boned Twice"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

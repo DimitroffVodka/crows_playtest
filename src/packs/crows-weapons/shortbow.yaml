@@ -2,12 +2,17 @@ _id: crowsweap0shtbw1
 _key: "!items!crowsweap0shtbw1"
 name: Shortbow
 type: weapon
+img: icons/weapons/bows/bow-simple-short.webp
 system:
+  description: "<p>A compact bow. Cumbersome.</p>"
   type: bow
   range: { melee: 0, ranged: 10 }
   attackStat: agility
-  damage: { t2: "2 + A", t3: "4 + A" }
-  qualities: [reload]
+  damage: { t2: "1 + A", t3: "2 + A" }
+  qualities: [cumbersome]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
   slots: 1
   stackMax: 1
-  cost: 25
+  cost: 10

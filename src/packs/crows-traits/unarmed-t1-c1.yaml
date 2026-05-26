@@ -1,0 +1,12 @@
+_id: ctunar11thrwstf0
+_key: "!items!ctunar11thrwstf0"
+name: Throw Stuff
+type: trait
+system:
+  description: "<p>When you use an improvised weapon that occupies 1 slot, it has a range of melee 1/range 5.</p>"
+  tree: unarmed
+  tier: 1
+  column: 1
+  connectsTo: [Everything's a Mace]
+  isStarting: true
+  restActivity: false

@@ -1,0 +1,13 @@
+_id: ctillu32yrblvr00
+_key: "!items!ctillu32yrblvr00"
+name: You're a Believer
+type: trait
+system:
+  description: "<p>When you cast an illusion spell that targets a creature, you can choose to take 1d6 P damage before you roll to gain a +1 bonus on the casting against that creature.</p>"
+  tree: illusion
+  tier: 3
+  column: 2
+  connectsTo:
+    - It's Real
+  isStarting: false
+  restActivity: false

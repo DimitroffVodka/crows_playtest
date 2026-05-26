@@ -1,0 +1,12 @@
+_id: crowsbgsage00001
+_key: "!items!crowsbgsage00001"
+name: Sage
+type: background
+system:
+  flavor: "You studied all subjects with a tutor or by burying your nose in many books (likely both)."
+  characteristicBonus: mind
+  stamina: 5
+  startingTrait: "Knowledge: Cram"
+  skills: [historicalLore, magicLore, monsterLore, natureLore, navigate, religiousLore, sabotage]
+  equipment: [journal, "lore book (monsters)", "lore book (nature)", "quill and ink pot", torch]
+  spellbooks: []

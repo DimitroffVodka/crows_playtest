@@ -1,0 +1,28 @@
+_id: crowsgear0tent01
+_key: "!items!crowsgear0tent01"
+name: Tent
+type: gear
+system:
+  description: "<p>Canvas tent that sleeps up to 3 humans comfortably.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 2
+  stackMax: 1
+  quantity: 1
+  cost: 100
+  weightless: false

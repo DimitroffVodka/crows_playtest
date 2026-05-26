@@ -1,0 +1,24 @@
+_id: crowsconsration1
+_key: "!items!crowsconsration1"
+name: Ration
+type: consumable
+system:
+  description: "<p>A day's worth of food. Can be consumed to avoid starvation and get the benefits of a rest.</p>"
+  useAction: maneuver
+  bands:
+    t1: ""
+    t2: ""
+    t3: ""
+  thrown:
+    isAttack: false
+    range: 0
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 6
+  quantity: 1
+  cost: 2

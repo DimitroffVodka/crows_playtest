@@ -1,0 +1,13 @@
+_id: ctleve22brkit000
+_key: "!items!ctleve22brkit000"
+name: Break It
+type: trait
+system:
+  description: "<p>When you use a piece of mundane equipment as part of a test to overcome a goal and get a non-doom result on the test, you can destroy the equipment to improve the result of the test by 1 tier.</p>"
+  tree: leverage
+  tier: 2
+  column: 2
+  connectsTo:
+    - Half Portions
+  isStarting: false
+  restActivity: false

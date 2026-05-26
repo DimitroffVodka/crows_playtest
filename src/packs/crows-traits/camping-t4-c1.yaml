@@ -1,0 +1,12 @@
+_id: ctcamp41sthngcnd
+_key: "!items!ctcamp41sthngcnd"
+name: Soothing Candies
+type: trait
+system:
+  description: "<p>As a rest activity, you can use your cook's utensils to turn a ration into 1d10 soothing candies (which have an equipment card).</p>"
+  tree: camping
+  tier: 4
+  column: 1
+  connectsTo: ["Kitchen Alchemy", "Prepare Your Gear"]
+  isStarting: false
+  restActivity: true

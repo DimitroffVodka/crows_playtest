@@ -1,0 +1,12 @@
+_id: ctthie13stlthy00
+_key: "!items!ctthie13stlthy00"
+name: Stealthy
+type: trait
+system:
+  description: "<p>When make a test to hide or sneak while you are not wearing armor, you can roll the test twice and choose either result.</p>"
+  tree: thievery
+  tier: 1
+  column: 3
+  connectsTo: [Above It All]
+  isStarting: true
+  restActivity: false

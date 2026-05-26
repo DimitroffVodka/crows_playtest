@@ -1,0 +1,18 @@
+_id: crowsweap0hammer
+_key: "!items!crowsweap0hammer"
+name: Hammer
+type: weapon
+img: icons/weapons/hammers/hammer-war-rounding.webp
+system:
+  description: "<p>A versatile hammer effective at both close quarters and thrown at range.</p>"
+  type: bashing
+  range: { melee: 1, ranged: 5 }
+  attackStat: either
+  damage: { t2: "2 + A or S", t3: "4 + A or S" }
+  qualities: [light, pummeling]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 1
+  stackMax: 2
+  cost: 10

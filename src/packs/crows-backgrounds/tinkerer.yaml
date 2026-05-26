@@ -1,0 +1,12 @@
+_id: crowsbgtinkrer01
+_key: "!items!crowsbgtinkrer01"
+name: Tinkerer
+type: background
+system:
+  flavor: "You created magic and mechanical inventions."
+  characteristicBonus: mind
+  stamina: 5
+  startingTrait: "Knowledge: Improvised Equipment"
+  skills: [alchemy, blacksmithing, enchanting, pickLock, sabotage, search, chopping]
+  equipment: ["alchemist's tools", "blacksmith's tools", handaxe, "lockpick set", torch]
+  spellbooks: []

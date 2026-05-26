@@ -1,0 +1,13 @@
+_id: ctpets31mvtgthr0
+_key: "!items!ctpets31mvtgthr0"
+name: Move Together
+type: trait
+system:
+  description: "<p>When you use the Command maneuver, you can take the Move Speed maneuver as part of the same maneuver.</p>"
+  tree: pets
+  tier: 3
+  column: 1
+  connectsTo:
+    - Beastheart
+  isStarting: false
+  restActivity: false

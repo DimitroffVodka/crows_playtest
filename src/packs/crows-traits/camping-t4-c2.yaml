@@ -1,0 +1,12 @@
+_id: ctcamp42prpryrgr
+_key: "!items!ctcamp42prpryrgr"
+name: Prepare Your Gear
+type: trait
+system:
+  description: "<p>As a rest activity, you can choose up to two pieces of gear you can touch that have UD. The number of UD these items have is increased by 1 until you finish another rest.</p>"
+  tree: camping
+  tier: 4
+  column: 2
+  connectsTo: ["Weakness Diagram", "Soothing Candies", "Bard"]
+  isStarting: false
+  restActivity: true

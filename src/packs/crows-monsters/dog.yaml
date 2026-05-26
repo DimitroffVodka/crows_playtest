@@ -1,0 +1,29 @@
+_id: crowsmon0dog0001
+_key: "!actors!crowsmon0dog0001"
+name: Dog (Pet)
+type: monster
+system:
+  power: 2
+  size: medium
+  creatureType: animal
+  stamina: { value: 9, max: 9 }
+  speed:
+    value: 7
+    modes: []
+  characteristics: { agility: 1, mind: -3, strength: 0 }
+  ad: 0
+  slots: 1
+  attacks:
+    - name: Bite
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 2
+      dmgT3: 4
+      riderRef: ""
+  traits:
+    - name: No Dim Light Penalty
+      effect: "<p>Dim light imposes no penalties for this creature.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

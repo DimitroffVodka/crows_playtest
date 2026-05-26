@@ -1,0 +1,12 @@
+_id: crowsbgacolthre1
+_key: "!items!crowsbgacolthre1"
+name: Acolyte of the Three
+type: background
+system:
+  flavor: "You served the god of death, greed, and knowledge."
+  characteristicBonus: "mind or strength"
+  stamina: 7
+  startingTrait: "Necromancy: Soul Absorption"
+  skills: [magicLore, monsterLore, religiousLore, necromancy, chopping]
+  equipment: [axe, torch]
+  spellbooks: ["bone capture", "minor curse", "monster sense"]

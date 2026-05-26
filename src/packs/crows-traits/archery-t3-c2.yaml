@@ -1,0 +1,12 @@
+_id: ctarch32shtdrk00
+_key: "!items!ctarch32shtdrk00"
+name: Shot in the Dark
+type: trait
+system:
+  description: "<p>Attacks you make with bows don't suffer a penalty for the target being in dim light or similar concealment, and they only suffer a -2 penalty against target in darkness or similar concealment.</p>"
+  tree: archery
+  tier: 3
+  column: 2
+  connectsTo: ["Greater Range", "Careful Shot"]
+  isStarting: false
+  restActivity: false

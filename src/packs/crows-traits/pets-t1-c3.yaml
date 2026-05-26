@@ -1,0 +1,13 @@
+_id: ctpets13mntdspd0
+_key: "!items!ctpets13mntdspd0"
+name: Mounted Speed
+type: trait
+system:
+  description: "<p>While you ride a pet you own, their speed is increased by 1.</p>"
+  tree: pets
+  tier: 1
+  column: 3
+  connectsTo:
+    - Dungeon Critter
+  isStarting: true
+  restActivity: false

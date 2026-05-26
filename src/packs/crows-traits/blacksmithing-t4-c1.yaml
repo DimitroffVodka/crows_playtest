@@ -1,0 +1,12 @@
+_id: ctblac41nowaste0
+_key: "!items!ctblac41nowaste0"
+name: No Waste
+type: trait
+system:
+  description: "<p>When you craft a blacksmithing item, you only use half the prerequisite materials required.</p>"
+  tree: blacksmithing
+  tier: 4
+  column: 1
+  connectsTo: ["Made with Spirit", "Enchant Armor"]
+  isStarting: false
+  restActivity: false

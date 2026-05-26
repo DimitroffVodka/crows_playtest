@@ -1,0 +1,31 @@
+_id: crowsspellminph1
+_key: "!items!crowsspellminph1"
+name: Minor Phantasm
+type: spellbook
+system:
+  description: "<p>You create a silent phantom image of your choice for the duration within a space within range. The maximum size of the image is based on the casting.</p>"
+  discipline: illusion
+  rank: 0
+  castType: maneuver
+  range:
+    kind: ranged
+    value: 10
+  target: "1 space"
+  aoe:
+    shape: ""
+    size: ""
+  duration: "1 UD"
+  effectBands:
+    t1: "Tiny image"
+    t2: "Small image"
+    t3: "Medium image"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

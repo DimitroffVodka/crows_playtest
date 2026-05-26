@@ -1,0 +1,13 @@
+_id: ctknow32xprtpln0
+_key: "!items!ctknow32xprtpln0"
+name: Expert Plan
+type: trait
+system:
+  description: "<p>When you take the Prepare for Task rest activity and have a journal, quill, and inkpot, you can diagram your preparations to share with your allies. Each human who rests with you gains the activity's benefit.</p>"
+  tree: knowledge
+  tier: 3
+  column: 2
+  connectsTo:
+    - Monster Expert
+  isStarting: false
+  restActivity: true

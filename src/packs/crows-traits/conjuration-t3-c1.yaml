@@ -1,0 +1,12 @@
+_id: ctconj31blip0000
+_key: "!items!ctconj31blip0000"
+name: Blip
+type: trait
+system:
+  description: "<p>When you cast a conjuration spell, you can teleport a number of squares equal to your Mind after the spell resolves.</p>"
+  tree: conjuration
+  tier: 3
+  column: 1
+  connectsTo: ["Conjuration Mastery", "Split Conjuration"]
+  isStarting: false
+  restActivity: false

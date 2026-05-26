@@ -1,0 +1,12 @@
+_id: ctalch23lstbrw00
+_key: "!items!ctalch23lstbrw00"
+name: Lasting Brew
+type: trait
+system:
+  description: "<p>Potions and poisons you craft that have a duration listed in UD gain 1 additional UD.</p>"
+  tree: alchemy
+  tier: 2
+  column: 3
+  connectsTo: ["Potent Potion", "Potion to Gas"]
+  isStarting: false
+  restActivity: false

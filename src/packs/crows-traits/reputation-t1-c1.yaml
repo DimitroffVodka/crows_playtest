@@ -1,0 +1,13 @@
+_id: ctrepu11cllddy00
+_key: "!items!ctrepu11cllddy00"
+name: Call Daddy
+type: trait
+system:
+  description: "<p>Choose a merchant in your village. When you need to roll for an item's availability from that merchant, the AO increases by 5%. You can change your choice of merchant once every cycle.</p>"
+  tree: reputation
+  tier: 1
+  column: 1
+  connectsTo:
+    - Also Mommy
+  isStarting: true
+  restActivity: false

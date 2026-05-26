@@ -1,0 +1,12 @@
+_id: ctbash42bashhls0
+_key: "!items!ctbash42bashhls0"
+name: Bashing Holster
+type: trait
+system:
+  description: "<p>You gain an additional belt slot that can only hold bashing weapons.</p>"
+  tree: bashing
+  tier: 4
+  column: 2
+  connectsTo: ["Bashing Crit", "Knock 'Em Together", "Down You Go"]
+  isStarting: false
+  restActivity: false

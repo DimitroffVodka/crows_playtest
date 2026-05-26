@@ -1,0 +1,13 @@
+_id: ctknow11cram0000
+_key: "!items!ctknow11cram0000"
+name: Cram
+type: trait
+system:
+  description: "<p>When you read a lore book as a rest activity, you can read a second lore book as part of the same activity.</p>"
+  tree: knowledge
+  tier: 1
+  column: 1
+  connectsTo:
+    - Specific Research
+  isStarting: true
+  restActivity: true

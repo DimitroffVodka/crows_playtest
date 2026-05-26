@@ -1,0 +1,31 @@
+_id: crowsspellmincu1
+_key: "!items!crowsspellmincu1"
+name: Minor Curse
+type: spellbook
+system:
+  description: "<p>You place a minor curse on a creature you touch.</p>"
+  discipline: necromancy
+  rank: 0
+  castType: action
+  range:
+    kind: melee
+    value: 1
+  target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "No effect"
+    t2: "Prone"
+    t3: "2+M damage; prone"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

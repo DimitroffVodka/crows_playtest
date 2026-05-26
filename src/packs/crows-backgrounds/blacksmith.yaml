@@ -1,0 +1,12 @@
+_id: crowsbgblksmith1
+_key: "!items!crowsbgblksmith1"
+name: Blacksmith
+type: background
+system:
+  flavor: "You forged and sold items made from metal."
+  characteristicBonus: strength
+  stamina: 7
+  startingTrait: "Smithing: Double Duty"
+  skills: [blacksmithing, endurance, lift, sabotage, bashing]
+  equipment: [bell, chain, maul, "smith's tools", torch]
+  spellbooks: []

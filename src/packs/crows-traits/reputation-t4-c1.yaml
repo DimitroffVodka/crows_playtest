@@ -1,0 +1,12 @@
+_id: ctrepu41ndgrnd00
+_key: "!items!ctrepu41ndgrnd00"
+name: And Grandmommy
+type: trait
+system:
+  description: "<p>Your Call Daddy trait applies to three merchants of your choice. You can change up to three once every cycle.</p>"
+  tree: reputation
+  tier: 4
+  column: 1
+  connectsTo: []
+  isStarting: false
+  restActivity: false

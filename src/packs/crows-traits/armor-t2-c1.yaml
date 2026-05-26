@@ -1,0 +1,12 @@
+_id: ctarmo21hrlshld0
+_key: "!items!ctarmo21hrlshld0"
+name: Hurl Shield
+type: trait
+system:
+  description: "<p>You can make a ranged weapon attack with your shield. This attack is a Strength test that is ranged 5 and deals 3 + S damage on a tier 2 result and 6 + S damage on a tier 3 result.</p>"
+  tree: armor
+  tier: 2
+  column: 1
+  connectsTo: ["Interposing Arm", "Wall of Protection"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: ctunar43yrmywpn0
+_key: "!items!ctunar43yrmywpn0"
+name: You Are My Weapon
+type: trait
+system:
+  description: "<p>When you force move a creature into another while you have at least 1 hand slot free, both creatures take damage equal to the forced movement remaining when they collide.</p>"
+  tree: unarmed
+  tier: 4
+  column: 3
+  connectsTo: []
+  isStarting: false
+  restActivity: false

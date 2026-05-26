@@ -1,0 +1,12 @@
+_id: ctbash12destctv0
+_key: "!items!ctbash12destctv0"
+name: Destructive
+type: trait
+system:
+  description: "<p>You deal double damage to objects with bashing weapon attacks.</p>"
+  tree: bashing
+  tier: 1
+  column: 2
+  connectsTo: ["Big Ain't Nothing"]
+  isStarting: true
+  restActivity: false

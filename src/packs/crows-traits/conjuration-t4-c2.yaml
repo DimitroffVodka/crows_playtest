@@ -1,0 +1,12 @@
+_id: ctconj42prtlpckt
+_key: "!items!ctconj42prtlpckt"
+name: Portal Pocket
+type: trait
+system:
+  description: "<p>You gain an additional belt slot that exists in an extradimensional space only you can access. If you die, any items in that slot disappear into the void.</p>"
+  tree: conjuration
+  tier: 4
+  column: 2
+  connectsTo: ["Baleful Teleport", "Split Conjuration", "Telepathic Connection"]
+  isStarting: false
+  restActivity: false

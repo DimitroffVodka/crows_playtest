@@ -1,15 +1,31 @@
 _id: crowsspellfirla1
 _key: "!items!crowsspellfirla1"
-name: Fire Lance Book
+name: Fire Lance
 type: spellbook
 system:
+  description: "<p>You hurl a lance of fire at a target within range.</p>"
   discipline: elemental
   rank: 0
   castType: attack
-  range: { kind: ranged, value: 10 }
+  range:
+    kind: ranged
+    value: 10
   target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
   duration: instant
-  effectBands: { t2: "3 + M", t3: "6 + M" }
-  usageDie: { enabled: true, udMax: 1, udCurrent: 1, expiry: rest }
+  effectBands:
+    t1: ""
+    t2: "2+M damage"
+    t3: "4+M damage"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
   slots: 1
+  stackMax: 1
+  quantity: 1
   cost: 250

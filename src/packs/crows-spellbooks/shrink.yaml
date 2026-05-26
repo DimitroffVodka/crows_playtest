@@ -1,0 +1,31 @@
+_id: crowsspellshrnk1
+_key: "!items!crowsspellshrnk1"
+name: Shrink
+type: spellbook
+system:
+  description: "<p>The target and their equipment size are reduced by a number of categories based on the casting. Your lower body is now a slug tail. Your speed is reduced by 2.</p>"
+  discipline: alteration
+  rank: 1
+  castType: maneuver
+  range:
+    kind: melee
+    value: 1
+  target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
+  duration: "1 UD"
+  effectBands:
+    t1: "Reduced 0 categories / weapon attack damage +0/+0"
+    t2: "Reduced 1 category / weapon attack damage -2"
+    t3: "Reduced 2 categories / weapon attack damage -4"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 500

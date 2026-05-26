@@ -1,0 +1,12 @@
+_id: ctpets43bstbrdn0
+_key: "!items!ctpets43bstbrdn0"
+name: Beast of Burden
+type: trait
+system:
+  description: "<p>At the end of a rest, choose one pet you own. This pet gains two additional backpack slots. The additional slots disappear at the end of your next rest.</p>"
+  tree: pets
+  tier: 4
+  column: 3
+  connectsTo: []
+  isStarting: false
+  restActivity: false

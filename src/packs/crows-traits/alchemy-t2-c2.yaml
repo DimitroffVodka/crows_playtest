@@ -1,0 +1,12 @@
+_id: ctalch22bigboom0
+_key: "!items!ctalch22bigboom0"
+name: Big Boom
+type: trait
+system:
+  description: "<p>Bombs you craft have the size of the cube they effect increased by 1.</p>"
+  tree: alchemy
+  tier: 2
+  column: 2
+  connectsTo: ["It Burns", "You In Particular"]
+  isStarting: false
+  restActivity: false

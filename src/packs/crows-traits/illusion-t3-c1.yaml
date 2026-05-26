@@ -1,0 +1,13 @@
+_id: ctillu31bgdrmss0
+_key: "!items!ctillu31bgdrmss0"
+name: Big Dreams
+type: trait
+system:
+  description: "<p>When you cast an illusion with a size (such as Small or Medium) the illusion's size increases by 1.</p>"
+  tree: illusion
+  tier: 3
+  column: 1
+  connectsTo:
+    - Split Illusion
+  isStarting: false
+  restActivity: false

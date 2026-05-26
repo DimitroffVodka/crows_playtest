@@ -1,0 +1,12 @@
+_id: ctarch22grtrrng0
+_key: "!items!ctarch22grtrrng0"
+name: Greater Range
+type: trait
+system:
+  description: "<p>While you wield a bow weapon, it's range increases by 2 squares. This bonus stacks with Range Finder.</p>"
+  tree: archery
+  tier: 2
+  column: 2
+  connectsTo: ["Range Finder", "Shot in the Dark"]
+  isStarting: false
+  restActivity: false

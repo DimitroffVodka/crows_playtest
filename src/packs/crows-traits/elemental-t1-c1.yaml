@@ -1,0 +1,12 @@
+_id: ctelem11burnbaby
+_key: "!items!ctelem11burnbaby"
+name: Burn Baby
+type: trait
+system:
+  description: "<p>When you cast an elemental spell that deals damage to a target, the target takes additional damage equal to your Mind.</p>"
+  tree: elemental
+  tier: 1
+  column: 1
+  connectsTo: ["Lingering Fire"]
+  isStarting: true
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: crowsbgbeggar001
+_key: "!items!crowsbgbeggar001"
+name: Beggar
+type: background
+system:
+  flavor: "You relied on the kindness of strangers to scrape together enough coins to live."
+  characteristicBonus: any
+  stamina: 7
+  startingTrait: "Scavenging: More for Less"
+  skills: [endurance, hide, lift, search, sneak]
+  equipment: [lock, pot, string, tent, torch]
+  spellbooks: []

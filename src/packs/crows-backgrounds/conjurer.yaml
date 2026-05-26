@@ -1,0 +1,12 @@
+_id: crowsbgconjurer1
+_key: "!items!crowsbgconjurer1"
+name: Conjurer
+type: background
+system:
+  flavor: "You studied conjuration magic on your own or with a teacher."
+  characteristicBonus: mind
+  stamina: 7
+  startingTrait: "Conjuration: Jumper"
+  skills: [handleAnimal, magicLore, monsterLore, navigate, conjuration]
+  equipment: [chain, torch]
+  spellbooks: [jaunt, "summon object", "teleport object"]

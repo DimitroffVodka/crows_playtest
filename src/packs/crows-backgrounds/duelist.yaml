@@ -1,0 +1,12 @@
+_id: crowsbgduelist01
+_key: "!items!crowsbgduelist01"
+name: Duelist
+type: background
+system:
+  flavor: "You dedicated your youth to fencing in noble courts."
+  characteristicBonus: agility
+  stamina: 9
+  startingTrait: "Slashing: Finesse the Blade"
+  skills: [gymnastics, historicalLore, slashing]
+  equipment: ["light armor", "lore book (historical)", mirror, sword, torch]
+  spellbooks: []

@@ -1,0 +1,28 @@
+_id: crowsgear0lckpck
+_key: "!items!crowsgear0lckpck"
+name: Lockpick Set
+type: gear
+system:
+  description: "<p>Without this, you take a -1 penalty on tests made to pick locks.</p><p>Fine (750 gc): Grants a +1 bonus on tests to pick locks. Masterwork (1,500 gc): Grants a +2 bonus on tests to pick locks.</p><p>Blacksmithing +1 | 1 iron bar | 10/150/300</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 25
+  weightless: false

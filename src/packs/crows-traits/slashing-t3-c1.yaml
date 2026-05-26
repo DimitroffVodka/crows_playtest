@@ -1,0 +1,12 @@
+_id: ctslas31knfchkr0
+_key: "!items!ctslas31knfchkr0"
+name: Knife Chucker
+type: trait
+system:
+  description: "<p>When you wield a knife, it's non-melee range increases by 2 squares.</p>"
+  tree: slashing
+  tier: 3
+  column: 1
+  connectsTo: [Double Knife]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: cttrav22pthfall0
+_key: "!items!cttrav22pthfall0"
+name: A Path for All
+type: trait
+system:
+  description: "<p>When are in the guide travel role while carrying a compass, any test you make that grants a bonus to other travel roles has that bonus increase by your Mind.</p>"
+  tree: travel
+  tier: 2
+  column: 2
+  connectsTo: [Push It Real Good]
+  isStarting: false
+  restActivity: false

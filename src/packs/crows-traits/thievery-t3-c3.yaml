@@ -1,0 +1,12 @@
+_id: ctthie33dodgy000
+_key: "!items!ctthie33dodgy000"
+name: Dodgy
+type: trait
+system:
+  description: "<p>You gain a +2 bonus on Agility RRs while you are not wearing armor.</p>"
+  tree: thievery
+  tier: 3
+  column: 3
+  connectsTo: [Tumble]
+  isStarting: false
+  restActivity: false

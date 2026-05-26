@@ -1,0 +1,12 @@
+_id: ctarch31wllscsv0
+_key: "!items!ctarch31wllscsv0"
+name: Walls Can't Save You
+type: trait
+system:
+  description: "<p>Attacks you make with bows don't suffer a penalty for the target having cover.</p>"
+  tree: archery
+  tier: 3
+  column: 1
+  connectsTo: ["Aim", "Split Shot"]
+  isStarting: false
+  restActivity: false

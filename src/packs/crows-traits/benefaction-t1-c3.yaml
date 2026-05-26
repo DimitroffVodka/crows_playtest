@@ -1,0 +1,12 @@
+_id: ctbene13frstrspr
+_key: "!items!ctbene13frstrspr"
+name: First Responder
+type: trait
+system:
+  description: "<p>When you have a benefaction spell that can restore Stamina to a creature equipped and a creature within the spell's range takes damage, you can use your reaction to cast the spell, targeting that creature.</p>"
+  tree: benefaction
+  tier: 1
+  column: 3
+  connectsTo: ["Benefaction Ward"]
+  isStarting: true
+  restActivity: false

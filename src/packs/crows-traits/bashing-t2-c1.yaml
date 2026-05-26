@@ -1,0 +1,12 @@
+_id: ctbash21frthrb00
+_key: "!items!ctbash21frthrb00"
+name: Further Back
+type: trait
+system:
+  description: "<p>When you get a tier 3 result on an attack with a bashing and pummeling weapon, you push the target 1 additional square. This trait stacks with Push 'Em Back.</p>"
+  tree: bashing
+  tier: 2
+  column: 1
+  connectsTo: ["Push 'Em Back", "Collision Damage"]
+  isStarting: false
+  restActivity: false

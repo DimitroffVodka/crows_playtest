@@ -1,0 +1,28 @@
+_id: crowsgear0padlck
+_key: "!items!crowsgear0padlck"
+name: Padlock
+type: gear
+system:
+  description: "<p>Iron padlock. Includes a key.</p><p>Fine (750 gc): Tests to pick or break the lock take a -1 penalty. Masterwork (1,500 gc): Tests to pick or break the lock take a -2 penalty.</p><p>Blacksmithing +1 | 1 iron bar | 10/150/300</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 3
+  quantity: 1
+  cost: 25
+  weightless: false

@@ -1,0 +1,18 @@
+_id: crowsweap0pike01
+_key: "!items!crowsweap0pike01"
+name: Pike
+type: weapon
+img: icons/weapons/polearms/pike-steel.webp
+system:
+  description: "<p>A two-handed stabbing polearm with extended reach. Brutal.</p>"
+  type: stabbing
+  range: { melee: 2, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "3 + S", t3: "7 + S" }
+  qualities: [brutal]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 15

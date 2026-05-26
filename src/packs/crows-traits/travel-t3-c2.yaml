@@ -1,0 +1,12 @@
+_id: cttrav32pshrlgd0
+_key: "!items!cttrav32pshrlgd0"
+name: Push It Real Good
+type: trait
+system:
+  description: "<p>When you are in the guide or leader role and carrying a compass or musical instrument, you and each ally traveling with you adds your Mind to tests related to pushing to travel further.</p>"
+  tree: travel
+  tier: 3
+  column: 2
+  connectsTo: [This Way]
+  isStarting: false
+  restActivity: false

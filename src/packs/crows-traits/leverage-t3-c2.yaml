@@ -1,0 +1,13 @@
+_id: ctleve32hlfprt00
+_key: "!items!ctleve32hlfprt00"
+name: Half Portions
+type: trait
+system:
+  description: "<p>You only need to eat half of a ration's worth of food during a rest to get the benefit of resting.</p>"
+  tree: leverage
+  tier: 3
+  column: 2
+  connectsTo:
+    - Groundroll
+  isStarting: false
+  restActivity: false

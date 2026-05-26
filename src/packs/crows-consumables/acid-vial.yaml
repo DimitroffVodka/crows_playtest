@@ -1,0 +1,24 @@
+_id: crowsconsacidvl1
+_key: "!items!crowsconsacidvl1"
+name: Acid Vial
+type: consumable
+system:
+  description: "<p>Pouring the vial onto a surface destroys up to 1 cubic foot of mundane matter.</p><p><strong>Action:</strong> You can make a ranged 5 attack with it using Agility.</p>"
+  useAction: action
+  bands:
+    t1: ""
+    t2: "4 + A"
+    t3: "8 + A"
+  thrown:
+    isAttack: true
+    range: 5
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 10

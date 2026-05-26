@@ -1,0 +1,12 @@
+_id: ctchop23nrlntngd
+_key: "!items!ctchop23nrlntngd"
+name: Unrelenting Death
+type: trait
+system:
+  description: "<p>When you score a crit with a chopping weapon, any other chopping weapon attacks you make on the same turn gain a +2 bonus.</p>"
+  tree: chopping
+  tier: 2
+  column: 3
+  connectsTo: ["Chop 'Em Down", "Crit"]
+  isStarting: false
+  restActivity: false

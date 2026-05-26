@@ -1,0 +1,12 @@
+_id: crowsbgkeraunom1
+_key: "!items!crowsbgkeraunom1"
+name: Keraunomancer
+type: background
+system:
+  flavor: "You learned how to cast elemental spells that create and harness lightning and thunder."
+  characteristicBonus: mind
+  stamina: 7
+  startingTrait: "Elemental: Hurl the Storm"
+  skills: [blacksmithing, enchanting, magicLore, elemental, bashing]
+  equipment: [mace, mirror, torch]
+  spellbooks: [spark, thunder]

@@ -1,0 +1,12 @@
+_id: ctarmo12stalwrt0
+_key: "!items!ctarmo12stalwrt0"
+name: Stalwart
+type: trait
+system:
+  description: "<p>While wearing armor, the distance you can be force moved is reduced by 1, and you can't be knocked prone by tier 1 and 2 attack results or by tier 2 and 3 RR results.</p>"
+  tree: armor
+  tier: 1
+  column: 2
+  connectsTo: ["Sacrifice Armor"]
+  isStarting: true
+  restActivity: false

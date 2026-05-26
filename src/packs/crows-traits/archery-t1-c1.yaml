@@ -1,0 +1,12 @@
+_id: ctarch11pntblnk0
+_key: "!items!ctarch11pntblnk0"
+name: Point Blank
+type: trait
+system:
+  description: "<p>When you make a ranged attack with a bow, you don't suffer the -1 penalty for having an enemy within 1 square of you.</p>"
+  tree: archery
+  tier: 1
+  column: 1
+  connectsTo: ["Aim"]
+  isStarting: true
+  restActivity: false

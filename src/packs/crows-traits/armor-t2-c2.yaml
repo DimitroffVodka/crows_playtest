@@ -1,0 +1,12 @@
+_id: ctarmo22sacrarm0
+_key: "!items!ctarmo22sacrarm0"
+name: Sacrifice Armor
+type: trait
+system:
+  description: "<p>When an attack reduces armor you wear or a shield you wield to 0 AD and there is still damage left, you can reduce the remaining damage to 0. If you do, the armor reduced to 0 AD is destroyed.</p>"
+  tree: armor
+  tier: 2
+  column: 2
+  connectsTo: ["Stalwart", "Immovable"]
+  isStarting: false
+  restActivity: false

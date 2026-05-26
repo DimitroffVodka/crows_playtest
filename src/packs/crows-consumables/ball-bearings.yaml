@@ -1,0 +1,24 @@
+_id: crowsconsballbrg
+_key: "!items!crowsconsballbrg"
+name: Ball Bearings
+type: consumable
+system:
+  description: "<p>A bag of 1,000. Spread over a 2 x 2 area of ground. Creatures entering the area must make an Agility RR.</p>"
+  useAction: maneuver
+  bands:
+    t1: "Prone and 4 damage"
+    t2: "Prone and speed reduced until healed"
+    t3: "No effect"
+  thrown:
+    isAttack: false
+    range: 5
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 5

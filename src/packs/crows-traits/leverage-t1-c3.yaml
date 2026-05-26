@@ -1,0 +1,13 @@
+_id: ctleve13lstnlht0
+_key: "!items!ctleve13lstnlht0"
+name: Lasting Light
+type: trait
+system:
+  description: "<p>When you carry a mundane light source, its UD maximum increases by 1.</p>"
+  tree: leverage
+  tier: 1
+  column: 3
+  connectsTo:
+    - Torch Warrior
+  isStarting: true
+  restActivity: false

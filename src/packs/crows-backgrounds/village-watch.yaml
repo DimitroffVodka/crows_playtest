@@ -1,0 +1,12 @@
+_id: crowsbgvlgwatch1
+_key: "!items!crowsbgvlgwatch1"
+name: Village Watch
+type: background
+system:
+  flavor: "You were a member of an organized law enforcement body that kept a settlement safe."
+  characteristicBonus: strength
+  stamina: 9
+  startingTrait: "Polearm: Begone"
+  skills: [jump, search, stabbing]
+  equipment: [chain, lantern, "light armor", "oil flask", pike, whistle]
+  spellbooks: []

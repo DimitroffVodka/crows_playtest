@@ -1,0 +1,12 @@
+_id: ctench32lstngtms
+_key: "!items!ctench32lstngtms"
+name: Lasting Items
+type: trait
+system:
+  description: "<p>Enchanting items you create that become useless when they have no UD gain an additional 1 UD.</p>"
+  tree: enchantment
+  tier: 3
+  column: 2
+  connectsTo: ["Enchanting Epiphany", "Five Steps Ahead"]
+  isStarting: false
+  restActivity: false

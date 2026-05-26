@@ -4,12 +4,15 @@ name: Sword
 type: weapon
 img: icons/weapons/swords/sword-broad-steel.webp
 system:
-  description: "<p>A versatile blade.</p>"
+  description: "<p>A reliable one-handed blade. Parry 4.</p>"
   type: slashing
   range: { melee: 1, ranged: 0 }
-  attackStat: either
-  damage: { t2: "3 + A or S", t3: "6 + A or S" }
-  qualities: []
+  attackStat: strength
+  damage: { t2: "3 + S", t3: "6 + S" }
+  qualities: [disengage, parry]
+  parryValue: 4
+  enchantment: ""
+  qualityTier: standard
   slots: 1
   stackMax: 1
-  cost: 30
+  cost: 12

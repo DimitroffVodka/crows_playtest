@@ -1,0 +1,12 @@
+_id: ctcamp22prprcmps
+_key: "!items!ctcamp22prprcmps"
+name: Prepare Campsite
+type: trait
+system:
+  description: "<p>Before you rest, you can ask the Ref for the EN. If it is 5 or lower, you can use a journal, quill, and inkpot to sketch out and plan a safer campsite, increasing the EN by 1, but you can't take a rest activity.</p>"
+  tree: camping
+  tier: 2
+  column: 2
+  connectsTo: ["Plotting", "Weakness Diagram"]
+  isStarting: false
+  restActivity: false

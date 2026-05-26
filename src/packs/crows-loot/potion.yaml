@@ -1,0 +1,25 @@
+_id: crowsloot0potion
+_key: "!items!crowsloot0potion"
+name: Potion
+type: gear
+system:
+  description: "<p><strong>Stack</strong> 5</p><p>Just drink it. What's the worst that could happen?</p>"
+  subtype: utility
+  light:
+    enabled: false
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: activate
+    refuelWith: ""
+  isMagic: true
+  mystery: true
+  identified: false
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 0

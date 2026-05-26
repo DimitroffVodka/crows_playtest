@@ -1,0 +1,31 @@
+_id: crowsspellcrupt1
+_key: "!items!crowsspellcrupt1"
+name: Corrupt
+type: spellbook
+system:
+  description: "<p>You hurl corrupting necrotic energy at a creature within range.</p>"
+  discipline: necromancy
+  rank: 1
+  castType: attack
+  range:
+    kind: ranged
+    value: 5
+  target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: ""
+    t2: "4+M damage; boned"
+    t3: "8+M damage; boned twice"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 500

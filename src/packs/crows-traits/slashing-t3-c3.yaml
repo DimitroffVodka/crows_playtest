@@ -1,0 +1,12 @@
+_id: ctslas33brkbld00
+_key: "!items!ctslas33brkbld00"
+name: Break the Blade
+type: trait
+system:
+  description: "<p>When an attack reduces a slashing weapon you wield to 0 AD and there is still damage left, you can reduce the remaining damage to 0. If you do, the weapon is destroyed.</p>"
+  tree: slashing
+  tier: 3
+  column: 3
+  connectsTo: [Scabbard]
+  isStarting: false
+  restActivity: false

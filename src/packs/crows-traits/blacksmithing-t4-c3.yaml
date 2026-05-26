@@ -1,0 +1,12 @@
+_id: ctblac43nchntwpn
+_key: "!items!ctblac43nchntwpn"
+name: Enchant Weapons
+type: trait
+system:
+  description: "<p>You can use your blacksmith's tools as enchanter's tools and your bonus in the Blacksmithing skill in place of the Enchantment skill when crafting magic weapons.</p>"
+  tree: blacksmithing
+  tier: 4
+  column: 3
+  connectsTo: ["Weapon Upgrade II", "Enchant Armor"]
+  isStarting: false
+  restActivity: false

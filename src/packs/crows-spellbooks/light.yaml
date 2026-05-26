@@ -1,0 +1,31 @@
+_id: crowsspell0light
+_key: "!items!crowsspell0light"
+name: Light
+type: spellbook
+system:
+  description: "<p>The object sheds light. The brightness of the light depends on the casting.</p>"
+  discipline: illusion
+  rank: 0
+  castType: maneuver
+  range:
+    kind: melee
+    value: 1
+  target: "1 obj."
+  aoe:
+    shape: ""
+    size: ""
+  duration: "1 UD"
+  effectBands:
+    t1: ""
+    t2: "2+M radius (dim)"
+    t3: "4+M radius (bright)"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

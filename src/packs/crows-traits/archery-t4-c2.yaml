@@ -1,0 +1,12 @@
+_id: ctarch42crflsht0
+_key: "!items!ctarch42crflsht0"
+name: Careful Shot
+type: trait
+system:
+  description: "<p>When you get a non-doom tier 1 result on an attack made with a bow, you don't hit an ally within 1 square of the target.</p>"
+  tree: archery
+  tier: 4
+  column: 2
+  connectsTo: ["Shot in the Dark"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: ctconj43tlpthccn
+_key: "!items!ctconj43tlpthccn"
+name: Telepathic Connection
+type: trait
+system:
+  description: "<p>When you summon a creature with a conjuration spell, you can telepathically communicate with them and use their senses as your own (while still using yours) over any distance until the spell ends.</p>"
+  tree: conjuration
+  tier: 4
+  column: 3
+  connectsTo: ["Improved Summons", "Portal Pocket"]
+  isStarting: false
+  restActivity: false

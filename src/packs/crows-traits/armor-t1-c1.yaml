@@ -1,0 +1,12 @@
+_id: ctarmo11intrarm0
+_key: "!items!ctarmo11intrarm0"
+name: Interposing Arm
+type: trait
+system:
+  description: "<p>When you wield a shield with at least 1 AD and a creature makes a weapon attack against a creature adjacent to you, you can use your reaction to cause the damage to apply your shield before the target.</p>"
+  tree: armor
+  tier: 1
+  column: 1
+  connectsTo: ["Hurl Shield"]
+  isStarting: true
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: ctbash13trpcntr0
+_key: "!items!ctbash13trpcntr0"
+name: Tripping Counter
+type: trait
+system:
+  description: "<p>When you counter with a bashing weapon against a creature who got a doom result on the triggering attack, you knock the target prone regardless of their size.</p>"
+  tree: bashing
+  tier: 1
+  column: 3
+  connectsTo: ["Piledriver"]
+  isStarting: true
+  restActivity: false

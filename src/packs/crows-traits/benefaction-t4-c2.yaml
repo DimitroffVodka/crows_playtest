@@ -1,0 +1,12 @@
+_id: ctbene42stitchm0
+_key: "!items!ctbene42stitchm0"
+name: Stitching Magic
+type: trait
+system:
+  description: "<p>When you cast a benefaction spell that makes the spell's target lose at least 1 wound, they lose 1 additional wound.</p>"
+  tree: benefaction
+  tier: 4
+  column: 2
+  connectsTo: ["Some For Me"]
+  isStarting: false
+  restActivity: false

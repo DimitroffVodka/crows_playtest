@@ -1,0 +1,24 @@
+_id: crowsconsragepot
+_key: "!items!crowsconsragepot"
+name: Rage Potion
+type: consumable
+system:
+  description: "<p>Consume to gain +5 AD and deal an additional 2 damage with melee attacks. Lasts as long as you keep making attacks against creatures each round.</p>"
+  useAction: maneuver
+  bands:
+    t1: ""
+    t2: ""
+    t3: ""
+  thrown:
+    isAttack: false
+    range: 0
+  duration: "While attacking each round"
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 50

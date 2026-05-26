@@ -1,0 +1,12 @@
+_id: ctalch12itbrns00
+_key: "!items!ctalch12itbrns00"
+name: It Burns
+type: trait
+system:
+  description: "<p>Acids and poisons you craft deal additional damage equal to twice your Mind. Bombs you craft deal additional damage equal to your Mind.</p>"
+  tree: alchemy
+  tier: 1
+  column: 2
+  connectsTo: ["Big Boom"]
+  isStarting: true
+  restActivity: false

@@ -3,9 +3,10 @@ _key: "!items!crowsbgarcher000"
 name: Archer
 type: background
 system:
+  flavor: "You served as a soldier or member of the watch who was specially trained with a bow."
   characteristicBonus: agility
   stamina: 7
-  startingTrait: "Archery: Starting Trait"
-  skills: [bow, search, sneak]
-  equipment: [shortbow, "quiver of 20 arrows"]
+  startingTrait: "Archery: Point Blank"
+  skills: [climb, hide, sneak, bow, unarmed]
+  equipment: ["quiver of 20 arrows", shortbow, spyglass, torch, whistle]
   spellbooks: []

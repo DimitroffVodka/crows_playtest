@@ -1,0 +1,12 @@
+_id: ctstab41stbhlst0
+_key: "!items!ctstab41stbhlst0"
+name: Stabbing Holster
+type: trait
+system:
+  description: "<p>You gain an additional belt slot that can only hold stabbing weapons.</p>"
+  tree: stabbing
+  tier: 4
+  column: 1
+  connectsTo: []
+  isStarting: false
+  restActivity: false

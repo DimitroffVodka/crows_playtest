@@ -1,0 +1,12 @@
+_id: ctbash23pldrvr00
+_key: "!items!ctbash23pldrvr00"
+name: Piledriver
+type: trait
+system:
+  description: "<p>When you knock a creature prone with a bashing weapon attack, you deal additional damage to them equal to your Strength.</p>"
+  tree: bashing
+  tier: 2
+  column: 3
+  connectsTo: ["Tripping Counter", "Bone Breaker"]
+  isStarting: false
+  restActivity: false

@@ -1,0 +1,28 @@
+_id: crowsgear0mirror
+_key: "!items!crowsgear0mirror"
+name: Mirror
+type: gear
+system:
+  description: "<p>A hand mirror, useful for looking around corners and at your own mug.</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 100
+  weightless: false

@@ -1,0 +1,12 @@
+_id: crowsbgacolsmth1
+_key: "!items!crowsbgacolsmth1"
+name: Acolyte of the Smith
+type: background
+system:
+  flavor: "You served the god of creativity."
+  characteristicBonus: mind
+  stamina: 7
+  startingTrait: "Enchantment: Hands for Tools"
+  skills: [alchemy, blacksmithing, enchanting, religiousLore, benefaction]
+  equipment: ["holy symbol", "magnifying glass", torch]
+  spellbooks: ["minor healing", "summon object"]

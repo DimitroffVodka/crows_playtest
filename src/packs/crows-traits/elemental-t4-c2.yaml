@@ -1,0 +1,12 @@
+_id: ctelem42sprdngst
+_key: "!items!ctelem42sprdngst"
+name: Spreading Storm
+type: trait
+system:
+  description: "<p>When you cast an elemental spell that creates an area of effect, you can increase all dimensions of the area of effect by 1.</p>"
+  tree: elemental
+  tier: 4
+  column: 2
+  connectsTo: ["Selective Storm", "Burned in the Brain", "Split the Sea"]
+  isStarting: false
+  restActivity: false

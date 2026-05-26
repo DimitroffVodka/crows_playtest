@@ -1,0 +1,12 @@
+_id: ctnecr43anglcpr0
+_key: "!items!ctnecr43anglcpr0"
+name: Angelic Presence
+type: trait
+system:
+  description: "<p>When you cast a necromancy spell, enemies who are within 2 squares of you take a -1 penalty to their RRs until the end of the DT.</p>"
+  tree: necromancy
+  tier: 4
+  column: 3
+  connectsTo: []
+  isStarting: false
+  restActivity: false

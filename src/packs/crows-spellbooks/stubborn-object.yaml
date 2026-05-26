@@ -1,0 +1,31 @@
+_id: crowsspellstbob1
+_key: "!items!crowsspellstbob1"
+name: Stubborn Object
+type: spellbook
+system:
+  description: "<p>The target is fixed in space, and can't fall or be moved by any effect except a creature with a Strength equal to or higher than a number based on the casting.</p>"
+  discipline: alteration
+  rank: 1
+  castType: maneuver
+  range:
+    kind: melee
+    value: 1
+  target: "1 object"
+  aoe:
+    shape: ""
+    size: ""
+  duration: "1 UD"
+  effectBands:
+    t1: "Fixed; immovable by Strength 2 or higher"
+    t2: "Fixed; immovable by Strength 3 or higher"
+    t3: "Fixed; immovable by Strength 4 or higher"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 500

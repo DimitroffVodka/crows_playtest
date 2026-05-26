@@ -1,0 +1,12 @@
+_id: ctslas11fnssbld0
+_key: "!items!ctslas11fnssbld0"
+name: Finesse the Blade
+type: trait
+system:
+  description: "<p>You can use Agility instead of Strength when making an attack and dealing damage with a sword.</p>"
+  tree: slashing
+  tier: 1
+  column: 1
+  connectsTo: [Swift Block, Dance Away]
+  isStarting: true
+  restActivity: false

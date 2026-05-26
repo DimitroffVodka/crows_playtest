@@ -1,0 +1,28 @@
+_id: crowsgear0crddck
+_key: "!items!crowsgear0crddck"
+name: Card Deck
+type: gear
+system:
+  description: "<p>Standard deck of 54 playing cards, including 2 jokers.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 1
+  weightless: false

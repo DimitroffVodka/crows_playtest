@@ -1,0 +1,28 @@
+_id: crowsgear0spygls
+_key: "!items!crowsgear0spygls"
+name: Spyglass
+type: gear
+system:
+  description: "<p>Can be used to make things appear 3 times closer.</p><p>Fine (500 gc): Makes things appear 6 times closer. Fine (1,000 gc): Makes things appear 10 times closer.</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 100
+  weightless: false

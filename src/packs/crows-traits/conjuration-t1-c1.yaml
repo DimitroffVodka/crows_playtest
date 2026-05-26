@@ -1,0 +1,12 @@
+_id: ctconj11lstngcnj
+_key: "!items!ctconj11lstngcnj"
+name: Lasting Conjuration
+type: trait
+system:
+  description: "<p>When you cast a conjuration spell with a duration listed in UD, add an additional 1 UD to the duration.</p>"
+  tree: conjuration
+  tier: 1
+  column: 1
+  connectsTo: ["Conjuration Mastery"]
+  isStarting: true
+  restActivity: false

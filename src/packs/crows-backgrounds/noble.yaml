@@ -1,0 +1,12 @@
+_id: crowsbgnoble0001
+_key: "!items!crowsbgnoble0001"
+name: Noble
+type: background
+system:
+  flavor: "You grew up in a family that had wealth and power."
+  characteristicBonus: "agility or mind"
+  stamina: 7
+  startingTrait: "Reputation: Call Daddy"
+  skills: [handleAnimal, historicalLore, religiousLore, sneak, bow]
+  equipment: ["animal feed (6)", "horse (pet)", lantern, "lore book (historical)", "oil flask", "50 gold coins"]
+  spellbooks: []

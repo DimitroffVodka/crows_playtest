@@ -1,0 +1,12 @@
+_id: ctcamp33dlydnspr
+_key: "!items!ctcamp33dlydnspr"
+name: Delayed Inspiration
+type: trait
+system:
+  description: "<p>When you use the Song of Rest trait, instead of your allies ending the rest blessed, they can choose to be blessed at the start of any DT before they finish their next rest. They can only make this choice once.</p>"
+  tree: camping
+  tier: 3
+  column: 3
+  connectsTo: ["Song of Travel", "Bard"]
+  isStarting: false
+  restActivity: false

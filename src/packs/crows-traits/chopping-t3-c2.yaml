@@ -1,0 +1,12 @@
+_id: ctchop32stpchppn
+_key: "!items!ctchop32stpchppn"
+name: Stop Chopping
+type: trait
+system:
+  description: "<p>When you hit with an opportunity attack made with a chopping weapon, the target's speed is reduced to 0 until the end of the current combat turn.</p>"
+  tree: chopping
+  tier: 3
+  column: 2
+  connectsTo: ["Where I Want You", "Chopping Holster"]
+  isStarting: false
+  restActivity: false

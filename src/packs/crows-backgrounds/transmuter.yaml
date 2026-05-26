@@ -1,0 +1,12 @@
+_id: crowsbgtransmtr1
+_key: "!items!crowsbgtransmtr1"
+name: Transmuter
+type: background
+system:
+  flavor: "You studied alteration magic either on your own or with a teacher."
+  characteristicBonus: mind
+  stamina: 5
+  startingTrait: "Alteration: Lasting Alteration"
+  skills: [alchemy, blacksmithing, enchanting, magicLore, pickLock, sabotage, alteration]
+  equipment: [chalk, torch]
+  spellbooks: [jaunt, "animal form", "repair take", shape]

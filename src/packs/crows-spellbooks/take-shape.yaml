@@ -1,0 +1,31 @@
+_id: crowsspelltkshp1
+_key: "!items!crowsspelltkshp1"
+name: Take Shape
+type: spellbook
+system:
+  description: "<p>You attempt to change your form to match a creature.</p>"
+  discipline: alteration
+  rank: 0
+  castType: maneuver
+  range:
+    kind: self
+    value: 0
+  target: "Self"
+  aoe:
+    shape: ""
+    size: ""
+  duration: "1 UD"
+  effectBands:
+    t1: "You look like them but gain no stats other than their size"
+    t2: "You look like them but gain no stats other than their size"
+    t3: "You gain their size, speed, and Stamina"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

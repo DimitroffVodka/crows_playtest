@@ -1,0 +1,13 @@
+_id: ctpets21pcknmls0
+_key: "!items!ctpets21pcknmls0"
+name: Pack Animals
+type: trait
+system:
+  description: "<p>The Stamina maximum of each pet affected by your Buddy trait is raised by 4 multiplied by the number of pets affected by your Buddy trait.</p>"
+  tree: pets
+  tier: 2
+  column: 1
+  connectsTo:
+    - Move Together
+  isStarting: false
+  restActivity: false

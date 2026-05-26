@@ -1,0 +1,28 @@
+_id: crowsgear0magnfy
+_key: "!items!crowsgear0magnfy"
+name: Magnifying Glass
+type: gear
+system:
+  description: "<p>Can be used to better inspect the minute visual details of nearby creatures and objects.</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 100
+  weightless: false

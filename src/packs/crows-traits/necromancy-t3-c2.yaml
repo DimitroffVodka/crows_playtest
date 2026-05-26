@@ -1,0 +1,13 @@
+_id: ctnecr32blsscrs0
+_key: "!items!ctnecr32blsscrs0"
+name: Blessings for a Curse
+type: trait
+system:
+  description: "<p>When you cast a necromancy spell that targets a creature, you can remove a combined total of 2 levels of blessed from you and any willing ally within 5 squares of you to make the target boned.</p>"
+  tree: necromancy
+  tier: 3
+  column: 2
+  connectsTo:
+    - Split Necromancy
+  isStarting: false
+  restActivity: false

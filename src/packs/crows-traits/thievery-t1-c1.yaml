@@ -1,0 +1,12 @@
+_id: ctthie11szdvntg0
+_key: "!items!ctthie11szdvntg0"
+name: Sieze the Advantage
+type: trait
+system:
+  description: "<p>When you hit with a weapon attack using Agility that has bonuses outside of skills and characteristics, you deal additional damage equal to twice those bonuses.</p>"
+  tree: thievery
+  tier: 1
+  column: 1
+  connectsTo: [From the Shadows]
+  isStarting: true
+  restActivity: false

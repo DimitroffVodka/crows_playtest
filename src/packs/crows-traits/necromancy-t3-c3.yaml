@@ -1,0 +1,13 @@
+_id: ctnecr33dmnssgt0
+_key: "!items!ctnecr33dmnssgt0"
+name: Demon's Sight
+type: trait
+system:
+  description: "<p>When you cast a necromancy spell, you treat dim light and darkness as if they were bright light until the end of the DT.</p>"
+  tree: necromancy
+  tier: 3
+  column: 3
+  connectsTo:
+    - Angelic Presence
+  isStarting: false
+  restActivity: false

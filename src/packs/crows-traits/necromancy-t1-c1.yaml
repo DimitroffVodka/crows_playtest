@@ -1,0 +1,13 @@
+_id: ctnecr11slbsrp00
+_key: "!items!ctnecr11slbsrp00"
+name: Soul Absorption
+type: trait
+system:
+  description: "<p>When you cast a necromancy spell that kills a creature, you gain AD equal to your Mind. This AD disappears when you finish a rest.</p>"
+  tree: necromancy
+  tier: 1
+  column: 1
+  connectsTo:
+    - Many Curses
+  isStarting: true
+  restActivity: false

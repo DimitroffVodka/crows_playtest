@@ -1,0 +1,12 @@
+_id: ctunar12pckpnch0
+_key: "!items!ctunar12pckpnch0"
+name: Pack a Punch
+type: trait
+system:
+  description: "<p>When you get a tier 3 result with an unarmed or improvised weapon attack, the attack deals additional damage equal to your Agility or Strength.</p>"
+  tree: unarmed
+  tier: 1
+  column: 2
+  connectsTo: [Wrestle Big]
+  isStarting: true
+  restActivity: false

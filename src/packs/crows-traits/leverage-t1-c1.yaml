@@ -1,0 +1,13 @@
+_id: ctleve11onmrsp00
+_key: "!items!ctleve11onmrsp00"
+name: One More Spell
+type: trait
+system:
+  description: "<p>You can cast a spell from a spellbook that has no UD remaining. If you do, the spellbook is destroyed after casting the spell.</p>"
+  tree: leverage
+  tier: 1
+  column: 1
+  connectsTo:
+    - Recycling
+  isStarting: true
+  restActivity: false

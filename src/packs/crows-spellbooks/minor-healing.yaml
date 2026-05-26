@@ -1,0 +1,31 @@
+_id: crowsspellminhl1
+_key: "!items!crowsspellminhl1"
+name: Minor Healing
+type: spellbook
+system:
+  description: "<p>Target regains Stamina based on the casting.</p>"
+  discipline: benefaction
+  rank: 0
+  castType: maneuver
+  range:
+    kind: melee
+    value: 1
+  target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "No effect"
+    t2: "1+M Stamina regained"
+    t3: "2+M Stamina regained"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

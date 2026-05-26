@@ -1,0 +1,31 @@
+_id: crowsspellcacph1
+_key: "!items!crowsspellcacph1"
+name: Cacophony
+type: spellbook
+system:
+  description: "<p>You create a phantom noise of your choice for the duration that emanates from a square within range. The distance at which it can be heard in squares is based on the casting.</p>"
+  discipline: illusion
+  rank: 0
+  castType: maneuver
+  range:
+    kind: ranged
+    value: 10
+  target: "1 square"
+  aoe:
+    shape: ""
+    size: ""
+  duration: "1 UD"
+  effectBands:
+    t1: "No effect"
+    t2: "Heard up to 5+M squares away"
+    t3: "Heard up to 10+M squares away"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 250

@@ -1,0 +1,12 @@
+_id: ctslas42onthmv00
+_key: "!items!ctslas42onthmv00"
+name: On the Move
+type: trait
+system:
+  description: "<p>When you deal damage to another creature with a melee slashing weapon attack you can move 1 square without provoking opportunity attacks.</p>"
+  tree: slashing
+  tier: 4
+  column: 2
+  connectsTo: []
+  isStarting: false
+  restActivity: false

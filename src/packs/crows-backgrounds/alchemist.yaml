@@ -1,0 +1,12 @@
+_id: crowsbgalchemist
+_key: "!items!crowsbgalchemist"
+name: Alchemist
+type: background
+system:
+  flavor: "You crafted and sold acids, potions, and bombs."
+  characteristicBonus: mind
+  stamina: 5
+  startingTrait: "Alchemy: Midnight Oil"
+  skills: [alchemy, enchanting, magicLore, monsterLore, sabotage, search, bow]
+  equipment: ["acid vial", "alchemist's tools", bucket, "healing potion", lantern, "oil flask"]
+  spellbooks: []

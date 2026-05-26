@@ -1,0 +1,12 @@
+_id: crowsbgillusnt01
+_key: "!items!crowsbgillusnt01"
+name: Illusionist
+type: background
+system:
+  flavor: "You studied illusion magic either on your own or with a teacher."
+  characteristicBonus: mind
+  stamina: 5
+  startingTrait: "Illusion: Lasting Illusion"
+  skills: [hide, magicLore, monsterLore, pickLock, search, sneak, illusion]
+  equipment: ["card deck", whistle]
+  spellbooks: [cacophony, light, "minor phantasm"]

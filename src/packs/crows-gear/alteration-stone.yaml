@@ -1,0 +1,28 @@
+_id: crowsgear0altstn
+_key: "!items!crowsgear0altstn"
+name: Alteration Stone
+type: gear
+system:
+  description: "<p>Choose one benefit when you make the stone. The creature carrying it gains it:</p><ul><li>You don't need to eat or drink to live.</li><li>You don't need to breathe to live.</li><li>The stone sheds light 5/5.</li></ul>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 0
+  weightless: false

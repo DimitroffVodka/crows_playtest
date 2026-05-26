@@ -1,0 +1,13 @@
+_id: ctrepu13fvrtcst0
+_key: "!items!ctrepu13fvrtcst0"
+name: Favorite Customer
+type: trait
+system:
+  description: "<p>Choose a merchant who crafts items in your village. When that merchant crafts an item for you, they make two crafting rolls a day instead of one. You can change your choice of merchant once every cycle.</p>"
+  tree: reputation
+  tier: 1
+  column: 3
+  connectsTo:
+    - VIP Treatment
+  isStarting: true
+  restActivity: false

@@ -1,0 +1,12 @@
+_id: ctconj32blfltlpr
+_key: "!items!ctconj32blfltlpr"
+name: Baleful Teleport
+type: trait
+system:
+  description: "<p>When you teleport a target with a conjuration spell, you can choose to have the target take damage equal to twice your Mind.</p>"
+  tree: conjuration
+  tier: 3
+  column: 2
+  connectsTo: ["Long Distance Jump", "Portal Pocket"]
+  isStarting: false
+  restActivity: false

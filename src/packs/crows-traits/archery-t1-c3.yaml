@@ -1,0 +1,12 @@
+_id: ctarch13pronpos0
+_key: "!items!ctarch13pronpos0"
+name: Prone Position
+type: trait
+system:
+  description: "<p>If you are prone, you gain a +1 bonus on attacks made with crossbows.</p>"
+  tree: archery
+  tier: 1
+  column: 3
+  connectsTo: ["Scrap Arrows"]
+  isStarting: true
+  restActivity: false

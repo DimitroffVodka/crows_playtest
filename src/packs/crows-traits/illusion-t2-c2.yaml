@@ -1,0 +1,13 @@
+_id: ctillu22mndsht00
+_key: "!items!ctillu22mndsht00"
+name: Mind Shatter
+type: trait
+system:
+  description: "<p>When a creature makes one of your illusions created by an illusion spell you cast disappear by interacting with it, they take 1d6 damage.</p>"
+  tree: illusion
+  tier: 2
+  column: 2
+  connectsTo:
+    - You're a Believer
+  isStarting: false
+  restActivity: false

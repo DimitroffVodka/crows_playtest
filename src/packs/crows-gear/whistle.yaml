@@ -1,0 +1,28 @@
+_id: crowsgear0whistl
+_key: "!items!crowsgear0whistl"
+name: Whistle
+type: gear
+system:
+  description: "<p>Maneuver: You create a loud noise that can be heard from 20 squares away.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 5
+  weightless: false

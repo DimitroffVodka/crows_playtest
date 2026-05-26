@@ -1,0 +1,12 @@
+_id: ctench13hndsfrtl
+_key: "!items!ctench13hndsfrtl"
+name: Hands for Tools
+type: trait
+system:
+  description: "<p>You don't need tools to make crafting rolls for alchemy, blacksmithing, or enchanting items.</p>"
+  tree: enchantment
+  tier: 1
+  column: 3
+  connectsTo: ["Mind Protection"]
+  isStarting: true
+  restActivity: false

@@ -1,0 +1,28 @@
+_id: crowsgear0chalk1
+_key: "!items!crowsgear0chalk1"
+name: Chalk
+type: gear
+system:
+  description: "<p>A piece of chalk, available in blue, white, and yellow.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 5
+  quantity: 1
+  cost: 1
+  weightless: false
