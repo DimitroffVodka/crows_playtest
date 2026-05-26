@@ -120,7 +120,8 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       cryptPray: CrowSheet._onCryptPray,
       cryptExpend: CrowSheet._onCryptExpend,
       cryptInter: CrowSheet._onCryptInter,
-      cryptBumpCycle: CrowSheet._onCryptBumpCycle
+      cryptBumpCycle: CrowSheet._onCryptBumpCycle,
+      openVillage: CrowSheet._onOpenVillage
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -233,6 +234,13 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.dungeonEN = game.crows?.dt?.getDungeonEN?.() ?? 6;
     } catch { ctx.dtCount = 0; ctx.dungeonEN = 6; }
     ctx.isGM = !!game.user?.isGM;
+
+    // Village shell (name/prosperity/cycle) for the Crypt panel header.
+    try {
+      const { getVillage } = await import("../helpers/village.mjs");
+      const vil = getVillage();
+      ctx.village = { name: vil.name, prosperity: vil.prosperity, cycle: vil.cycle, hasUpgraded: vil.hasUpgradedThisCycle };
+    } catch { ctx.village = null; }
 
     // Crypt — active boon + crypt level + count of interments for UI gating.
     try {
@@ -656,6 +664,108 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     for (const app of Object.values(ui.windows)) {
       if (app?.constructor?.name === "CrowSheet") app.render();
     }
+  }
+
+  static async _onOpenVillage() {
+    const { getVillage, INSTITUTION_TYPES, foundInstitution, upgradeInstitution, damageInstitution, setProsperity, endCycle, rollVillageEvent, setVillage } = await import("../helpers/village.mjs");
+    const DialogV2 = foundry.applications.api.DialogV2;
+    const isGM = !!game.user.isGM;
+    const v = getVillage();
+    const instRows = v.institutions.map(i => `<tr>
+      <td>${i.name} <em>(${INSTITUTION_TYPES[i.type] ?? i.type})</em></td>
+      <td style="text-align:center">${i.level}</td>
+      <td>${i.steward || "<em>—</em>"}</td>
+      <td>
+        ${isGM ? `<button type="button" data-vil-upgrade="${i.id}" ${i.level >= 5 ? "disabled" : ""}>+L</button>
+                  <button type="button" data-vil-damage="${i.id}">-L</button>` : ""}
+      </td>
+    </tr>`).join("");
+    const typeOpts = Object.entries(INSTITUTION_TYPES).map(([k, v2]) => `<option value="${k}">${v2}</option>`).join("");
+    const content = `<div class="crows village-dialog">
+      <header><strong>${v.name}</strong> · Prosperity <strong>${v.prosperity}</strong> · Cycle <strong>${v.cycle}</strong>${v.hasUpgradedThisCycle ? " <em>(upgraded this cycle)</em>" : " <em>(no upgrade yet)</em>"}</header>
+      <table class="village-inst-table">
+        <thead><tr><th>Institution</th><th>Lvl</th><th>Steward</th><th>${isGM ? "GM" : ""}</th></tr></thead>
+        <tbody>${instRows || `<tr><td colspan="4"><em>No institutions yet.</em></td></tr>`}</tbody>
+      </table>
+      ${isGM ? `
+        <div class="village-found-form">
+          <strong>Found new:</strong>
+          <select name="newType">${typeOpts}</select>
+          <input type="text" name="newName" placeholder="Optional name" />
+          <input type="text" name="newSteward" placeholder="Steward" />
+          <button type="button" data-vil-found="1">Found (+1 Prosperity)</button>
+        </div>
+        <div class="village-prosp-form">
+          <strong>Prosperity:</strong>
+          <input type="number" name="prosp" value="${v.prosperity}" min="-10" max="10" step="1" />
+          <button type="button" data-vil-setprosp="1">Set</button>
+        </div>
+        <div class="village-name-form">
+          <strong>Name:</strong>
+          <input type="text" name="vname" value="${v.name}" />
+          <button type="button" data-vil-setname="1">Rename</button>
+        </div>
+        <div class="village-cycle-form">
+          <button type="button" data-vil-endcycle="1">End Cycle</button>
+          <button type="button" data-vil-rollevent="1">Roll Event</button>
+        </div>
+      ` : ""}
+    </div>`;
+
+    const dlg = new DialogV2({
+      window: { title: `Village — ${v.name}`, resizable: true },
+      content,
+      buttons: [{ action: "close", label: "Close", default: true, callback: () => null }],
+      submit: () => null
+    });
+    await dlg.render({ force: true });
+
+    // Wire button actions inside the dialog content.
+    const root = dlg.element;
+    if (!root) return;
+    root.querySelector?.('[data-vil-found="1"]')?.addEventListener("click", async () => {
+      const type = root.querySelector('select[name="newType"]')?.value;
+      const name = root.querySelector('input[name="newName"]')?.value?.trim() || null;
+      const steward = root.querySelector('input[name="newSteward"]')?.value?.trim() || "";
+      await foundInstitution({ type, name, steward });
+      dlg.close();
+      CrowSheet._onOpenVillage.call(this);
+    });
+    root.querySelector?.('[data-vil-setprosp="1"]')?.addEventListener("click", async () => {
+      const val = Number(root.querySelector('input[name="prosp"]')?.value ?? 0);
+      await setProsperity(val);
+      dlg.close();
+      CrowSheet._onOpenVillage.call(this);
+    });
+    root.querySelector?.('[data-vil-setname="1"]')?.addEventListener("click", async () => {
+      const val = String(root.querySelector('input[name="vname"]')?.value ?? "").trim();
+      if (!val) return;
+      await setVillage({ name: val });
+      dlg.close();
+      CrowSheet._onOpenVillage.call(this);
+    });
+    root.querySelector?.('[data-vil-endcycle="1"]')?.addEventListener("click", async () => {
+      await endCycle();
+      dlg.close();
+      CrowSheet._onOpenVillage.call(this);
+    });
+    root.querySelector?.('[data-vil-rollevent="1"]')?.addEventListener("click", async () => {
+      await rollVillageEvent();
+    });
+    root.querySelectorAll?.("[data-vil-upgrade]").forEach(btn => {
+      btn.addEventListener("click", async (ev) => {
+        await upgradeInstitution(ev.currentTarget.dataset.vilUpgrade);
+        dlg.close();
+        CrowSheet._onOpenVillage.call(this);
+      });
+    });
+    root.querySelectorAll?.("[data-vil-damage]").forEach(btn => {
+      btn.addEventListener("click", async (ev) => {
+        await damageInstitution(ev.currentTarget.dataset.vilDamage);
+        dlg.close();
+        CrowSheet._onOpenVillage.call(this);
+      });
+    });
   }
 
   static async _onSpendCharBonus() {

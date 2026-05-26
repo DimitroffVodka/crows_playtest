@@ -131,6 +131,14 @@
           {{/each}}
         </ul>
       {{/if}}
+      {{#if village}}
+        <div class="cc-village-row" title="Village shell">
+          <span class="cc-village-name">{{village.name}}</span>
+          <span class="cc-village-prosp" title="Prosperity (-10..+10)">P {{village.prosperity}}</span>
+          <span class="cc-village-cycle" title="Village cycle (10 days each)">C {{village.cycle}}</span>
+          <button type="button" data-action="openVillage" title="Open the Village manager">Manage</button>
+        </div>
+      {{/if}}
       <div class="cc-crypt-row">
         <span class="cc-crypt-label" title="Village Crypt institution level">Crypt L{{cryptLevel}}</span>
         <button type="button" data-action="cryptPray"

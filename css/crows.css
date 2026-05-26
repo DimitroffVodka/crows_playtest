@@ -647,3 +647,31 @@
 }
 .crows.crypt-cycle { background: #fff4d6; border-left: 3px solid #b88a00; padding: 4px 8px; }
 .crows.crypt-form .crypt-opt { margin: 4px 0; }
+
+/* Village shell */
+.cc-village-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; font-size: 12px; }
+.cc-village-name { font-weight: bold; color: #4a4070; }
+.cc-village-prosp, .cc-village-cycle {
+  padding: 1px 6px;
+  background: #f0f0f8;
+  border: 1px solid #b8b8d0;
+  border-radius: 3px;
+  font-size: 11px;
+}
+.crows.village-dialog .village-inst-table { width: 100%; border-collapse: collapse; margin: 6px 0; }
+.crows.village-dialog .village-inst-table th, .crows.village-dialog .village-inst-table td {
+  border-bottom: 1px solid #ddd; padding: 3px 6px; text-align: left;
+}
+.crows.village-dialog .village-found-form,
+.crows.village-dialog .village-prosp-form,
+.crows.village-dialog .village-name-form,
+.crows.village-dialog .village-cycle-form {
+  display: flex; gap: 6px; align-items: center; margin: 6px 0; padding: 4px; background: #f8f8f4; border-radius: 3px;
+}
+.crows.village-found, .crows.village-upgrade, .crows.village-damaged, .crows.village-destroyed,
+.crows.village-prosperity, .crows.village-endcycle, .crows.village-event, .crows.village-avail {
+  background: #f8f8f4; border-left: 3px solid #b88a00; padding: 6px 8px;
+}
+.crows.village-avail.yes { border-left-color: #2a8040; background: #e8f8e8; }
+.crows.village-avail.no { border-left-color: #b80000; background: #ffe8e8; }
+.crows.village-event .ve-text { margin-top: 4px; font-style: italic; }

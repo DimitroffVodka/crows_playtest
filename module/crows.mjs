@@ -32,6 +32,13 @@ import {
   consumeBoonOnDamage, consumeBoonOnHeal, consumeBoonOnSwiftness,
   clearPerDtBoonFlags
 } from "./helpers/crypt.mjs";
+import {
+  registerVillageSettings, INSTITUTION_TYPES, STARTING_INSTITUTIONS,
+  getVillage, setVillage,
+  foundInstitution, upgradeInstitution, damageInstitution,
+  setProsperity, sellPercentage, rollAvailability,
+  endCycle, rollVillageEvent, getInstitutionLevel, getInstitution
+} from "./helpers/village.mjs";
 import { gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait, bonusesAvailable, spendSkillBonus, spendCharBonus } from "./helpers/advancement.mjs";
 import { attackWithWeapon } from "./helpers/attack.mjs";
 import { registerConditions } from "./conditions.mjs";
@@ -55,6 +62,7 @@ Hooks.once("init", () => {
   registerDungeonTurnSettings();
   registerMiasmaSettings();
   registerCryptSettings();
+  registerVillageSettings();
   game.crows = Object.assign(game.crows ?? {}, {
     rollTest, classifyTier, classifyDoomCrit,
     applyBackground,
@@ -73,6 +81,14 @@ Hooks.once("init", () => {
       getCycle: getCycleId, bumpCycle,
       consumeBoonOnDamage, consumeBoonOnHeal, consumeBoonOnSwiftness,
       clearPerDtBoonFlags
+    },
+    village: {
+      TYPES: INSTITUTION_TYPES, STARTING: STARTING_INSTITUTIONS,
+      get: getVillage, set: setVillage,
+      found: foundInstitution, upgrade: upgradeInstitution, damage: damageInstitution,
+      setProsperity, sellPercentage, rollAvailability,
+      endCycle, rollEvent: rollVillageEvent,
+      institutionLevel: getInstitutionLevel, institution: getInstitution
     }
   });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });

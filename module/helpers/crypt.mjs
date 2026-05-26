@@ -134,6 +134,18 @@ export function registerCryptSettings() {
 }
 
 export function getCryptLevel() {
+  // Prefer the Village's Crypt institution level when one exists.
+  try {
+    const v = game.settings.get(NS, "village");
+    const crypt = v?.institutions?.find?.(i => i.type === "crypt");
+    if (crypt && Number.isFinite(crypt.level)) {
+      let lvl = Math.max(0, Math.min(5, crypt.level));
+      // Rules p.6221: at Crypt 5 + Prosperity 10, treat as level 6 for boons.
+      if (lvl === 5 && (v.prosperity ?? 0) >= 10) lvl = 6;
+      return lvl;
+    }
+  } catch { /* village not registered yet */ }
+  // Fallback to standalone Crypt level setting.
   try { return Math.max(0, Math.min(6, Number(game.settings.get(NS, KEY_LEVEL)) || 0)); } catch { return 1; }
 }
 export async function setCryptLevel(lvl) {
