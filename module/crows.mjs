@@ -1,4 +1,6 @@
 import { CROWS } from "./config.mjs";
+import { CrowData } from "./data/actor/crow.mjs";
+import { MonsterData } from "./data/actor/monster.mjs";
 import { WeaponData } from "./data/item/weapon.mjs";
 import { ArmorData } from "./data/item/armor.mjs";
 import { AmmunitionData } from "./data/item/ammunition.mjs";
@@ -16,6 +18,7 @@ Hooks.once("init", () => {
     consumable: ConsumableData, gear: GearData, spellbook: SpellbookData,
     trait: TraitData, background: BackgroundData
   });
+  Object.assign(CONFIG.Actor.dataModels, { crow: CrowData, monster: MonsterData });
 });
 
 Hooks.once("ready", () => {
