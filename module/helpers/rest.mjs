@@ -111,6 +111,17 @@ export async function takeRest(actor, { tendedBy = false, inTown = false, activi
     activityResult = await _postActivityCard(actor, activity, activityData);
   }
 
+  // Miasma resist test — outdoor non-town rests in Cornath (Rules p.1117).
+  // Indoor or town rests are exempt. The test resolves to +1 boned and/or
+  // an effect-table roll on tier 1/2.
+  let miasmaResult = null;
+  if (!inTown) {
+    const { getInMiasma, rollMiasmaResist } = await import("./miasma.mjs");
+    if (getInMiasma() && !actor.system?.miasma?.permanentNPC) {
+      miasmaResult = await rollMiasmaResist(actor);
+    }
+  }
+
   return {
     ok: true,
     activity,
@@ -119,7 +130,8 @@ export async function takeRest(actor, { tendedBy = false, inTown = false, activi
     restoredUds: restored.restored,
     encounters: ecResults,
     interrupted: ecResults.some(r => r.triggered),
-    activityResult
+    activityResult,
+    miasmaResult
   };
 }
 

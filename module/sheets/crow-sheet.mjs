@@ -113,7 +113,10 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       grantXp: CrowSheet._onGrantXp,
       attackWithWeapon: CrowSheet._onAttackWithWeapon,
       spendSkillBonus: CrowSheet._onSpendSkillBonus,
-      spendCharBonus: CrowSheet._onSpendCharBonus
+      spendCharBonus: CrowSheet._onSpendCharBonus,
+      toggleMiasma: CrowSheet._onToggleMiasma,
+      rollMiasmaResist: CrowSheet._onRollMiasmaResist,
+      clearMiasmaSelf: CrowSheet._onClearMiasmaSelf
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -227,6 +230,18 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     } catch { ctx.dtCount = 0; ctx.dungeonEN = 6; }
     ctx.isGM = !!game.user?.isGM;
 
+    // Miasma — environment flag + active effects with humane labels.
+    try {
+      const { getInMiasma, MIASMA_EFFECTS } = await import("../helpers/miasma.mjs");
+      ctx.inMiasma = getInMiasma();
+      const eff = sys.miasma?.effects ?? [];
+      ctx.miasmaEffects = eff.map(v => {
+        const e = MIASMA_EFFECTS[Math.max(1, Math.min(12, v))];
+        return { bucket: v, label: e?.label ?? `#${v}`, text: e?.text ?? "" };
+      });
+      ctx.miasmaPermanentNPC = !!sys.miasma?.permanentNPC;
+    } catch { ctx.inMiasma = false; ctx.miasmaEffects = []; ctx.miasmaPermanentNPC = false; }
+
     // Advancement tab data — only build when that tab is active to keep
     // the trait-pack load cost off the critical path.
     if (this._activeTab === "advancement") {
@@ -321,7 +336,22 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
   static async _onAdjBoned(event, target) {
     const d = Number(target.dataset.delta);
-    await this.document.update({ "system.conditions.boned": Math.max(0, (this.document.system.conditions.boned ?? 0) + d) });
+    // Rules p.1117: while in the Miasma, boned cannot decrease.
+    if (d < 0) {
+      const { getInMiasma } = await import("../helpers/miasma.mjs");
+      if (getInMiasma() && !this.document.system?.miasma?.permanentNPC) {
+        ui.notifications?.warn("Can't lose boned levels while in the Miasma.");
+        return;
+      }
+    }
+    const before = this.document.system.conditions.boned ?? 0;
+    const after = Math.max(0, before + d);
+    await this.document.update({ "system.conditions.boned": after });
+    // If boned reached 0, wipe any violence-bucket Miasma effects.
+    if (before > 0 && after === 0) {
+      const { onBonedCleared } = await import("../helpers/miasma.mjs");
+      await onBonedCleared(this.document);
+    }
   }
   static async _onAdjWounds(event, target) {
     const d = Number(target.dataset.delta);
@@ -511,6 +541,33 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       await spendSkillBonus(actor, choice.opt, { skillA: choice.skillA, skillB: choice.skillB, skill: choice.skill });
       this.render();
     } catch { /* dialog dismissed */ }
+  }
+
+  static async _onToggleMiasma() {
+    if (!game.user.isGM) { ui.notifications?.warn("Miasma toggle is GM-only."); return; }
+    const { getInMiasma, setInMiasma } = await import("../helpers/miasma.mjs");
+    const cur = getInMiasma();
+    await setInMiasma(!cur);
+    // Re-render all open crow sheets so badges update everywhere.
+    for (const app of Object.values(ui.windows)) {
+      if (app?.constructor?.name === "CrowSheet") app.render();
+    }
+    ChatMessage.create({
+      content: `<div class="crows miasma-toggle"><strong>Miasma:</strong> ${cur ? "cleared" : "ENTERED"}</div>`,
+      speaker: { alias: "Environment" }
+    });
+  }
+
+  static async _onRollMiasmaResist() {
+    const { rollMiasmaResist } = await import("../helpers/miasma.mjs");
+    await rollMiasmaResist(this.document);
+    this.render();
+  }
+
+  static async _onClearMiasmaSelf() {
+    const { clearMiasma } = await import("../helpers/miasma.mjs");
+    await clearMiasma(this.document);
+    this.render();
   }
 
   static async _onSpendCharBonus() {

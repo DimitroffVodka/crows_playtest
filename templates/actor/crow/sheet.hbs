@@ -107,6 +107,30 @@
           <strong>Prepared:</strong> +1 to next <em>{{system.preparedTask.skill}}</em>{{#if system.preparedTask.detail}} — {{system.preparedTask.detail}}{{/if}}
         </div>
       {{/if}}
+      <div class="cc-miasma-row">
+        {{#if inMiasma}}
+          <span class="cc-miasma-badge in-miasma" title="The party is in the Miasma. Outdoor rests trigger a resist test.">In Miasma</span>
+        {{else}}
+          <span class="cc-miasma-badge clear" title="The party is currently not in the Miasma.">No Miasma</span>
+        {{/if}}
+        {{#if isGM}}
+          <button type="button" data-action="toggleMiasma" title="Toggle the world-level Miasma flag (GM)">Toggle</button>
+        {{/if}}
+        <button type="button" data-action="rollMiasmaResist" title="Roll a 24h Miasma resist test (2d10 + M + Endurance)">Resist</button>
+        {{#if miasmaEffects.length}}
+          <button type="button" data-action="clearMiasmaSelf" title="Leave the Miasma — clears non-violence effects on this crow">Clear (leave)</button>
+        {{/if}}
+        {{#if miasmaPermanentNPC}}
+          <span class="cc-miasma-badge permanent-npc" title="13+ catastrophic result — this PC is now a Ref-controlled NPC.">PERMANENT NPC</span>
+        {{/if}}
+      </div>
+      {{#if miasmaEffects.length}}
+        <ul class="cc-miasma-effects" title="Active Miasma effects on this crow">
+          {{#each miasmaEffects as |e|}}
+            <li><strong>{{e.label}}</strong> <span class="me-bucket">(d10+boned={{e.bucket}})</span> — {{e.text}}</li>
+          {{/each}}
+        </ul>
+      {{/if}}
     </div>
   </section>
 

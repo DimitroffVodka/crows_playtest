@@ -47,6 +47,15 @@ export class CrowData extends TypeDataModel {
         skill: new fields.StringField({ blank: true, initial: "" }),
         detail: new fields.StringField({ blank: true, initial: "" }),
         setOn: new fields.NumberField({ initial: 0, min: 0, integer: true })
+      }),
+      // Miasma effects (Rules p.1115–1161). `effects` holds the d10+boned roll
+      // values of active Miasma effects (1-12 only; 13+ flips `permanentNPC`).
+      // `lastTestOn` is the DT counter at the last resist test (24h cycle).
+      // `permanentNPC` = the catastrophic 13+ result; PC becomes a Ref NPC.
+      miasma: new fields.SchemaField({
+        effects: new fields.ArrayField(new fields.NumberField({ min: 1, max: 12, integer: true }), { initial: [] }),
+        permanentNPC: new fields.BooleanField({ initial: false }),
+        lastTestOn: new fields.NumberField({ initial: 0, min: 0, integer: true })
       })
     };
   }
