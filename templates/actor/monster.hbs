@@ -1,0 +1,24 @@
+<form class="crows-monster">
+  <header>
+    <input type="text" name="name" value="{{actor.name}}" class="title">
+    <span>Power {{system.power}} · {{system.size}} · {{system.creatureType}}</span>
+  </header>
+  <div class="stats">
+    <label>Stamina <input type="number" name="system.stamina.value" value="{{system.stamina.value}}">/<input type="number" name="system.stamina.max" value="{{system.stamina.max}}"></label>
+    <label>Speed <input type="number" name="system.speed.value" value="{{system.speed.value}}"></label>
+    <span>A {{system.characteristics.agility}} · M {{system.characteristics.mind}} · S {{system.characteristics.strength}}</span>
+  </div>
+  <section class="attacks">
+    <h3>Attacks</h3>
+    {{#each system.attacks as |atk i|}}
+      <div class="attack">
+        <button type="button" data-action="rollAttack" data-index="{{i}}">{{atk.name}} ({{atk.toHit}})</button>
+        <span>{{atk.range}} · {{atk.dmgT2}}/{{atk.dmgT3}}</span>
+      </div>
+    {{/each}}
+  </section>
+  <section class="traits">
+    <h3>Traits</h3>
+    {{#each system.traits as |t|}}<div class="trait"><b>{{t.name}}</b> {{{t.effect}}}</div>{{/each}}
+  </section>
+</form>
