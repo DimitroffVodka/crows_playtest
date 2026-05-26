@@ -421,6 +421,12 @@
 
 /* -------- Bio / Advancement ------------------------------------- */
 
+/* Spellbook cast bar */
+.crows-item.spellbook .cast-bar { display:flex; align-items:center; gap:8px; padding:6px 4px; margin-bottom:4px; border:1px solid #2a4080; background:#eef2ff; border-radius:3px; }
+.crows-item.spellbook .cast-btn { background:#2a4080; color:#fff; border:0; padding:4px 10px; font-weight:bold; border-radius:3px; cursor:pointer; }
+.crows-item.spellbook .cast-btn:hover { background:#1a3070; }
+.crows-item.spellbook .cast-hint { font-size:11px; color:#555; font-style:italic; }
+
 .cc-bio .cc-field { display: grid; grid-template-columns: 120px 1fr; align-items: start; gap: 6px; margin-bottom: 6px; }
 .cc-bio textarea { width: 100%; }
 .cc-advancement p { padding: 6px; }

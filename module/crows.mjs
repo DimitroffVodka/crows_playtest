@@ -13,6 +13,9 @@ import { BackgroundData } from "./data/item/background.mjs";
 import { rollTest, classifyTier, classifyDoomCrit } from "./helpers/roll.mjs";
 import { applyBackground } from "./helpers/creation.mjs";
 import { applyDamage, applyHealing, repairArmor } from "./helpers/damage.mjs";
+import { registerChaosSetting, getChaos, setChaos, addToChaos, resetChaos } from "./helpers/chaos.mjs";
+import { rollBacklash, lookupBacklash } from "./helpers/backlash.mjs";
+import { castSpell } from "./helpers/spellcasting.mjs";
 import { registerConditions } from "./conditions.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
@@ -30,7 +33,14 @@ Hooks.once("init", () => {
     trait: TraitData, background: BackgroundData
   });
   Object.assign(CONFIG.Actor.dataModels, { crow: CrowData, monster: MonsterData });
-  game.crows = Object.assign(game.crows ?? {}, { rollTest, classifyTier, classifyDoomCrit, applyBackground, applyDamage, applyHealing, repairArmor });
+  registerChaosSetting();
+  game.crows = Object.assign(game.crows ?? {}, {
+    rollTest, classifyTier, classifyDoomCrit,
+    applyBackground,
+    applyDamage, applyHealing, repairArmor,
+    castSpell, rollBacklash, lookupBacklash,
+    chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos }
+  });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });

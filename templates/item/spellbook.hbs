@@ -1,5 +1,9 @@
 <form class="crows-item spellbook">
   <input type="text" name="name" value="{{item.name}}" class="title">
+  <div class="cast-bar">
+    <button type="button" data-action="castSpell" class="cast-btn" title="Cast {{item.name}}">⚡ Cast {{item.name}}</button>
+    <span class="cast-hint">2d10 + Mind + {{system.discipline}}{{#if system.usageDie.enabled}} · UD {{system.usageDie.udCurrent}}/{{system.usageDie.udMax}}{{/if}}</span>
+  </div>
   <label>Discipline <select name="system.discipline">{{#each CROWS.disciplines as |d|}}<option value="{{d}}" {{#if (eq d ../system.discipline)}}selected{{/if}}>{{d}}</option>{{/each}}</select></label>
   <label>Rank <input type="number" name="system.rank" value="{{system.rank}}"></label>
   <label>Cast type <select name="system.castType">{{#each CROWS.castTypes as |c|}}<option value="{{c}}" {{#if (eq c ../system.castType)}}selected{{/if}}>{{c}}</option>{{/each}}</select></label>

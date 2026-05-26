@@ -7,7 +7,10 @@ export class CrowsItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     classes: ["crows", "sheet", "item"],
     position: { width: 480, height: "auto" },
     form: { submitOnChange: true },
-    window: { resizable: true }
+    window: { resizable: true },
+    actions: {
+      castSpell: CrowsItemSheet._onCastSpell
+    }
   };
 
   static PARTS = { body: { template: "systems/crows/templates/item/weapon.hbs" } };
@@ -24,5 +27,25 @@ export class CrowsItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     ctx.item = this.document;
     ctx.CROWS = CROWS;
     return ctx;
+  }
+
+  /**
+   * Cast a spellbook. Caster precedence:
+   *   1. The item's owning actor (when the spellbook is embedded on a character).
+   *   2. The current user's assigned character.
+   *   3. The first controlled token on the canvas.
+   *   4. Otherwise prompt the user to select a caster.
+   */
+  static async _onCastSpell(/* event, target */) {
+    const item = this.document;
+    if (item.type !== "spellbook") return;
+    let caster = item.actor;
+    if (!caster) caster = game.user.character ?? canvas.tokens?.controlled?.[0]?.actor ?? null;
+    if (!caster) {
+      ui.notifications?.warn("No caster selected — assign a character or select a token.");
+      return;
+    }
+    const { castSpell } = await import("../helpers/spellcasting.mjs");
+    await castSpell(caster, item);
   }
 }
