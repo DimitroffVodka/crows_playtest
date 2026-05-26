@@ -336,11 +336,93 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async _onTakeRest(event, target) {
-    const tendedBy = target?.dataset?.tend === "true";
-    const inTown   = target?.dataset?.town === "true";
-    const { takeRest } = await import("../helpers/rest.mjs");
-    await takeRest(this.document, { tendedBy, inTown });
-    this.render();
+    // Legacy dataset path: direct "rest" calls (e.g. macros) can still bypass the dialog.
+    if (target?.dataset?.tend === "true" || target?.dataset?.town === "true") {
+      const tendedBy = target?.dataset?.tend === "true";
+      const inTown   = target?.dataset?.town === "true";
+      const { takeRest } = await import("../helpers/rest.mjs");
+      await takeRest(this.document, { tendedBy, inTown });
+      this.render();
+      return;
+    }
+
+    // Dialog flow: pick activity (and any detail) + town toggle.
+    const DialogV2 = foundry.applications.api.DialogV2;
+    const actor = this.document;
+
+    // Build skill options for Prepare for Task (all skills, current bonus shown).
+    const skillOpts = (CROWS.skills ?? [])
+      .map(k => `<option value="${k}">${(SKILL_LABELS[k] ?? k)} (current +${actor.system.skills?.[k]?.bonus ?? 0})</option>`)
+      .join("");
+
+    // Build item options for Identify Item (any inventory item — gear/consumable/weapon/armor/spellbook).
+    const idOpts = actor.items
+      .filter(i => ["gear","consumable","weapon","armor","spellbook","ammunition"].includes(i.type))
+      .map(i => `<option value="${i.id}">${i.name} (${i.type})</option>`)
+      .join("");
+
+    const prep = actor.system?.preparedTask;
+    const prepNote = (prep?.skill)
+      ? `<div class="rest-prep-note"><em>Currently prepared: <strong>${prep.skill}</strong>${prep.detail ? ` — ${prep.detail}` : ""} (will be overwritten if you pick Prepare for Task again).</em></div>`
+      : "";
+
+    const content = `<div class="crows rest-form">
+      <p>Pick one rest activity (or none) for this 6-hour rest.</p>
+      ${prepNote}
+      <div class="rest-opt"><label><input type="radio" name="act" value="none" checked> <strong>No activity</strong> — recover Stamina/wound only.</label></div>
+      <div class="rest-opt"><label><input type="radio" name="act" value="tendWounds"> <strong>Tend Wounds</strong> — remove 2 wounds instead of 1.</label></div>
+      <div class="rest-opt"><label><input type="radio" name="act" value="identifyItem"> <strong>Identify Item</strong></label>
+        <div><label>Item: <select name="identifyItem">${idOpts || '<option value="">(no inventory items)</option>'}</select></label></div>
+      </div>
+      <div class="rest-opt"><label><input type="radio" name="act" value="prepareForTask"> <strong>Prepare for Task</strong> — +1 to next test of the chosen skill.</label>
+        <div><label>Skill: <select name="prepSkill">${skillOpts}</select></label></div>
+        <div><label>Task: <input type="text" name="prepDetail" placeholder="e.g. 'pick the vault lock'" style="width:100%"></label></div>
+      </div>
+      <div class="rest-opt"><label><input type="radio" name="act" value="craftEquipment"> <strong>Craft Equipment</strong></label>
+        <div><label>Project: <input type="text" name="craftProject" placeholder="e.g. 'spear haft'" style="width:100%"></label></div>
+      </div>
+      <div class="rest-opt"><label><input type="radio" name="act" value="harvest"> <strong>Harvest</strong></label>
+        <div><label>Target: <input type="text" name="harvestTarget" placeholder="e.g. 'wolf hides'" style="width:100%"></label></div>
+      </div>
+      <hr>
+      <div><label><input type="checkbox" name="inTown"> <strong>Town rest</strong> — skip encounter checks.</label></div>
+    </div>`;
+
+    try {
+      const choice = await DialogV2.prompt({
+        window: { title: `${actor.name} — Take Rest` },
+        content,
+        ok: {
+          label: "Rest",
+          callback: (event, button, dialog) => {
+            const root = dialog.element ?? button?.form;
+            const activity = root?.querySelector?.('input[name="act"]:checked')?.value ?? "none";
+            const inTown   = !!root?.querySelector?.('input[name="inTown"]')?.checked;
+            const activityData = {};
+            if (activity === "identifyItem") {
+              const id = root?.querySelector?.('select[name="identifyItem"]')?.value;
+              if (id) {
+                activityData.itemId = id;
+                const it = actor.items.get(id);
+                if (it) activityData.itemName = it.name;
+              }
+            } else if (activity === "prepareForTask") {
+              activityData.skill  = root?.querySelector?.('select[name="prepSkill"]')?.value ?? "";
+              activityData.detail = root?.querySelector?.('input[name="prepDetail"]')?.value ?? "";
+            } else if (activity === "craftEquipment") {
+              activityData.project = root?.querySelector?.('input[name="craftProject"]')?.value ?? "";
+            } else if (activity === "harvest") {
+              activityData.target = root?.querySelector?.('input[name="harvestTarget"]')?.value ?? "";
+            }
+            return { activity, inTown, activityData };
+          }
+        }
+      });
+      if (!choice) return;
+      const { takeRest } = await import("../helpers/rest.mjs");
+      await takeRest(this.document, { activity: choice.activity, inTown: choice.inTown, activityData: choice.activityData });
+      this.render();
+    } catch { /* dialog dismissed */ }
   }
 
   static async _onEndDT() {

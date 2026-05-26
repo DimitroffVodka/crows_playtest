@@ -52,6 +52,18 @@ export async function rollTest({ actor, characteristic = null, skill = null, mod
     }
   }
 
+  // ----- Prepare-for-Task buff (Rules p.11 rest activity): +1 if the
+  //       actor has a preparedTask matching the rolled skill. One-shot,
+  //       consumed on use. Async, so we do this before evaluating the roll.
+  if (actor?.type === "crow" && skill) {
+    const prep = actor.system?.preparedTask;
+    if (prep?.skill && prep.skill === skill) {
+      const { consumePreparedTask } = await import("./rest.mjs");
+      const bonus = await consumePreparedTask(actor, skill);
+      if (bonus) allMods.push({ value: bonus, label: `prepared: ${prep.detail || "task"}` });
+    }
+  }
+
   // ----- Target-aware combat bonuses (rules p.9, p.14) -----
   // Applies only on attacks. Reads the first user-targeted token.
   let autoTierForUnconscious = false;

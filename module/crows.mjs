@@ -20,7 +20,7 @@ import {
   registerDungeonTurnSettings, endDungeonTurn, rollEncounterCheck,
   getDT, setDT, bumpDT, getDungeonEN
 } from "./helpers/dungeon-turn.mjs";
-import { takeRest, restoreSpellbookUds } from "./helpers/rest.mjs";
+import { takeRest, restoreSpellbookUds, consumePreparedTask } from "./helpers/rest.mjs";
 import { gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait, bonusesAvailable, spendSkillBonus, spendCharBonus } from "./helpers/advancement.mjs";
 import { attackWithWeapon } from "./helpers/attack.mjs";
 import { registerConditions } from "./conditions.mjs";
@@ -47,7 +47,7 @@ Hooks.once("init", () => {
     applyBackground,
     applyDamage, applyHealing, repairArmor,
     castSpell, rollBacklash, lookupBacklash,
-    takeRest, restoreSpellbookUds,
+    takeRest, restoreSpellbookUds, consumePreparedTask,
     gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait, bonusesAvailable, spendSkillBonus, spendCharBonus,
     attackWithWeapon,
     chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos, show: showChaosDialog },

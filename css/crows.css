@@ -557,3 +557,22 @@
 .cc-bio .cc-field { display: grid; grid-template-columns: 120px 1fr; align-items: start; gap: 6px; margin-bottom: 6px; }
 .cc-bio textarea { width: 100%; }
 .cc-advancement p { padding: 6px; }
+
+/* Rest activity / Prepare-for-Task badge */
+.cc-prepared-task {
+  margin-top: 4px;
+  padding: 4px 6px;
+  background: #fff4d6;
+  border: 1px solid #b88a00;
+  border-radius: 3px;
+  color: #6a4400;
+  font-size: 12px;
+}
+.crows.rest-form .rest-opt { margin-bottom: 8px; padding: 4px; border-bottom: 1px dashed #ddd; }
+.crows.rest-form .rest-opt:last-of-type { border-bottom: 0; }
+.crows.rest-form .rest-prep-note { padding: 4px; background: #fff4d6; border: 1px solid #d8b258; border-radius: 3px; margin-bottom: 8px; }
+.crows.rest-activity { background: #f4f7fa; border-left: 3px solid #4a6b8a; padding: 6px 8px; margin: 2px 0; }
+.crows.rest-activity.identify-item { border-left-color: #6a4ca8; }
+.crows.rest-activity.prepare-for-task { border-left-color: #b88a00; }
+.crows.rest-activity.craft-equipment { border-left-color: #2a8040; }
+.crows.rest-activity.harvest { border-left-color: #864c2a; }

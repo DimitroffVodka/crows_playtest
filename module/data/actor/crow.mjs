@@ -39,7 +39,15 @@ export class CrowData extends TypeDataModel {
       }),
       background: new fields.StringField({ blank: true }),
       cryptBoon: new fields.StringField({ blank: true }),
-      details: new fields.SchemaField({ feature: new fields.HTMLField() })
+      details: new fields.SchemaField({ feature: new fields.HTMLField() }),
+      // Prepare for Task rest activity (Rules p.11): +1 to the next roll of `skill`,
+      // consumed on use. `detail` is free-text describing the task; `setOn` is the
+      // game time / DT-counter snapshot for display ("set during DT 3").
+      preparedTask: new fields.SchemaField({
+        skill: new fields.StringField({ blank: true, initial: "" }),
+        detail: new fields.StringField({ blank: true, initial: "" }),
+        setOn: new fields.NumberField({ initial: 0, min: 0, integer: true })
+      })
     };
   }
 

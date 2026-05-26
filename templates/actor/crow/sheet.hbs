@@ -96,13 +96,17 @@
           <div class="cc-cond-label">DT #</div>
           <div class="cc-net">{{dtCount}}</div>
         </div>
-        <button type="button" data-action="takeRest" title="Take a 6h rest — full Stamina, -1 wound, restore spellbook UDs, encounter checks every 2h">Rest</button>
-        <button type="button" data-action="takeRest" data-tend="true" title="Take rest with the Tend Wounds activity (-2 wounds)">Rest +Tend</button>
+        <button type="button" data-action="takeRest" title="Take a 6h rest — full Stamina, -1 wound, restore spellbook UDs, encounter checks every 2h. Pick a rest activity in the dialog.">Rest…</button>
         {{#if isGM}}
           <button type="button" data-action="endDt" title="End Dungeon Turn — roll DT-expiry UDs, reset blessed/boned, encounter check (GM)">End DT</button>
           <button type="button" data-action="encounterCheck" title="Roll an ad-hoc encounter check (1d6 vs {{dungeonEN}}+) (GM)">Encounter</button>
         {{/if}}
       </div>
+      {{#if system.preparedTask.skill}}
+        <div class="cc-prepared-task" title="Prepare for Task: next {{system.preparedTask.skill}} test gets +1.">
+          <strong>Prepared:</strong> +1 to next <em>{{system.preparedTask.skill}}</em>{{#if system.preparedTask.detail}} — {{system.preparedTask.detail}}{{/if}}
+        </div>
+      {{/if}}
     </div>
   </section>
 
