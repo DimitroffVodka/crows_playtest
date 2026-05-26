@@ -19,7 +19,7 @@ import { CROWS } from "../config.mjs";
  * @param {string}  [opts.source]            Optional label for chat output.
  * @returns {Promise<object>} Structured result for chat/log display.
  */
-export async function applyDamage(actor, amount, { piercing = false, source = null } = {}) {
+export async function applyDamage(actor, amount, { piercing = false, source = null, armorChoice = null, skipDialog = false } = {}) {
   if (!actor) return { ok: false, error: "no actor" };
   amount = Math.max(0, Math.floor(Number(amount) || 0));
   const sys = actor.system ?? {};
@@ -59,11 +59,25 @@ export async function applyDamage(actor, amount, { piercing = false, source = nu
   if (!piercing) {
     // Multi-armor priority: shield (outermost) → light → medium → heavy.
     // Per rules a creature with multiple AD sources chooses which loses AD
-    // first; default to outermost-layer-first. Unknown types fall to end.
+    // first. With ≥2 worn pieces still holding AD we pop a dialog so the
+    // player can pick. Programmatic callers can bypass via `armorChoice`
+    // (an armor item id) or `skipDialog: true` (use default priority).
     const armorPriority = { shield: 0, light: 1, medium: 2, heavy: 3 };
-    const wornArmor = actor.items
+    let wornArmor = actor.items
       .filter(i => i.type === "armor" && i.system.worn)
       .sort((a, b) => (armorPriority[a.system.armorType] ?? 99) - (armorPriority[b.system.armorType] ?? 99));
+
+    const liveArmor = wornArmor.filter(a => (a.system.adCurrent ?? a.system.ad ?? 0) > 0);
+    if (liveArmor.length >= 2 && !skipDialog) {
+      const pickedId = armorChoice ?? await _pickArmorDialog(actor, liveArmor);
+      if (pickedId) {
+        const picked = wornArmor.find(a => a.id === pickedId);
+        if (picked) {
+          // Put the chosen item first, keep rest in priority order.
+          wornArmor = [picked, ...wornArmor.filter(a => a.id !== picked.id)];
+        }
+      }
+    }
     for (const armor of wornArmor) {
       if (remaining <= 0) break;
       const cur = armor.system.adCurrent ?? armor.system.ad ?? 0;
@@ -131,6 +145,43 @@ export async function applyHealing(actor, { stamina = 0, wounds = 0 } = {}) {
   }
   if (Object.keys(updates).length) await actor.update(updates);
   return { ok: true, ...updates };
+}
+
+/**
+ * Pop a small DialogV2 letting the user pick which armor absorbs first.
+ * Resolves to the chosen armor item id, or null on close.
+ */
+async function _pickArmorDialog(actor, armorList) {
+  const DialogV2 = foundry.applications?.api?.DialogV2;
+  if (!DialogV2) return armorList[0]?.id ?? null;
+  const rows = armorList.map(a => {
+    const cur = a.system.adCurrent ?? a.system.ad ?? 0;
+    return `<label class="armor-pick-row">
+      <input type="radio" name="armor-pick" value="${a.id}" ${a === armorList[0] ? "checked" : ""}>
+      <strong>${a.name}</strong> <em>(${a.system.armorType})</em> — AD ${cur}/${a.system.ad}
+    </label>`;
+  }).join("");
+  const content = `<div class="crows armor-pick">
+    <p>${actor.name} has multiple worn armor sources. Choose which absorbs this hit first:</p>
+    ${rows}
+  </div>`;
+  try {
+    const result = await DialogV2.prompt({
+      window: { title: "Choose Armor to Absorb" },
+      content,
+      ok: {
+        label: "Absorb",
+        callback: (event, button, dialog) => {
+          const root = dialog.element ?? button?.form;
+          const picked = root?.querySelector?.('input[name="armor-pick"]:checked');
+          return picked?.value ?? armorList[0]?.id ?? null;
+        }
+      }
+    });
+    return result ?? armorList[0]?.id ?? null;
+  } catch {
+    return armorList[0]?.id ?? null;   // dialog cancelled → default to priority order
+  }
 }
 
 /**
