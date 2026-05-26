@@ -1,0 +1,12 @@
+name: Rat
+type: monster
+system:
+  power: 0
+  size: tiny
+  creatureType: animal
+  stamina: { value: 2, max: 2 }
+  speed: { value: 4, modes: [ { name: climb, value: 4 } ] }
+  characteristics: { agility: 1, mind: -3, strength: 0 }
+  attacks:
+    - { name: Bite, toHit: 1, range: "Melee 1", targets: 1, dmgT2: 1, dmgT3: 2, riderRef: "" }
+  traits: []

@@ -3,7 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "pack": "fvtt package pack --in src/packs --out packs --yaml",
+    "pack": "for p in crows-backgrounds crows-traits crows-weapons crows-armor crows-gear crows-spellbooks crows-monsters crows-rules; do npx fvtt package pack -n $p -t Item --in src/packs/$p --out packs --yaml; done",
+    "pack:backgrounds": "fvtt package pack -n crows-backgrounds -t Item --in src/packs/crows-backgrounds --out packs --yaml",
+    "pack:traits": "fvtt package pack -n crows-traits -t Item --in src/packs/crows-traits --out packs --yaml",
+    "pack:weapons": "fvtt package pack -n crows-weapons -t Item --in src/packs/crows-weapons --out packs --yaml",
+    "pack:armor": "fvtt package pack -n crows-armor -t Item --in src/packs/crows-armor --out packs --yaml",
+    "pack:gear": "fvtt package pack -n crows-gear -t Item --in src/packs/crows-gear --out packs --yaml",
+    "pack:spellbooks": "fvtt package pack -n crows-spellbooks -t Item --in src/packs/crows-spellbooks --out packs --yaml",
+    "pack:monsters": "fvtt package pack -n crows-monsters -t Actor --in src/packs/crows-monsters --out packs --yaml",
+    "pack:rules": "fvtt package pack -n crows-rules -t JournalEntry --in src/packs/crows-rules --out packs --yaml",
     "unpack": "fvtt package unpack --in packs --out src/packs --yaml"
   },
   "devDependencies": { "@foundryvtt/foundryvtt-cli": "^1.0.0" }

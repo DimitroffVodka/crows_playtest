@@ -1,0 +1,10 @@
+name: Crows Rules Reference
+pages:
+  - name: Conditions
+    type: text
+    text:
+      content: "<h2>Conditions</h2><p>Blessed, Boned, Grabbed, Prone, Unconscious.</p>"
+  - name: Test Results
+    type: text
+    text:
+      content: "<p>11 or less Tier 1; 12-16 Tier 2; 17+ Tier 3; natural 2-3 doom; natural 19-20 crit.</p>"

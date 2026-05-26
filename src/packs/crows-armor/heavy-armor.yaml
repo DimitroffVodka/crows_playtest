@@ -1,0 +1,3 @@
+name: Heavy Armor
+type: armor
+system: { armorType: heavy, ad: 15, slots: 4, cost: 400 }

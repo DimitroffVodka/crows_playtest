@@ -17,6 +17,20 @@
       "gear": {}, "spellbook": {}, "trait": {}, "background": {}
     }
   },
-  "packs": [],
+  "packFolders": [
+    { "name": "MCDM Crows", "sorting": "m", "packs": [
+      "crows-backgrounds","crows-traits","crows-weapons","crows-armor",
+      "crows-gear","crows-spellbooks","crows-monsters","crows-rules" ] }
+  ],
+  "packs": [
+    { "name": "crows-backgrounds", "label": "Backgrounds", "path": "packs/crows-backgrounds", "type": "Item", "system": "crows" },
+    { "name": "crows-traits", "label": "Traits", "path": "packs/crows-traits", "type": "Item", "system": "crows" },
+    { "name": "crows-weapons", "label": "Weapons", "path": "packs/crows-weapons", "type": "Item", "system": "crows" },
+    { "name": "crows-armor", "label": "Armor", "path": "packs/crows-armor", "type": "Item", "system": "crows" },
+    { "name": "crows-gear", "label": "Gear", "path": "packs/crows-gear", "type": "Item", "system": "crows" },
+    { "name": "crows-spellbooks", "label": "Spellbooks", "path": "packs/crows-spellbooks", "type": "Item", "system": "crows" },
+    { "name": "crows-monsters", "label": "Monsters", "path": "packs/crows-monsters", "type": "Actor", "system": "crows" },
+    { "name": "crows-rules", "label": "Rules Reference", "path": "packs/crows-rules", "type": "JournalEntry", "system": "crows" }
+  ],
   "flags": {}
 }

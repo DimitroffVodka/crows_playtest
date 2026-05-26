@@ -1,0 +1,9 @@
+name: Torch
+type: gear
+system:
+  subtype: light
+  light: { enabled: true, bright: 5, dim: 5 }
+  usageDie: { enabled: true, udMax: 1, udCurrent: 1, expiry: dt }
+  slots: 1
+  stackMax: 5
+  cost: 1

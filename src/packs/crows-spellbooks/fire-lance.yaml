@@ -1,0 +1,13 @@
+name: Fire Lance Book
+type: spellbook
+system:
+  discipline: elemental
+  rank: 0
+  castType: attack
+  range: { kind: ranged, value: 10 }
+  target: "1 creature"
+  duration: instant
+  effectBands: { t2: "3 + M", t3: "6 + M" }
+  usageDie: { enabled: true, udMax: 1, udCurrent: 1, expiry: rest }
+  slots: 1
+  cost: 250

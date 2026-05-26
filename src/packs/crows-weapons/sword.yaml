@@ -1,0 +1,13 @@
+name: Sword
+type: weapon
+img: icons/weapons/swords/sword-broad-steel.webp
+system:
+  description: "<p>A versatile blade.</p>"
+  type: slashing
+  range: { melee: 1, ranged: 0 }
+  attackStat: either
+  damage: { t2: "3 + A or S", t3: "6 + A or S" }
+  qualities: []
+  slots: 1
+  stackMax: 1
+  cost: 30

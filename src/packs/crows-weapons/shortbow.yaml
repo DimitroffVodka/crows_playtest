@@ -1,0 +1,11 @@
+name: Shortbow
+type: weapon
+system:
+  type: bow
+  range: { melee: 0, ranged: 10 }
+  attackStat: agility
+  damage: { t2: "2 + A", t3: "4 + A" }
+  qualities: [reload]
+  slots: 1
+  stackMax: 1
+  cost: 25
