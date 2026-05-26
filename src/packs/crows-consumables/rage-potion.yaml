@@ -21,4 +21,4 @@ system:
   slots: 1
   stackMax: 5
   quantity: 1
-  cost: 50
+  cost: 250

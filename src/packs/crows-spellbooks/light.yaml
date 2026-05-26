@@ -16,9 +16,9 @@ system:
     size: ""
   duration: "1 UD"
   effectBands:
-    t1: ""
-    t2: "2+M radius (dim)"
-    t3: "4+M radius (bright)"
+    t1: "bright 0 / dim 5"
+    t2: "bright 5 / dim 5"
+    t3: "bright 10 / dim 10"
   usageDie:
     enabled: true
     udMax: 1

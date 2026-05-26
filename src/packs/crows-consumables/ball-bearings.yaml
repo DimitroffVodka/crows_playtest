@@ -7,7 +7,7 @@ system:
   useAction: maneuver
   bands:
     t1: "Prone and 4 damage"
-    t2: "Prone and speed reduced until healed"
+    t2: "Prone"
     t3: "No effect"
   thrown:
     isAttack: false

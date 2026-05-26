@@ -17,8 +17,8 @@ system:
   duration: instant
   effectBands:
     t1: "No effect"
-    t2: "Prone"
-    t3: "2+M damage; prone"
+    t2: "Boned"
+    t3: "Twice Boned"
   usageDie:
     enabled: true
     udMax: 1

@@ -11,8 +11,8 @@ system:
     enabled: true
     udMax: 1
     udCurrent: 1
-    expiry: activate
-    refuelWith: rest
+    expiry: rest
+    refuelWith: ""
   isMagic: true
   mystery: false
   identified: true

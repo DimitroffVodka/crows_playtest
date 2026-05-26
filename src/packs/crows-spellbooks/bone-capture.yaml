@@ -8,8 +8,8 @@ system:
   rank: 0
   castType: attack
   range:
-    kind: ranged
-    value: 5
+    kind: melee
+    value: 1
   target: "1 creature"
   aoe:
     shape: ""
@@ -17,8 +17,8 @@ system:
   duration: instant
   effectBands:
     t1: "No effect"
-    t2: "Boned"
-    t3: "Boned Twice"
+    t2: "2+M damage"
+    t3: "4+M damage; prone"
   usageDie:
     enabled: true
     udMax: 1

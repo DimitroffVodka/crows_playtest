@@ -1,6 +1,6 @@
 _id: ctchop32stpchppn
 _key: "!items!ctchop32stpchppn"
-name: Stop Chopping
+name: Stop
 type: trait
 system:
   description: "<p>When you hit with an opportunity attack made with a chopping weapon, the target's speed is reduced to 0 until the end of the current combat turn.</p>"

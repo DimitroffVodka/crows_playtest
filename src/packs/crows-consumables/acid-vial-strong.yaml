@@ -4,7 +4,7 @@ name: Strong Acid Vial
 type: consumable
 system:
   description: "<p>Pouring the vial onto a surface destroys up to 5 cubic feet of mundane matter.</p><p><strong>Action:</strong> You can make a ranged 5 attack with it using Agility.</p>"
-  useAction: action
+  useAction: maneuver
   bands:
     t1: ""
     t2: "7 + A"

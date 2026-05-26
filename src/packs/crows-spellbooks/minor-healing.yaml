@@ -16,9 +16,9 @@ system:
     size: ""
   duration: instant
   effectBands:
-    t1: "No effect"
-    t2: "1+M Stamina regained"
-    t3: "2+M Stamina regained"
+    t1: "1+M Stamina regained"
+    t2: "2+M Stamina regained"
+    t3: "4+M Stamina regained"
   usageDie:
     enabled: true
     udMax: 1
