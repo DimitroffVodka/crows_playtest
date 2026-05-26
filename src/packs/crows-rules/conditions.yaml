@@ -1,10 +1,16 @@
+_id: crowsruleconds01
+_key: "!journal!crowsruleconds01"
 name: Crows Rules Reference
 pages:
-  - name: Conditions
+  - _id: crowsrulpgcond01
+    _key: "!journal.pages!crowsruleconds01.crowsrulpgcond01"
+    name: Conditions
     type: text
     text:
       content: "<h2>Conditions</h2><p>Blessed, Boned, Grabbed, Prone, Unconscious.</p>"
-  - name: Test Results
+  - _id: crowsrulpgresu01
+    _key: "!journal.pages!crowsruleconds01.crowsrulpgresu01"
+    name: Test Results
     type: text
     text:
       content: "<p>11 or less Tier 1; 12-16 Tier 2; 17+ Tier 3; natural 2-3 doom; natural 19-20 crit.</p>"

@@ -1,3 +1,5 @@
+_id: crowstraittough1
+_key: "!items!crowstraittough1"
 name: Tough
 type: trait
 system: { tree: armor, tier: 1, column: 1, connectsTo: [], isStarting: true, description: "<p>+2 Stamina max.</p>" }

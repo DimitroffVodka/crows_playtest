@@ -1,3 +1,5 @@
+_id: crowsarmrshield1
+_key: "!items!crowsarmrshield1"
 name: Shield
 type: armor
 system: { armorType: shield, ad: 5, slots: 1, cost: 15 }
