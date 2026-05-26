@@ -169,6 +169,8 @@
   justify-content: center;
 }
 .cc-mini-value { font-size: 22px; font-weight: bold; font-family: "Georgia", serif; }
+.cc-speed-effective { color: #882020; }
+.cc-speed-base { font-size: 13px; color: #888; }
 .cc-mini-value input { width: 40px; font-size: 22px; font-weight: bold; text-align: center; }
 .cc-mini-label { font-size: 11px; color: #555; border-top: 1px solid #ccc; padding-top: 2px; margin-top: 2px; }
 

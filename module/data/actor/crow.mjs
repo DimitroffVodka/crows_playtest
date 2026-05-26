@@ -55,5 +55,17 @@ export class CrowData extends TypeDataModel {
     this.adMax = adMax;
     this.conditionNet = (this.conditions.blessed ?? 0) - (this.conditions.boned ?? 0);
     this.dead = (this.wounds ?? 0) >= CROWS.backpackSize;
+
+    // Effective speed factoring in conditions:
+    //   grabbed / unconscious → 0
+    //   prone → halved (rounded down)
+    const baseSpeed = this.speed ?? 0;
+    const c = this.conditions ?? {};
+    let eff = baseSpeed;
+    let speedNote = "";
+    if (c.grabbed || c.unconscious) { eff = 0; speedNote = c.unconscious ? "unconscious" : "grabbed"; }
+    else if (c.prone) { eff = Math.floor(baseSpeed / 2); speedNote = "prone"; }
+    this.effectiveSpeed = eff;
+    this.speedNote = speedNote;
   }
 }

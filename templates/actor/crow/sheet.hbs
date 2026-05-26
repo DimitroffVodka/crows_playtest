@@ -54,9 +54,11 @@
   </section>
 
   <section class="cc-substats">
-    <div class="cc-mini-box">
-      <div class="cc-mini-value"><input type="number" name="system.speed" value="{{system.speed}}"></div>
-      <div class="cc-mini-label">Speed</div>
+    <div class="cc-mini-box" title="{{#if system.speedNote}}Reduced by {{system.speedNote}} (base {{system.speed}}){{/if}}">
+      <div class="cc-mini-value">
+        {{#if system.speedNote}}<span class="cc-speed-effective">{{system.effectiveSpeed}}</span><span class="cc-speed-base">/{{system.speed}}</span>{{else}}<input type="number" name="system.speed" value="{{system.speed}}">{{/if}}
+      </div>
+      <div class="cc-mini-label">Speed{{#if system.speedNote}} <em>({{system.speedNote}})</em>{{/if}}</div>
     </div>
     <div class="cc-mini-box">
       <div class="cc-mini-value">{{shift}}</div>

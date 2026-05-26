@@ -68,6 +68,47 @@ Hooks.once("ready", () => {
 });
 
 /**
+ * Sync Active Effects ↔ system.conditions on crows.
+ *   - Boolean conditions (grabbed/prone/unconscious): mirror the AE's
+ *     presence onto the boolean field.
+ *   - Leveled conditions (blessed/boned): each AE add increments the
+ *     counter; each delete decrements (clamped at 0). Players who want
+ *     to set a level directly should use the +/− buttons on the sheet.
+ */
+const _BOOL_CONDS = ["grabbed", "prone", "unconscious"];
+const _LEVELED_CONDS = ["blessed", "boned"];
+
+Hooks.on("createActiveEffect", async (effect /*, options, userId */) => {
+  const actor = effect.parent;
+  if (!actor || actor.type !== "crow") return;
+  const statuses = [...(effect.statuses ?? [])];
+  if (!statuses.length) return;
+  const updates = {};
+  for (const id of statuses) {
+    if (_BOOL_CONDS.includes(id)) updates[`system.conditions.${id}`] = true;
+    if (_LEVELED_CONDS.includes(id)) updates[`system.conditions.${id}`] = (actor.system.conditions?.[id] ?? 0) + 1;
+  }
+  if (Object.keys(updates).length) await actor.update(updates);
+});
+
+Hooks.on("deleteActiveEffect", async (effect) => {
+  const actor = effect.parent;
+  if (!actor || actor.type !== "crow") return;
+  const statuses = [...(effect.statuses ?? [])];
+  if (!statuses.length) return;
+  const updates = {};
+  for (const id of statuses) {
+    if (_BOOL_CONDS.includes(id)) {
+      // Only clear if no other AE on the actor still carries this status.
+      const stillHas = actor.effects.some(e => e.id !== effect.id && e.statuses?.has?.(id));
+      if (!stillHas) updates[`system.conditions.${id}`] = false;
+    }
+    if (_LEVELED_CONDS.includes(id)) updates[`system.conditions.${id}`] = Math.max(0, (actor.system.conditions?.[id] ?? 0) - 1);
+  }
+  if (Object.keys(updates).length) await actor.update(updates);
+});
+
+/**
  * Wire chat-card actions (e.g. "Apply T2/T3" damage buttons).
  * v14 uses renderChatMessageHTML (per CLAUDE.md). We delegate clicks on
  * [data-action="applyDamage"] to game.crows.applyDamage against the
