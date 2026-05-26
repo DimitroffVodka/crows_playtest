@@ -12,6 +12,7 @@ import { TraitData } from "./data/item/trait.mjs";
 import { BackgroundData } from "./data/item/background.mjs";
 import { rollTest, classifyTier, classifyDoomCrit } from "./helpers/roll.mjs";
 import { applyBackground } from "./helpers/creation.mjs";
+import { applyDamage, applyHealing, repairArmor } from "./helpers/damage.mjs";
 import { registerConditions } from "./conditions.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
@@ -29,7 +30,7 @@ Hooks.once("init", () => {
     trait: TraitData, background: BackgroundData
   });
   Object.assign(CONFIG.Actor.dataModels, { crow: CrowData, monster: MonsterData });
-  game.crows = Object.assign(game.crows ?? {}, { rollTest, classifyTier, classifyDoomCrit, applyBackground });
+  game.crows = Object.assign(game.crows ?? {}, { rollTest, classifyTier, classifyDoomCrit, applyBackground, applyDamage, applyHealing, repairArmor });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });
@@ -44,4 +45,48 @@ Hooks.once("init", () => {
 
 Hooks.once("ready", () => {
   console.log("crows | ready");
+});
+
+/**
+ * Wire chat-card actions (e.g. "Apply T2/T3" damage buttons).
+ * v14 uses renderChatMessageHTML (per CLAUDE.md). We delegate clicks on
+ * [data-action="applyDamage"] to game.crows.applyDamage against the
+ * currently-controlled token(s); fall back to the user's character if no
+ * token is selected.
+ */
+Hooks.on("renderChatMessageHTML", (message, html /*, context */) => {
+  const buttons = html.querySelectorAll('[data-action="applyDamage"]');
+  for (const btn of buttons) {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const amount = Number(ev.currentTarget.dataset.amount) || 0;
+      const piercing = ev.currentTarget.dataset.piercing === "true";
+      const actors = [];
+      if (canvas.tokens?.controlled?.length) {
+        for (const t of canvas.tokens.controlled) if (t.actor) actors.push(t.actor);
+      } else if (game.user.character) {
+        actors.push(game.user.character);
+      }
+      if (!actors.length) {
+        ui.notifications?.warn("Select a token to apply damage to.");
+        return;
+      }
+      const results = [];
+      for (const a of actors) results.push(await applyDamage(a, amount, { piercing }));
+      // Brief summary in chat (whisper to GM if rollMode is whisper; otherwise public)
+      const lines = results.filter(r => r?.ok).map(r => {
+        if (r.actorType === "monster") return `<li><b>${r.actorName}</b>: ${r.total} → Stamina ${r.stamina.before}→${r.stamina.after}${r.defeated ? " <em>(defeated)</em>" : ""}</li>`;
+        const parts = [];
+        if (r.absorbed.armor) parts.push(`armor ${r.absorbed.armor}`);
+        if (r.absorbed.stamina) parts.push(`stamina ${r.absorbed.stamina}`);
+        if (r.absorbed.wounds) parts.push(`wounds ${r.absorbed.wounds}`);
+        const broken = r.armorBroken?.length ? ` <em>broken: ${r.armorBroken.join(", ")}</em>` : "";
+        const bonedNote = r.bonedBonus ? ` <em>+${r.bonedBonus} boned</em>` : "";
+        const dead = r.dead ? " <strong>(dead)</strong>" : "";
+        return `<li><b>${r.actorName}</b>: ${r.total}${bonedNote} → ${parts.join(" · ") || "no effect"}${broken}${dead}</li>`;
+      });
+      const summary = `<div class="crows damage-applied"><strong>Damage applied:</strong><ul>${lines.join("")}</ul></div>`;
+      await ChatMessage.create({ content: summary, speaker: { alias: "Damage" } });
+    });
+  }
 });

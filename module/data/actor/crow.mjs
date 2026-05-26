@@ -30,7 +30,10 @@ export class CrowData extends TypeDataModel {
       currency: new fields.NumberField({ initial: 0, min: 0, integer: true }),
       conditions: new fields.SchemaField({
         blessed: new fields.NumberField({ initial: 0, min: 0, integer: true }),
-        boned: new fields.NumberField({ initial: 0, min: 0, integer: true })
+        boned: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        grabbed: new fields.BooleanField({ initial: false }),
+        prone: new fields.BooleanField({ initial: false }),
+        unconscious: new fields.BooleanField({ initial: false })
       }),
       background: new fields.StringField({ blank: true }),
       cryptBoon: new fields.StringField({ blank: true }),
@@ -39,12 +42,18 @@ export class CrowData extends TypeDataModel {
   }
 
   prepareDerivedData() {
+    // Derived AD = sum of worn armor's CURRENT pool (adCurrent), falling back to ad when undamaged/uninitialized.
     let ad = 0;
+    let adMax = 0;
     for (const i of this.parent.items) {
-      if (i.type === "armor" && i.system.worn) ad += i.system.ad ?? 0;
+      if (i.type !== "armor" || !i.system.worn) continue;
+      const cur = i.system.adCurrent ?? i.system.ad ?? 0;
+      ad += Math.max(0, cur);
+      adMax += i.system.ad ?? 0;
     }
     this.ad = ad;
-    const net = (this.conditions.blessed ?? 0) - (this.conditions.boned ?? 0);
-    this.conditionNet = net;
+    this.adMax = adMax;
+    this.conditionNet = (this.conditions.blessed ?? 0) - (this.conditions.boned ?? 0);
+    this.dead = (this.wounds ?? 0) >= CROWS.backpackSize;
   }
 }

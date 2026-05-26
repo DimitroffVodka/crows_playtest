@@ -4,6 +4,10 @@
     {{#if doom}}<span class="badge doom">DOOM</span>{{/if}}
     {{#if crit}}<span class="badge crit">CRIT</span>{{/if}}
   </header>
+  <div class="roll-line">
+    <span class="roll-total">{{total}}</span>
+    <span class="roll-detail">= 2d10({{rawSum}}){{#if char}} + {{char}} {{charVal}}{{/if}}{{#if skill}} + {{skill}} +{{skillBonus}}{{/if}}{{#each mods as |m|}} {{#if (gte m.value 0)}}+{{/if}}{{m.value}} ({{m.label}}){{/each}}</span>
+  </div>
   {{#if attack}}
     <div class="damage">
       <button type="button" data-action="applyDamage" data-amount="{{attack.t2}}">Apply T2: {{attack.t2}}</button>
