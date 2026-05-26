@@ -19,6 +19,9 @@ import { CrowSheet } from "./sheets/crow-sheet.mjs";
 Hooks.once("init", () => {
   console.log("crows | init");
   CONFIG.CROWS = CROWS;
+  // Handlebars helpers used by the crow sheet (re-register safely; built-in eq/lt/gt are overwritten with same behavior)
+  Handlebars.registerHelper("gte", (a, b) => Number(a) >= Number(b));
+  Handlebars.registerHelper("add", (a, b) => Number(a) + Number(b));
   registerConditions();
   Object.assign(CONFIG.Item.dataModels, {
     weapon: WeaponData, armor: ArmorData, ammunition: AmmunitionData,

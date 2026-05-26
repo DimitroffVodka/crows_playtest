@@ -1,13 +1,386 @@
-/* crows system styles */
-.crows.sheet { font-family: var(--font-primary); }
+/* ====================================================================
+   crows system styles
+   ==================================================================== */
 
-.crows-crow .tab { display: none; }
-.crows-crow .tab.active { display: block; }
-.crows-tabs { display: flex; gap: 4px; margin: 6px 0; }
-.crows-tabs button.active { font-weight: bold; text-decoration: underline; }
-.crows-crow-header .chars label { margin-right: 8px; }
-.crows-crow .skill-list { display: flex; flex-wrap: wrap; gap: 4px; }
-.slot-grid .row { display: flex; gap: 4px; margin-bottom: 4px; align-items: center; }
-.slot-grid .slot { border: 1px solid #888; min-width: 90px; min-height: 28px; padding: 2px 4px; }
-.slot-grid .slot.backpack.wound { background: #5c1a1a; color: #fff; }
-.slot-grid .row.backpack { flex-wrap: wrap; }
+.crows.sheet { font-family: var(--font-primary, "Signika", sans-serif); }
+
+/* ====================================================================
+   Crow PC sheet — laid out to match the official paper sheet (xlsx)
+   ==================================================================== */
+
+.crows-crow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px;
+  font-size: 13px;
+  color: #222;
+  background: #fdfbf6;
+}
+
+.crows-crow input[type="text"],
+.crows-crow input[type="number"],
+.crows-crow textarea,
+.crows-crow select {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #888;
+  font: inherit;
+  color: inherit;
+  padding: 1px 3px;
+}
+
+.crows-crow input[type="number"] { text-align: center; }
+
+.crows-crow input:focus,
+.crows-crow textarea:focus,
+.crows-crow select:focus { outline: 1px solid #888; background: #fff; }
+
+.crows-crow .cc-section-title {
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid #222;
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* -------- Header (name / background / feature + XP) -------- */
+
+.cc-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 6px;
+  border: 1px solid #222;
+  padding: 6px 8px;
+  background: #fff;
+}
+
+.cc-id { display: flex; flex-direction: column; gap: 3px; }
+.cc-id .cc-field { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 6px; }
+.cc-id .cc-field label { font-weight: bold; }
+.cc-id .cc-field input { width: 100%; }
+
+.cc-xp { display: flex; flex-direction: column; gap: 3px; }
+.cc-xp-row { display: flex; gap: 6px; align-items: stretch; }
+.cc-xp-cell {
+  flex: 1;
+  border: 1px solid #222;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+}
+.cc-xp-cell label { font-weight: bold; font-size: 11px; flex: 1; }
+.cc-xp-cell input { width: 50px; text-align: center; }
+.cc-xp-cell .cc-xp-target { font-weight: bold; font-size: 14px; }
+
+/* -------- Big stat boxes row (S / A / M / Stamina / AD) -------- */
+
+.cc-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.cc-stat-box {
+  border: 1px solid #222;
+  background: #fff;
+  text-align: center;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 78px;
+}
+
+.cc-stat-box.clickable { cursor: pointer; }
+.cc-stat-box.clickable:hover { background: #fff7d8; }
+
+.cc-stat-label {
+  font-weight: bold;
+  font-size: 13px;
+  border-bottom: 1px solid #222;
+  width: 100%;
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.cc-stat-value {
+  font-size: 32px;
+  font-weight: bold;
+  font-family: "Georgia", serif;
+  border: 0;
+  width: 60px;
+  text-align: center;
+  background: transparent;
+  color: #222;
+}
+
+.cc-stat-value:focus { outline: 1px solid #888; background: #fff; }
+
+.cc-stat-pair { display: flex; align-items: center; gap: 2px; font-size: 22px; }
+.cc-stat-pair input { width: 38px; font-size: 22px; font-weight: bold; }
+.cc-stat-pair .sep { color: #888; }
+
+.cc-ad-derived { font-size: 32px; padding-top: 6px; }
+
+/* -------- Sub-stat row (Speed / Shift / Conditions) -------- */
+
+.cc-substats {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 4px;
+  align-items: stretch;
+}
+
+.cc-mini-box {
+  border: 1px solid #222;
+  background: #fff;
+  text-align: center;
+  padding: 4px 8px;
+  min-width: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cc-mini-value { font-size: 22px; font-weight: bold; font-family: "Georgia", serif; }
+.cc-mini-value input { width: 40px; font-size: 22px; font-weight: bold; text-align: center; }
+.cc-mini-label { font-size: 11px; color: #555; border-top: 1px solid #ccc; padding-top: 2px; margin-top: 2px; }
+
+.cc-conditions {
+  border: 1px solid #222;
+  background: #fff;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cc-conditions-title { font-weight: bold; text-align: center; border-bottom: 1px solid #222; padding-bottom: 2px; }
+.cc-conditions-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4px; align-items: center; }
+.cc-cond-cell { text-align: center; }
+.cc-cond-label { font-size: 11px; font-weight: bold; }
+.cc-cond-value { display: flex; align-items: center; justify-content: center; gap: 2px; }
+.cc-cond-value .cc-net { font-size: 16px; font-weight: bold; min-width: 18px; }
+.cc-cond-value button { width: 20px; height: 20px; padding: 0; }
+.cc-cond-cell input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+
+/* -------- Tabs --------------------------------------------------- */
+
+.cc-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #222;
+}
+.cc-tabs button {
+  background: #ede5d2;
+  border: 1px solid #222;
+  border-bottom: 0;
+  margin-right: -1px;
+  padding: 4px 14px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #444;
+}
+.cc-tabs button.active {
+  background: #fff;
+  color: #222;
+  position: relative;
+  z-index: 1;
+}
+
+.cc-tab { display: none; padding: 8px 4px; }
+.cc-tab.active { display: block; }
+
+/* -------- MAIN tab: Perks + Skills ------------------------------ */
+
+.cc-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.cc-perks {
+  border: 1px solid #222;
+  background: #fff;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+}
+.cc-perks-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cc-perk {
+  border: 1px solid #ccc;
+  padding: 3px 6px;
+  background: #faf6ec;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  cursor: pointer;
+}
+.cc-perk:hover { background: #fff2c8; }
+.cc-perk-name { font-weight: bold; }
+.cc-perk-meta { font-size: 11px; color: #666; }
+
+.cc-empty {
+  color: #888;
+  font-style: italic;
+  font-size: 12px;
+  padding: 4px;
+}
+
+.cc-skills {
+  border: 1px solid #222;
+  background: #fff;
+  padding: 6px;
+}
+.cc-skills-title { color: #2a4080; }
+.cc-skill-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cc-skill-col { display: flex; flex-direction: column; gap: 1px; }
+.cc-skill-group {
+  font-weight: bold;
+  text-align: center;
+  background: #ede5d2;
+  border: 1px solid #222;
+  padding: 2px;
+  margin-bottom: 2px;
+}
+.cc-weapon-group { margin-top: 8px; }
+.cc-skill-row {
+  display: grid;
+  grid-template-columns: 1fr 22px 22px;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  padding: 1px 2px;
+  border-bottom: 1px dotted #ccc;
+}
+.cc-skill-row .cc-skill-name {
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: #2a4080;
+  cursor: pointer;
+  padding: 2px 0;
+  font: inherit;
+  font-weight: 500;
+}
+.cc-skill-row .cc-skill-name:hover { color: #1a1a8a; text-decoration: underline; }
+.cc-skill-row input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* -------- EQUIPMENT tab: 10 named slots ------------------------- */
+
+.cc-equip-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 4px;
+}
+
+.cc-slot {
+  border: 1px solid #222;
+  background: #fff;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+.cc-slot-header {
+  background: #f3eedf;
+  border-bottom: 1px solid #222;
+  padding: 3px 6px;
+  font-weight: bold;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cc-slot-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-style: italic;
+  font-size: 12px;
+  padding: 4px;
+  text-align: center;
+}
+.cc-slot.filled { background: #fdfbf6; }
+
+.cc-card {
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  flex: 1;
+  font-size: 11px;
+}
+.cc-card:hover { background: #fff7d8; }
+.cc-card-name { font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 1px; font-size: 12px; }
+.cc-card-stack { font-weight: normal; font-size: 10px; color: #666; }
+.cc-card-line { line-height: 1.3; }
+.cc-card-cost { margin-top: auto; align-self: center; font-size: 10px; color: #555; }
+
+/* -------- INVENTORY tab: 10 backpack slots ----------------------- */
+
+.cc-wounds-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding: 4px;
+  background: #f3eedf;
+  border: 1px solid #ccc;
+}
+.cc-wounds-controls button { padding: 2px 8px; }
+
+.cc-inv-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 4px;
+}
+.cc-inv-slot {
+  min-height: 220px;
+}
+.cc-inv-slot .cc-wound-check {
+  font-size: 10px;
+  font-weight: normal;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cc-inv-slot .cc-wound-check input { margin: 0; width: 14px; height: 14px; }
+.cc-inv-slot.wound { background: #5c1a1a; color: #fff; }
+.cc-inv-slot.wound .cc-slot-header { background: #441111; color: #fff; border-color: #882020; }
+.cc-slot-wound {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+}
+
+/* -------- Bio / Advancement ------------------------------------- */
+
+.cc-bio .cc-field { display: grid; grid-template-columns: 120px 1fr; align-items: start; gap: 6px; margin-bottom: 6px; }
+.cc-bio textarea { width: 100%; }
+.cc-advancement p { padding: 6px; }

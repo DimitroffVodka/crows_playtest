@@ -1,68 +1,236 @@
 <div class="crows-crow">
-  <header class="crows-crow-header">
-    <input type="text" name="name" value="{{actor.name}}" class="title">
-    <div class="chars">
-      <label>A <input type="number" name="system.characteristics.agility.value" value="{{system.characteristics.agility.value}}"></label>
-      <label>M <input type="number" name="system.characteristics.mind.value" value="{{system.characteristics.mind.value}}"></label>
-      <label>S <input type="number" name="system.characteristics.strength.value" value="{{system.characteristics.strength.value}}"></label>
+
+  <header class="cc-header">
+    <div class="cc-id">
+      <div class="cc-field">
+        <label>Name</label>
+        <input type="text" name="name" value="{{actor.name}}">
+      </div>
+      <div class="cc-field">
+        <label>Background</label>
+        <input type="text" name="system.background" value="{{system.background}}">
+      </div>
+      <div class="cc-field feature">
+        <label>Feature</label>
+        <input type="text" name="system.details.feature" value="{{system.details.feature}}">
+      </div>
     </div>
-    <div class="vitals">
-      <label>Stamina <input type="number" name="system.stamina.value" value="{{system.stamina.value}}">/<input type="number" name="system.stamina.max" value="{{system.stamina.max}}"></label>
-      <span>Wounds {{system.wounds}}</span>
-      <span>Speed {{system.speed}}</span>
-      <span>AD {{system.ad}}</span>
-    </div>
-    <div class="conditions">
-      <span>Blessed {{system.conditions.blessed}}
-        <button type="button" data-action="adjBlessed" data-delta="1">+</button>
-        <button type="button" data-action="adjBlessed" data-delta="-1">&minus;</button></span>
-      <span>Boned {{system.conditions.boned}}
-        <button type="button" data-action="adjBoned" data-delta="1">+</button>
-        <button type="button" data-action="adjBoned" data-delta="-1">&minus;</button></span>
+    <div class="cc-xp">
+      <div class="cc-xp-row">
+        <div class="cc-xp-cell"><label>Unspent XP</label><input type="number" name="system.xp.spendable" value="{{system.xp.spendable}}"></div>
+        <div class="cc-xp-cell"><label>Next Advancement</label><span class="cc-xp-target">{{nextAdvancement}} TXP</span></div>
+      </div>
+      <div class="cc-xp-row">
+        <div class="cc-xp-cell"><label>Total XP</label><input type="number" name="system.xp.txp" value="{{system.xp.txp}}"></div>
+      </div>
     </div>
   </header>
 
-  <nav class="crows-tabs">
-    {{#each tabs as |t|}}
-      <button type="button" data-action="tab" data-tab="{{t}}" class="{{#if (eq t ../activeTab)}}active{{/if}}">{{t}}</button>
-    {{/each}}
-  </nav>
-
-  <section class="tab play {{#if (eq activeTab 'play')}}active{{/if}}">
-    <h3>Skills</h3>
-    <div class="skill-list">
-      {{#each skills as |s|}}
-        <button type="button" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}">{{s.key}} (+{{s.bonus}})</button>
-      {{/each}}
+  <section class="cc-stats">
+    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="strength" title="Roll Strength test">
+      <div class="cc-stat-label">Strength</div>
+      <input type="number" class="cc-stat-value" name="system.characteristics.strength.value" value="{{system.characteristics.strength.value}}">
+    </div>
+    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="agility" title="Roll Agility test">
+      <div class="cc-stat-label">Agility</div>
+      <input type="number" class="cc-stat-value" name="system.characteristics.agility.value" value="{{system.characteristics.agility.value}}">
+    </div>
+    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="mind" title="Roll Mind test">
+      <div class="cc-stat-label">Mind</div>
+      <input type="number" class="cc-stat-value" name="system.characteristics.mind.value" value="{{system.characteristics.mind.value}}">
+    </div>
+    <div class="cc-stat-box">
+      <div class="cc-stat-label">Stamina</div>
+      <div class="cc-stat-pair">
+        <input type="number" name="system.stamina.value" value="{{system.stamina.value}}">
+        <span class="sep">/</span>
+        <input type="number" name="system.stamina.max" value="{{system.stamina.max}}">
+      </div>
+    </div>
+    <div class="cc-stat-box">
+      <div class="cc-stat-label">AD</div>
+      <div class="cc-stat-value cc-ad-derived">{{system.ad}}</div>
     </div>
   </section>
 
-  <section class="tab inventory {{#if (eq activeTab 'inventory')}}active{{/if}}">
-    <div class="slot-grid">
-      <div class="row hands"><b>Hands</b> {{#each grid.hand as |it|}}<div class="slot">{{it.name}}</div>{{/each}}</div>
-      <div class="row belt"><b>Belt</b> {{#each grid.belt as |it|}}<div class="slot">{{it.name}}</div>{{/each}}</div>
-      <div class="row single">{{#each grid.single as |s|}}<div class="slot single">{{s.c}}: {{s.name}}</div>{{/each}}</div>
-      <div class="row backpack">
-        {{#each grid.backpack as |cell|}}
-          <div class="slot backpack {{#if cell.isWound}}wound{{/if}}" data-index="{{cell.index}}">
-            {{#if cell.isWound}}&#10006; wound{{else}}{{cell.name}}{{/if}}
+  <section class="cc-substats">
+    <div class="cc-mini-box">
+      <div class="cc-mini-value"><input type="number" name="system.speed" value="{{system.speed}}"></div>
+      <div class="cc-mini-label">Speed</div>
+    </div>
+    <div class="cc-mini-box">
+      <div class="cc-mini-value">{{shift}}</div>
+      <div class="cc-mini-label">Shift</div>
+    </div>
+    <div class="cc-conditions">
+      <div class="cc-conditions-title">Conditions</div>
+      <div class="cc-conditions-row">
+        <div class="cc-cond-cell">
+          <div class="cc-cond-label">Blessed/Boned</div>
+          <div class="cc-cond-value">
+            <span class="cc-net">{{condNet}}</span>
+            <button type="button" data-action="adjBlessed" data-delta="1" title="+1 Blessed">+</button>
+            <button type="button" data-action="adjBoned" data-delta="1" title="+1 Boned">&minus;</button>
           </div>
-        {{/each}}
+        </div>
+        <div class="cc-cond-cell">
+          <div class="cc-cond-label">Grabbed</div>
+          <input type="checkbox" name="system.conditions.grabbed" {{#if condFlags.grabbed}}checked{{/if}}>
+        </div>
+        <div class="cc-cond-cell">
+          <div class="cc-cond-label">Prone</div>
+          <input type="checkbox" name="system.conditions.prone" {{#if condFlags.prone}}checked{{/if}}>
+        </div>
+        <div class="cc-cond-cell">
+          <div class="cc-cond-label">Unconscious</div>
+          <input type="checkbox" name="system.conditions.unconscious" {{#if condFlags.unconscious}}checked{{/if}}>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="tab traits {{#if (eq activeTab 'traits')}}active{{/if}}">
-    {{#each traitItems as |i|}}<div class="trait"><b>{{i.name}}</b> &mdash; {{i.system.tree}} t{{i.system.tier}}</div>{{/each}}
+  <nav class="cc-tabs">
+    {{#each tabs as |t|}}
+      <button type="button" data-action="tab" data-tab="{{t.id}}" class="{{#if (eq t.id ../activeTab)}}active{{/if}}">{{t.label}}</button>
+    {{/each}}
+  </nav>
+
+  {{!-- MAIN TAB: Perks + Skills (3 columns) --}}
+  <section class="cc-tab cc-main {{#if (eq activeTab 'main')}}active{{/if}}">
+    <div class="cc-main-grid">
+      <div class="cc-perks">
+        <div class="cc-section-title">Perks</div>
+        <div class="cc-perks-list">
+          {{#if perks.length}}
+            {{#each perks as |p|}}
+              <div class="cc-perk" data-action="openItem" data-item-id="{{p.id}}">
+                <span class="cc-perk-name">{{p.name}}</span>
+                <span class="cc-perk-meta">{{p.tree}} · t{{p.tier}}</span>
+              </div>
+            {{/each}}
+          {{else}}
+            <p class="cc-empty">No perks yet. Drag traits from the compendium onto this sheet.</p>
+          {{/if}}
+        </div>
+      </div>
+
+      <div class="cc-skills">
+        <div class="cc-section-title cc-skills-title">Skills</div>
+        <div class="cc-skill-cols">
+
+          <div class="cc-skill-col">
+            <div class="cc-skill-group">General</div>
+            {{#each skillGroups.general as |s|}}
+              <div class="cc-skill-row">
+                <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
+                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
+                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
+              </div>
+            {{/each}}
+          </div>
+
+          <div class="cc-skill-col">
+            <div class="cc-skill-group">Spellcasting</div>
+            {{#each skillGroups.spellcasting as |s|}}
+              <div class="cc-skill-row">
+                <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}} (Mind)">{{s.label}}</button>
+                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
+                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
+              </div>
+            {{/each}}
+
+            <div class="cc-skill-group cc-weapon-group">Weapon</div>
+            {{#each skillGroups.weapon as |s|}}
+              <div class="cc-skill-row">
+                <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
+                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
+                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
+              </div>
+            {{/each}}
+          </div>
+
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section class="tab advancement {{#if (eq activeTab 'advancement')}}active{{/if}}">
-    <div>TXP {{system.xp.txp}} &middot; Spendable XP {{system.xp.spendable}}</div>
-    <p>Advancement spend UI lands in M3.</p>
+  {{!-- EQUIPMENT TAB: 10 named slots, each renders item card inline --}}
+  <section class="cc-tab cc-equipment {{#if (eq activeTab 'equipment')}}active{{/if}}">
+    <div class="cc-equip-grid">
+      {{#each equipSlots as |s|}}
+        <div class="cc-slot {{#if s.card}}filled{{/if}}" data-slot-id="{{s.id}}" data-container="{{s.container}}" data-index="{{s.index}}">
+          <div class="cc-slot-header">{{s.label}}</div>
+          {{#if s.card}}
+            <div class="cc-card" data-action="openItem" data-item-id="{{s.card.id}}">
+              <div class="cc-card-name">{{s.card.name}}{{#if s.card.stack}} <span class="cc-card-stack">Stack {{s.card.stack}}</span>{{/if}}</div>
+              {{#each s.card.summary.lines as |line|}}
+                <div class="cc-card-line">{{line}}</div>
+              {{/each}}
+              {{#if s.card.cost}}<div class="cc-card-cost">{{s.card.cost}} gc</div>{{/if}}
+            </div>
+          {{else}}
+            <div class="cc-slot-empty">{{s.hint}}</div>
+          {{/if}}
+        </div>
+      {{/each}}
+    </div>
   </section>
 
-  <section class="tab bio {{#if (eq activeTab 'bio')}}active{{/if}}">
-    <div>Background: {{system.background}}</div>
-    <label>Feature <textarea name="system.details.feature">{{system.details.feature}}</textarea></label>
+  {{!-- INVENTORY TAB: 10 backpack slots in 2x5 grid, wound checkbox per slot --}}
+  <section class="cc-tab cc-inventory {{#if (eq activeTab 'inventory')}}active{{/if}}">
+    <div class="cc-wounds-controls">
+      <span>Wounds: <strong>{{system.wounds}}</strong> / {{CROWS.backpackSize}}</span>
+      <button type="button" data-action="adjWounds" data-delta="1">+ wound</button>
+      <button type="button" data-action="adjWounds" data-delta="-1">- wound</button>
+    </div>
+    <div class="cc-inv-grid">
+      {{#each backpack as |cell|}}
+        <div class="cc-slot cc-inv-slot {{#if cell.card}}filled{{/if}} {{#if cell.isWound}}wound{{/if}}" data-container="backpack" data-index="{{cell.index}}">
+          <div class="cc-slot-header">
+            <span>Slot {{add cell.index 1}}</span>
+            <label class="cc-wound-check"><span>Wound</span><input type="checkbox" {{#if cell.isWound}}checked{{/if}} disabled></label>
+          </div>
+          {{#if cell.isWound}}
+            <div class="cc-slot-wound">&#10006; wound</div>
+          {{else if cell.card}}
+            <div class="cc-card" data-action="openItem" data-item-id="{{cell.card.id}}">
+              <div class="cc-card-name">{{cell.card.name}}{{#if cell.card.stack}} <span class="cc-card-stack">Stack {{cell.card.stack}}</span>{{/if}}</div>
+              {{#each cell.card.summary.lines as |line|}}
+                <div class="cc-card-line">{{line}}</div>
+              {{/each}}
+              {{#if cell.card.cost}}<div class="cc-card-cost">{{cell.card.cost}} gc</div>{{/if}}
+            </div>
+          {{else}}
+            <div class="cc-slot-empty">empty</div>
+          {{/if}}
+        </div>
+      {{/each}}
+    </div>
+  </section>
+
+  {{!-- ADVANCEMENT TAB (M3 advancement UI placeholder) --}}
+  <section class="cc-tab cc-advancement {{#if (eq activeTab 'advancement')}}active{{/if}}">
+    <p>TXP {{system.xp.txp}} · Spendable XP {{system.xp.spendable}} · Next advancement at {{nextAdvancement}} TXP.</p>
+    <p class="cc-empty">Advancement spending UI lands in M3.</p>
+  </section>
+
+  {{!-- BIO TAB --}}
+  <section class="cc-tab cc-bio {{#if (eq activeTab 'bio')}}active{{/if}}">
+    <div class="cc-field">
+      <label>Background</label>
+      <input type="text" name="system.background" value="{{system.background}}">
+    </div>
+    <div class="cc-field">
+      <label>Feature</label>
+      <textarea name="system.details.feature" rows="8">{{system.details.feature}}</textarea>
+    </div>
+    <div class="cc-field">
+      <label>Crypt Boon</label>
+      <input type="text" name="system.cryptBoon" value="{{system.cryptBoon}}">
+    </div>
+    <div class="cc-field">
+      <label>Currency (gc)</label>
+      <input type="number" name="system.currency" value="{{system.currency}}">
+    </div>
   </section>
 </div>

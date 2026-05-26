@@ -5,8 +5,7 @@ export const CROWS = {
   doomFaces: [2, 3],                           // natural 2d10 sum
   critFaces: [19, 20],
   containers: {
-    hand: 2, belt: 2, waist: 1, neck: 1, gloves: 1, boots: 1,
-    ring: 1, head: 1, backpack: 10
+    hand: 2, belt: 2, head: 1, neck: 1, waist: 1, arms: 1, finger: 1, feet: 1, backpack: 10
   },
   backpackSize: 10
 };
