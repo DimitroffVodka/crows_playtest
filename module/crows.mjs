@@ -11,6 +11,7 @@ import { SpellbookData } from "./data/item/spellbook.mjs";
 import { TraitData } from "./data/item/trait.mjs";
 import { BackgroundData } from "./data/item/background.mjs";
 import { rollTest, classifyTier, classifyDoomCrit } from "./helpers/roll.mjs";
+import { applyBackground } from "./helpers/creation.mjs";
 import { registerConditions } from "./conditions.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
@@ -25,7 +26,7 @@ Hooks.once("init", () => {
     trait: TraitData, background: BackgroundData
   });
   Object.assign(CONFIG.Actor.dataModels, { crow: CrowData, monster: MonsterData });
-  game.crows = Object.assign(game.crows ?? {}, { rollTest, classifyTier, classifyDoomCrit });
+  game.crows = Object.assign(game.crows ?? {}, { rollTest, classifyTier, classifyDoomCrit, applyBackground });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });

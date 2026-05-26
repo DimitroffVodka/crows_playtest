@@ -58,6 +58,15 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     };
   }
 
+  async _onDropItem(event, item) {
+    if (item.type === "background") {
+      const { applyBackground } = await import("../helpers/creation.mjs");
+      await applyBackground(this.document, item);
+      return false;
+    }
+    return super._onDropItem(event, item);
+  }
+
   static _onTab(event, target) { this._activeTab = target.dataset.tab; this.render(); }
 
   static async _onRollSkill(event, target) {
