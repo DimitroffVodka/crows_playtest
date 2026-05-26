@@ -110,7 +110,8 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       encounterCheck: CrowSheet._onEncounterCheck,
       selectTree: CrowSheet._onSelectTree,
       buyTrait: CrowSheet._onBuyTrait,
-      grantXp: CrowSheet._onGrantXp
+      grantXp: CrowSheet._onGrantXp,
+      attackWithWeapon: CrowSheet._onAttackWithWeapon
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -374,5 +375,14 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const { gainXP } = await import("../helpers/advancement.mjs");
     await gainXP(this.document, amount);
     this.render();
+  }
+
+  static async _onAttackWithWeapon(event, target) {
+    event?.stopPropagation?.();
+    const id = target.dataset.itemId;
+    const wp = this.document.items.get(id);
+    if (!wp) { ui.notifications?.warn("Weapon not found."); return; }
+    const { attackWithWeapon } = await import("../helpers/attack.mjs");
+    await attackWithWeapon(this.document, wp);
   }
 }

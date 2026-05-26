@@ -398,6 +398,21 @@
 .cc-card-stack { font-weight: normal; font-size: 10px; color: #666; }
 .cc-card-line { line-height: 1.3; }
 .cc-card-cost { margin-top: auto; align-self: center; font-size: 10px; color: #555; }
+.cc-attack-btn {
+  background: #882020;
+  color: #fff;
+  border: 0;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 2px;
+  cursor: pointer;
+  align-self: stretch;
+  margin-top: 4px;
+}
+.cc-attack-btn:hover { background: #6a1010; }
+.cc-card-name { cursor: pointer; }
+.cc-card-name:hover { background: #fff7d8; }
 
 /* -------- INVENTORY tab: 10 backpack slots ----------------------- */
 

@@ -183,11 +183,16 @@
         <div class="cc-slot {{#if s.card}}filled{{/if}}" data-slot-id="{{s.id}}" data-container="{{s.container}}" data-index="{{s.index}}">
           <div class="cc-slot-header">{{s.label}}</div>
           {{#if s.card}}
-            <div class="cc-card" data-action="openItem" data-item-id="{{s.card.id}}">
-              <div class="cc-card-name">{{s.card.name}}{{#if s.card.stack}} <span class="cc-card-stack">Stack {{s.card.stack}}</span>{{/if}}</div>
+            <div class="cc-card">
+              <div class="cc-card-name" data-action="openItem" data-item-id="{{s.card.id}}" title="Open item sheet">
+                {{s.card.name}}{{#if s.card.stack}} <span class="cc-card-stack">Stack {{s.card.stack}}</span>{{/if}}
+              </div>
               {{#each s.card.summary.lines as |line|}}
                 <div class="cc-card-line">{{line}}</div>
               {{/each}}
+              {{#if (eq s.card.type "weapon")}}
+                <button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{s.card.id}}" title="Roll attack with {{s.card.name}}">⚔ Attack</button>
+              {{/if}}
               {{#if s.card.cost}}<div class="cc-card-cost">{{s.card.cost}} gc</div>{{/if}}
             </div>
           {{else}}
