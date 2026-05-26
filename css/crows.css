@@ -197,11 +197,11 @@
 
 /* -------- MAIN tab: Perks + Skills ------------------------------ */
 
-.cc-main-grid {
-  display: grid;
-  grid-template-columns: 1fr 380px;
+/* Main tab — Skills horizontal on top, Perks below */
+.cc-main {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  align-items: stretch;
 }
 
 .cc-perks {
@@ -210,8 +210,8 @@
   padding: 6px;
   display: flex;
   flex-direction: column;
-  min-height: 360px;
-  max-height: 560px;
+  min-height: 200px;
+  flex: 1 1 auto;
 }
 .cc-perks-list {
   flex: 1;
@@ -246,10 +246,10 @@
   padding: 6px;
   display: flex;
   flex-direction: column;
-  min-height: 0;          /* allow flex children to actually shrink/scroll */
-  max-height: 560px;
+  min-height: 0;
   overflow: hidden;
 }
+.cc-skills-horizontal { max-height: 340px; flex: 0 0 auto; }   /* fits ~10 visible skill rows; General scrolls beyond that */
 .cc-skills-title { color: #2a4080; flex: 0 0 auto; }
 .cc-skill-cols {
   display: grid;
@@ -259,6 +259,7 @@
   min-height: 0;
   overflow: hidden;
 }
+.cc-skill-cols-3 { grid-template-columns: 2fr 1fr 1fr; }       /* General gets more horizontal room */
 .cc-skill-col {
   display: flex;
   flex-direction: column;

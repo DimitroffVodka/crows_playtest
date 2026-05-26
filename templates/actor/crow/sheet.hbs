@@ -95,64 +95,66 @@
     {{/each}}
   </nav>
 
-  {{!-- MAIN TAB: Perks + Skills (3 columns) --}}
+  {{!-- MAIN TAB: Skills horizontal up top (3 columns: General/Spellcasting/Weapon), Perks below --}}
   <section class="cc-tab cc-main {{#if (eq activeTab 'main')}}active{{/if}}">
-    <div class="cc-main-grid">
-      <div class="cc-perks">
-        <div class="cc-section-title">Perks</div>
-        <div class="cc-perks-list">
-          {{#if perks.length}}
-            {{#each perks as |p|}}
-              <div class="cc-perk" data-action="openItem" data-item-id="{{p.id}}">
-                <span class="cc-perk-name">{{p.name}}</span>
-                <span class="cc-perk-meta">{{p.tree}} · t{{p.tier}}</span>
-              </div>
-            {{/each}}
-          {{else}}
-            <p class="cc-empty">No perks yet. Drag traits from the compendium onto this sheet.</p>
-          {{/if}}
+
+    <div class="cc-skills cc-skills-horizontal">
+      <div class="cc-section-title cc-skills-title">Skills</div>
+      <div class="cc-skills-hint">Click name to roll · check <strong>+1</strong> / <strong>+2</strong> to set skill bonus</div>
+      <div class="cc-skill-cols cc-skill-cols-3">
+
+        <div class="cc-skill-col">
+          <div class="cc-skill-group">General</div>
+          {{#each skillGroups.general as |s|}}
+            <div class="cc-skill-row">
+              <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
+              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
+              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
+            </div>
+          {{/each}}
         </div>
-      </div>
 
-      <div class="cc-skills">
-        <div class="cc-section-title cc-skills-title">Skills</div>
-        <div class="cc-skills-hint">Click name to roll · check <strong>+1</strong> / <strong>+2</strong> to set skill bonus</div>
-        <div class="cc-skill-cols">
-
-          <div class="cc-skill-col">
-            <div class="cc-skill-group">General</div>
-            {{#each skillGroups.general as |s|}}
-              <div class="cc-skill-row">
-                <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
-                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
-                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
-              </div>
-            {{/each}}
-          </div>
-
-          <div class="cc-skill-col">
-            <div class="cc-skill-group">Spellcasting</div>
-            {{#each skillGroups.spellcasting as |s|}}
-              <div class="cc-skill-row">
-                <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}} (Mind)">{{s.label}}</button>
-                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
-                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
-              </div>
-            {{/each}}
-
-            <div class="cc-skill-group cc-weapon-group">Weapon</div>
-            {{#each skillGroups.weapon as |s|}}
-              <div class="cc-skill-row">
-                <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
-                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
-                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
-              </div>
-            {{/each}}
-          </div>
-
+        <div class="cc-skill-col">
+          <div class="cc-skill-group">Spellcasting</div>
+          {{#each skillGroups.spellcasting as |s|}}
+            <div class="cc-skill-row">
+              <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}} (Mind)">{{s.label}}</button>
+              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
+              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
+            </div>
+          {{/each}}
         </div>
+
+        <div class="cc-skill-col">
+          <div class="cc-skill-group">Weapon</div>
+          {{#each skillGroups.weapon as |s|}}
+            <div class="cc-skill-row">
+              <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
+              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
+              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
+            </div>
+          {{/each}}
+        </div>
+
       </div>
     </div>
+
+    <div class="cc-perks">
+      <div class="cc-section-title">Perks</div>
+      <div class="cc-perks-list">
+        {{#if perks.length}}
+          {{#each perks as |p|}}
+            <div class="cc-perk" data-action="openItem" data-item-id="{{p.id}}">
+              <span class="cc-perk-name">{{p.name}}</span>
+              <span class="cc-perk-meta">{{p.tree}} · t{{p.tier}}</span>
+            </div>
+          {{/each}}
+        {{else}}
+          <p class="cc-empty">No perks yet. Drag traits from the compendium onto this sheet.</p>
+        {{/if}}
+      </div>
+    </div>
+
   </section>
 
   {{!-- EQUIPMENT TAB: 10 named slots, each renders item card inline --}}
