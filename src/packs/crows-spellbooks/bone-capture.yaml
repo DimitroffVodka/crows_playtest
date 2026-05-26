@@ -8,8 +8,8 @@ system:
   rank: 0
   castType: attack
   range:
-    kind: melee
-    value: 1
+    kind: ranged
+    value: 5
   target: "1 creature"
   aoe:
     shape: ""
