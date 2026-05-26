@@ -10,8 +10,8 @@
   </div>
   {{#if attack}}
     <div class="damage">
-      <button type="button" data-action="applyDamage" data-amount="{{attack.t2}}">Apply T2: {{attack.t2}}</button>
-      <button type="button" data-action="applyDamage" data-amount="{{attack.t3}}">Apply T3: {{attack.t3}}</button>
+      <button type="button" data-action="applyDamage" data-amount="{{attack.t2}}" data-piercing="{{#if attack.piercing}}true{{else}}false{{/if}}">Apply T2: {{attack.t2}}{{#if attack.piercing}} P{{/if}}</button>
+      <button type="button" data-action="applyDamage" data-amount="{{attack.t3}}" data-piercing="{{#if attack.piercing}}true{{else}}false{{/if}}">Apply T3: {{attack.t3}}{{#if attack.piercing}} P{{/if}}</button>
     </div>
   {{/if}}
   {{#if casting}}<div class="casting-note">Casting: rank {{casting.rank}} {{casting.discipline}}</div>{{/if}}

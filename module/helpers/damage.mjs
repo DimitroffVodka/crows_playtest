@@ -57,7 +57,13 @@ export async function applyDamage(actor, amount, { piercing = false, source = nu
   const armorUpdates = [];
 
   if (!piercing) {
-    const wornArmor = actor.items.filter(i => i.type === "armor" && i.system.worn);
+    // Multi-armor priority: shield (outermost) → light → medium → heavy.
+    // Per rules a creature with multiple AD sources chooses which loses AD
+    // first; default to outermost-layer-first. Unknown types fall to end.
+    const armorPriority = { shield: 0, light: 1, medium: 2, heavy: 3 };
+    const wornArmor = actor.items
+      .filter(i => i.type === "armor" && i.system.worn)
+      .sort((a, b) => (armorPriority[a.system.armorType] ?? 99) - (armorPriority[b.system.armorType] ?? 99));
     for (const armor of wornArmor) {
       if (remaining <= 0) break;
       const cur = armor.system.adCurrent ?? armor.system.ad ?? 0;

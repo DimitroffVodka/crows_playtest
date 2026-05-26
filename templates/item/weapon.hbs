@@ -10,6 +10,7 @@
   </select></label>
   <label>Dmg T2 <input type="text" name="system.damage.t2" value="{{system.damage.t2}}"></label>
   <label>Dmg T3 <input type="text" name="system.damage.t3" value="{{system.damage.t3}}"></label>
+  <label><input type="checkbox" name="system.piercing" {{#if system.piercing}}checked{{/if}}> Piercing (ignores AD)</label>
   <label>Quality <select name="system.qualityTier">{{#each CROWS.qualityTiers as |q|}}<option value="{{q}}" {{#if (eq q ../system.qualityTier)}}selected{{/if}}>{{q}}</option>{{/each}}</select></label>
   {{> "systems/crows/templates/partials/physical-item.hbs"}}
   <label>Description <textarea name="system.description">{{system.description}}</textarea></label>

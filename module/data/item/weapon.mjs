@@ -19,6 +19,7 @@ export class WeaponData extends TypeDataModel {
         t3: new fields.StringField({ initial: "2 + S" })
       }),
       qualities: new fields.ArrayField(new fields.StringField({ choices: CROWS.weaponQualities })),
+      piercing: new fields.BooleanField({ initial: false }),                 // "P" damage — ignores AD
       parryValue: new fields.NumberField({ initial: 0, min: 0, integer: true }),
       enchantment: new fields.StringField({ required: false, blank: true }),
       qualityTier: new fields.StringField({ initial: "standard", choices: CROWS.qualityTiers })

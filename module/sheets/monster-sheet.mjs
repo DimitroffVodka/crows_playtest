@@ -22,10 +22,16 @@ export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onRollAttack(event, target) {
     const idx = Number(target.dataset.index);
     const atk = this.document.system.attacks[idx];
+    const range = atk.range ?? "";
+    const isMelee = /^melee/i.test(range);
     await rollTest({
       actor: this.document, mods: [{ value: atk.toHit }],
       flavor: `${this.document.name}: ${atk.name}`,
-      attack: { t2: atk.dmgT2, t3: atk.dmgT3 }
+      attack: {
+        t2: atk.dmgT2, t3: atk.dmgT3,
+        isMelee,
+        piercing: !!atk.piercing
+      }
     });
   }
 }

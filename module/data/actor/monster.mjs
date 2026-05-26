@@ -33,6 +33,7 @@ export class MonsterData extends TypeDataModel {
         targets: new fields.NumberField({ initial: 1, min: 1, integer: true }),
         dmgT2: new fields.NumberField({ initial: 0, min: 0, integer: true }),
         dmgT3: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        piercing: new fields.BooleanField({ initial: false }),    // "P" damage — bypasses AD
         riderRef: new fields.StringField({ blank: true })
       })),
       traits: new fields.ArrayField(new fields.SchemaField({
