@@ -1,0 +1,20 @@
+<form class="crows-item spellbook">
+  <input type="text" name="name" value="{{item.name}}" class="title">
+  <label>Discipline <select name="system.discipline">{{#each CROWS.disciplines as |d|}}<option value="{{d}}" {{#if (eq d ../system.discipline)}}selected{{/if}}>{{d}}</option>{{/each}}</select></label>
+  <label>Rank <input type="number" name="system.rank" value="{{system.rank}}"></label>
+  <label>Cast type <select name="system.castType">{{#each CROWS.castTypes as |c|}}<option value="{{c}}" {{#if (eq c ../system.castType)}}selected{{/if}}>{{c}}</option>{{/each}}</select></label>
+  <label>Range kind <select name="system.range.kind">
+    <option value="self" {{#if (eq system.range.kind "self")}}selected{{/if}}>self</option>
+    <option value="melee" {{#if (eq system.range.kind "melee")}}selected{{/if}}>melee</option>
+    <option value="ranged" {{#if (eq system.range.kind "ranged")}}selected{{/if}}>ranged</option>
+  </select></label>
+  <label>Range <input type="number" name="system.range.value" value="{{system.range.value}}"></label>
+  <label>Target <input type="text" name="system.target" value="{{system.target}}"></label>
+  <label>Duration <input type="text" name="system.duration" value="{{system.duration}}"></label>
+  <label>Effect T1 <input type="text" name="system.effectBands.t1" value="{{system.effectBands.t1}}"></label>
+  <label>Effect T2 <input type="text" name="system.effectBands.t2" value="{{system.effectBands.t2}}"></label>
+  <label>Effect T3 <input type="text" name="system.effectBands.t3" value="{{system.effectBands.t3}}"></label>
+  {{> "systems/crows/templates/partials/usage-die.hbs"}}
+  {{> "systems/crows/templates/partials/physical-item.hbs"}}
+  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+</form>

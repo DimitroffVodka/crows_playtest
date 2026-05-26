@@ -1,0 +1,7 @@
+<form class="crows-item ammunition">
+  <input type="text" name="name" value="{{item.name}}" class="title">
+  <label>Ammo for <input type="text" name="system.ammoFor" value="{{system.ammoFor}}"></label>
+  <label>Count/unit <input type="number" name="system.countPerUnit" value="{{system.countPerUnit}}"></label>
+  {{> "systems/crows/templates/partials/physical-item.hbs"}}
+  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+</form>

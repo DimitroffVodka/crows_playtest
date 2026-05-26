@@ -1,0 +1,11 @@
+<form class="crows-item background">
+  <input type="text" name="name" value="{{item.name}}" class="title">
+  <label>Flavor <input type="text" name="system.flavor" value="{{system.flavor}}"></label>
+  <label>Char bonus <input type="text" name="system.characteristicBonus" value="{{system.characteristicBonus}}"></label>
+  <label>Stamina <input type="number" name="system.stamina" value="{{system.stamina}}"></label>
+  <label>Starting trait <input type="text" name="system.startingTrait" value="{{system.startingTrait}}"></label>
+  <div>Skills: {{#each system.skills as |s|}}{{s}} {{/each}}</div>
+  <div>Equipment: {{#each system.equipment as |e|}}{{e}} {{/each}}</div>
+  <div>Spellbooks: {{#each system.spellbooks as |sb|}}{{sb}} {{/each}}</div>
+  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+</form>

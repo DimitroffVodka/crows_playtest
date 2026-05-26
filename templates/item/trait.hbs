@@ -1,0 +1,10 @@
+<form class="crows-item trait">
+  <input type="text" name="name" value="{{item.name}}" class="title">
+  <label>Tree <select name="system.tree">{{#each CROWS.traitTrees as |t|}}<option value="{{t}}" {{#if (eq t ../system.tree)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
+  <label>Tier <input type="number" name="system.tier" value="{{system.tier}}"></label>
+  <label>Column <input type="number" name="system.column" value="{{system.column}}"></label>
+  <label>Starting <input type="checkbox" name="system.isStarting" {{#if system.isStarting}}checked{{/if}}></label>
+  <label>Rest activity <input type="checkbox" name="system.restActivity" {{#if system.restActivity}}checked{{/if}}></label>
+  <div>XP cost: {{system.xpCost}}</div>
+  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+</form>

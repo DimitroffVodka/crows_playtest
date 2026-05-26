@@ -1,0 +1,12 @@
+<form class="crows-item gear">
+  <input type="text" name="name" value="{{item.name}}" class="title">
+  <label>Subtype <select name="system.subtype">{{#each CROWS.gearSubtypes as |s|}}<option value="{{s}}" {{#if (eq s ../system.subtype)}}selected{{/if}}>{{s}}</option>{{/each}}</select></label>
+  <label>Magic <input type="checkbox" name="system.isMagic" {{#if system.isMagic}}checked{{/if}}></label>
+  <label>Identified <input type="checkbox" name="system.identified" {{#if system.identified}}checked{{/if}}></label>
+  <label>Light bright <input type="number" name="system.light.bright" value="{{system.light.bright}}"></label>
+  <label>Light dim <input type="number" name="system.light.dim" value="{{system.light.dim}}"></label>
+  <label>Treasure value <input type="number" name="system.treasure.value" value="{{system.treasure.value}}"></label>
+  {{> "systems/crows/templates/partials/usage-die.hbs"}}
+  {{> "systems/crows/templates/partials/physical-item.hbs"}}
+  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+</form>

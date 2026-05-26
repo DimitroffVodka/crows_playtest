@@ -1,0 +1,16 @@
+<form class="crows-item consumable">
+  <input type="text" name="name" value="{{item.name}}" class="title">
+  <label>Use action <select name="system.useAction">
+    <option value="action" {{#if (eq system.useAction "action")}}selected{{/if}}>action</option>
+    <option value="maneuver" {{#if (eq system.useAction "maneuver")}}selected{{/if}}>maneuver</option>
+  </select></label>
+  <label>Band T1 <input type="text" name="system.bands.t1" value="{{system.bands.t1}}"></label>
+  <label>Band T2 <input type="text" name="system.bands.t2" value="{{system.bands.t2}}"></label>
+  <label>Band T3 <input type="text" name="system.bands.t3" value="{{system.bands.t3}}"></label>
+  <label>Thrown attack <input type="checkbox" name="system.thrown.isAttack" {{#if system.thrown.isAttack}}checked{{/if}}></label>
+  <label>Thrown range <input type="number" name="system.thrown.range" value="{{system.thrown.range}}"></label>
+  <label>Duration <input type="text" name="system.duration" value="{{system.duration}}"></label>
+  {{> "systems/crows/templates/partials/usage-die.hbs"}}
+  {{> "systems/crows/templates/partials/physical-item.hbs"}}
+  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+</form>

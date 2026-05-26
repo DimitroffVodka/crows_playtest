@@ -1,0 +1,6 @@
+<div class="usage-die">
+  <label><input type="checkbox" name="system.usageDie.enabled" {{#if system.usageDie.enabled}}checked{{/if}}> Usage Die</label>
+  <label>Max <input type="number" name="system.usageDie.udMax" value="{{system.usageDie.udMax}}"></label>
+  <label>Current <input type="number" name="system.usageDie.udCurrent" value="{{system.usageDie.udCurrent}}"></label>
+  <label>Expiry <select name="system.usageDie.expiry">{{#each CROWS.usageExpiry as |e|}}<option value="{{e}}" {{#if (eq e ../system.usageDie.expiry)}}selected{{/if}}>{{e}}</option>{{/each}}</select></label>
+</div>

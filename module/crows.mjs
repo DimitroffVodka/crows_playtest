@@ -1,4 +1,5 @@
 import { CROWS } from "./config.mjs";
+import { CrowsItemSheet } from "./sheets/item-sheet.mjs";
 import { CrowData } from "./data/actor/crow.mjs";
 import { MonsterData } from "./data/actor/monster.mjs";
 import { WeaponData } from "./data/item/weapon.mjs";
@@ -21,7 +22,12 @@ Hooks.once("init", () => {
   });
   Object.assign(CONFIG.Actor.dataModels, { crow: CrowData, monster: MonsterData });
   game.crows = Object.assign(game.crows ?? {}, { rollTest, classifyTier, classifyDoomCrit });
+  foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/chat/test-card.hbs"]);
+  foundry.applications.handlebars.loadTemplates([
+    "systems/crows/templates/partials/physical-item.hbs",
+    "systems/crows/templates/partials/usage-die.hbs"
+  ]);
 });
 
 Hooks.once("ready", () => {
