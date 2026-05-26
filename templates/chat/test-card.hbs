@@ -1,0 +1,14 @@
+<div class="crows test-card tier-{{tier}}">
+  <header class="band {{#if doom}}doom{{/if}} {{#if crit}}crit{{/if}}">
+    <span class="band-label">{{bandLabel}}</span>
+    {{#if doom}}<span class="badge doom">DOOM</span>{{/if}}
+    {{#if crit}}<span class="badge crit">CRIT</span>{{/if}}
+  </header>
+  {{#if attack}}
+    <div class="damage">
+      <button type="button" data-action="applyDamage" data-amount="{{attack.t2}}">Apply T2: {{attack.t2}}</button>
+      <button type="button" data-action="applyDamage" data-amount="{{attack.t3}}">Apply T3: {{attack.t3}}</button>
+    </div>
+  {{/if}}
+  {{#if casting}}<div class="casting-note">Casting: rank {{casting.rank}} {{casting.discipline}}</div>{{/if}}
+</div>

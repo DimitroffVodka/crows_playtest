@@ -9,6 +9,7 @@ import { GearData } from "./data/item/gear.mjs";
 import { SpellbookData } from "./data/item/spellbook.mjs";
 import { TraitData } from "./data/item/trait.mjs";
 import { BackgroundData } from "./data/item/background.mjs";
+import { rollTest, classifyTier, classifyDoomCrit } from "./helpers/roll.mjs";
 
 Hooks.once("init", () => {
   console.log("crows | init");
@@ -19,6 +20,8 @@ Hooks.once("init", () => {
     trait: TraitData, background: BackgroundData
   });
   Object.assign(CONFIG.Actor.dataModels, { crow: CrowData, monster: MonsterData });
+  game.crows = Object.assign(game.crows ?? {}, { rollTest, classifyTier, classifyDoomCrit });
+  foundry.applications.handlebars.loadTemplates(["systems/crows/templates/chat/test-card.hbs"]);
 });
 
 Hooks.once("ready", () => {
