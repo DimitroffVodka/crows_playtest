@@ -13,7 +13,7 @@ import { BackgroundData } from "./data/item/background.mjs";
 import { rollTest, classifyTier, classifyDoomCrit } from "./helpers/roll.mjs";
 import { applyBackground } from "./helpers/creation.mjs";
 import { applyDamage, applyHealing, repairArmor } from "./helpers/damage.mjs";
-import { registerChaosSetting, getChaos, setChaos, addToChaos, resetChaos } from "./helpers/chaos.mjs";
+import { registerChaosSetting, getChaos, setChaos, addToChaos, resetChaos, showChaosDialog } from "./helpers/chaos.mjs";
 import { rollBacklash, lookupBacklash } from "./helpers/backlash.mjs";
 import { castSpell } from "./helpers/spellcasting.mjs";
 import {
@@ -48,7 +48,7 @@ Hooks.once("init", () => {
     castSpell, rollBacklash, lookupBacklash,
     takeRest, restoreSpellbookUds,
     gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait,
-    chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos },
+    chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos, show: showChaosDialog },
     dt: { get: getDT, set: setDT, bump: bumpDT, end: endDungeonTurn, encounterCheck: rollEncounterCheck, getDungeonEN }
   });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });

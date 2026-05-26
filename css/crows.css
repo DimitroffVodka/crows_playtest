@@ -450,6 +450,13 @@
 .crows-item.spellbook .cast-btn:hover { background:#1a3070; }
 .crows-item.spellbook .cast-hint { font-size:11px; color:#555; font-style:italic; }
 
+/* --------- Chaos chat-card + dialog --------- */
+.crows.chaos-update { padding: 4px 6px; }
+.chaos-bar { background: #222; height: 8px; border-radius: 3px; overflow: hidden; margin-top: 2px; }
+.chaos-bar-fill { background: linear-gradient(90deg, #2a4080, #b22020); height: 100%; transition: width .15s ease; }
+.chaos-bar-hint { font-size: 11px; color: #555; margin-top: 2px; }
+.chaos-dialog-value { font-size: 28px; font-family: "Georgia", serif; text-align: center; }
+
 /* --------- Advancement tab --------- */
 .cc-advancement.active { display: flex; flex-direction: column; gap: 6px; }
 .cc-adv-header {
