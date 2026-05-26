@@ -11,12 +11,14 @@ import { SpellbookData } from "./data/item/spellbook.mjs";
 import { TraitData } from "./data/item/trait.mjs";
 import { BackgroundData } from "./data/item/background.mjs";
 import { rollTest, classifyTier, classifyDoomCrit } from "./helpers/roll.mjs";
+import { registerConditions } from "./conditions.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
 
 Hooks.once("init", () => {
   console.log("crows | init");
   CONFIG.CROWS = CROWS;
+  registerConditions();
   Object.assign(CONFIG.Item.dataModels, {
     weapon: WeaponData, armor: ArmorData, ammunition: AmmunitionData,
     consumable: ConsumableData, gear: GearData, spellbook: SpellbookData,
