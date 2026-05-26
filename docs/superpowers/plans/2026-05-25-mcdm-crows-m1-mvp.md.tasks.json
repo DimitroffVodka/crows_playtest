@@ -1,0 +1,96 @@
+{
+  "planPath": "docs/superpowers/plans/2026-05-25-mcdm-crows-m1-mvp.md",
+  "tasks": [
+    {
+      "id": 0,
+      "subject": "Task 0: Project skeleton & manifest",
+      "status": "pending",
+      "description": "**Goal:** Loadable empty `crows` system. **Files:** system.json, module/crows.mjs, module/config.mjs, lang/en.json, css/crows.css. **Verify:** p00-loads.mjs {pass:true}; node --check.\n\n```json:metadata\n{\"files\":[\"system.json\",\"module/crows.mjs\",\"module/config.mjs\",\"lang/en.json\",\"css/crows.css\"],\"verifyCommand\":\"node --check module/crows.mjs\",\"acceptanceCriteria\":[\"valid system.json subtypes\",\"compat min13/verified14\",\"game.system.id===crows\"]}\n```"
+    },
+    {
+      "id": 1,
+      "subject": "Task 1: Dev tooling (verify.sh + probe/fixture scaffold)",
+      "status": "pending",
+      "blockedBy": [0],
+      "description": "**Goal:** verify.sh grep wall + harness + pack scripts. **Files:** verify.sh, dev/fixtures/setup.mjs, dev/fixtures/teardown.mjs, package.json. **Verify:** bash verify.sh exits 0.\n\n```json:metadata\n{\"files\":[\"verify.sh\",\"dev/fixtures/setup.mjs\",\"dev/fixtures/teardown.mjs\",\"package.json\"],\"verifyCommand\":\"bash verify.sh\",\"acceptanceCriteria\":[\"verify.sh syntax+block grep\",\"package.json pack scripts\"]}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Config enums + schema mixins",
+      "status": "pending",
+      "blockedBy": [0],
+      "description": "**Goal:** Full CROWS enums + physicalItemFields()/usageDieFields(). **Files:** module/config.mjs, module/helpers/schema.mjs. **Verify:** node --check; p02-config.mjs {pass:true}.\n\n```json:metadata\n{\"files\":[\"module/config.mjs\",\"module/helpers/schema.mjs\"],\"verifyCommand\":\"node --check module/config.mjs module/helpers/schema.mjs\",\"acceptanceCriteria\":[\"full CROWS enums\",\"physicalItemFields\",\"usageDieFields\"]}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Item DataModels (8 types)",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** 8 item DataModels registered. **Files:** module/data/item/*.mjs (8), module/crows.mjs. **Verify:** node --check; p03-items.mjs {pass:true, created:8}.\n\n```json:metadata\n{\"files\":[\"module/data/item/weapon.mjs\",\"module/data/item/armor.mjs\",\"module/data/item/ammunition.mjs\",\"module/data/item/consumable.mjs\",\"module/data/item/gear.mjs\",\"module/data/item/spellbook.mjs\",\"module/data/item/trait.mjs\",\"module/data/item/background.mjs\",\"module/crows.mjs\"],\"verifyCommand\":\"node --check module/data/item/*.mjs\",\"acceptanceCriteria\":[\"8 types registered+creatable\",\"weapon schema\",\"spellbook schema\",\"trait schema\"]}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: Actor DataModels (crow + monster)",
+      "status": "pending",
+      "blockedBy": [2, 3],
+      "description": "**Goal:** crow + monster DataModels; derived AD. **Files:** module/data/actor/crow.mjs, monster.mjs, module/crows.mjs. **Verify:** node --check; p04-actors.mjs {pass:true, ad:15}.\n\n```json:metadata\n{\"files\":[\"module/data/actor/crow.mjs\",\"module/data/actor/monster.mjs\",\"module/crows.mjs\"],\"verifyCommand\":\"node --check module/data/actor/*.mjs\",\"acceptanceCriteria\":[\"crow schema + derived AD\",\"monster schema with attacks/traits\"]}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: Roll pipeline (2d10 tier engine + chat card)",
+      "status": "pending",
+      "blockedBy": [2, 4],
+      "description": "**Goal:** rollTest() + classifyTier/classifyDoomCrit + chat card. **Files:** module/helpers/roll.mjs, templates/chat/test-card.hbs, module/crows.mjs. **Verify:** node --check; p05-roll.mjs {pass:true}.\n\n```json:metadata\n{\"files\":[\"module/helpers/roll.mjs\",\"templates/chat/test-card.hbs\",\"module/crows.mjs\"],\"verifyCommand\":\"node --check module/helpers/roll.mjs\",\"acceptanceCriteria\":[\"classifyTier boundaries\",\"classifyDoomCrit on raw faces\",\"rollTest chat card\"]}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: Slot inventory logic + usage-die roller",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** occupancy/capacity/canPlace + wound accounting; rollUsageDie. **Files:** module/helpers/slots.mjs, usage-die.mjs. **Verify:** node --check; p06-slots.mjs {pass:true}.\n\n```json:metadata\n{\"files\":[\"module/helpers/slots.mjs\",\"module/helpers/usage-die.mjs\"],\"verifyCommand\":\"node --check module/helpers/slots.mjs module/helpers/usage-die.mjs\",\"acceptanceCriteria\":[\"wounds reduce backpack capacity\",\"canPlace overflow guard\",\"rollUsageDie 1-2 removes\"]}\n```"
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Item sheets (ApplicationV2)",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Type-driven CrowsItemSheet for 8 types + shared partials. **Files:** module/sheets/item-sheet.mjs, templates/item/*.hbs (8), templates/partials/{physical-item,usage-die}.hbs, module/crows.mjs. **Verify:** node --check; p07-item-sheets.mjs {pass:true}. RISK: ApplicationV2 part config / registration namespace.\n\n```json:metadata\n{\"files\":[\"module/sheets/item-sheet.mjs\",\"templates/item/weapon.hbs\",\"templates/item/armor.hbs\",\"templates/item/ammunition.hbs\",\"templates/item/consumable.hbs\",\"templates/item/gear.hbs\",\"templates/item/spellbook.hbs\",\"templates/item/trait.hbs\",\"templates/item/background.hbs\",\"templates/partials/physical-item.hbs\",\"templates/partials/usage-die.hbs\",\"module/crows.mjs\"],\"verifyCommand\":\"node --check module/sheets/item-sheet.mjs\",\"acceptanceCriteria\":[\"8 item sheets render\",\"edits persist\"]}\n```"
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: Monster sheet",
+      "status": "pending",
+      "blockedBy": [4, 5],
+      "description": "**Goal:** Monster sheet; clickable attacks fire rollTest. **Files:** module/sheets/monster-sheet.mjs, templates/actor/monster.hbs, module/crows.mjs. **Verify:** node --check; p08-monster.mjs {pass:true}.\n\n```json:metadata\n{\"files\":[\"module/sheets/monster-sheet.mjs\",\"templates/actor/monster.hbs\",\"module/crows.mjs\"],\"verifyCommand\":\"node --check module/sheets/monster-sheet.mjs\",\"acceptanceCriteria\":[\"monster sheet renders\",\"attack click posts card\"]}\n```"
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Crow (PC) sheet",
+      "status": "pending",
+      "blockedBy": [4, 5, 6, 7],
+      "description": "**Goal:** PC sheet — header, 5 tabs, skill rolls, slot grid + wound overlay, blessed/boned counters. **Files:** module/sheets/crow-sheet.mjs, templates/actor/crow/*.hbs, templates/partials/slot-grid.hbs, module/crows.mjs, css/crows.css. **Verify:** node --check; p09-crow.mjs {pass:true, woundCells:2}. RISK: tab-navigation part path.\n\n```json:metadata\n{\"files\":[\"module/sheets/crow-sheet.mjs\",\"templates/actor/crow/header.hbs\",\"templates/actor/crow/play.hbs\",\"templates/actor/crow/inventory.hbs\",\"templates/actor/crow/traits.hbs\",\"templates/actor/crow/advancement.hbs\",\"templates/actor/crow/bio.hbs\",\"templates/partials/slot-grid.hbs\",\"module/crows.mjs\",\"css/crows.css\"],\"verifyCommand\":\"node --check module/sheets/crow-sheet.mjs\",\"acceptanceCriteria\":[\"header + 5 tabs\",\"skill roll buttons\",\"slot grid wound overlay\",\"blessed/boned counters\"]}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 10: Conditions / status effects",
+      "status": "pending",
+      "blockedBy": [4],
+      "description": "**Goal:** Register Crows status effects. **Files:** module/conditions.mjs, module/crows.mjs. **Verify:** node --check; p10-status.mjs {pass:true}.\n\n```json:metadata\n{\"files\":[\"module/conditions.mjs\",\"module/crows.mjs\"],\"verifyCommand\":\"node --check module/conditions.mjs\",\"acceptanceCriteria\":[\"7 status ids registered\"]}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 11: Background creation helper",
+      "status": "pending",
+      "blockedBy": [4, 9],
+      "description": "**Goal:** applyBackground stamps skills/stamina/trait/equipment/spellbooks; sheet drop applies. **Files:** module/helpers/creation.mjs, module/crows.mjs, module/sheets/crow-sheet.mjs. **Verify:** node --check; p11-creation.mjs {pass:true}.\n\n```json:metadata\n{\"files\":[\"module/helpers/creation.mjs\",\"module/crows.mjs\",\"module/sheets/crow-sheet.mjs\"],\"verifyCommand\":\"node --check module/helpers/creation.mjs\",\"acceptanceCriteria\":[\"stamina+skills+background set\",\"equipment/spellbooks created\",\"drop applies not embeds\"]}\n```"
+    },
+    {
+      "id": 12,
+      "subject": "Task 12: Compendium pipeline + starter seed content",
+      "status": "pending",
+      "blockedBy": [3, 4],
+      "description": "**Goal:** YAML→LevelDB pack build + seed content + declare packs. **Files:** src/packs/crows-*/*.yaml, system.json, .planning/STATUS.md. **Verify:** npm run pack; p12-packs.mjs {pass:true}. Follow-on: full content transcription = separate plan.\n\n```json:metadata\n{\"files\":[\"system.json\",\"src/packs/crows-weapons/sword.yaml\",\"src/packs/crows-armor/heavy-armor.yaml\",\"src/packs/crows-spellbooks/fire-lance.yaml\",\"src/packs/crows-monsters/wolf.yaml\",\"src/packs/crows-backgrounds/archer.yaml\",\"src/packs/crows-traits/armor-tough.yaml\",\"src/packs/crows-rules/conditions.yaml\",\".planning/STATUS.md\"],\"verifyCommand\":\"npm run pack\",\"acceptanceCriteria\":[\"pack build succeeds\",\"7 packs declared\",\"compendiums render\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-05-25T19:30:00Z"
+}
