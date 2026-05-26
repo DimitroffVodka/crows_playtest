@@ -249,32 +249,33 @@
   min-height: 0;
   overflow: hidden;
 }
-.cc-skills-horizontal { max-height: 340px; flex: 0 0 auto; }   /* fits ~10 visible skill rows; General scrolls beyond that */
+.cc-skills-horizontal { flex: 0 0 auto; }                       /* compact — all rows visible */
 .cc-skills-title { color: #2a4080; flex: 0 0 auto; }
+
 .cc-skill-cols {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 8px;
   flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
 }
-.cc-skill-cols-3 { grid-template-columns: 2fr 1fr 1fr; }       /* General gets more horizontal room */
+/* Tight 6-deep layout: General is a 4-sub-column block to match the 6-row height of Spellcasting/Weapon */
+.cc-skill-cols-tight { grid-template-columns: 4fr 1fr 1fr; }
 .cc-skill-col {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  overflow-y: scroll;     /* always show scrollbar so users see the affordance */
-  padding-right: 4px;
   min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: #8a7e5a #efe8d4;
 }
-/* Webkit (Chromium/Electron) scrollbar styling — make sure it's visible */
-.cc-skill-col::-webkit-scrollbar { width: 10px; }
-.cc-skill-col::-webkit-scrollbar-track { background: #efe8d4; border-left: 1px solid #ccc; }
-.cc-skill-col::-webkit-scrollbar-thumb { background: #8a7e5a; border-radius: 4px; border: 2px solid #efe8d4; }
-.cc-skill-col::-webkit-scrollbar-thumb:hover { background: #6a5e3a; }
+.cc-skill-col-general {
+  /* container; group title sits above the sub-grid */
+}
+.cc-skill-grid-general {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(6, auto);
+  grid-auto-flow: column;                   /* fill top-down then move right: 6 per sub-column */
+  gap: 1px 8px;
+}
 
 .cc-skills-hint {
   font-size: 11px;

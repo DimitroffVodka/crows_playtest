@@ -101,17 +101,19 @@
     <div class="cc-skills cc-skills-horizontal">
       <div class="cc-section-title cc-skills-title">Skills</div>
       <div class="cc-skills-hint">Click name to roll · check <strong>+1</strong> / <strong>+2</strong> to set skill bonus</div>
-      <div class="cc-skill-cols cc-skill-cols-3">
+      <div class="cc-skill-cols cc-skill-cols-tight">
 
-        <div class="cc-skill-col">
+        <div class="cc-skill-col cc-skill-col-general">
           <div class="cc-skill-group">General</div>
-          {{#each skillGroups.general as |s|}}
-            <div class="cc-skill-row">
-              <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
-              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
-              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
-            </div>
-          {{/each}}
+          <div class="cc-skill-grid-general">
+            {{#each skillGroups.general as |s|}}
+              <div class="cc-skill-row">
+                <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
+                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
+                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
+              </div>
+            {{/each}}
+          </div>
         </div>
 
         <div class="cc-skill-col">
