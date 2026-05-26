@@ -97,7 +97,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     classes: ["crows","sheet","crow"],
     position: { width: 980, height: 820 },
     actions: {
-      tab: CrowSheet._onTab,
+      switchTab: CrowSheet._onTab,
       rollSkill: CrowSheet._onRollSkill,
       rollChar: CrowSheet._onRollChar,
       adjBlessed: CrowSheet._onAdjBlessed,

@@ -91,7 +91,7 @@
 
   <nav class="cc-tabs">
     {{#each tabs as |t|}}
-      <button type="button" data-action="tab" data-tab="{{t.id}}" class="{{#if (eq t.id ../activeTab)}}active{{/if}}">{{t.label}}</button>
+      <button type="button" data-action="switchTab" data-tab="{{t.id}}" class="{{#if (eq t.id ../activeTab)}}active{{/if}}">{{t.label}}</button>
     {{/each}}
   </nav>
 
@@ -116,6 +116,7 @@
 
       <div class="cc-skills">
         <div class="cc-section-title cc-skills-title">Skills</div>
+        <div class="cc-skills-hint">Click name to roll · check <strong>+1</strong> / <strong>+2</strong> to set skill bonus</div>
         <div class="cc-skill-cols">
 
           <div class="cc-skill-col">
