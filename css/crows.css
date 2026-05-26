@@ -197,8 +197,10 @@
 
 /* -------- MAIN tab: Perks + Skills ------------------------------ */
 
-/* Main tab — Skills horizontal on top, Perks below */
-.cc-main {
+/* Main tab — Skills horizontal on top, Perks below.
+   IMPORTANT: scope to .active so .cc-tab { display:none } isn't overridden
+   when this tab is inactive (otherwise Main always shows beneath every other tab). */
+.cc-main.active {
   display: flex;
   flex-direction: column;
   gap: 6px;
