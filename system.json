@@ -1,0 +1,22 @@
+{
+  "id": "crows",
+  "title": "MCDM Crows",
+  "description": "MCDM Crows TTRPG (playtest). Personal use.",
+  "version": "0.1.0",
+  "compatibility": { "minimum": "13", "verified": "14" },
+  "authors": [{ "name": "dimit" }],
+  "esmodules": ["module/crows.mjs"],
+  "styles": ["css/crows.css"],
+  "languages": [{ "lang": "en", "name": "English", "path": "lang/en.json" }],
+  "grid": { "distance": 5, "units": "sq" },
+  "primaryTokenAttribute": "stamina",
+  "documentTypes": {
+    "Actor": { "crow": {}, "monster": {} },
+    "Item": {
+      "weapon": {}, "armor": {}, "ammunition": {}, "consumable": {},
+      "gear": {}, "spellbook": {}, "trait": {}, "background": {}
+    }
+  },
+  "packs": [],
+  "flags": {}
+}
