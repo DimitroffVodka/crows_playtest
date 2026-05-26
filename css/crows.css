@@ -132,10 +132,31 @@
 
 .cc-substats {
   display: grid;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: auto auto 1fr auto;
   gap: 4px;
   align-items: stretch;
 }
+
+/* Time panel (right of Conditions) */
+.cc-time {
+  border: 1px solid #222;
+  background: #fff;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 230px;
+}
+.cc-time-row { display: flex; align-items: center; gap: 4px; padding-top: 2px; }
+.cc-time-cell { text-align: center; padding-right: 6px; border-right: 1px dotted #ccc; margin-right: 4px; }
+.cc-time-row button {
+  background: #ede5d2;
+  border: 1px solid #222;
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.cc-time-row button:hover { background: #fff7d8; }
 
 .cc-mini-box {
   border: 1px solid #222;

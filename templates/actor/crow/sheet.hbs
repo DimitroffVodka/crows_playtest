@@ -87,6 +87,21 @@
         </div>
       </div>
     </div>
+    <div class="cc-time">
+      <div class="cc-conditions-title">Time</div>
+      <div class="cc-time-row">
+        <div class="cc-time-cell">
+          <div class="cc-cond-label">DT #</div>
+          <div class="cc-net">{{dtCount}}</div>
+        </div>
+        <button type="button" data-action="takeRest" title="Take a 6h rest — full Stamina, -1 wound, restore spellbook UDs, encounter checks every 2h">Rest</button>
+        <button type="button" data-action="takeRest" data-tend="true" title="Take rest with the Tend Wounds activity (-2 wounds)">Rest +Tend</button>
+        {{#if isGM}}
+          <button type="button" data-action="endDt" title="End Dungeon Turn — roll DT-expiry UDs, reset blessed/boned, encounter check (GM)">End DT</button>
+          <button type="button" data-action="encounterCheck" title="Roll an ad-hoc encounter check (1d6 vs {{dungeonEN}}+) (GM)">Encounter</button>
+        {{/if}}
+      </div>
+    </div>
   </section>
 
   <nav class="cc-tabs">

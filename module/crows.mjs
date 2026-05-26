@@ -16,6 +16,11 @@ import { applyDamage, applyHealing, repairArmor } from "./helpers/damage.mjs";
 import { registerChaosSetting, getChaos, setChaos, addToChaos, resetChaos } from "./helpers/chaos.mjs";
 import { rollBacklash, lookupBacklash } from "./helpers/backlash.mjs";
 import { castSpell } from "./helpers/spellcasting.mjs";
+import {
+  registerDungeonTurnSettings, endDungeonTurn, rollEncounterCheck,
+  getDT, setDT, bumpDT, getDungeonEN
+} from "./helpers/dungeon-turn.mjs";
+import { takeRest, restoreSpellbookUds } from "./helpers/rest.mjs";
 import { registerConditions } from "./conditions.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
@@ -34,12 +39,15 @@ Hooks.once("init", () => {
   });
   Object.assign(CONFIG.Actor.dataModels, { crow: CrowData, monster: MonsterData });
   registerChaosSetting();
+  registerDungeonTurnSettings();
   game.crows = Object.assign(game.crows ?? {}, {
     rollTest, classifyTier, classifyDoomCrit,
     applyBackground,
     applyDamage, applyHealing, repairArmor,
     castSpell, rollBacklash, lookupBacklash,
-    chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos }
+    takeRest, restoreSpellbookUds,
+    chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos },
+    dt: { get: getDT, set: setDT, bump: bumpDT, end: endDungeonTurn, encounterCheck: rollEncounterCheck, getDungeonEN }
   });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });

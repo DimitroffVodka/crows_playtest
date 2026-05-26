@@ -104,7 +104,10 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       adjBoned: CrowSheet._onAdjBoned,
       adjWounds: CrowSheet._onAdjWounds,
       toggleSkillBonus: CrowSheet._onToggleSkillBonus,
-      openItem: CrowSheet._onOpenItem
+      openItem: CrowSheet._onOpenItem,
+      takeRest: CrowSheet._onTakeRest,
+      endDt: CrowSheet._onEndDT,
+      encounterCheck: CrowSheet._onEncounterCheck
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -189,6 +192,13 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // Derived shift (M1: always 1; M3 will let traits modify).
     ctx.shift = 1;
 
+    // Time / DT counter + GM-only flag for the Time panel.
+    try {
+      ctx.dtCount = game.crows?.dt?.get?.() ?? 0;
+      ctx.dungeonEN = game.crows?.dt?.getDungeonEN?.() ?? 6;
+    } catch { ctx.dtCount = 0; ctx.dungeonEN = 6; }
+    ctx.isGM = !!game.user?.isGM;
+
     return ctx;
   }
 
@@ -250,5 +260,26 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const id = target.dataset.itemId;
     const it = this.document.items.get(id);
     if (it) it.sheet.render(true);
+  }
+
+  static async _onTakeRest(event, target) {
+    const tendedBy = target?.dataset?.tend === "true";
+    const inTown   = target?.dataset?.town === "true";
+    const { takeRest } = await import("../helpers/rest.mjs");
+    await takeRest(this.document, { tendedBy, inTown });
+    this.render();
+  }
+
+  static async _onEndDT() {
+    if (!game.user.isGM) { ui.notifications?.warn("End DT is GM-only."); return; }
+    const { endDungeonTurn } = await import("../helpers/dungeon-turn.mjs");
+    await endDungeonTurn();
+    this.render();
+  }
+
+  static async _onEncounterCheck() {
+    if (!game.user.isGM) { ui.notifications?.warn("Encounter check is GM-only."); return; }
+    const { rollEncounterCheck } = await import("../helpers/dungeon-turn.mjs");
+    await rollEncounterCheck({ label: "Ad-hoc" });
   }
 }
