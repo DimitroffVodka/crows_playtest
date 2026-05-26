@@ -1,0 +1,10 @@
+{
+  "name": "crows-system-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pack": "fvtt package pack --in src/packs --out packs --yaml",
+    "unpack": "fvtt package unpack --in packs --out src/packs --yaml"
+  },
+  "devDependencies": { "@foundryvtt/foundryvtt-cli": "^1.0.0" }
+}
