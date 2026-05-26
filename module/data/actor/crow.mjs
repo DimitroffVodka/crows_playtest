@@ -25,7 +25,9 @@ export class CrowData extends TypeDataModel {
       speed: new fields.NumberField({ initial: 5, min: 0, integer: true }),
       xp: new fields.SchemaField({
         txp: new fields.NumberField({ initial: 0, min: 0, integer: true }),
-        spendable: new fields.NumberField({ initial: 0, min: 0, integer: true })
+        spendable: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        skillBonusesSpent: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        charBonusesSpent: new fields.NumberField({ initial: 0, min: 0, integer: true })
       }),
       currency: new fields.NumberField({ initial: 0, min: 0, integer: true }),
       conditions: new fields.SchemaField({

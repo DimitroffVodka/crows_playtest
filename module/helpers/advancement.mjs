@@ -22,10 +22,11 @@ export function bonusesEarned(txp) {
   for (const t of SKILL_STAM_THRESHOLDS) if (txp >= t) skill++;
   if (txp > 5000) skill += Math.floor((txp - 5000) / 5000);
 
+  // Char advancement: 1st at 5000, 2nd at 15000, then every 15000 after.
+  // 5000→1, 15000→2, 30000→3, 45000→4, …
   let char = 0;
   if (txp >= 5000) char = 1;
-  if (txp >= 15000) char = 1 + Math.floor((txp - 5000) / 15000);   // 5000 + 15000=20000 → 2; 5000 + 30000=35000 → 3; etc.
-  // Note: the 1st is 5000, then every 15000 after that (15k step from the 1st)
+  if (txp >= 15000) char = 1 + 1 + Math.floor((txp - 15000) / 15000);
   return { skill, char };
 }
 
@@ -134,4 +135,97 @@ export async function purchaseTrait(actor, trait) {
     speaker: ChatMessage.getSpeaker({ actor })
   });
   return { ok: true, cost, remainingXP: spendBefore - cost };
+}
+
+/**
+ * Available unspent advancement bonuses for an actor (skill/stam vs char).
+ */
+export function bonusesAvailable(actor) {
+  const earned = bonusesEarned(actor.system?.xp?.txp ?? 0);
+  return {
+    skill: Math.max(0, earned.skill - (actor.system?.xp?.skillBonusesSpent ?? 0)),
+    char:  Math.max(0, earned.char  - (actor.system?.xp?.charBonusesSpent  ?? 0))
+  };
+}
+
+/**
+ * Apply a single skill/stamina advancement bonus per one of the rules options:
+ *   "twoSkills":  { skillA, skillB } — each +1, capped at +2
+ *   "stamina4":   +4 Stamina max
+ *   "skillStam":  { skill } — +1 skill (capped +2) and +2 Stamina max
+ * Increments skillBonusesSpent on success.
+ */
+export async function spendSkillBonus(actor, option, { skillA, skillB, skill } = {}) {
+  if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
+  const avail = bonusesAvailable(actor);
+  if (avail.skill <= 0) {
+    ui.notifications?.warn(`${actor.name} has no skill/stamina bonuses available.`);
+    return { ok: false, error: "none available" };
+  }
+  const updates = {};
+  if (option === "twoSkills") {
+    if (!skillA || !skillB || skillA === skillB) return { ok: false, error: "need two distinct skills" };
+    const bonusA = actor.system?.skills?.[skillA]?.bonus ?? 0;
+    const bonusB = actor.system?.skills?.[skillB]?.bonus ?? 0;
+    updates[`system.skills.${skillA}.bonus`] = Math.min(2, bonusA + 1);
+    updates[`system.skills.${skillB}.bonus`] = Math.min(2, bonusB + 1);
+  } else if (option === "stamina4") {
+    const stamMax = actor.system?.stamina?.max ?? 0;
+    updates["system.stamina.max"] = stamMax + 4;
+  } else if (option === "skillStam") {
+    if (!skill) return { ok: false, error: "need skill" };
+    const cur = actor.system?.skills?.[skill]?.bonus ?? 0;
+    updates[`system.skills.${skill}.bonus`] = Math.min(2, cur + 1);
+    updates["system.stamina.max"] = (actor.system?.stamina?.max ?? 0) + 2;
+  } else {
+    return { ok: false, error: "unknown option" };
+  }
+  updates["system.xp.skillBonusesSpent"] = (actor.system?.xp?.skillBonusesSpent ?? 0) + 1;
+  await actor.update(updates);
+
+  const summary = option === "twoSkills" ? `+1 ${skillA}, +1 ${skillB}`
+                : option === "stamina4"  ? "+4 Stamina max"
+                : `+1 ${skill}, +2 Stamina max`;
+  await ChatMessage.create({
+    content: `<div class="crows adv-spend"><strong>${actor.name}</strong> spends a skill/stam advancement: ${summary}</div>`,
+    speaker: ChatMessage.getSpeaker({ actor })
+  });
+  return { ok: true };
+}
+
+/**
+ * Apply a single characteristic advancement:
+ *   - normal: +1 to one of agility/mind/strength (capped at 3)
+ *   - if all three are 3 already, +4 Stamina instead
+ * Increments charBonusesSpent on success.
+ */
+export async function spendCharBonus(actor, characteristic = null) {
+  if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
+  const avail = bonusesAvailable(actor);
+  if (avail.char <= 0) {
+    ui.notifications?.warn(`${actor.name} has no characteristic advancements available.`);
+    return { ok: false, error: "none available" };
+  }
+  const c = actor.system?.characteristics ?? {};
+  const allMax = (c.agility?.value ?? 0) >= 3 && (c.mind?.value ?? 0) >= 3 && (c.strength?.value ?? 0) >= 3;
+  const updates = {};
+  let summary;
+  if (allMax) {
+    updates["system.stamina.max"] = (actor.system?.stamina?.max ?? 0) + 4;
+    summary = "all chars at 3 → +4 Stamina max instead";
+  } else {
+    if (!characteristic || !["agility","mind","strength"].includes(characteristic))
+      return { ok: false, error: "need characteristic" };
+    const cur = c[characteristic]?.value ?? 0;
+    if (cur >= 3) return { ok: false, error: `${characteristic} already at 3` };
+    updates[`system.characteristics.${characteristic}.value`] = cur + 1;
+    summary = `+1 ${characteristic} (now ${cur + 1})`;
+  }
+  updates["system.xp.charBonusesSpent"] = (actor.system?.xp?.charBonusesSpent ?? 0) + 1;
+  await actor.update(updates);
+  await ChatMessage.create({
+    content: `<div class="crows adv-spend"><strong>${actor.name}</strong> spends a characteristic advancement: ${summary}</div>`,
+    speaker: ChatMessage.getSpeaker({ actor })
+  });
+  return { ok: true };
 }

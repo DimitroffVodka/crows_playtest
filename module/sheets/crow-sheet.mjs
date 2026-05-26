@@ -111,7 +111,9 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       selectTree: CrowSheet._onSelectTree,
       buyTrait: CrowSheet._onBuyTrait,
       grantXp: CrowSheet._onGrantXp,
-      attackWithWeapon: CrowSheet._onAttackWithWeapon
+      attackWithWeapon: CrowSheet._onAttackWithWeapon,
+      spendSkillBonus: CrowSheet._onSpendSkillBonus,
+      spendCharBonus: CrowSheet._onSpendCharBonus
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -229,10 +231,11 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // the trait-pack load cost off the critical path.
     if (this._activeTab === "advancement") {
       try {
-        const { bonusesEarned, nextBonusTXP, isTraitBuyable } = await import("../helpers/advancement.mjs");
+        const { bonusesEarned, nextBonusTXP, isTraitBuyable, bonusesAvailable } = await import("../helpers/advancement.mjs");
         const txp = sys.xp?.txp ?? 0;
         ctx.bonusesEarned = bonusesEarned(txp);
         ctx.nextBonusAt = nextBonusTXP(txp);
+        ctx.bonusesAvailable = bonusesAvailable(this.document);
 
         const treeMap = await CrowSheet.getTreeMap();
         ctx.selectedTree = this._selectedTree;
@@ -384,5 +387,79 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (!wp) { ui.notifications?.warn("Weapon not found."); return; }
     const { attackWithWeapon } = await import("../helpers/attack.mjs");
     await attackWithWeapon(this.document, wp);
+  }
+
+  static async _onSpendSkillBonus() {
+    const { spendSkillBonus } = await import("../helpers/advancement.mjs");
+    const DialogV2 = foundry.applications.api.DialogV2;
+    const actor = this.document;
+    // Build skill <option> lists (skills not yet at +2)
+    const eligible = (CROWS.skills ?? []).filter(k => (actor.system.skills?.[k]?.bonus ?? 0) < 2);
+    const opts = eligible.map(k => `<option value="${k}">${k} (current +${actor.system.skills?.[k]?.bonus ?? 0})</option>`).join("");
+    const content = `<div class="crows adv-spend-form">
+      <p>Choose ONE of the three advancement options:</p>
+      <div class="adv-opt"><label><input type="radio" name="opt" value="twoSkills" checked> <strong>Two skills +1</strong> (each capped at +2)</label>
+        <div class="adv-skill-pair">
+          <label>Skill A: <select name="skillA">${opts}</select></label>
+          <label>Skill B: <select name="skillB">${opts}</select></label>
+        </div>
+      </div>
+      <div class="adv-opt"><label><input type="radio" name="opt" value="stamina4"> <strong>Stamina max +4</strong></label></div>
+      <div class="adv-opt"><label><input type="radio" name="opt" value="skillStam"> <strong>One skill +1 and Stamina max +2</strong></label>
+        <div><label>Skill: <select name="skillC">${opts}</select></label></div>
+      </div>
+    </div>`;
+    try {
+      const choice = await DialogV2.prompt({
+        window: { title: `${actor.name} — Spend Skill/Stamina Advancement` },
+        content,
+        ok: {
+          label: "Spend",
+          callback: (event, button, dialog) => {
+            const root = dialog.element ?? button?.form;
+            const opt = root?.querySelector?.('input[name="opt"]:checked')?.value;
+            const skillA = root?.querySelector?.('select[name="skillA"]')?.value;
+            const skillB = root?.querySelector?.('select[name="skillB"]')?.value;
+            const skill  = root?.querySelector?.('select[name="skillC"]')?.value;
+            return { opt, skillA, skillB, skill };
+          }
+        }
+      });
+      if (!choice) return;
+      await spendSkillBonus(actor, choice.opt, { skillA: choice.skillA, skillB: choice.skillB, skill: choice.skill });
+      this.render();
+    } catch { /* dialog dismissed */ }
+  }
+
+  static async _onSpendCharBonus() {
+    const { spendCharBonus } = await import("../helpers/advancement.mjs");
+    const DialogV2 = foundry.applications.api.DialogV2;
+    const actor = this.document;
+    const c = actor.system.characteristics ?? {};
+    const allMax = (c.agility?.value ?? 0) >= 3 && (c.mind?.value ?? 0) >= 3 && (c.strength?.value ?? 0) >= 3;
+    if (allMax) {
+      await spendCharBonus(actor);   // auto-converts to +4 stamina
+      this.render();
+      return;
+    }
+    const content = `<div class="crows adv-spend-form">
+      <p>Choose a characteristic to raise by +1 (each capped at +3):</p>
+      <div>Agility ${c.agility?.value ?? 0}, Mind ${c.mind?.value ?? 0}, Strength ${c.strength?.value ?? 0}</div>
+    </div>`;
+    try {
+      const choice = await DialogV2.prompt({
+        window: { title: `${actor.name} — Characteristic Advancement` },
+        content,
+        buttons: [
+          { action: "agility",  label: "+1 Agility",  callback: () => "agility",  disabled: (c.agility?.value ?? 0) >= 3 },
+          { action: "mind",     label: "+1 Mind",     callback: () => "mind",     disabled: (c.mind?.value ?? 0) >= 3 },
+          { action: "strength", label: "+1 Strength", callback: () => "strength", disabled: (c.strength?.value ?? 0) >= 3 },
+          { action: "cancel",   label: "Cancel",      callback: () => null, default: true }
+        ]
+      });
+      if (!choice) return;
+      await spendCharBonus(actor, choice);
+      this.render();
+    } catch { /* dialog dismissed */ }
   }
 }

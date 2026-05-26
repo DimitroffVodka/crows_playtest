@@ -489,6 +489,13 @@
 .cc-adv-stat strong { font-size: 16px; }
 .cc-adv-grant { background: #2a4080; color: #fff; border: 0; padding: 4px 8px; font-size: 11px; cursor: pointer; border-radius: 3px; }
 .cc-adv-grant:hover { background: #1a3070; }
+.cc-adv-pending { display:block; font-size: 10px; color: #b88a00; font-weight: bold; }
+.cc-adv-spend-btn { background: #b88a00; color: #fff; border: 0; padding: 4px 8px; font-size: 11px; cursor: pointer; border-radius: 3px; font-weight: bold; }
+.cc-adv-spend-btn:hover { background: #8a6600; }
+.adv-spend-form { padding: 4px; }
+.adv-spend-form .adv-opt { padding: 4px 0; border-bottom: 1px dotted #ccc; }
+.adv-spend-form .adv-skill-pair { padding-left: 24px; display: flex; gap: 8px; }
+.adv-spend-form select { padding: 2px; }
 
 .cc-tree-picker {
   display: flex;

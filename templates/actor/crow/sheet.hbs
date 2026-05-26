@@ -241,8 +241,10 @@
       <div class="cc-adv-stat"><span class="cc-adv-label">TXP</span><strong>{{system.xp.txp}}</strong></div>
       <div class="cc-adv-stat"><span class="cc-adv-label">Spendable XP</span><strong>{{system.xp.spendable}}</strong></div>
       <div class="cc-adv-stat"><span class="cc-adv-label">Next bonus at</span><strong>{{nextBonusAt}} TXP</strong></div>
-      <div class="cc-adv-stat"><span class="cc-adv-label">Skill/Stam bonuses</span><strong>{{bonusesEarned.skill}}</strong></div>
-      <div class="cc-adv-stat"><span class="cc-adv-label">Characteristic adv.</span><strong>{{bonusesEarned.char}}</strong></div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">Skill/Stam bonuses</span><strong>{{bonusesEarned.skill}}</strong>{{#if bonusesAvailable.skill}}<span class="cc-adv-pending">{{bonusesAvailable.skill}} unspent</span>{{/if}}</div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">Characteristic adv.</span><strong>{{bonusesEarned.char}}</strong>{{#if bonusesAvailable.char}}<span class="cc-adv-pending">{{bonusesAvailable.char}} unspent</span>{{/if}}</div>
+      {{#if bonusesAvailable.skill}}<button type="button" data-action="spendSkillBonus" class="cc-adv-spend-btn">Spend skill/stam</button>{{/if}}
+      {{#if bonusesAvailable.char}}<button type="button" data-action="spendCharBonus" class="cc-adv-spend-btn">Spend char.</button>{{/if}}
       {{#if isGM}}
         <button type="button" data-action="grantXp" data-amount="100" class="cc-adv-grant">+100 XP</button>
         <button type="button" data-action="grantXp" data-amount="500" class="cc-adv-grant">+500 XP</button>
