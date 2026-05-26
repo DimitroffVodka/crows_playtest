@@ -67,20 +67,34 @@ export async function attackWithWeapon(actor, weapon) {
   // "Versatile" weapons (melee>0 && ranged>0): we default to melee here; future
   // UI may prompt for thrown.
 
-  const t2val = evalDamage(sys.damage?.t2, actor);
-  const t3val = evalDamage(sys.damage?.t3, actor);
+  let t2val = evalDamage(sys.damage?.t2, actor);
+  let t3val = evalDamage(sys.damage?.t3, actor);
+
+  // Boon of Fury: if active, roll lvl×d6 and add to BOTH damage tiers
+  // (the player gets the bonus on whichever tier hits). Boon expends now.
+  let furyBonus = 0;
+  if (actor.type === "crow" && actor.system?.activeBoon?.boonId === "fury") {
+    try {
+      const { consumeBoonOnDamage } = await import("./crypt.mjs");
+      const r = await consumeBoonOnDamage(actor);
+      furyBonus = r.extra || 0;
+      t2val += furyBonus;
+      t3val += furyBonus;
+    } catch { /* crypt module not loaded */ }
+  }
 
   return await rollTest({
     actor,
     characteristic,
     skill,
-    flavor: `${actor.name} attacks with ${weapon.name}`,
+    flavor: `${actor.name} attacks with ${weapon.name}${furyBonus ? ` (+${furyBonus} fury)` : ""}`,
     attack: {
       t2: t2val,
       t3: t3val,
       isMelee,
       piercing: !!sys.piercing,
-      weaponName: weapon.name
+      weaponName: weapon.name,
+      furyBonus
     }
   });
 }

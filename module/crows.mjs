@@ -25,6 +25,13 @@ import {
   registerMiasmaSettings, getInMiasma, setInMiasma,
   rollMiasmaResist, rollMiasmaEffect, clearMiasma, onBonedCleared, MIASMA_EFFECTS
 } from "./helpers/miasma.mjs";
+import {
+  registerCryptSettings, CRYPT_BOONS, BOON_IDS,
+  getCryptLevel, setCryptLevel, listInterments, inter, pray,
+  expendBoon, getCycleId, bumpCycle,
+  consumeBoonOnDamage, consumeBoonOnHeal, consumeBoonOnSwiftness,
+  clearPerDtBoonFlags
+} from "./helpers/crypt.mjs";
 import { gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait, bonusesAvailable, spendSkillBonus, spendCharBonus } from "./helpers/advancement.mjs";
 import { attackWithWeapon } from "./helpers/attack.mjs";
 import { registerConditions } from "./conditions.mjs";
@@ -47,6 +54,7 @@ Hooks.once("init", () => {
   registerChaosSetting();
   registerDungeonTurnSettings();
   registerMiasmaSettings();
+  registerCryptSettings();
   game.crows = Object.assign(game.crows ?? {}, {
     rollTest, classifyTier, classifyDoomCrit,
     applyBackground,
@@ -57,7 +65,15 @@ Hooks.once("init", () => {
     attackWithWeapon,
     chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos, show: showChaosDialog },
     dt: { get: getDT, set: setDT, bump: bumpDT, end: endDungeonTurn, encounterCheck: rollEncounterCheck, getDungeonEN },
-    miasma: { get: getInMiasma, set: setInMiasma, resist: rollMiasmaResist, effect: rollMiasmaEffect, clear: clearMiasma, onBonedCleared, EFFECTS: MIASMA_EFFECTS }
+    miasma: { get: getInMiasma, set: setInMiasma, resist: rollMiasmaResist, effect: rollMiasmaEffect, clear: clearMiasma, onBonedCleared, EFFECTS: MIASMA_EFFECTS },
+    crypt: {
+      BOONS: CRYPT_BOONS, BOON_IDS,
+      getLevel: getCryptLevel, setLevel: setCryptLevel,
+      list: listInterments, inter, pray, expendBoon,
+      getCycle: getCycleId, bumpCycle,
+      consumeBoonOnDamage, consumeBoonOnHeal, consumeBoonOnSwiftness,
+      clearPerDtBoonFlags
+    }
   });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });

@@ -116,7 +116,11 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       spendCharBonus: CrowSheet._onSpendCharBonus,
       toggleMiasma: CrowSheet._onToggleMiasma,
       rollMiasmaResist: CrowSheet._onRollMiasmaResist,
-      clearMiasmaSelf: CrowSheet._onClearMiasmaSelf
+      clearMiasmaSelf: CrowSheet._onClearMiasmaSelf,
+      cryptPray: CrowSheet._onCryptPray,
+      cryptExpend: CrowSheet._onCryptExpend,
+      cryptInter: CrowSheet._onCryptInter,
+      cryptBumpCycle: CrowSheet._onCryptBumpCycle
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -229,6 +233,31 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.dungeonEN = game.crows?.dt?.getDungeonEN?.() ?? 6;
     } catch { ctx.dtCount = 0; ctx.dungeonEN = 6; }
     ctx.isGM = !!game.user?.isGM;
+
+    // Crypt — active boon + crypt level + count of interments for UI gating.
+    try {
+      const { CRYPT_BOONS, getCryptLevel, listInterments, getCycleId } = await import("../helpers/crypt.mjs");
+      ctx.cryptLevel = getCryptLevel();
+      ctx.cryptCycle = getCycleId();
+      ctx.cryptInterments = listInterments();
+      const ab = sys.activeBoon;
+      if (ab?.boonId && CRYPT_BOONS[ab.boonId]) {
+        const b = CRYPT_BOONS[ab.boonId];
+        ctx.activeBoonCard = {
+          id: ab.boonId,
+          label: b.label,
+          source: ab.sourceCrowName,
+          usesLeft: ab.usesLeft ?? 1,
+          summary: b.summary(ctx.cryptLevel),
+          text: b.text(ctx.cryptLevel)
+        };
+      } else {
+        ctx.activeBoonCard = null;
+      }
+      ctx.alreadyPrayedThisCycle = (sys.activeBoon?.prayedOnCycle ?? -1) === ctx.cryptCycle;
+    } catch {
+      ctx.cryptLevel = 1; ctx.cryptInterments = []; ctx.activeBoonCard = null; ctx.alreadyPrayedThisCycle = false;
+    }
 
     // Miasma — environment flag + active effects with humane labels.
     try {
@@ -568,6 +597,65 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const { clearMiasma } = await import("../helpers/miasma.mjs");
     await clearMiasma(this.document);
     this.render();
+  }
+
+  static async _onCryptPray() {
+    const { listInterments, pray } = await import("../helpers/crypt.mjs");
+    const interments = listInterments();
+    if (!interments.length) {
+      ui.notifications?.warn("No crows are interred in the Crypt.");
+      return;
+    }
+    const DialogV2 = foundry.applications.api.DialogV2;
+    const opts = interments.map(e => `<option value="${e.crowName}">${e.crowName} — ${e.boonId}</option>`).join("");
+    try {
+      const choice = await DialogV2.prompt({
+        window: { title: `${this.document.name} — Pray at a grave` },
+        content: `<div class="crows crypt-form"><label>Grave: <select name="grave">${opts}</select></label></div>`,
+        ok: { label: "Pray", callback: (event, button, dialog) => (dialog.element ?? button?.form)?.querySelector?.('select[name="grave"]')?.value }
+      });
+      if (!choice) return;
+      await pray(this.document, choice);
+      this.render();
+    } catch { /* dismissed */ }
+  }
+
+  static async _onCryptExpend() {
+    const { expendBoon } = await import("../helpers/crypt.mjs");
+    await expendBoon(this.document);
+    this.render();
+  }
+
+  static async _onCryptInter() {
+    if (!game.user.isGM) { ui.notifications?.warn("Internment is GM-only."); return; }
+    const { CRYPT_BOONS, inter } = await import("../helpers/crypt.mjs");
+    const DialogV2 = foundry.applications.api.DialogV2;
+    const opts = Object.values(CRYPT_BOONS).map(b => `<option value="${b.id}">${b.label}</option>`).join("");
+    try {
+      const choice = await DialogV2.prompt({
+        window: { title: `Inter ${this.document.name} in the Crypt` },
+        content: `<div class="crows crypt-form">
+          <p>Pick the boon this dead crow grants:</p>
+          <label>Boon: <select name="boonId">${opts}</select></label>
+        </div>`,
+        ok: { label: "Inter", callback: (event, button, dialog) => (dialog.element ?? button?.form)?.querySelector?.('select[name="boonId"]')?.value }
+      });
+      if (!choice) return;
+      await inter({ crowName: this.document.name, boonId: choice, interredBy: game.user.name });
+      // Also stamp the actor's cryptBoon field for sheet display.
+      await this.document.update({ "system.cryptBoon": choice });
+      this.render();
+    } catch { /* dismissed */ }
+  }
+
+  static async _onCryptBumpCycle() {
+    if (!game.user.isGM) { ui.notifications?.warn("Bumping cycle is GM-only."); return; }
+    const { bumpCycle } = await import("../helpers/crypt.mjs");
+    await bumpCycle();
+    // Re-render all crow sheets so prayed-this-cycle gating updates.
+    for (const app of Object.values(ui.windows)) {
+      if (app?.constructor?.name === "CrowSheet") app.render();
+    }
   }
 
   static async _onSpendCharBonus() {

@@ -135,16 +135,25 @@ export async function applyHealing(actor, { stamina = 0, wounds = 0 } = {}) {
   if (!actor) return { ok: false };
   const sys = actor.system ?? {};
   const updates = {};
+  let vitalityBonus = 0;
+  // Boon of Vitality: when regaining Stamina, expend for +2*lvl extra.
+  if (stamina > 0 && actor.type === "crow") {
+    try {
+      const { consumeBoonOnHeal } = await import("./crypt.mjs");
+      const r = await consumeBoonOnHeal(actor);
+      vitalityBonus = r.extra || 0;
+    } catch { /* crypt module not yet loaded */ }
+  }
   if (stamina > 0) {
     const max = sys.stamina?.max ?? 0;
-    const next = Math.min(max, (sys.stamina?.value ?? 0) + stamina);
+    const next = Math.min(max, (sys.stamina?.value ?? 0) + stamina + vitalityBonus);
     updates["system.stamina.value"] = next;
   }
   if (wounds > 0) {
     updates["system.wounds"] = Math.max(0, (sys.wounds ?? 0) - wounds);
   }
   if (Object.keys(updates).length) await actor.update(updates);
-  return { ok: true, ...updates };
+  return { ok: true, vitalityBonus, ...updates };
 }
 
 /**

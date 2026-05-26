@@ -131,6 +131,29 @@
           {{/each}}
         </ul>
       {{/if}}
+      <div class="cc-crypt-row">
+        <span class="cc-crypt-label" title="Village Crypt institution level">Crypt L{{cryptLevel}}</span>
+        <button type="button" data-action="cryptPray"
+          {{#if alreadyPrayedThisCycle}}disabled title="Already prayed this cycle."
+          {{else}}title="Pray at a dead crow's grave to receive their boon (once per cycle)."{{/if}}>
+          Pray
+        </button>
+        {{#if activeBoonCard}}
+          <button type="button" data-action="cryptExpend" title="Expend the active boon (free action).">Expend</button>
+        {{/if}}
+        {{#if isGM}}
+          <button type="button" data-action="cryptInter" title="Inter this crow in the Crypt (pick a boon).">Inter</button>
+          <button type="button" data-action="cryptBumpCycle" title="Advance the Village cycle (re-enables praying).">+Cycle</button>
+        {{/if}}
+      </div>
+      {{#if activeBoonCard}}
+        <div class="cc-active-boon" title="Active Crypt boon">
+          <strong>{{activeBoonCard.label}}</strong>
+          {{#if activeBoonCard.source}}<span class="cb-src">via {{activeBoonCard.source}}</span>{{/if}}
+          {{#if (gte activeBoonCard.usesLeft 2)}}<span class="cb-uses">{{activeBoonCard.usesLeft}} uses</span>{{/if}}
+          <div class="cb-summary">{{activeBoonCard.summary}}</div>
+        </div>
+      {{/if}}
     </div>
   </section>
 

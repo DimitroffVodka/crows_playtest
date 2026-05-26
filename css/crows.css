@@ -617,3 +617,33 @@
 }
 .crows.miasma-clear { background: #e8f8e8; border-left: 3px solid #2a8040; padding: 4px 8px; }
 .crows.miasma-toggle { background: #fff4d6; border: 1px solid #b88a00; padding: 4px 8px; border-radius: 3px; }
+
+/* Crypt boons */
+.cc-crypt-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.cc-crypt-label {
+  padding: 2px 8px;
+  background: #2a2440;
+  color: #d8c8ff;
+  border: 1px solid #4a4070;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.cc-active-boon {
+  margin-top: 4px;
+  padding: 6px 8px;
+  background: #f0eaff;
+  border: 1px solid #6a4ca8;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.cc-active-boon .cb-src { color: #888; font-size: 11px; margin-left: 4px; }
+.cc-active-boon .cb-uses { color: #6a4ca8; font-weight: bold; margin-left: 8px; }
+.cc-active-boon .cb-summary { margin-top: 4px; font-style: italic; color: #4a4070; }
+.crows.crypt-inter, .crows.crypt-pray, .crows.crypt-expend {
+  background: #f0eaff; border-left: 3px solid #6a4ca8; padding: 6px 8px;
+}
+.crows.crypt-cycle { background: #fff4d6; border-left: 3px solid #b88a00; padding: 4px 8px; }
+.crows.crypt-form .crypt-opt { margin: 4px 0; }

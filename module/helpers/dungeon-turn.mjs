@@ -111,7 +111,13 @@ export async function endDungeonTurn() {
   // 3) Encounter check.
   const ec = await rollEncounterCheck({ label: "End-of-DT" });
 
-  // 4) Summary chat card.
+  // 4) Clear per-DT boon side-effects (Boon of Swiftness speed flag).
+  try {
+    const { clearPerDtBoonFlags } = await import("./crypt.mjs");
+    await clearPerDtBoonFlags();
+  } catch { /* crypt module not loaded */ }
+
+  // 5) Summary chat card.
   const udBlock = udRolls.length
     ? `<div><strong>Usage dice rolled (${udRolls.length}):</strong><ul>${udRolls.map(r =>
         `<li>${r.actor} — ${r.item}: 1d6=${r.roll}${r.removed ? ` <em>(die removed; ${r.depleted ? "depleted" : `${r.udCurrent} left`})</em>` : ""}</li>`

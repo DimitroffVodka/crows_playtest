@@ -38,7 +38,18 @@ export class CrowData extends TypeDataModel {
         unconscious: new fields.BooleanField({ initial: false })
       }),
       background: new fields.StringField({ blank: true }),
+      // Boon this crow grants from the Crypt — set when their character dies
+      // and is interred. Boon ID matches keys in CRYPT_BOONS (helpers/crypt.mjs).
       cryptBoon: new fields.StringField({ blank: true }),
+      // Boon currently borrowed from a dead crow (cleared on expenditure).
+      activeBoon: new fields.SchemaField({
+        boonId: new fields.StringField({ blank: true, initial: "" }),
+        sourceCrowName: new fields.StringField({ blank: true, initial: "" }),
+        // Optional uses-remaining counter (Rescue uses cryptLevel charges).
+        usesLeft: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        // Cycle ID the crow last prayed at the crypt (gate for once-per-cycle limit).
+        prayedOnCycle: new fields.NumberField({ initial: -1, integer: true })
+      }),
       details: new fields.SchemaField({ feature: new fields.HTMLField() }),
       // Prepare for Task rest activity (Rules p.11): +1 to the next roll of `skill`,
       // consumed on use. `detail` is free-text describing the task; `setOn` is the
@@ -78,12 +89,18 @@ export class CrowData extends TypeDataModel {
     // Effective speed factoring in conditions:
     //   grabbed / unconscious → 0
     //   prone → halved (rounded down)
+    // Then Boon of Swiftness adds its temp +lvl on top until end of DT.
     const baseSpeed = this.speed ?? 0;
+    const swiftness = Number(this.parent.getFlag?.("crows", "swiftnessUntilDtEnd") ?? 0) || 0;
     const c = this.conditions ?? {};
     let eff = baseSpeed;
     let speedNote = "";
     if (c.grabbed || c.unconscious) { eff = 0; speedNote = c.unconscious ? "unconscious" : "grabbed"; }
     else if (c.prone) { eff = Math.floor(baseSpeed / 2); speedNote = "prone"; }
+    if (swiftness > 0 && eff > 0) {
+      eff += swiftness;
+      speedNote = speedNote ? `${speedNote} +${swiftness} swiftness` : `+${swiftness} swiftness`;
+    }
     this.effectiveSpeed = eff;
     this.speedNote = speedNote;
   }
