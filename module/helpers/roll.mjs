@@ -52,18 +52,45 @@ export async function rollTest({ actor, characteristic = null, skill = null, mod
     }
   }
 
+  // ----- Target-aware combat bonuses (rules p.9, p.14) -----
+  // Applies only on attacks. Reads the first user-targeted token.
+  let autoTierForUnconscious = false;
+  if (attack) {
+    const target = [...(game.user?.targets ?? [])][0];
+    const targetActor = target?.actor;
+    const tc = targetActor?.system?.conditions ?? {};
+    if (tc.prone) {
+      // +1 melee attacks against prone, -1 ranged attacks against prone.
+      const value = attack.isMelee ? 1 : -1;
+      allMods.push({ value, label: `target prone (${attack.isMelee ? "melee" : "ranged"})` });
+    }
+    if (tc.unconscious) {
+      autoTierForUnconscious = true;     // force tier 3 result post-roll
+    }
+  }
+
   const flat = allMods.reduce((a, m) => a + (m.value ?? 0), 0);
   const formula = `2d10 + ${charVal} + ${skillBonus} + ${flat}`;
   const roll = await new Roll(formula).evaluate();
   const d10s = roll.dice.find(d => d.faces === 10);
   const rawSum = d10s ? d10s.results.reduce((a, r) => a + r.result, 0) : roll.total;
-  const tier = classifyTier(roll.total);
+  let tier = classifyTier(roll.total);
   const { doom, crit } = classifyDoomCrit(rawSum);
+
+  // Unconscious target: attacks against them always achieve at least tier 3
+  // (the attacker can still roll to see if they get a crit). Doom still wins
+  // by the rulebook silence on the matter — we keep doom intact.
+  let tierForcedNote = null;
+  if (autoTierForUnconscious && !doom && tier < 3) {
+    tier = 3;
+    tierForcedNote = "target unconscious";
+  }
 
   const data = {
     flavor, tier, doom, crit, total: roll.total, rawSum,
     char: characteristic, charVal, skill, skillBonus,
     mods: allMods,                  // for chat-card display
+    tierForcedNote,
     attack, casting,
     bandLabel: tier === 1 ? "≤11 (Tier 1)" : tier === 2 ? "12–16 (Tier 2)" : "17+ (Tier 3)"
   };
