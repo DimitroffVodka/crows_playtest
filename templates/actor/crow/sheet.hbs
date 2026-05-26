@@ -1,0 +1,68 @@
+<div class="crows-crow">
+  <header class="crows-crow-header">
+    <input type="text" name="name" value="{{actor.name}}" class="title">
+    <div class="chars">
+      <label>A <input type="number" name="system.characteristics.agility.value" value="{{system.characteristics.agility.value}}"></label>
+      <label>M <input type="number" name="system.characteristics.mind.value" value="{{system.characteristics.mind.value}}"></label>
+      <label>S <input type="number" name="system.characteristics.strength.value" value="{{system.characteristics.strength.value}}"></label>
+    </div>
+    <div class="vitals">
+      <label>Stamina <input type="number" name="system.stamina.value" value="{{system.stamina.value}}">/<input type="number" name="system.stamina.max" value="{{system.stamina.max}}"></label>
+      <span>Wounds {{system.wounds}}</span>
+      <span>Speed {{system.speed}}</span>
+      <span>AD {{system.ad}}</span>
+    </div>
+    <div class="conditions">
+      <span>Blessed {{system.conditions.blessed}}
+        <button type="button" data-action="adjBlessed" data-delta="1">+</button>
+        <button type="button" data-action="adjBlessed" data-delta="-1">&minus;</button></span>
+      <span>Boned {{system.conditions.boned}}
+        <button type="button" data-action="adjBoned" data-delta="1">+</button>
+        <button type="button" data-action="adjBoned" data-delta="-1">&minus;</button></span>
+    </div>
+  </header>
+
+  <nav class="crows-tabs">
+    {{#each tabs as |t|}}
+      <button type="button" data-action="tab" data-tab="{{t}}" class="{{#if (eq t ../activeTab)}}active{{/if}}">{{t}}</button>
+    {{/each}}
+  </nav>
+
+  <section class="tab play {{#if (eq activeTab 'play')}}active{{/if}}">
+    <h3>Skills</h3>
+    <div class="skill-list">
+      {{#each skills as |s|}}
+        <button type="button" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}">{{s.key}} (+{{s.bonus}})</button>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="tab inventory {{#if (eq activeTab 'inventory')}}active{{/if}}">
+    <div class="slot-grid">
+      <div class="row hands"><b>Hands</b> {{#each grid.hand as |it|}}<div class="slot">{{it.name}}</div>{{/each}}</div>
+      <div class="row belt"><b>Belt</b> {{#each grid.belt as |it|}}<div class="slot">{{it.name}}</div>{{/each}}</div>
+      <div class="row single">{{#each grid.single as |s|}}<div class="slot single">{{s.c}}: {{s.name}}</div>{{/each}}</div>
+      <div class="row backpack">
+        {{#each grid.backpack as |cell|}}
+          <div class="slot backpack {{#if cell.isWound}}wound{{/if}}" data-index="{{cell.index}}">
+            {{#if cell.isWound}}&#10006; wound{{else}}{{cell.name}}{{/if}}
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  </section>
+
+  <section class="tab traits {{#if (eq activeTab 'traits')}}active{{/if}}">
+    {{#each traitItems as |i|}}<div class="trait"><b>{{i.name}}</b> &mdash; {{i.system.tree}} t{{i.system.tier}}</div>{{/each}}
+  </section>
+
+  <section class="tab advancement {{#if (eq activeTab 'advancement')}}active{{/if}}">
+    <div>TXP {{system.xp.txp}} &middot; Spendable XP {{system.xp.spendable}}</div>
+    <p>Advancement spend UI lands in M3.</p>
+  </section>
+
+  <section class="tab bio {{#if (eq activeTab 'bio')}}active{{/if}}">
+    <div>Background: {{system.background}}</div>
+    <label>Feature <textarea name="system.details.feature">{{system.details.feature}}</textarea></label>
+  </section>
+</div>

@@ -12,6 +12,7 @@ import { TraitData } from "./data/item/trait.mjs";
 import { BackgroundData } from "./data/item/background.mjs";
 import { rollTest, classifyTier, classifyDoomCrit } from "./helpers/roll.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
+import { CrowSheet } from "./sheets/crow-sheet.mjs";
 
 Hooks.once("init", () => {
   console.log("crows | init");
@@ -25,6 +26,8 @@ Hooks.once("init", () => {
   game.crows = Object.assign(game.crows ?? {}, { rollTest, classifyTier, classifyDoomCrit });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   foundry.documents.collections.Actors.registerSheet("crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
+  foundry.documents.collections.Actors.registerSheet("crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });
+  foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/crow/sheet.hbs"]);
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/chat/test-card.hbs"]);
   foundry.applications.handlebars.loadTemplates([
     "systems/crows/templates/partials/physical-item.hbs",

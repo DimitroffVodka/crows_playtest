@@ -1,2 +1,13 @@
 /* crows system styles */
 .crows.sheet { font-family: var(--font-primary); }
+
+.crows-crow .tab { display: none; }
+.crows-crow .tab.active { display: block; }
+.crows-tabs { display: flex; gap: 4px; margin: 6px 0; }
+.crows-tabs button.active { font-weight: bold; text-decoration: underline; }
+.crows-crow-header .chars label { margin-right: 8px; }
+.crows-crow .skill-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.slot-grid .row { display: flex; gap: 4px; margin-bottom: 4px; align-items: center; }
+.slot-grid .slot { border: 1px solid #888; min-width: 90px; min-height: 28px; padding: 2px 4px; }
+.slot-grid .slot.backpack.wound { background: #5c1a1a; color: #fff; }
+.slot-grid .row.backpack { flex-wrap: wrap; }
