@@ -42,7 +42,16 @@ export class MonsterData extends TypeDataModel {
         uses: new fields.StringField({ blank: true }),
         linkedAttack: new fields.StringField({ blank: true })
       })),
-      colloquialNames: new fields.ArrayField(new fields.StringField())
+      colloquialNames: new fields.ArrayField(new fields.StringField()),
+      // Monsters can be prone/grabbed/unconscious too (PC-grappled/etc).
+      // Defeated is set when stamina hits 0 (Rules: monsters die at 0).
+      conditions: new fields.SchemaField({
+        prone: new fields.BooleanField({ initial: false }),
+        grabbed: new fields.BooleanField({ initial: false }),
+        unconscious: new fields.BooleanField({ initial: false }),
+        defeated: new fields.BooleanField({ initial: false })
+      }),
+      notes: new fields.HTMLField()
     };
   }
 }

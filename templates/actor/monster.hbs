@@ -1,24 +1,133 @@
-<form class="crows-monster">
-  <header>
-    <input type="text" name="name" value="{{actor.name}}" class="title">
-    <span>Power {{system.power}} · {{system.size}} · {{system.creatureType}}</span>
+<form class="crows-monster {{#if defeated}}defeated{{/if}}">
+
+  {{!-- ─────────────────────── Title strip ─────────────────────── --}}
+  <header class="m-title">
+    <input type="text" name="name" value="{{actor.name}}" class="m-name">
+    {{#if defeated}}<span class="m-defeated-badge" title="Stamina at 0 — defeated.">DEFEATED</span>{{/if}}
   </header>
-  <div class="stats">
-    <label>Stamina <input type="number" name="system.stamina.value" value="{{system.stamina.value}}">/<input type="number" name="system.stamina.max" value="{{system.stamina.max}}"></label>
-    <label>Speed <input type="number" name="system.speed.value" value="{{system.speed.value}}"></label>
-    <span>A {{system.characteristics.agility}} · M {{system.characteristics.mind}} · S {{system.characteristics.strength}}</span>
+
+  {{#if system.colloquialNames.length}}
+    <div class="m-colloquial" title="Common names used by Cornath folk">
+      <em>also known as:</em>
+      {{#each system.colloquialNames as |n|}}<span class="m-chip">{{n}}</span>{{/each}}
+    </div>
+  {{/if}}
+
+  {{!-- ─────────────────────── Rulebook stat block ─────────────────────── --}}
+  <table class="m-statblock">
+    <tbody>
+      <tr>
+        <td><strong>Size:</strong> <select name="system.size">
+          {{#each CROWS.sizes as |s|}}<option value="{{s}}" {{#if (eq s ../system.size)}}selected{{/if}}>{{s}}</option>{{/each}}
+        </select></td>
+        <td><strong>Power:</strong> <input type="number" name="system.power" value="{{system.power}}" min="0" max="50"></td>
+        <td><strong>Type:</strong> <select name="system.creatureType">
+          {{#each CROWS.creatureTypes as |t|}}<option value="{{t}}" {{#if (eq t ../system.creatureType)}}selected{{/if}}>{{t}}</option>{{/each}}
+        </select></td>
+      </tr>
+      <tr>
+        <td><strong>Stamina:</strong>
+          <input type="number" name="system.stamina.value" value="{{system.stamina.value}}" min="0" class="m-cur">
+          /
+          <input type="number" name="system.stamina.max" value="{{system.stamina.max}}" min="0" class="m-max">
+        </td>
+        <td><strong>Speed:</strong> <input type="number" name="system.speed.value" value="{{system.speed.value}}" min="0" class="m-cur"> <em class="m-modes">{{speedDisplay}}</em></td>
+        <td><strong>AD:</strong> <input type="number" name="system.ad" value="{{system.ad}}" min="0" class="m-cur"> <span class="m-slots"><strong>Slots:</strong> <input type="number" name="system.slots" value="{{system.slots}}" min="0" class="m-cur"></span></td>
+      </tr>
+      <tr>
+        <td><strong>Agility:</strong> <input type="number" name="system.characteristics.agility" value="{{system.characteristics.agility}}" class="m-cur"></td>
+        <td><strong>Mind:</strong> <input type="number" name="system.characteristics.mind" value="{{system.characteristics.mind}}" class="m-cur"></td>
+        <td><strong>Strength:</strong> <input type="number" name="system.characteristics.strength" value="{{system.characteristics.strength}}" class="m-cur"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{!-- ─────────────────────── Quick combat controls ─────────────────────── --}}
+  <div class="m-combat-row">
+    <button type="button" data-action="damageSelf" class="m-btn-dmg" title="Apply damage to this monster (with optional piercing)">⚔ Damage</button>
+    <button type="button" data-action="healSelf" class="m-btn-heal" title="Restore Stamina">+ Heal</button>
+    <div class="m-cond-toggles">
+      <button type="button" data-action="toggleCondition" data-condition="prone" class="m-cond-btn {{#if system.conditions.prone}}on{{/if}}" title="Toggle prone (-1 melee atk, +1 melee vs)">Prone</button>
+      <button type="button" data-action="toggleCondition" data-condition="grabbed" class="m-cond-btn {{#if system.conditions.grabbed}}on{{/if}}" title="Toggle grabbed (speed 0)">Grabbed</button>
+      <button type="button" data-action="toggleCondition" data-condition="unconscious" class="m-cond-btn {{#if system.conditions.unconscious}}on{{/if}}" title="Toggle unconscious (auto-tier-3 against)">Unconscious</button>
+    </div>
   </div>
-  <section class="attacks">
-    <h3>Attacks</h3>
-    {{#each system.attacks as |atk i|}}
-      <div class="attack">
-        <button type="button" data-action="rollAttack" data-index="{{i}}">{{atk.name}} ({{atk.toHit}})</button>
-        <span>{{atk.range}} · {{atk.dmgT2}}/{{atk.dmgT3}}</span>
+
+  {{!-- ─────────────────────── Attacks ─────────────────────── --}}
+  <section class="m-attacks">
+    <header class="m-section-header">
+      <span>Attacks</span>
+      {{#if isGM}}<button type="button" data-action="addAttack" class="m-add-btn" title="Add a new attack row (GM)">+ Add</button>{{/if}}
+    </header>
+    <div class="m-attack-grid">
+      <div class="m-attack-head">Name</div>
+      <div class="m-attack-head">+Hit</div>
+      <div class="m-attack-head">Range</div>
+      <div class="m-attack-head" title="12-16 damage">T2</div>
+      <div class="m-attack-head" title="17+ damage">T3</div>
+      <div class="m-attack-head" title="Piercing (bypasses AD)">P</div>
+      <div class="m-attack-head"></div>
+
+      {{#each attacks as |atk|}}
+        <button type="button" class="m-attack-name" data-action="rollAttack" data-index="{{atk.idx}}" title="Roll {{atk.name}}{{atk.tarSuffix}}">
+          {{atk.name}}{{atk.tarSuffix}}
+        </button>
+        {{#if ../isGM}}
+          <input type="number" name="system.attacks.{{atk.idx}}.toHit" value="{{atk.toHit}}" class="m-cur">
+          <input type="text" name="system.attacks.{{atk.idx}}.range" value="{{atk.range}}" class="m-range">
+          <input type="number" name="system.attacks.{{atk.idx}}.dmgT2" value="{{atk.dmgT2}}" class="m-cur">
+          <input type="number" name="system.attacks.{{atk.idx}}.dmgT3" value="{{atk.dmgT3}}" class="m-cur">
+          <button type="button" data-action="togglePiercing" data-index="{{atk.idx}}" class="m-p-toggle {{#if atk.piercing}}on{{/if}}" title="Toggle piercing (bypasses AD)">{{#if atk.piercing}}✓{{else}}—{{/if}}</button>
+          <button type="button" data-action="deleteAttack" data-index="{{atk.idx}}" class="m-del-btn" title="Delete attack">✕</button>
+        {{else}}
+          <span class="m-cur-readonly">+{{atk.toHit}}</span>
+          <span class="m-range-readonly">{{atk.range}}</span>
+          <span class="m-cur-readonly">{{atk.dmgT2}}</span>
+          <span class="m-cur-readonly">{{atk.dmgT3}}</span>
+          <span class="m-p-readonly">{{#if atk.piercing}}P{{else}}—{{/if}}</span>
+          <span></span>
+        {{/if}}
+      {{else}}
+        <div class="m-empty">No attacks. {{#if isGM}}Use + Add to define one.{{/if}}</div>
+      {{/each}}
+    </div>
+  </section>
+
+  {{!-- ─────────────────────── Traits ─────────────────────── --}}
+  <section class="m-traits">
+    <header class="m-section-header">
+      <span>Traits</span>
+      {{#if isGM}}<button type="button" data-action="addTrait" class="m-add-btn" title="Add a new trait (GM)">+ Add</button>{{/if}}
+    </header>
+    {{#each traits as |t|}}
+      <div class="m-trait">
+        <div class="m-trait-head">
+          {{#if ../isGM}}
+            <input type="text" name="system.traits.{{t.idx}}.name" value="{{t.name}}" class="m-trait-name">
+            <input type="text" name="system.traits.{{t.idx}}.uses" value="{{t.uses}}" placeholder="uses…" class="m-trait-uses">
+            <button type="button" data-action="deleteTrait" data-index="{{t.idx}}" class="m-del-btn" title="Delete trait">✕</button>
+          {{else}}
+            <strong class="m-trait-name-readonly">{{t.name}}</strong>
+            {{#if t.uses}}<span class="m-trait-uses-chip">{{t.uses}}</span>{{/if}}
+          {{/if}}
+        </div>
+        {{#if ../isGM}}
+          <textarea name="system.traits.{{t.idx}}.effect" rows="2" class="m-trait-effect">{{t.effect}}</textarea>
+        {{else}}
+          <div class="m-trait-effect-readonly">{{{t.effect}}}</div>
+        {{/if}}
       </div>
+    {{else}}
+      <div class="m-empty">No traits. {{#if isGM}}Use + Add to define one.{{/if}}</div>
     {{/each}}
   </section>
-  <section class="traits">
-    <h3>Traits</h3>
-    {{#each system.traits as |t|}}<div class="trait"><b>{{t.name}}</b> {{{t.effect}}}</div>{{/each}}
-  </section>
+
+  {{!-- ─────────────────────── GM Notes ─────────────────────── --}}
+  {{#if isGM}}
+    <section class="m-notes">
+      <header class="m-section-header"><span>GM Notes</span></header>
+      <textarea name="system.notes" rows="3" placeholder="Tactics, lore, etc.">{{system.notes}}</textarea>
+    </section>
+  {{/if}}
+
 </form>

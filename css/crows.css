@@ -937,3 +937,273 @@
 .crows.village-prosperity *, .crows.village-endcycle *, .crows.village-event *, .crows.village-avail *,
 .crows.crafting-start *, .crows.crafting-roll *, .crows.crafting-done *, .crows.crafting-cancel *,
 .crows.identify-roll *, .crows.char-create * { color: inherit; }
+
+/* ════════════════════════════════════════════════════════════════════
+   Monster sheet — rulebook-style stat block with dark menacing theme
+   ════════════════════════════════════════════════════════════════════ */
+.crows-monster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: #1f1a17;
+  color: #e8dccb;
+  font-size: 13px;
+}
+.crows-monster.defeated { opacity: 0.7; filter: grayscale(0.5); }
+.crows-monster input,
+.crows-monster select,
+.crows-monster textarea {
+  background: #2a2520;
+  color: #f0e6d2;
+  border: 1px solid #4a3a2a;
+  padding: 2px 4px;
+}
+.crows-monster input:focus,
+.crows-monster select:focus,
+.crows-monster textarea:focus {
+  outline: 1px solid #b04030;
+  background: #322c25;
+}
+
+/* Title */
+.crows-monster .m-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid #b04030;
+  padding-bottom: 4px;
+}
+.crows-monster .m-name {
+  flex: 1;
+  font-size: 20px;
+  font-weight: bold;
+  background: transparent;
+  border: 0;
+  color: #f0e6d2;
+  letter-spacing: 0.5px;
+}
+.crows-monster .m-defeated-badge {
+  padding: 2px 8px;
+  background: #6a0a0a;
+  color: #ffd0d0;
+  border: 1px solid #b80000;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+.crows-monster .m-colloquial {
+  font-size: 11px;
+  color: #b8a890;
+  font-style: italic;
+}
+.crows-monster .m-colloquial em { margin-right: 4px; }
+.crows-monster .m-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  background: #2a2520;
+  border: 1px solid #4a3a2a;
+  border-radius: 3px;
+  margin-right: 3px;
+  font-style: normal;
+}
+
+/* Stat block table */
+.crows-monster .m-statblock {
+  width: 100%;
+  border-collapse: collapse;
+  background: #2a2520;
+  border: 1px solid #4a3a2a;
+}
+.crows-monster .m-statblock td {
+  padding: 4px 8px;
+  border: 1px solid #4a3a2a;
+  vertical-align: middle;
+}
+.crows-monster .m-statblock strong { color: #d8c298; font-weight: bold; }
+.crows-monster .m-cur { width: 50px; text-align: center; }
+.crows-monster .m-max { width: 50px; text-align: center; color: #a89880; }
+.crows-monster .m-modes { color: #a89880; font-size: 11px; margin-left: 4px; }
+.crows-monster .m-slots { margin-left: 12px; }
+
+/* Combat / condition row */
+.crows-monster .m-combat-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.crows-monster .m-btn-dmg,
+.crows-monster .m-btn-heal {
+  padding: 4px 10px;
+  border: 1px solid #4a3a2a;
+  border-radius: 3px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.crows-monster .m-btn-dmg {
+  background: linear-gradient(180deg, #6a2010, #b04030);
+  color: #fff;
+}
+.crows-monster .m-btn-dmg:hover { background: linear-gradient(180deg, #804020, #d05040); }
+.crows-monster .m-btn-heal {
+  background: linear-gradient(180deg, #1a4a2a, #2a8040);
+  color: #fff;
+}
+.crows-monster .m-btn-heal:hover { background: linear-gradient(180deg, #2a5a3a, #4aa060); }
+.crows-monster .m-cond-toggles { display: flex; gap: 4px; margin-left: auto; }
+.crows-monster .m-cond-btn {
+  padding: 3px 10px;
+  background: #2a2520;
+  color: #b8a890;
+  border: 1px solid #4a3a2a;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.crows-monster .m-cond-btn:hover { background: #322c25; }
+.crows-monster .m-cond-btn.on {
+  background: #4a2a5a;
+  color: #f0d8ff;
+  border-color: #6a3a8a;
+}
+
+/* Section header (Attacks/Traits/Notes) */
+.crows-monster .m-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #b04030;
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+  font-weight: bold;
+  color: #d8c298;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.crows-monster .m-add-btn {
+  background: linear-gradient(180deg, #4a3a2a, #6a5a4a);
+  color: #f0e6d2;
+  border: 1px solid #6a5a4a;
+  padding: 2px 8px;
+  font-size: 11px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.crows-monster .m-add-btn:hover { background: linear-gradient(180deg, #5a4a3a, #8a7a6a); }
+.crows-monster .m-del-btn {
+  background: #4a1a10;
+  color: #ffb0a0;
+  border: 1px solid #6a2a20;
+  padding: 0 6px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.crows-monster .m-del-btn:hover { background: #6a2a20; }
+
+/* Attacks grid */
+.crows-monster .m-attacks { display: flex; flex-direction: column; gap: 4px; }
+.crows-monster .m-attack-grid {
+  display: grid;
+  grid-template-columns: 2fr 60px 1fr 60px 60px 40px 30px;
+  gap: 4px 6px;
+  align-items: center;
+}
+.crows-monster .m-attack-head {
+  font-size: 10px;
+  font-weight: bold;
+  color: #b8a890;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 2px 4px;
+  border-bottom: 1px solid #4a3a2a;
+}
+.crows-monster .m-attack-name {
+  background: linear-gradient(180deg, #2a2520, #3a3025);
+  color: #f0e6d2;
+  border: 1px solid #4a3a2a;
+  border-left: 3px solid #b04030;
+  padding: 4px 8px;
+  text-align: left;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.crows-monster .m-attack-name:hover {
+  background: linear-gradient(180deg, #3a3025, #4a3a2a);
+  border-left-color: #ff5a40;
+}
+.crows-monster .m-cur-readonly,
+.crows-monster .m-range-readonly,
+.crows-monster .m-p-readonly {
+  text-align: center;
+  padding: 4px;
+  color: #d8c298;
+}
+.crows-monster .m-range-readonly { text-align: left; color: #e8dccb; font-style: italic; font-size: 12px; }
+.crows-monster .m-p-toggle {
+  padding: 2px 4px;
+  background: #2a2520;
+  color: #b8a890;
+  border: 1px solid #4a3a2a;
+  border-radius: 3px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.crows-monster .m-p-toggle.on { background: #6a2010; color: #ffb090; border-color: #b04030; }
+
+/* Traits */
+.crows-monster .m-traits { display: flex; flex-direction: column; gap: 4px; }
+.crows-monster .m-trait {
+  padding: 6px;
+  background: #2a2520;
+  border: 1px solid #4a3a2a;
+  border-left: 3px solid #6a3a8a;
+  border-radius: 3px;
+}
+.crows-monster .m-trait-head {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.crows-monster .m-trait-name { flex: 1; font-weight: bold; }
+.crows-monster .m-trait-name-readonly { flex: 1; color: #d8c298; font-weight: bold; }
+.crows-monster .m-trait-uses { width: 100px; font-size: 11px; }
+.crows-monster .m-trait-uses-chip {
+  padding: 1px 6px;
+  background: #4a2a5a;
+  color: #f0d8ff;
+  border-radius: 3px;
+  font-size: 11px;
+}
+.crows-monster .m-trait-effect { width: 100%; resize: vertical; }
+.crows-monster .m-trait-effect-readonly { color: #e8dccb; font-size: 12px; }
+.crows-monster .m-trait-effect-readonly p { margin: 2px 0; }
+
+.crows-monster .m-notes { display: flex; flex-direction: column; gap: 4px; }
+.crows-monster .m-notes textarea { width: 100%; resize: vertical; }
+
+.crows-monster .m-empty {
+  grid-column: 1 / -1;
+  padding: 8px;
+  color: #888;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Apply-damage dialog form on monster */
+.crows.monster-dmg-form,
+.crows.monster-heal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px;
+}
+.crows.monster-dmg-form label,
+.crows.monster-heal-form label { color: #2a2a2a; }
