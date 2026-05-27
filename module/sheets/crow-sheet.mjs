@@ -121,7 +121,12 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       cryptExpend: CrowSheet._onCryptExpend,
       cryptInter: CrowSheet._onCryptInter,
       cryptBumpCycle: CrowSheet._onCryptBumpCycle,
-      openVillage: CrowSheet._onOpenVillage
+      openVillage: CrowSheet._onOpenVillage,
+      craftStart: CrowSheet._onCraftStart,
+      craftRoll: CrowSheet._onCraftRoll,
+      craftCancel: CrowSheet._onCraftCancel,
+      craftComplete: CrowSheet._onCraftComplete,
+      identifyItem: CrowSheet._onIdentifyItem
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -234,6 +239,11 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.dungeonEN = game.crows?.dt?.getDungeonEN?.() ?? 6;
     } catch { ctx.dtCount = 0; ctx.dungeonEN = 6; }
     ctx.isGM = !!game.user?.isGM;
+
+    // Crafting projects (Cluster 12).
+    ctx.craftingProjects = (sys.crafting?.projects ?? []).map(p => ({
+      ...p, complete: (p.points ?? 0) >= (p.goal ?? 1), pct: Math.min(100, Math.round(((p.points ?? 0) / (p.goal || 1)) * 100))
+    }));
 
     // Village shell (name/prosperity/cycle) for the Crypt panel header.
     try {
@@ -446,7 +456,13 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         <div><label>Task: <input type="text" name="prepDetail" placeholder="e.g. 'pick the vault lock'" style="width:100%"></label></div>
       </div>
       <div class="rest-opt"><label><input type="radio" name="act" value="craftEquipment"> <strong>Craft Equipment</strong></label>
-        <div><label>Project: <input type="text" name="craftProject" placeholder="e.g. 'spear haft'" style="width:100%"></label></div>
+        ${(actor.system?.crafting?.projects ?? []).length ? `
+          <div><label>Active project: <select name="craftProjectId">
+            <option value="">— (none / ad-hoc) —</option>
+            ${(actor.system.crafting.projects ?? []).map(p => `<option value="${p.id}">${p.name} (${p.points}/${p.goal} ${p.skill})</option>`).join("")}
+          </select></label></div>
+        ` : `<div><em>No active projects. Start one on the Advancement tab to make this activity roll for crafting points.</em></div>`}
+        <div><label>Or ad-hoc project name: <input type="text" name="craftProject" placeholder="e.g. 'spear haft'" style="width:100%"></label></div>
       </div>
       <div class="rest-opt"><label><input type="radio" name="act" value="harvest"> <strong>Harvest</strong></label>
         <div><label>Target: <input type="text" name="harvestTarget" placeholder="e.g. 'wolf hides'" style="width:100%"></label></div>
@@ -477,6 +493,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
               activityData.skill  = root?.querySelector?.('select[name="prepSkill"]')?.value ?? "";
               activityData.detail = root?.querySelector?.('input[name="prepDetail"]')?.value ?? "";
             } else if (activity === "craftEquipment") {
+              activityData.projectId = root?.querySelector?.('select[name="craftProjectId"]')?.value ?? "";
               activityData.project = root?.querySelector?.('input[name="craftProject"]')?.value ?? "";
             } else if (activity === "harvest") {
               activityData.target = root?.querySelector?.('input[name="harvestTarget"]')?.value ?? "";
@@ -766,6 +783,79 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         CrowSheet._onOpenVillage.call(this);
       });
     });
+  }
+
+  static async _onCraftStart() {
+    const { startCraftingProject } = await import("../helpers/crafting.mjs");
+    const DialogV2 = foundry.applications.api.DialogV2;
+    const actor = this.document;
+    // Skill <option>s with current bonuses.
+    const opts = (CROWS.skills ?? [])
+      .map(k => `<option value="${k}">${SKILL_LABELS[k] ?? k} (current +${actor.system.skills?.[k]?.bonus ?? 0})</option>`).join("");
+    const content = `<div class="crows craft-start-form">
+      <label>Item name: <input type="text" name="name" placeholder="e.g. 'Healing Potion'" style="width:100%"></label>
+      <label>Skill: <select name="skill">${opts}</select></label>
+      <label>Prereq bonus (0-2): <input type="number" name="prereq" value="0" min="0" max="2" step="1"></label>
+      <label>Crafting goal (points): <input type="number" name="goal" value="100" min="1" step="10"></label>
+      <label>Materials (comma-sep): <input type="text" name="materials" placeholder="herbs, vial" style="width:100%"></label>
+      <label><input type="checkbox" name="hasRecipe"> Has recipe (or skill > prereq)</label>
+      <label>Notes: <input type="text" name="notes" style="width:100%"></label>
+    </div>`;
+    try {
+      const choice = await DialogV2.prompt({
+        window: { title: `${actor.name} — Start crafting project` },
+        content,
+        ok: {
+          label: "Start",
+          callback: (event, button, dialog) => {
+            const root = dialog.element ?? button?.form;
+            return {
+              name: root?.querySelector?.('input[name="name"]')?.value?.trim(),
+              skill: root?.querySelector?.('select[name="skill"]')?.value,
+              prereqBonus: Number(root?.querySelector?.('input[name="prereq"]')?.value ?? 0),
+              goal: Number(root?.querySelector?.('input[name="goal"]')?.value ?? 100),
+              materials: (root?.querySelector?.('input[name="materials"]')?.value ?? "").split(",").map(s => s.trim()).filter(Boolean),
+              hasRecipe: !!root?.querySelector?.('input[name="hasRecipe"]')?.checked,
+              notes: root?.querySelector?.('input[name="notes"]')?.value ?? ""
+            };
+          }
+        }
+      });
+      if (!choice?.name) return;
+      await startCraftingProject(actor, choice);
+      this.render();
+    } catch { /* dismissed */ }
+  }
+
+  static async _onCraftRoll(event, target) {
+    const id = target.dataset.projectId;
+    if (!id) return;
+    const { makeCraftingRoll } = await import("../helpers/crafting.mjs");
+    await makeCraftingRoll(this.document, id);
+    this.render();
+  }
+
+  static async _onCraftCancel(event, target) {
+    const id = target.dataset.projectId;
+    if (!id) return;
+    const { cancelProject } = await import("../helpers/crafting.mjs");
+    await cancelProject(this.document, id);
+    this.render();
+  }
+
+  static async _onCraftComplete(event, target) {
+    const id = target.dataset.projectId;
+    if (!id) return;
+    const { completeProject } = await import("../helpers/crafting.mjs");
+    await completeProject(this.document, id);
+    this.render();
+  }
+
+  static async _onIdentifyItem(event, target) {
+    const itemId = target.dataset.itemId;
+    const { identifyMagicItem } = await import("../helpers/crafting.mjs");
+    await identifyMagicItem(this.document, { itemId });
+    this.render();
   }
 
   static async _onSpendCharBonus() {

@@ -39,6 +39,10 @@ import {
   setProsperity, sellPercentage, rollAvailability,
   endCycle, rollVillageEvent, getInstitutionLevel, getInstitution
 } from "./helpers/village.mjs";
+import {
+  startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
+  identifyMagicItem
+} from "./helpers/crafting.mjs";
 import { gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait, bonusesAvailable, spendSkillBonus, spendCharBonus } from "./helpers/advancement.mjs";
 import { attackWithWeapon } from "./helpers/attack.mjs";
 import { registerConditions } from "./conditions.mjs";
@@ -89,6 +93,11 @@ Hooks.once("init", () => {
       setProsperity, sellPercentage, rollAvailability,
       endCycle, rollEvent: rollVillageEvent,
       institutionLevel: getInstitutionLevel, institution: getInstitution
+    },
+    crafting: {
+      startProject: startCraftingProject, cancel: cancelProject,
+      roll: makeCraftingRoll, complete: completeProject,
+      identify: identifyMagicItem
     }
   });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });

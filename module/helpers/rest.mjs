@@ -159,19 +159,22 @@ async function _postActivityCard(actor, activity, data = null) {
   if (activity === "identifyItem") {
     const itemName = (data.itemName || "").trim() || "<em>(unnamed item)</em>";
     const itemId = data.itemId || null;
-    let foundDesc = "";
-    if (itemId) {
-      const it = actor.items.get(itemId);
-      if (it?.system?.description) foundDesc = `<div class="rest-activity-desc">${it.system.description}</div>`;
+    // Fire the real Identify Item test (2d10 + M) via the crafting helper.
+    try {
+      const { identifyMagicItem } = await import("./crafting.mjs");
+      const r = await identifyMagicItem(actor, { itemId, itemName });
+      return { ok: true, activity, itemName, identifyResult: r };
+    } catch {
+      // Fallback: narrative card if crafting module fails to load.
+      await ChatMessage.create({
+        speaker,
+        content: `<div class="crows rest-activity identify-item">
+          <header><strong>${actor.name}</strong> spends the rest identifying <strong>${itemName}</strong></header>
+          <em>GM reveals identified properties.</em>
+        </div>`
+      });
+      return { ok: true, activity, itemName };
     }
-    await ChatMessage.create({
-      speaker,
-      content: `<div class="crows rest-activity identify-item">
-        <header><strong>${actor.name}</strong> spends the rest identifying <strong>${itemName}</strong></header>
-        ${foundDesc || `<em>GM reveals identified properties.</em>`}
-      </div>`
-    });
-    return { ok: true, activity, itemName };
   }
 
   if (activity === "prepareForTask") {
@@ -197,12 +200,37 @@ async function _postActivityCard(actor, activity, data = null) {
   }
 
   if (activity === "craftEquipment") {
+    // If a project id was supplied, make a real crafting roll (with crit
+    // auto-reroll). Otherwise post the chat-card scaffold.
+    const projectId = data.projectId || null;
+    if (projectId) {
+      try {
+        const { makeCraftingRoll } = await import("./crafting.mjs");
+        // First roll.
+        let r = await makeCraftingRoll(actor, projectId);
+        if (!r.ok) return { ok: false, activity, error: r.error };
+        // Crit re-roll loop (Rules p.1453: "if you obtain a crit, you can
+        // make another crafting roll for the same item as part of the
+        // same rest activity"). Stop once not-crit or complete or err.
+        let rolls = [r];
+        let safety = 0;
+        while (r.crit && !r.complete && safety < 8) {
+          safety++;
+          r = await makeCraftingRoll(actor, projectId);
+          if (!r.ok) break;
+          rolls.push(r);
+        }
+        return { ok: true, activity, projectId, rolls };
+      } catch (e) {
+        console.error("crows | craft activity failed", e);
+      }
+    }
     const project = (data.project || "").trim() || "<em>(unnamed project)</em>";
     await ChatMessage.create({
       speaker,
       content: `<div class="crows rest-activity craft-equipment">
         <header><strong>${actor.name}</strong> crafts <strong>${project}</strong></header>
-        <em>GM adjudicates progress (full crafting economy is M3 scope).</em>
+        <em>No active project — GM adjudicates ad-hoc.</em>
       </div>`
     });
     return { ok: true, activity, project };

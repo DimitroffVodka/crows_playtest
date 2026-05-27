@@ -347,6 +347,36 @@
     {{else}}
       <p class="cc-empty">Trait compendium not yet loaded.</p>
     {{/if}}
+
+    <div class="cc-crafting-panel">
+      <header class="cc-crafting-header">
+        <strong>Crafting Projects</strong>
+        <button type="button" data-action="craftStart" title="Start a new crafting project (skill prereq + materials + goal).">+ Start Project</button>
+      </header>
+      {{#if craftingProjects.length}}
+        <ul class="cc-crafting-list">
+          {{#each craftingProjects as |p|}}
+            <li class="cc-crafting-item {{#if p.complete}}complete{{/if}}">
+              <div class="ci-head">
+                <strong>{{p.name}}</strong>
+                <span class="ci-meta">{{p.skill}}+{{p.prereqBonus}} · goal {{p.goal}}</span>
+              </div>
+              <div class="ci-bar"><div class="ci-bar-fill" style="width: {{p.pct}}%"></div></div>
+              <div class="ci-row">
+                <span class="ci-pts">{{p.points}} / {{p.goal}} pts ({{p.pct}}%)</span>
+                {{#if p.materials.length}}<span class="ci-mat">materials: {{#each p.materials}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
+                <button type="button" data-action="craftRoll" data-project-id="{{p.id}}" {{#if p.complete}}disabled{{/if}} title="Make a crafting roll (2d10 + M + skill).">Roll</button>
+                {{#if p.complete}}<button type="button" data-action="craftComplete" data-project-id="{{p.id}}" title="Finalize the project — Ref grants the item.">Finalize</button>{{/if}}
+                <button type="button" data-action="craftCancel" data-project-id="{{p.id}}" title="Cancel project (no materials expended).">Cancel</button>
+              </div>
+              {{#if p.notes}}<div class="ci-notes">{{p.notes}}</div>{{/if}}
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="cc-empty">No active projects. Start one to begin crafting during rest activities.</p>
+      {{/if}}
+    </div>
   </section>
 
   {{!-- BIO TAB --}}

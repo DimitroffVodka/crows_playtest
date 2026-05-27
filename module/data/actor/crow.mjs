@@ -67,6 +67,21 @@ export class CrowData extends TypeDataModel {
         effects: new fields.ArrayField(new fields.NumberField({ min: 1, max: 12, integer: true }), { initial: [] }),
         permanentNPC: new fields.BooleanField({ initial: false }),
         lastTestOn: new fields.NumberField({ initial: 0, min: 0, integer: true })
+      }),
+      // Crafting projects (Rules pp.1415–1455). Multiple in-progress
+      // projects are allowed (one rest activity advances one project).
+      crafting: new fields.SchemaField({
+        projects: new fields.ArrayField(new fields.SchemaField({
+          id: new fields.StringField({ initial: "" }),
+          name: new fields.StringField({ initial: "" }),
+          skill: new fields.StringField({ initial: "" }),
+          goal: new fields.NumberField({ initial: 100, min: 1, integer: true }),
+          points: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+          prereqBonus: new fields.NumberField({ initial: 0, min: 0, max: 2, integer: true }),
+          materials: new fields.ArrayField(new fields.StringField(), { initial: [] }),
+          hasRecipe: new fields.BooleanField({ initial: false }),
+          notes: new fields.StringField({ initial: "" })
+        }), { initial: [] })
       })
     };
   }
