@@ -107,60 +107,19 @@
           <strong>Prepared:</strong> +1 to next <em>{{system.preparedTask.skill}}</em>{{#if system.preparedTask.detail}} — {{system.preparedTask.detail}}{{/if}}
         </div>
       {{/if}}
-      <div class="cc-miasma-row">
-        {{#if inMiasma}}
-          <span class="cc-miasma-badge in-miasma" title="The party is in the Miasma. Outdoor rests trigger a resist test.">In Miasma</span>
-        {{else}}
-          <span class="cc-miasma-badge clear" title="The party is currently not in the Miasma.">No Miasma</span>
-        {{/if}}
-        {{#if isGM}}
-          <button type="button" data-action="toggleMiasma" title="Toggle the world-level Miasma flag (GM)">Toggle</button>
-        {{/if}}
-        <button type="button" data-action="rollMiasmaResist" title="Roll a 24h Miasma resist test (2d10 + M + Endurance)">Resist</button>
-        {{#if miasmaEffects.length}}
-          <button type="button" data-action="clearMiasmaSelf" title="Leave the Miasma — clears non-violence effects on this crow">Clear (leave)</button>
-        {{/if}}
-        {{#if miasmaPermanentNPC}}
-          <span class="cc-miasma-badge permanent-npc" title="13+ catastrophic result — this PC is now a Ref-controlled NPC.">PERMANENT NPC</span>
-        {{/if}}
-      </div>
-      {{#if miasmaEffects.length}}
-        <ul class="cc-miasma-effects" title="Active Miasma effects on this crow">
-          {{#each miasmaEffects as |e|}}
-            <li><strong>{{e.label}}</strong> <span class="me-bucket">(d10+boned={{e.bucket}})</span> — {{e.text}}</li>
-          {{/each}}
-        </ul>
-      {{/if}}
-      {{#if village}}
-        <div class="cc-village-row" title="Village shell">
-          <span class="cc-village-name">{{village.name}}</span>
-          <span class="cc-village-prosp" title="Prosperity (-10..+10)">P {{village.prosperity}}</span>
-          <span class="cc-village-cycle" title="Village cycle (10 days each)">C {{village.cycle}}</span>
-          <button type="button" data-action="openVillage" title="Open the Village manager">Manage</button>
-        </div>
-      {{/if}}
-      <div class="cc-crypt-row">
-        <span class="cc-crypt-label" title="Village Crypt institution level">Crypt L{{cryptLevel}}</span>
-        <button type="button" data-action="cryptPray"
-          {{#if alreadyPrayedThisCycle}}disabled title="Already prayed this cycle."
-          {{else}}title="Pray at a dead crow's grave to receive their boon (once per cycle)."{{/if}}>
-          Pray
-        </button>
-        {{#if activeBoonCard}}
-          <button type="button" data-action="cryptExpend" title="Expend the active boon (free action).">Expend</button>
-        {{/if}}
-        {{#if isGM}}
-          <button type="button" data-action="cryptInter" title="Inter this crow in the Crypt (pick a boon).">Inter</button>
-          <button type="button" data-action="cryptBumpCycle" title="Advance the Village cycle (re-enables praying).">+Cycle</button>
-        {{/if}}
-      </div>
       {{#if activeBoonCard}}
-        <div class="cc-active-boon" title="Active Crypt boon">
+        <div class="cc-active-boon" title="Active Crypt boon — manage on the Downtime tab">
           <strong>{{activeBoonCard.label}}</strong>
           {{#if activeBoonCard.source}}<span class="cb-src">via {{activeBoonCard.source}}</span>{{/if}}
           {{#if (gte activeBoonCard.usesLeft 2)}}<span class="cb-uses">{{activeBoonCard.usesLeft}} uses</span>{{/if}}
           <div class="cb-summary">{{activeBoonCard.summary}}</div>
         </div>
+      {{/if}}
+      {{#if inMiasma}}
+        <div class="cc-mini-flag" title="In the Miasma — see Downtime tab"><span class="cc-miasma-badge in-miasma">In Miasma</span>{{#if miasmaEffects.length}} <em>· {{miasmaEffects.length}} active effect{{#unless (eq miasmaEffects.length 1)}}s{{/unless}}</em>{{/if}}</div>
+      {{/if}}
+      {{#if miasmaPermanentNPC}}
+        <div class="cc-mini-flag"><span class="cc-miasma-badge permanent-npc">PERMANENT NPC</span></div>
       {{/if}}
     </div>
   </section>
@@ -347,9 +306,87 @@
     {{else}}
       <p class="cc-empty">Trait compendium not yet loaded.</p>
     {{/if}}
+  </section>
 
-    <div class="cc-crafting-panel">
-      <header class="cc-crafting-header">
+  {{!-- DOWNTIME TAB: Village + Crypt boons + Miasma + Crafting projects --}}
+  <section class="cc-tab cc-downtime {{#if (eq activeTab 'downtime')}}active{{/if}}">
+
+    {{!-- Village shell --}}
+    {{#if village}}
+      <div class="dt-panel dt-village">
+        <header class="dt-panel-header">
+          <strong>Village — {{village.name}}</strong>
+          <span class="dt-village-stat" title="Prosperity (-10..+10)">Prosperity <strong>{{village.prosperity}}</strong></span>
+          <span class="dt-village-stat" title="Village cycle (10 days each)">Cycle <strong>{{village.cycle}}</strong></span>
+          <button type="button" data-action="openVillage" title="Manage village (institutions, prosperity, cycle, events)">Manage…</button>
+        </header>
+      </div>
+    {{/if}}
+
+    {{!-- Crypt --}}
+    <div class="dt-panel dt-crypt">
+      <header class="dt-panel-header">
+        <strong>Crypt</strong>
+        <span class="cc-crypt-label" title="Village Crypt institution level">L{{cryptLevel}}</span>
+        <button type="button" data-action="cryptPray"
+          {{#if alreadyPrayedThisCycle}}disabled title="Already prayed this cycle."
+          {{else}}title="Pray at a dead crow's grave to receive their boon (once per cycle)."{{/if}}>
+          Pray
+        </button>
+        {{#if activeBoonCard}}
+          <button type="button" data-action="cryptExpend" title="Expend the active boon (free action).">Expend</button>
+        {{/if}}
+        {{#if isGM}}
+          <button type="button" data-action="cryptInter" title="Inter this crow in the Crypt (pick a boon).">Inter (GM)</button>
+          <button type="button" data-action="cryptBumpCycle" title="Advance the Village cycle (re-enables praying).">+Cycle (GM)</button>
+        {{/if}}
+      </header>
+      {{#if activeBoonCard}}
+        <div class="cc-active-boon" title="Active Crypt boon">
+          <strong>{{activeBoonCard.label}}</strong>
+          {{#if activeBoonCard.source}}<span class="cb-src">via {{activeBoonCard.source}}</span>{{/if}}
+          {{#if (gte activeBoonCard.usesLeft 2)}}<span class="cb-uses">{{activeBoonCard.usesLeft}} uses</span>{{/if}}
+          <div class="cb-summary">{{activeBoonCard.summary}}</div>
+        </div>
+      {{else}}
+        <p class="cc-empty"><em>No active boon. Pray at a grave during the village cycle.</em></p>
+      {{/if}}
+    </div>
+
+    {{!-- Miasma --}}
+    <div class="dt-panel dt-miasma">
+      <header class="dt-panel-header">
+        <strong>Miasma</strong>
+        {{#if inMiasma}}
+          <span class="cc-miasma-badge in-miasma" title="The party is in the Miasma. Outdoor rests trigger a resist test.">In Miasma</span>
+        {{else}}
+          <span class="cc-miasma-badge clear" title="The party is currently not in the Miasma.">No Miasma</span>
+        {{/if}}
+        {{#if isGM}}
+          <button type="button" data-action="toggleMiasma" title="Toggle the world-level Miasma flag (GM)">Toggle (GM)</button>
+        {{/if}}
+        <button type="button" data-action="rollMiasmaResist" title="Roll a 24h Miasma resist test (2d10 + M + Endurance)">Resist</button>
+        {{#if miasmaEffects.length}}
+          <button type="button" data-action="clearMiasmaSelf" title="Leave the Miasma — clears non-violence effects on this crow">Clear (leave)</button>
+        {{/if}}
+        {{#if miasmaPermanentNPC}}
+          <span class="cc-miasma-badge permanent-npc" title="13+ catastrophic result — this PC is now a Ref-controlled NPC.">PERMANENT NPC</span>
+        {{/if}}
+      </header>
+      {{#if miasmaEffects.length}}
+        <ul class="cc-miasma-effects" title="Active Miasma effects on this crow">
+          {{#each miasmaEffects as |e|}}
+            <li><strong>{{e.label}}</strong> <span class="me-bucket">(d10+boned={{e.bucket}})</span> — {{e.text}}</li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="cc-empty"><em>No active Miasma effects.</em></p>
+      {{/if}}
+    </div>
+
+    {{!-- Crafting --}}
+    <div class="dt-panel dt-crafting">
+      <header class="dt-panel-header">
         <strong>Crafting Projects</strong>
         <button type="button" data-action="craftStart" title="Start a new crafting project (skill prereq + materials + goal).">+ Start Project</button>
       </header>
@@ -377,6 +414,7 @@
         <p class="cc-empty">No active projects. Start one to begin crafting during rest activities.</p>
       {{/if}}
     </div>
+
   </section>
 
   {{!-- BIO TAB --}}

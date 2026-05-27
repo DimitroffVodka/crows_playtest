@@ -698,3 +698,33 @@
 .crows.identify-roll.tier2 { background: #fff4d6; border-left: 3px solid #b88a00; padding: 6px 8px; }
 .crows.identify-roll.tier3 { background: #e8f8e8; border-left: 3px solid #2a8040; padding: 6px 8px; }
 .crows.identify-roll .id-item-desc { margin-top: 4px; padding: 4px; background: #fff; border-radius: 3px; }
+
+/* Downtime tab */
+.cc-tab.cc-downtime { display: none; padding: 12px; gap: 10px; }
+.cc-tab.cc-downtime.active { display: flex; flex-direction: column; }
+.cc-downtime .dt-panel {
+  padding: 8px;
+  background: #f8f8f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.cc-downtime .dt-panel-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.cc-downtime .dt-panel-header strong { margin-right: auto; }
+.cc-downtime .dt-village .dt-village-stat {
+  padding: 1px 6px;
+  background: #f0f0f8;
+  border: 1px solid #b8b8d0;
+  border-radius: 3px;
+  font-size: 11px;
+}
+.cc-downtime .dt-village { border-left: 3px solid #4a4070; }
+.cc-downtime .dt-crypt { border-left: 3px solid #6a4ca8; }
+.cc-downtime .dt-miasma { border-left: 3px solid #6a3a8a; }
+.cc-downtime .dt-crafting { border-left: 3px solid #b88a00; }
+.cc-mini-flag { margin-top: 4px; font-size: 11px; color: #666; }

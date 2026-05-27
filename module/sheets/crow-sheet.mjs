@@ -168,6 +168,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       { id: "equipment", label: "Equipment" },
       { id: "inventory", label: "Inventory" },
       { id: "advancement", label: "Advancement" },
+      { id: "downtime", label: "Downtime" },
       { id: "bio", label: "Bio" }
     ];
 
