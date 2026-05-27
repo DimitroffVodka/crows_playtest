@@ -750,12 +750,190 @@
 }
 .cc-creator-btn:hover { background: linear-gradient(180deg, #ffd668, #ffe89c); }
 .cc-creator-hint { font-size: 11px; color: #6a4400; }
+/* Force dark-on-cream text inside the wizard so it stays legible in Foundry
+   dark mode (which otherwise inherits a light text color into our sections). */
 .crows.char-creator { display: flex; flex-direction: column; gap: 10px; padding: 4px; }
-.crows.char-creator section { padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #f8f8f4; }
-.crows.char-creator section header { margin-bottom: 6px; font-size: 13px; }
+.crows.char-creator section {
+  padding: 8px;
+  border: 1px solid #c8c2b0;
+  border-radius: 4px;
+  background: #f8f8f4;
+  color: #2a2a2a;
+}
+.crows.char-creator section,
+.crows.char-creator section *,
+.crows.char-creator section label,
+.crows.char-creator section p,
+.crows.char-creator section em,
+.crows.char-creator section strong,
+.crows.char-creator section span { color: #2a2a2a; }
+.crows.char-creator section header,
+.crows.char-creator section header strong {
+  color: #4a3a10;
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
 .crows.char-creator .row { display: flex; gap: 8px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
-.crows.char-creator .bg-preview { margin-top: 6px; padding: 6px; background: #fff; border-radius: 3px; font-size: 12px; }
-.crows.char-creator .bp-row { margin: 2px 0; }
-.crows.char-creator .bp-desc { margin-top: 4px; padding-top: 4px; border-top: 1px solid #eee; font-style: italic; color: #555; max-height: 200px; overflow-y: auto; }
+.crows.char-creator .bg-preview {
+  margin-top: 6px; padding: 6px;
+  background: #fff;
+  border: 1px solid #e0d8b8;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #2a2a2a;
+}
+.crows.char-creator .bp-row { margin: 2px 0; color: #2a2a2a; }
+.crows.char-creator .bp-row strong, .crows.char-creator .bp-row span { color: #2a2a2a; }
+.crows.char-creator .bp-desc {
+  margin-top: 4px; padding-top: 4px;
+  border-top: 1px solid #eee;
+  font-style: italic;
+  color: #555;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.crows.char-creator .bp-desc * { color: #555 !important; }
+/* Form controls explicit colors so they don't inherit Foundry's dark-form styling. */
+.crows.char-creator select,
+.crows.char-creator input[type="text"] {
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #b8b8a0;
+  padding: 2px 4px;
+}
+.crows.char-creator select option { background: #fff; color: #1a1a1a; }
+.crows.char-creator input[type="checkbox"] { accent-color: #b88a00; }
+.crows.char-creator button {
+  background: linear-gradient(180deg, #fff4d6, #ffe89c);
+  color: #4a3a10;
+  border: 1px solid #b88a00;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.crows.char-creator button:hover { background: linear-gradient(180deg, #ffe89c, #ffd668); }
 .crows.char-creator .cc-sec-row[hidden] { display: none; }
-.crows.char-create { background: #fff4d6; border-left: 3px solid #b88a00; padding: 6px 8px; }
+.crows.char-create { background: #fff4d6; border-left: 3px solid #b88a00; padding: 6px 8px; color: #2a2a2a; }
+.crows.char-create * { color: #2a2a2a; }
+
+/* ────────────────────────────────────────────────────────────────────────
+   Dark-mode legibility fix: every cream/light-background panel in the
+   system needs explicit dark text so Foundry's dark-theme inheritance
+   doesn't turn labels invisible. Add new classes here when introducing
+   another cream-bg dialog or sheet section.
+   ──────────────────────────────────────────────────────────────────────── */
+.crows.village-dialog,
+.crows.crypt-form,
+.crows.rest-form,
+.crows.adv-spend-form,
+.crows.craft-start-form,
+.crows.char-creator,
+.cc-downtime .dt-panel,
+.cc-crafting-panel,
+.cc-prepared-task,
+.cc-active-boon,
+.cc-miasma-effects {
+  color: #2a2a2a;
+}
+.crows.village-dialog *,
+.crows.crypt-form *,
+.crows.rest-form *,
+.crows.adv-spend-form *,
+.crows.craft-start-form *,
+.cc-downtime .dt-panel *,
+.cc-crafting-panel *,
+.cc-prepared-task *,
+.cc-active-boon *,
+.cc-miasma-effects * {
+  color: inherit;
+}
+/* Form controls on light backgrounds need their own dark-on-light contrast. */
+.cc-downtime .dt-panel select,
+.cc-downtime .dt-panel input[type="text"],
+.cc-downtime .dt-panel input[type="number"],
+.crows.village-dialog select,
+.crows.village-dialog input[type="text"],
+.crows.village-dialog input[type="number"],
+.crows.rest-form select,
+.crows.rest-form input[type="text"],
+.crows.crypt-form select,
+.crows.craft-start-form select,
+.crows.craft-start-form input[type="text"],
+.crows.craft-start-form input[type="number"] {
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #b8b8a0;
+  padding: 2px 4px;
+}
+.cc-downtime .dt-panel option,
+.crows.village-dialog option,
+.crows.rest-form option,
+.crows.crypt-form option,
+.crows.craft-start-form option { background: #fff; color: #1a1a1a; }
+/* Buttons inside our cream panels — readable in both themes. */
+.cc-downtime .dt-panel button,
+.crows.village-dialog button,
+.crows.rest-form button,
+.crows.crypt-form button,
+.crows.craft-start-form button {
+  background: linear-gradient(180deg, #fff4d6, #ffe89c);
+  color: #4a3a10;
+  border: 1px solid #b88a00;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.cc-downtime .dt-panel button:hover,
+.crows.village-dialog button:hover,
+.crows.rest-form button:hover,
+.crows.crypt-form button:hover,
+.crows.craft-start-form button:hover { background: linear-gradient(180deg, #ffe89c, #ffd668); }
+.cc-downtime .dt-panel button:disabled,
+.crows.village-dialog button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Chat cards posted by the system also need dark-on-cream text. */
+.crows.xp-gain,
+.crows.trait-purchase,
+.crows.adv-spend,
+.crows.rest-summary,
+.crows.rest-activity,
+.crows.dt-summary,
+.crows.encounter-check,
+.crows.damage-applied,
+.crows.chaos-card,
+.crows.backlash-card,
+.crows.spellcast,
+.crows.miasma-result,
+.crows.miasma-effect,
+.crows.miasma-clear,
+.crows.miasma-toggle,
+.crows.crypt-inter,
+.crows.crypt-pray,
+.crows.crypt-expend,
+.crows.crypt-cycle,
+.crows.village-found,
+.crows.village-upgrade,
+.crows.village-damaged,
+.crows.village-destroyed,
+.crows.village-prosperity,
+.crows.village-endcycle,
+.crows.village-event,
+.crows.village-avail,
+.crows.crafting-start,
+.crows.crafting-roll,
+.crows.crafting-done,
+.crows.crafting-cancel,
+.crows.identify-roll,
+.crows.char-create {
+  color: #2a2a2a;
+}
+.crows.xp-gain *, .crows.trait-purchase *, .crows.adv-spend *, .crows.rest-summary *,
+.crows.rest-activity *, .crows.dt-summary *, .crows.encounter-check *, .crows.damage-applied *,
+.crows.chaos-card *, .crows.backlash-card *, .crows.spellcast *,
+.crows.miasma-result *, .crows.miasma-effect *, .crows.miasma-clear *, .crows.miasma-toggle *,
+.crows.crypt-inter *, .crows.crypt-pray *, .crows.crypt-expend *, .crows.crypt-cycle *,
+.crows.village-found *, .crows.village-upgrade *, .crows.village-damaged *, .crows.village-destroyed *,
+.crows.village-prosperity *, .crows.village-endcycle *, .crows.village-event *, .crows.village-avail *,
+.crows.crafting-start *, .crows.crafting-roll *, .crows.crafting-done *, .crows.crafting-cancel *,
+.crows.identify-roll *, .crows.char-create * { color: inherit; }
