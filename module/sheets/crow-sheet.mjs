@@ -126,7 +126,8 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       craftRoll: CrowSheet._onCraftRoll,
       craftCancel: CrowSheet._onCraftCancel,
       craftComplete: CrowSheet._onCraftComplete,
-      identifyItem: CrowSheet._onIdentifyItem
+      identifyItem: CrowSheet._onIdentifyItem,
+      openCreator: CrowSheet._onOpenCreator
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -856,6 +857,12 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const itemId = target.dataset.itemId;
     const { identifyMagicItem } = await import("../helpers/crafting.mjs");
     await identifyMagicItem(this.document, { itemId });
+    this.render();
+  }
+
+  static async _onOpenCreator() {
+    const { openCharacterCreator } = await import("../helpers/character-creator.mjs");
+    await openCharacterCreator(this.document);
     this.render();
   }
 

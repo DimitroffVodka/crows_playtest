@@ -728,3 +728,34 @@
 .cc-downtime .dt-miasma { border-left: 3px solid #6a3a8a; }
 .cc-downtime .dt-crafting { border-left: 3px solid #b88a00; }
 .cc-mini-flag { margin-top: 4px; font-size: 11px; color: #666; }
+
+/* Character creator launch + dialog */
+.cc-creator-launch {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  background: #f8f4e8;
+  border: 1px solid #b88a00;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.cc-creator-btn {
+  font-weight: bold;
+  background: linear-gradient(180deg, #ffe89c, #fff4d6);
+  border: 1px solid #b88a00;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.cc-creator-btn:hover { background: linear-gradient(180deg, #ffd668, #ffe89c); }
+.cc-creator-hint { font-size: 11px; color: #6a4400; }
+.crows.char-creator { display: flex; flex-direction: column; gap: 10px; padding: 4px; }
+.crows.char-creator section { padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #f8f8f4; }
+.crows.char-creator section header { margin-bottom: 6px; font-size: 13px; }
+.crows.char-creator .row { display: flex; gap: 8px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
+.crows.char-creator .bg-preview { margin-top: 6px; padding: 6px; background: #fff; border-radius: 3px; font-size: 12px; }
+.crows.char-creator .bp-row { margin: 2px 0; }
+.crows.char-creator .bp-desc { margin-top: 4px; padding-top: 4px; border-top: 1px solid #eee; font-style: italic; color: #555; max-height: 200px; overflow-y: auto; }
+.crows.char-creator .cc-sec-row[hidden] { display: none; }
+.crows.char-create { background: #fff4d6; border-left: 3px solid #b88a00; padding: 6px 8px; }

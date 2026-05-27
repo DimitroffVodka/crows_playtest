@@ -419,6 +419,12 @@
 
   {{!-- BIO TAB --}}
   <section class="cc-tab cc-bio {{#if (eq activeTab 'bio')}}active{{/if}}">
+    <div class="cc-creator-launch">
+      <button type="button" data-action="openCreator" class="cc-creator-btn" title="Walk through the character creator: roll/pick background, assign characteristics, name + feature.">
+        🪶 Open Character Creator
+      </button>
+      <span class="cc-creator-hint"><em>For a fresh crow: rolls a background, applies skills/stamina/equipment/starting trait, and adds universal starter items.</em></span>
+    </div>
     <div class="cc-field">
       <label>Background</label>
       <input type="text" name="system.background" value="{{system.background}}">

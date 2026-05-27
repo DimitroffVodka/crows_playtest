@@ -43,6 +43,10 @@ import {
   startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
   identifyMagicItem
 } from "./helpers/crafting.mjs";
+import {
+  openCharacterCreator, createCharacter, applyCharacteristics,
+  applyUniversalStarterItems, rollBackground
+} from "./helpers/character-creator.mjs";
 import { gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait, bonusesAvailable, spendSkillBonus, spendCharBonus } from "./helpers/advancement.mjs";
 import { attackWithWeapon } from "./helpers/attack.mjs";
 import { registerConditions } from "./conditions.mjs";
@@ -98,6 +102,12 @@ Hooks.once("init", () => {
       startProject: startCraftingProject, cancel: cancelProject,
       roll: makeCraftingRoll, complete: completeProject,
       identify: identifyMagicItem
+    },
+    creator: {
+      open: openCharacterCreator,
+      create: createCharacter,
+      applyCharacteristics, applyUniversalStarterItems,
+      rollBackground
     }
   });
   foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
