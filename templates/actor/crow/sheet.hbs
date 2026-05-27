@@ -68,24 +68,24 @@
       <div class="cc-conditions-title">Conditions</div>
       <div class="cc-conditions-row">
         <div class="cc-cond-cell">
-          <div class="cc-cond-label">Blessed/Boned</div>
-          <div class="cc-cond-value">
-            <span class="cc-net">{{condNet}}</span>
-            <button type="button" data-action="adjBlessed" data-delta="1" title="+1 Blessed">+</button>
-            <button type="button" data-action="adjBoned" data-delta="1" title="+1 Boned">&minus;</button>
+          <div class="cc-cond-label" id="cond-bb-label">Blessed/Boned</div>
+          <div class="cc-cond-value" aria-labelledby="cond-bb-label">
+            <span class="cc-net" aria-label="Net blessed minus boned">{{condNet}}</span>
+            <button type="button" data-action="adjBlessed" data-delta="1" aria-label="Add 1 Blessed" title="+1 Blessed">+</button>
+            <button type="button" data-action="adjBoned" data-delta="1" aria-label="Add 1 Boned" title="+1 Boned">&minus;</button>
           </div>
         </div>
         <div class="cc-cond-cell">
-          <div class="cc-cond-label">Grabbed</div>
-          <input type="checkbox" name="system.conditions.grabbed" {{#if condFlags.grabbed}}checked{{/if}}>
+          <label class="cc-cond-label" for="cond-grabbed">Grabbed</label>
+          <input id="cond-grabbed" type="checkbox" name="system.conditions.grabbed" {{#if condFlags.grabbed}}checked{{/if}} aria-label="Grabbed condition">
         </div>
         <div class="cc-cond-cell">
-          <div class="cc-cond-label">Prone</div>
-          <input type="checkbox" name="system.conditions.prone" {{#if condFlags.prone}}checked{{/if}}>
+          <label class="cc-cond-label" for="cond-prone">Prone</label>
+          <input id="cond-prone" type="checkbox" name="system.conditions.prone" {{#if condFlags.prone}}checked{{/if}} aria-label="Prone condition">
         </div>
         <div class="cc-cond-cell">
-          <div class="cc-cond-label">Unconscious</div>
-          <input type="checkbox" name="system.conditions.unconscious" {{#if condFlags.unconscious}}checked{{/if}}>
+          <label class="cc-cond-label" for="cond-unconscious">Unconscious</label>
+          <input id="cond-unconscious" type="checkbox" name="system.conditions.unconscious" {{#if condFlags.unconscious}}checked{{/if}} aria-label="Unconscious condition">
         </div>
       </div>
     </div>
@@ -116,7 +116,7 @@
         </div>
       {{/if}}
       {{#if inMiasma}}
-        <div class="cc-mini-flag" title="In the Miasma — see Downtime tab"><span class="cc-miasma-badge in-miasma">In Miasma</span>{{#if miasmaEffects.length}} <em>· {{miasmaEffects.length}} active effect{{#unless (eq miasmaEffects.length 1)}}s{{/unless}}</em>{{/if}}</div>
+        <div class="cc-mini-flag" title="In the Miasma — see Downtime tab"><span class="cc-miasma-badge in-miasma" role="status">⚠ In Miasma</span>{{#if miasmaEffects.length}} <em>· {{miasmaEffects.length}} active effect{{#unless (eq miasmaEffects.length 1)}}s{{/unless}}</em>{{/if}}</div>
       {{/if}}
       {{#if miasmaPermanentNPC}}
         <div class="cc-mini-flag"><span class="cc-miasma-badge permanent-npc">PERMANENT NPC</span></div>
@@ -124,14 +124,21 @@
     </div>
   </section>
 
-  <nav class="cc-tabs">
+  <nav class="cc-tabs" role="tablist" aria-label="Character sheet tabs">
     {{#each tabs as |t|}}
-      <button type="button" data-action="switchTab" data-tab="{{t.id}}" class="{{#if (eq t.id ../activeTab)}}active{{/if}}">{{t.label}}</button>
+      <button type="button" role="tab" data-action="switchTab" data-tab="{{t.id}}"
+              id="tab-{{t.id}}"
+              aria-controls="panel-{{t.id}}"
+              aria-selected="{{#if (eq t.id ../activeTab)}}true{{else}}false{{/if}}"
+              tabindex="{{#if (eq t.id ../activeTab)}}0{{else}}-1{{/if}}"
+              class="{{#if (eq t.id ../activeTab)}}active{{/if}}">{{t.label}}</button>
     {{/each}}
   </nav>
 
   {{!-- MAIN TAB: Skills horizontal up top (3 columns: General/Spellcasting/Weapon), Perks below --}}
-  <section class="cc-tab cc-main {{#if (eq activeTab 'main')}}active{{/if}}">
+  <section class="cc-tab cc-main {{#if (eq activeTab 'main')}}active{{/if}}"
+           role="tabpanel" id="panel-main" aria-labelledby="tab-main"
+           {{#unless (eq activeTab 'main')}}hidden{{/unless}}>
 
     <div class="cc-skills cc-skills-horizontal">
       <div class="cc-section-title cc-skills-title">Skills</div>
@@ -195,7 +202,9 @@
   </section>
 
   {{!-- EQUIPMENT TAB: 10 named slots, each renders item card inline --}}
-  <section class="cc-tab cc-equipment {{#if (eq activeTab 'equipment')}}active{{/if}}">
+  <section class="cc-tab cc-equipment {{#if (eq activeTab 'equipment')}}active{{/if}}"
+           role="tabpanel" id="panel-equipment" aria-labelledby="tab-equipment"
+           {{#unless (eq activeTab 'equipment')}}hidden{{/unless}}>
     <div class="cc-equip-grid">
       {{#each equipSlots as |s|}}
         <div class="cc-slot {{#if s.card}}filled{{/if}}" data-slot-id="{{s.id}}" data-container="{{s.container}}" data-index="{{s.index}}">
@@ -222,7 +231,9 @@
   </section>
 
   {{!-- INVENTORY TAB: 10 backpack slots in 2x5 grid, wound checkbox per slot --}}
-  <section class="cc-tab cc-inventory {{#if (eq activeTab 'inventory')}}active{{/if}}">
+  <section class="cc-tab cc-inventory {{#if (eq activeTab 'inventory')}}active{{/if}}"
+           role="tabpanel" id="panel-inventory" aria-labelledby="tab-inventory"
+           {{#unless (eq activeTab 'inventory')}}hidden{{/unless}}>
     <div class="cc-wounds-controls">
       <span>Wounds: <strong>{{system.wounds}}</strong> / {{CROWS.backpackSize}}</span>
       <button type="button" data-action="adjWounds" data-delta="1">+ wound</button>
@@ -254,7 +265,9 @@
   </section>
 
   {{!-- ADVANCEMENT TAB: XP, advancement-bonus tally, trait-tree purchase --}}
-  <section class="cc-tab cc-advancement {{#if (eq activeTab 'advancement')}}active{{/if}}">
+  <section class="cc-tab cc-advancement {{#if (eq activeTab 'advancement')}}active{{/if}}"
+           role="tabpanel" id="panel-advancement" aria-labelledby="tab-advancement"
+           {{#unless (eq activeTab 'advancement')}}hidden{{/unless}}>
     <div class="cc-adv-header">
       <div class="cc-adv-stat"><span class="cc-adv-label">TXP</span><strong>{{system.xp.txp}}</strong></div>
       <div class="cc-adv-stat"><span class="cc-adv-label">Spendable XP</span><strong>{{system.xp.spendable}}</strong></div>
@@ -309,7 +322,9 @@
   </section>
 
   {{!-- DOWNTIME TAB: Village + Crypt boons + Miasma + Crafting projects --}}
-  <section class="cc-tab cc-downtime {{#if (eq activeTab 'downtime')}}active{{/if}}">
+  <section class="cc-tab cc-downtime {{#if (eq activeTab 'downtime')}}active{{/if}}"
+           role="tabpanel" id="panel-downtime" aria-labelledby="tab-downtime"
+           {{#unless (eq activeTab 'downtime')}}hidden{{/unless}}>
 
     {{!-- Village shell --}}
     {{#if village}}
@@ -418,7 +433,9 @@
   </section>
 
   {{!-- BIO TAB --}}
-  <section class="cc-tab cc-bio {{#if (eq activeTab 'bio')}}active{{/if}}">
+  <section class="cc-tab cc-bio {{#if (eq activeTab 'bio')}}active{{/if}}"
+           role="tabpanel" id="panel-bio" aria-labelledby="tab-bio"
+           {{#unless (eq activeTab 'bio')}}hidden{{/unless}}>
     <div class="cc-creator-launch">
       <button type="button" data-action="openCreator" class="cc-creator-btn" title="Walk through the character creator: roll/pick background, assign characteristics, name + feature.">
         🪶 Open Character Creator

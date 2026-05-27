@@ -277,7 +277,10 @@ export async function openCharacterCreator(actor) {
     </section>
   </div>`;
 
-  const dlg = new DialogV2({
+  // Build a single dialog whose Create button returns the form payload via
+  // its callback. We await the dialog promise once; no extra event listeners.
+  let root = null;
+  const choicePromise = foundry.applications.api.DialogV2.wait({
     window: { title: `${actor.name} — Character Creator`, resizable: true, width: 560 },
     content,
     buttons: [
@@ -287,23 +290,31 @@ export async function openCharacterCreator(actor) {
         label: "Create",
         default: true,
         callback: (event, button, dialog) => {
-          const root = dialog.element ?? button?.form;
-          const backgroundId = root?.querySelector?.('select[name="backgroundId"]')?.value;
-          const primary = root?.querySelector?.('select[name="primary"]')?.value;
-          const useSec = !!root?.querySelector?.('input[name="useSecondary"]')?.checked;
-          const secondary = useSec ? root?.querySelector?.('select[name="secondary"]')?.value : null;
-          const dump = useSec ? root?.querySelector?.('select[name="dump"]')?.value : null;
-          const name = root?.querySelector?.('input[name="charname"]')?.value?.trim() || null;
-          const feature = root?.querySelector?.('input[name="feature"]')?.value?.trim() || null;
+          const r = dialog.element ?? button?.form;
+          const backgroundId = r?.querySelector?.('select[name="backgroundId"]')?.value;
+          const primary = r?.querySelector?.('select[name="primary"]')?.value;
+          const useSec = !!r?.querySelector?.('input[name="useSecondary"]')?.checked;
+          const secondary = useSec ? r?.querySelector?.('select[name="secondary"]')?.value : null;
+          const dump = useSec ? r?.querySelector?.('select[name="dump"]')?.value : null;
+          const name = r?.querySelector?.('input[name="charname"]')?.value?.trim() || null;
+          const feature = r?.querySelector?.('input[name="feature"]')?.value?.trim() || null;
           return { backgroundId, primary, secondary, dump, name, feature };
         }
       }
-    ]
+    ],
+    render: (event, dialog) => {
+      // Capture the rendered root for the after-render wiring below.
+      root = dialog.element;
+    }
   });
-  await dlg.render({ force: true });
 
-  // After-render wiring.
-  const root = dlg.element;
+  // Wait one tick for the dialog to mount so `root` is populated.
+  await new Promise(r => setTimeout(r, 0));
+  if (!root) {
+    // Fallback if render hook didn't fire (older DialogV2 build):
+    const fallback = [...document.querySelectorAll(".application")].find(el => el.querySelector(".crows.char-creator"));
+    if (fallback) root = fallback;
+  }
   if (!root) return;
   const sel = root.querySelector('select[name="backgroundId"]');
   const primarySel = root.querySelector('select[name="primary"]');
@@ -369,35 +380,15 @@ export async function openCharacterCreator(actor) {
   // Initial population.
   _refreshFromBg();
 
-  // Wait for dialog resolution. DialogV2 promise resolves with the chosen
-  // button's callback return value. We poll its internal promise:
-  return new Promise(resolve => {
-    const origClose = dlg.close.bind(dlg);
-    dlg.close = async (opts) => {
-      const r = await origClose(opts);
-      resolve(r);
-      return r;
-    };
-    // Hook into the "create" button manually since DialogV2.prompt-style
-    // wrapping isn't usable here. We rely on the button callback to fire
-    // and call createCharacter.
-    root.querySelector('button[data-action="create"]')?.addEventListener("click", async () => {
-      // Delay one tick to let DialogV2 capture form state via its own callback.
-      // Then read directly:
-      const backgroundId = sel.value;
-      const primary = primarySel.value;
-      const useS = !!useSec.checked;
-      const secondary = useS ? secondarySel.value : null;
-      const dump = useS ? dumpSel.value : null;
-      const name = root.querySelector('input[name="charname"]')?.value?.trim() || null;
-      const feature = root.querySelector('input[name="feature"]')?.value?.trim() || null;
-      const result = await createCharacter(actor, { backgroundId, primary, secondary, dump, name, feature });
-      if (!result.ok && result.errors?.length) {
-        ui.notifications?.warn("Character creation had issues: " + result.errors.join("; "));
-      } else if (result.ok) {
-        ui.notifications?.info(`${actor.name} created!`);
-      }
-      dlg.close();
-    });
-  });
+  // Await the dialog's resolution (Cancel returns null; Create returns the
+  // payload object). Single click → single createCharacter call.
+  const choice = await choicePromise;
+  if (!choice) return;
+  const result = await createCharacter(actor, choice);
+  if (!result.ok && result.errors?.length) {
+    ui.notifications?.warn("Character creation had issues: " + result.errors.join("; "));
+  } else if (result.ok) {
+    ui.notifications?.info(`${actor.name} created!`);
+  }
+  return result;
 }

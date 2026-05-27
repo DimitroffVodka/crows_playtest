@@ -95,7 +95,7 @@ function slotCard(it) {
 export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["crows","sheet","crow"],
-    position: { width: 980, height: 820 },
+    position: { width: 980, height: "auto" },
     actions: {
       switchTab: CrowSheet._onTab,
       rollSkill: CrowSheet._onRollSkill,
@@ -337,6 +337,32 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
 
     return ctx;
+  }
+
+  /**
+   * Wire keyboard navigation on the tab strip — arrow keys cycle, Home/End
+   * jump to first/last. ApplicationV2 fires this after each render.
+   */
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    const tabs = this.element?.querySelectorAll?.('[role="tab"]');
+    if (!tabs?.length) return;
+    for (const tab of tabs) {
+      tab.addEventListener("keydown", (ev) => {
+        const list = [...this.element.querySelectorAll('[role="tab"]')];
+        const i = list.indexOf(ev.currentTarget);
+        let next = null;
+        if (ev.key === "ArrowRight" || ev.key === "ArrowDown") next = list[(i + 1) % list.length];
+        else if (ev.key === "ArrowLeft" || ev.key === "ArrowUp") next = list[(i - 1 + list.length) % list.length];
+        else if (ev.key === "Home") next = list[0];
+        else if (ev.key === "End")  next = list[list.length - 1];
+        if (next) {
+          ev.preventDefault();
+          next.focus();
+          next.click();
+        }
+      });
+    }
   }
 
   async _onDropItem(event, item) {

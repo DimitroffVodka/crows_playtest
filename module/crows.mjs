@@ -177,6 +177,11 @@ Hooks.on("deleteActiveEffect", async (effect) => {
 Hooks.on("renderChatMessageHTML", (message, html /*, context */) => {
   const buttons = html.querySelectorAll('[data-action="applyDamage"]');
   for (const btn of buttons) {
+    // Guard against listener stacking — chat log re-renders this html
+    // when scrolling history, and adding the listener twice fires apply
+    // twice. dataset.wired = "1" makes the bind idempotent.
+    if (btn.dataset.wired === "1") continue;
+    btn.dataset.wired = "1";
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
       const amount = Number(ev.currentTarget.dataset.amount) || 0;
