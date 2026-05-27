@@ -5,7 +5,9 @@ export const CROWS_STATUS = [
   { id: "prone", name: "Prone", img: "icons/svg/falling.svg" },
   { id: "unconscious", name: "Unconscious", img: "icons/svg/unconscious.svg" },
   { id: "hidden", name: "Hidden", img: "icons/svg/invisible.svg" },
-  { id: "invisible", name: "Invisible", img: "icons/svg/invisible.svg" }
+  { id: "invisible", name: "Invisible", img: "icons/svg/invisible.svg" },
+  // Monster defeated (stamina 0) — applied automatically by applyDamage.
+  { id: "dead", name: "Defeated", img: "icons/svg/skull.svg" }
 ];
 
 export function registerConditions() {

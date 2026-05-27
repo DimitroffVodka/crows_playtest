@@ -103,8 +103,9 @@
         {{/if}}
       </div>
       {{#if system.preparedTask.skill}}
-        <div class="cc-prepared-task" title="Prepare for Task: next {{system.preparedTask.skill}} test gets +1.">
+        <div class="cc-prepared-task" title="Prepare for Task: next {{system.preparedTask.skill}} test gets +1. Set during DT {{system.preparedTask.setOn}}.">
           <strong>Prepared:</strong> +1 to next <em>{{system.preparedTask.skill}}</em>{{#if system.preparedTask.detail}} — {{system.preparedTask.detail}}{{/if}}
+          <span class="cc-prepared-when">(set DT {{system.preparedTask.setOn}})</span>
         </div>
       {{/if}}
       {{#if activeBoonCard}}

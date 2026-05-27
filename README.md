@@ -73,6 +73,26 @@ These assets are repo-only — they aren't included in the Foundry install zip.
 
 ---
 
+## GM Quickstart
+
+A 5-minute setup for new GMs:
+
+1. **Install the system** via the manifest URL above; create a new world using "MCDM Crows (Playtest)".
+2. **Configure world settings** (Game Settings → Configure Settings → System Settings):
+   - **Default Dungeon EN** — the 1d6 threshold for encounter checks (default 6 = lenient, lower = more encounters).
+   - **Party is in the Miasma** — toggle ON when the party is overland in Cornath; OFF when they're indoors / in town.
+   - **Crypt Level** — fallback when no Village institution yet; once the Village is set up, Crypt level is read from there.
+3. **Create the village** — open any crow's character sheet → Downtime tab → click **Manage…** on the Village strip. Set name, prosperity, found/upgrade institutions, advance cycles, roll events.
+4. **Make a player character** — drag-create a new Actor (type: crow), open the sheet → Bio tab → **Open Character Creator** → roll 2d6 or pick a background, assign characteristics, name + feature. Background applies skills/stamina/equipment/starting trait automatically + adds universal starter items.
+5. **Run combat** — drag a monster from `Crows Monsters` compendium onto the scene. Target a token with `T`. Click an attack on the monster sheet or use a PC's weapon. The chat card shows Apply T2 / Apply T3 buttons; selecting a target token + clicking applies damage through the AD → Stamina → Wounds pipeline.
+6. **End-of-DT** — the GM **End DT** button on any Crow sheet's Time strip rolls all DT-expiry usage dice, resets blessed/boned, and rolls an encounter check.
+7. **Rest** — the **Rest…** button opens a dialog: pick the rest activity (None / Tend Wounds / Identify Item / Prepare for Task / Craft Equipment / Harvest), tick **Town rest** to skip encounter checks. Outdoor non-town rests auto-roll a Miasma resist if the world flag is on.
+8. **End Village Cycle** — Downtime tab → Manage → End Cycle. Docks Prosperity by 1 if no institution was founded/upgraded, then rolls a d10+Prosperity Village Event.
+
+The `game.crows.*` API is exposed for macros: `game.crows.dt.end()`, `game.crows.chaos.show()`, `game.crows.village.found(...)`, `game.crows.creator.open(actor)`, etc. See `module/crows.mjs` for the full surface.
+
+---
+
 ## Contributing
 
 Issues and PRs welcome. Source content lives under `src/packs/` as YAML; built LevelDB packs are in `packs/` (committed). To rebuild after editing YAML:

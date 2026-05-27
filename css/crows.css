@@ -1,6 +1,35 @@
 /* ====================================================================
    crows system styles
    ====================================================================
+
+   TABLE OF CONTENTS
+   ─────────────────
+   1.  Design tokens (this section, :root vars)
+   2.  Generic sheet defaults (.crows.sheet)
+   3.  Crow PC sheet
+       a. Header (name/background/XP)
+       b. Big stat boxes (S/A/M/Stam/AD)
+       c. Sub-stats (Speed/Shift/Conditions/Time)
+       d. Tabs
+       e. Main tab (Skills + Perks)
+       f. Equipment / Inventory / Advancement / Bio
+       g. Downtime tab (Village/Crypt/Miasma/Crafting panels)
+       h. Character creator launch
+   4.  Monster sheet (rulebook stat block, dark theme)
+   5.  Item sheets
+   6.  Chat cards (test results, damage, spell, rest, dt, miasma, crypt,
+       village, crafting, identify, char-create)
+   7.  Dialog forms (rest, crypt, advancement, village, craft-start,
+       character creator)
+   8.  Dark-mode legibility overrides (cream-bg surfaces get dark text)
+   9.  /harden + /adapt — touch targets, focus rings, breakpoints, ARIA
+
+   Search by class prefix:
+   .crows-crow / .cc-*   → PC sheet
+   .crows-monster / .m-* → Monster sheet
+   .crows.*              → Chat cards + dialog forms
+   .cc-downtime          → Downtime tab panels
+   ====================================================================
    DESIGN TOKENS — bridge Foundry's --color-* theme variables to our
    palette. Override these in a user theme if you want a re-skin without
    touching the rest of the stylesheet.
@@ -865,14 +894,14 @@
 .crows.char-creator select option { background: #fff; color: #1a1a1a; }
 .crows.char-creator input[type="checkbox"] { accent-color: #b88a00; }
 .crows.char-creator button {
-  background: linear-gradient(180deg, #fff4d6, #ffe89c);
+  background: #fff4d6;
   color: #4a3a10;
   border: 1px solid #b88a00;
   padding: 3px 10px;
   border-radius: 3px;
   cursor: pointer;
 }
-.crows.char-creator button:hover { background: linear-gradient(180deg, #ffe89c, #ffd668); }
+.crows.char-creator button:hover { background: #ffe89c; }
 .crows.char-creator .cc-sec-row[hidden] { display: none; }
 .crows.char-create { background: #fff4d6; border-left: 3px solid #b88a00; padding: 6px 8px; color: #2a2a2a; }
 .crows.char-create * { color: #2a2a2a; }
@@ -937,7 +966,7 @@
 .crows.rest-form button,
 .crows.crypt-form button,
 .crows.craft-start-form button {
-  background: linear-gradient(180deg, #fff4d6, #ffe89c);
+  background: #fff4d6;
   color: #4a3a10;
   border: 1px solid #b88a00;
   padding: 3px 10px;
@@ -948,7 +977,7 @@
 .crows.village-dialog button:hover,
 .crows.rest-form button:hover,
 .crows.crypt-form button:hover,
-.crows.craft-start-form button:hover { background: linear-gradient(180deg, #ffe89c, #ffd668); }
+.crows.craft-start-form button:hover { background: #ffe89c; }
 .cc-downtime .dt-panel button:disabled,
 .crows.village-dialog button:disabled { opacity: 0.5; cursor: not-allowed; }
 

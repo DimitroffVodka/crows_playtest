@@ -36,7 +36,19 @@ export async function applyDamage(actor, amount, { piercing = false, source = nu
   if (actor.type === "monster") {
     const stamBefore = sys.stamina?.value ?? 0;
     const stamAfter = Math.max(0, stamBefore - total);
-    await actor.update({ "system.stamina.value": stamAfter });
+    const defeated = stamAfter === 0;
+    await actor.update({
+      "system.stamina.value": stamAfter,
+      "system.conditions.defeated": defeated
+    });
+    // Token status overlay — apply our registered "dead" status when defeated,
+    // remove it on revive (heal from 0). Toggling on the actor affects every
+    // linked token + scene instance automatically.
+    try {
+      const hasEffect = !!actor.statuses?.has?.("dead");
+      if (defeated && !hasEffect) await actor.toggleStatusEffect("dead", { active: true });
+      if (!defeated && hasEffect && stamBefore === 0) await actor.toggleStatusEffect("dead", { active: false });
+    } catch { /* status not registered on older Foundry builds — non-fatal */ }
     return {
       ok: true,
       actorType: "monster",
@@ -46,7 +58,7 @@ export async function applyDamage(actor, amount, { piercing = false, source = nu
       total,
       absorbed: { armor: 0, stamina: stamBefore - stamAfter, wounds: 0 },
       stamina: { before: stamBefore, after: stamAfter },
-      defeated: stamAfter === 0,
+      defeated,
       piercing, source
     };
   }
@@ -153,6 +165,15 @@ export async function applyHealing(actor, { stamina = 0, wounds = 0 } = {}) {
     updates["system.wounds"] = Math.max(0, (sys.wounds ?? 0) - wounds);
   }
   if (Object.keys(updates).length) await actor.update(updates);
+  // Revive overlay: if a defeated monster gets healed back above 0 stamina,
+  // clear the "dead" status + defeated flag.
+  if (actor.type === "monster" && stamina > 0) {
+    const newStam = updates["system.stamina.value"] ?? sys.stamina?.value ?? 0;
+    if (newStam > 0 && actor.statuses?.has?.("dead")) {
+      try { await actor.toggleStatusEffect("dead", { active: false }); } catch {}
+      await actor.update({ "system.conditions.defeated": false });
+    }
+  }
   return { ok: true, vitalityBonus, ...updates };
 }
 
