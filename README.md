@@ -2,7 +2,15 @@
 
 A community-built Foundry VTT system for the **MCDM Crows TTRPG public playtest** (May–June 2026).
 
-> **Disclaimer.** This is a fan-made implementation. *Crows* is © MCDM Productions. This system bundles the public playtest packet (rules, monsters, content, art, maps) to make the playtest playable at the virtual table — playtests need to be played for MCDM to get feedback. If MCDM requests changes or removal, that will be honored.
+> **Disclaimer.** This is a fan-made implementation. *Crows* is © MCDM Productions. This system exists to make the playtest playable at the virtual table — playtests need to be played for MCDM to get feedback. If MCDM requests changes or removal, that will be honored.
+
+## The playtest packet
+
+The rulebooks, character sheet, and other reference documents are **not** distributed here. Grab them directly from MCDM:
+
+> **[Crows May/June 2026 Playtest Packet (Patreon)](https://www.patreon.com/posts/crows-may-2026-158948625)**
+
+This system implements those rules. You need the packet to read what the game *is*; this repo gives you the table to play it on.
 
 ---
 
@@ -51,15 +59,17 @@ Or download a release zip directly from the [Releases page](https://github.com/D
 - 11 packs: backgrounds (36), traits (~276 across 23 trees), weapons, armor, gear, consumables, ammunition, spellbooks, monsters, loot, rules-reference journal.
 - All content transcribed from the playtest packet; cross-validated against the consolidated rulebook markdown.
 
-### Playtest packet (reference material)
-- **`playtest-packet/`** holds the full MCDM playtest packet for reference:
-  - All 10 playtest PDFs (Welcome / Rules / Characters / Monsters / Blood Dungeon / Inventory Cards / Loot Cards / Annotated Inventory / Cheat Sheet / Inventory Sheet).
-  - **`Art/`** — monster + scene art (useful as token/scene images).
-  - **`Maps/`** — battlemaps for the Blood Library starter dungeon.
-  - **`Markdown/`** — consolidated rulebook markdown + per-booklet extracts.
-  - **`Crows Character & Inventory Sheets.xlsx`** — the official paper character sheet.
+### Bundled play assets
 
-This is **not** shipped in the Foundry install zip (Foundry users get just the system + compendiums). It lives in the repo as a reference resource for GMs, players, and contributors.
+`playtest-packet/` ships a few play-time assets so you don't have to bring your own:
+
+- **`Art/`** — monster portraits (Blood Creatures, Ring Collector) and scene art (Blood Library Entrance) — drop straight onto tokens or scenes.
+- **`Maps/`** — Blood Library starter-dungeon battlemaps (both labeled and unlabeled, including the 8k versions).
+- **`Crows Character & Inventory Sheets.xlsx`** — the official paper character sheet, for groups that want a hard copy alongside the digital sheet.
+
+The rulebooks, monster cards, loot cards, and cheat sheet are **not** bundled — grab them from the Patreon link above. (These are images/maps for the table; the rules text lives with MCDM.)
+
+These assets are repo-only — they aren't included in the Foundry install zip.
 
 ---
 

@@ -27,10 +27,16 @@ NOTE ON CONTENT:
 The MIT license above applies to the Foundry VTT system code (module/, css/,
 templates/, system.json, lang/, src/packs/ schemas, etc.).
 
-The bundled rules content under packs/ and src/packs/ — including but not
-limited to backgrounds, traits, monsters, spellbooks, weapons, armor, gear,
-consumables, ammunition, loot, and the rules-reference journal — is derived
-from the MCDM Crows TTRPG public playtest packet (May-June 2026), © MCDM
-Productions. It is bundled here as a community service to facilitate playtest
-participation. If MCDM Productions requests removal, the repository will be
-taken down immediately.
+The bundled rules content under packs/ and src/packs/ — backgrounds, traits,
+monsters, spellbooks, weapons, armor, gear, consumables, ammunition, loot,
+and the rules-reference journal — is derived from the MCDM Crows TTRPG public
+playtest packet (May-June 2026), © MCDM Productions. The playtest packet
+itself is published by MCDM at:
+
+  https://www.patreon.com/posts/crows-may-2026-158948625
+
+This Foundry system implements the rules so groups can play the playtest at
+the virtual table. The art and battlemaps under playtest-packet/ are
+likewise © MCDM Productions, included here strictly for at-table use during
+the playtest. If MCDM Productions requests changes or removal, that will be
+honored.
