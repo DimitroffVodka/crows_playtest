@@ -1,6 +1,30 @@
+# Node / build
 node_modules/
-/packs/
 dist/
 *.log
+
+# OS junk
 .DS_Store
 Thumbs.db
+
+# LevelDB internals — locks and write-ahead logs aren't part of the pack content.
+# The actual content is in *.ldb sstables + CURRENT + MANIFEST-* files.
+packs/*/LOCK
+packs/*/LOG
+packs/*/LOG.old
+
+# Local-only dev tooling — not part of the public release.
+verify.sh
+dev/
+.planning/
+.claude/
+CLAUDE.md
+GEMINI.md
+AGENTS.md
+
+# Internal planning / scratch docs not for public consumption.
+docs/superpowers/
+docs/discrepancies/
+
+# Note: /packs/ (built LevelDB) IS committed so the system installs and runs
+# without a build step. Source YAML lives under src/packs/ for contributors.
