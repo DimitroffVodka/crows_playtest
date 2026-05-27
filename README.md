@@ -2,7 +2,7 @@
 
 A community-built Foundry VTT system for the **MCDM Crows TTRPG public playtest** (May–June 2026).
 
-> **Disclaimer.** This is a fan-made implementation. *Crows* is © MCDM Productions. This system exists to let groups participate in MCDM's open playtest at the virtual table. It bundles the playtest rules/content as transcribed from the public playtest packet. If MCDM requests removal, the repo will be taken down immediately.
+> **Disclaimer.** This is a fan-made implementation. *Crows* is © MCDM Productions. This system bundles the public playtest packet (rules, monsters, content, art, maps) to make the playtest playable at the virtual table — playtests need to be played for MCDM to get feedback. If MCDM requests changes or removal, that will be honored.
 
 ---
 
@@ -50,6 +50,16 @@ Or download a release zip directly from the [Releases page](https://github.com/D
 ### Compendium content
 - 11 packs: backgrounds (36), traits (~276 across 23 trees), weapons, armor, gear, consumables, ammunition, spellbooks, monsters, loot, rules-reference journal.
 - All content transcribed from the playtest packet; cross-validated against the consolidated rulebook markdown.
+
+### Playtest packet (reference material)
+- **`playtest-packet/`** holds the full MCDM playtest packet for reference:
+  - All 10 playtest PDFs (Welcome / Rules / Characters / Monsters / Blood Dungeon / Inventory Cards / Loot Cards / Annotated Inventory / Cheat Sheet / Inventory Sheet).
+  - **`Art/`** — monster + scene art (useful as token/scene images).
+  - **`Maps/`** — battlemaps for the Blood Library starter dungeon.
+  - **`Markdown/`** — consolidated rulebook markdown + per-booklet extracts.
+  - **`Crows Character & Inventory Sheets.xlsx`** — the official paper character sheet.
+
+This is **not** shipped in the Foundry install zip (Foundry users get just the system + compendiums). It lives in the repo as a reference resource for GMs, players, and contributors.
 
 ---
 
