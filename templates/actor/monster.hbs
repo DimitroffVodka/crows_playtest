@@ -44,8 +44,12 @@
 
   {{!-- ─────────────────────── Quick combat controls ─────────────────────── --}}
   <div class="m-combat-row">
-    <button type="button" data-action="damageSelf" class="m-btn-dmg" title="Apply damage to this monster (with optional piercing)">⚔ Damage</button>
-    <button type="button" data-action="healSelf" class="m-btn-heal" title="Restore Stamina">+ Heal</button>
+    <button type="button" data-action="damageSelf" class="m-btn-dmg" title="Apply damage to this monster (with optional piercing)" aria-label="Apply damage">
+      <i class="fas fa-burst" aria-hidden="true"></i> Damage
+    </button>
+    <button type="button" data-action="healSelf" class="m-btn-heal" title="Restore Stamina" aria-label="Apply healing">
+      <i class="fas fa-heart" aria-hidden="true"></i> Heal
+    </button>
     <div class="m-cond-toggles" role="group" aria-label="Conditions">
       <button type="button" data-action="toggleCondition" data-condition="prone"
               class="m-cond-btn {{#if system.conditions.prone}}on{{/if}}"
@@ -92,7 +96,9 @@
                   aria-label="Piercing (bypasses AD)"
                   title="Toggle piercing (bypasses AD)">{{#if atk.piercing}}✓{{else}}—{{/if}}</button>
           <button type="button" data-action="deleteAttack" data-index="{{atk.idx}}" class="m-del-btn"
-                  aria-label="Delete attack {{atk.name}}" title="Delete attack">✕</button>
+                  aria-label="Delete attack {{atk.name}}" title="Delete attack">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
         {{else}}
           <span class="m-cur-readonly">+{{atk.toHit}}</span>
           <span class="m-range-readonly">{{atk.range}}</span>
@@ -120,7 +126,9 @@
             <input type="text" name="system.traits.{{t.idx}}.name" value="{{t.name}}" class="m-trait-name">
             <input type="text" name="system.traits.{{t.idx}}.uses" value="{{t.uses}}" placeholder="uses…" class="m-trait-uses">
             <button type="button" data-action="deleteTrait" data-index="{{t.idx}}" class="m-del-btn"
-                    aria-label="Delete trait {{t.name}}" title="Delete trait">✕</button>
+                    aria-label="Delete trait {{t.name}}" title="Delete trait">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
           {{else}}
             <strong class="m-trait-name-readonly">{{t.name}}</strong>
             {{#if t.uses}}<span class="m-trait-uses-chip">{{t.uses}}</span>{{/if}}

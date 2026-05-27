@@ -1,6 +1,66 @@
 /* ====================================================================
    crows system styles
+   ====================================================================
+   DESIGN TOKENS — bridge Foundry's --color-* theme variables to our
+   palette. Override these in a user theme if you want a re-skin without
+   touching the rest of the stylesheet.
    ==================================================================== */
+:root {
+  /* Paper / parchment surfaces (cream theme — PC sheet). */
+  --crows-paper:        #fdfbf6;
+  --crows-paper-warm:   #faf6ec;
+  --crows-paper-sand:   #f8f8f4;
+  --crows-paper-deep:   #fff4d6;
+  --crows-ink:          #222;
+  --crows-ink-soft:     #2a2a2a;
+  --crows-ink-mute:     #555;
+  --crows-ink-fade:     #888;
+  --crows-rule:         #ccc;
+  --crows-rule-soft:    #ddd;
+  --crows-rule-firm:    #b8b8a0;
+
+  /* Brand accent — gold/amber, used for primary CTAs and active states. */
+  --crows-gold:         #b88a00;
+  --crows-gold-soft:    #ffe89c;
+  --crows-gold-light:   #fff7d8;
+  --crows-gold-deep:    #6a4400;
+  --crows-gold-text:    #4a3a10;
+
+  /* System color codes — distinct hue per downtime subsystem. */
+  --crows-village:      #4a4070;
+  --crows-village-bg:   #f0f0f8;
+  --crows-crypt:        #6a4ca8;
+  --crows-crypt-bg:     #f0eaff;
+  --crows-miasma:       #6a3a8a;
+  --crows-miasma-bg:    #f6eef9;
+  --crows-miasma-deep:  #4a2a5a;
+  --crows-miasma-text:  #f0d8ff;
+  --crows-craft:        #b88a00;
+  --crows-craft-bg:     #f8f8f0;
+  --crows-blessed:      #2a8040;
+  --crows-blessed-bg:   #e8f8e8;
+
+  /* Combat / danger — red blood, deeper for permanent-NPC pulse. */
+  --crows-blood:        #b04030;
+  --crows-blood-deep:   #6a2010;
+  --crows-blood-pale:   #ffe0e0;
+  --crows-blood-text:   #ffb0a0;
+  --crows-danger:       #b80000;
+  --crows-danger-deep:  #6a0a0a;
+
+  /* Monster sheet (dark menacing). */
+  --crows-night:        #1f1a17;
+  --crows-night-soft:   #2a2520;
+  --crows-night-shade:  #322c25;
+  --crows-night-rule:   #4a3a2a;
+  --crows-night-text:   #e8dccb;
+  --crows-night-warm:   #f0e6d2;
+  --crows-night-fade:   #b8a890;
+
+  /* Focus ring. */
+  --crows-focus:        var(--crows-gold);
+  --crows-focus-night:  #ff5a40;
+}
 
 .crows.sheet { font-family: var(--font-primary, "Signika", sans-serif); }
 

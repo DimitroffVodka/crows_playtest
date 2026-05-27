@@ -2,6 +2,31 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 import { CROWS } from "../config.mjs";
 import { rollTest } from "../helpers/roll.mjs";
+import { applyBackground } from "../helpers/creation.mjs";
+import {
+  bonusesEarned, nextBonusTXP, isTraitBuyable, bonusesAvailable,
+  purchaseTrait, gainXP, spendSkillBonus, spendCharBonus
+} from "../helpers/advancement.mjs";
+import { takeRest } from "../helpers/rest.mjs";
+import { endDungeonTurn, rollEncounterCheck } from "../helpers/dungeon-turn.mjs";
+import { attackWithWeapon } from "../helpers/attack.mjs";
+import {
+  getInMiasma, setInMiasma, rollMiasmaResist, clearMiasma, onBonedCleared, MIASMA_EFFECTS
+} from "../helpers/miasma.mjs";
+import {
+  CRYPT_BOONS, getCryptLevel, listInterments, getCycleId,
+  inter, pray, expendBoon, bumpCycle
+} from "../helpers/crypt.mjs";
+import {
+  INSTITUTION_TYPES, getVillage, setVillage,
+  foundInstitution, upgradeInstitution, damageInstitution,
+  setProsperity, endCycle, rollVillageEvent
+} from "../helpers/village.mjs";
+import {
+  startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
+  identifyMagicItem
+} from "../helpers/crafting.mjs";
+import { openCharacterCreator } from "../helpers/character-creator.mjs";
 
 const SPELL_SKILLS = new Set(["alteration","benefaction","conjuration","elemental","illusion","necromancy"]);
 const WEAPON_SKILLS = new Set(["bashing","bow","chopping","slashing","stabbing","unarmed"]);
@@ -249,14 +274,12 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     // Village shell (name/prosperity/cycle) for the Crypt panel header.
     try {
-      const { getVillage } = await import("../helpers/village.mjs");
       const vil = getVillage();
       ctx.village = { name: vil.name, prosperity: vil.prosperity, cycle: vil.cycle, hasUpgraded: vil.hasUpgradedThisCycle };
     } catch { ctx.village = null; }
 
     // Crypt — active boon + crypt level + count of interments for UI gating.
     try {
-      const { CRYPT_BOONS, getCryptLevel, listInterments, getCycleId } = await import("../helpers/crypt.mjs");
       ctx.cryptLevel = getCryptLevel();
       ctx.cryptCycle = getCycleId();
       ctx.cryptInterments = listInterments();
@@ -281,7 +304,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     // Miasma — environment flag + active effects with humane labels.
     try {
-      const { getInMiasma, MIASMA_EFFECTS } = await import("../helpers/miasma.mjs");
       ctx.inMiasma = getInMiasma();
       const eff = sys.miasma?.effects ?? [];
       ctx.miasmaEffects = eff.map(v => {
@@ -295,7 +317,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // the trait-pack load cost off the critical path.
     if (this._activeTab === "advancement") {
       try {
-        const { bonusesEarned, nextBonusTXP, isTraitBuyable, bonusesAvailable } = await import("../helpers/advancement.mjs");
         const txp = sys.xp?.txp ?? 0;
         ctx.bonusesEarned = bonusesEarned(txp);
         ctx.nextBonusAt = nextBonusTXP(txp);
@@ -367,7 +388,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   async _onDropItem(event, item) {
     if (item.type === "background") {
-      const { applyBackground } = await import("../helpers/creation.mjs");
       await applyBackground(this.document, item);
       return false;
     }
@@ -413,7 +433,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const d = Number(target.dataset.delta);
     // Rules p.1117: while in the Miasma, boned cannot decrease.
     if (d < 0) {
-      const { getInMiasma } = await import("../helpers/miasma.mjs");
       if (getInMiasma() && !this.document.system?.miasma?.permanentNPC) {
         ui.notifications?.warn("Can't lose boned levels while in the Miasma.");
         return;
@@ -424,7 +443,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.document.update({ "system.conditions.boned": after });
     // If boned reached 0, wipe any violence-bucket Miasma effects.
     if (before > 0 && after === 0) {
-      const { onBonedCleared } = await import("../helpers/miasma.mjs");
       await onBonedCleared(this.document);
     }
   }
@@ -445,7 +463,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (target?.dataset?.tend === "true" || target?.dataset?.town === "true") {
       const tendedBy = target?.dataset?.tend === "true";
       const inTown   = target?.dataset?.town === "true";
-      const { takeRest } = await import("../helpers/rest.mjs");
       await takeRest(this.document, { tendedBy, inTown });
       this.render();
       return;
@@ -531,7 +548,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         }
       });
       if (!choice) return;
-      const { takeRest } = await import("../helpers/rest.mjs");
       await takeRest(this.document, { activity: choice.activity, inTown: choice.inTown, activityData: choice.activityData });
       this.render();
     } catch { /* dialog dismissed */ }
@@ -539,14 +555,12 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async _onEndDT() {
     if (!game.user.isGM) { ui.notifications?.warn("End DT is GM-only."); return; }
-    const { endDungeonTurn } = await import("../helpers/dungeon-turn.mjs");
     await endDungeonTurn();
     this.render();
   }
 
   static async _onEncounterCheck() {
     if (!game.user.isGM) { ui.notifications?.warn("Encounter check is GM-only."); return; }
-    const { rollEncounterCheck } = await import("../helpers/dungeon-turn.mjs");
     await rollEncounterCheck({ label: "Ad-hoc" });
   }
 
@@ -561,7 +575,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const id = target.dataset.traitId;
     const trait = (treeMap[this._selectedTree] ?? []).find(t => t.id === id);
     if (!trait) { ui.notifications?.warn("Trait not found in compendium."); return; }
-    const { purchaseTrait } = await import("../helpers/advancement.mjs");
     await purchaseTrait(this.document, trait);
     this.render();
   }
@@ -569,7 +582,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onGrantXp(event, target) {
     if (!game.user.isGM) { ui.notifications?.warn("Grant XP is GM-only."); return; }
     const amount = Number(target.dataset.amount) || 0;
-    const { gainXP } = await import("../helpers/advancement.mjs");
     await gainXP(this.document, amount);
     this.render();
   }
@@ -579,12 +591,10 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const id = target.dataset.itemId;
     const wp = this.document.items.get(id);
     if (!wp) { ui.notifications?.warn("Weapon not found."); return; }
-    const { attackWithWeapon } = await import("../helpers/attack.mjs");
     await attackWithWeapon(this.document, wp);
   }
 
   static async _onSpendSkillBonus() {
-    const { spendSkillBonus } = await import("../helpers/advancement.mjs");
     const DialogV2 = foundry.applications.api.DialogV2;
     const actor = this.document;
     // Build skill <option> lists (skills not yet at +2)
@@ -627,7 +637,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async _onToggleMiasma() {
     if (!game.user.isGM) { ui.notifications?.warn("Miasma toggle is GM-only."); return; }
-    const { getInMiasma, setInMiasma } = await import("../helpers/miasma.mjs");
     const cur = getInMiasma();
     await setInMiasma(!cur);
     // Re-render all open crow sheets so badges update everywhere.
@@ -641,19 +650,16 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async _onRollMiasmaResist() {
-    const { rollMiasmaResist } = await import("../helpers/miasma.mjs");
     await rollMiasmaResist(this.document);
     this.render();
   }
 
   static async _onClearMiasmaSelf() {
-    const { clearMiasma } = await import("../helpers/miasma.mjs");
     await clearMiasma(this.document);
     this.render();
   }
 
   static async _onCryptPray() {
-    const { listInterments, pray } = await import("../helpers/crypt.mjs");
     const interments = listInterments();
     if (!interments.length) {
       ui.notifications?.warn("No crows are interred in the Crypt.");
@@ -674,14 +680,12 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async _onCryptExpend() {
-    const { expendBoon } = await import("../helpers/crypt.mjs");
     await expendBoon(this.document);
     this.render();
   }
 
   static async _onCryptInter() {
     if (!game.user.isGM) { ui.notifications?.warn("Internment is GM-only."); return; }
-    const { CRYPT_BOONS, inter } = await import("../helpers/crypt.mjs");
     const DialogV2 = foundry.applications.api.DialogV2;
     const opts = Object.values(CRYPT_BOONS).map(b => `<option value="${b.id}">${b.label}</option>`).join("");
     try {
@@ -703,7 +707,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async _onCryptBumpCycle() {
     if (!game.user.isGM) { ui.notifications?.warn("Bumping cycle is GM-only."); return; }
-    const { bumpCycle } = await import("../helpers/crypt.mjs");
     await bumpCycle();
     // Re-render all crow sheets so prayed-this-cycle gating updates.
     for (const app of Object.values(ui.windows)) {
@@ -712,7 +715,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async _onOpenVillage() {
-    const { getVillage, INSTITUTION_TYPES, foundInstitution, upgradeInstitution, damageInstitution, setProsperity, endCycle, rollVillageEvent, setVillage } = await import("../helpers/village.mjs");
     const DialogV2 = foundry.applications.api.DialogV2;
     const isGM = !!game.user.isGM;
     const v = getVillage();
@@ -814,7 +816,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async _onCraftStart() {
-    const { startCraftingProject } = await import("../helpers/crafting.mjs");
     const DialogV2 = foundry.applications.api.DialogV2;
     const actor = this.document;
     // Skill <option>s with current bonuses.
@@ -858,7 +859,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onCraftRoll(event, target) {
     const id = target.dataset.projectId;
     if (!id) return;
-    const { makeCraftingRoll } = await import("../helpers/crafting.mjs");
     await makeCraftingRoll(this.document, id);
     this.render();
   }
@@ -866,7 +866,6 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onCraftCancel(event, target) {
     const id = target.dataset.projectId;
     if (!id) return;
-    const { cancelProject } = await import("../helpers/crafting.mjs");
     await cancelProject(this.document, id);
     this.render();
   }
@@ -874,26 +873,22 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onCraftComplete(event, target) {
     const id = target.dataset.projectId;
     if (!id) return;
-    const { completeProject } = await import("../helpers/crafting.mjs");
     await completeProject(this.document, id);
     this.render();
   }
 
   static async _onIdentifyItem(event, target) {
     const itemId = target.dataset.itemId;
-    const { identifyMagicItem } = await import("../helpers/crafting.mjs");
     await identifyMagicItem(this.document, { itemId });
     this.render();
   }
 
   static async _onOpenCreator() {
-    const { openCharacterCreator } = await import("../helpers/character-creator.mjs");
     await openCharacterCreator(this.document);
     this.render();
   }
 
   static async _onSpendCharBonus() {
-    const { spendCharBonus } = await import("../helpers/advancement.mjs");
     const DialogV2 = foundry.applications.api.DialogV2;
     const actor = this.document;
     const c = actor.system.characteristics ?? {};

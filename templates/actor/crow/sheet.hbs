@@ -364,7 +364,9 @@
           <div class="cb-summary">{{activeBoonCard.summary}}</div>
         </div>
       {{else}}
-        <p class="cc-empty"><em>No active boon. Pray at a grave during the village cycle.</em></p>
+        <p class="cc-empty">
+          <em>No active boon.</em> {{#if cryptInterments.length}}Press <strong>Pray</strong> to receive a boon from a dead crow (once per cycle).{{else}}Once a crow dies and is interred (GM uses <strong>Inter</strong>), you can pray at their grave.{{/if}}
+        </p>
       {{/if}}
     </div>
 
@@ -395,7 +397,9 @@
           {{/each}}
         </ul>
       {{else}}
-        <p class="cc-empty"><em>No active Miasma effects.</em></p>
+        <p class="cc-empty">
+          <em>No active Miasma effects.</em> {{#if inMiasma}}Press <strong>Resist</strong> after a 24h period outdoors (or just take a non-town rest — it auto-rolls).{{else}}Toggle In Miasma when entering an outdoor Cornath region.{{/if}}
+        </p>
       {{/if}}
     </div>
 
@@ -426,7 +430,9 @@
           {{/each}}
         </ul>
       {{else}}
-        <p class="cc-empty">No active projects. Start one to begin crafting during rest activities.</p>
+        <p class="cc-empty">
+          No active projects. Press <strong>+ Start Project</strong> to define one (skill prereq + materials + goal). When you take a rest with the <strong>Craft Equipment</strong> activity, the rest dialog will let you advance the chosen project.
+        </p>
       {{/if}}
     </div>
 
@@ -438,7 +444,7 @@
            {{#unless (eq activeTab 'bio')}}hidden{{/unless}}>
     <div class="cc-creator-launch">
       <button type="button" data-action="openCreator" class="cc-creator-btn" title="Walk through the character creator: roll/pick background, assign characteristics, name + feature.">
-        🪶 Open Character Creator
+        <i class="fas fa-feather-pointed" aria-hidden="true"></i> Open Character Creator
       </button>
       <span class="cc-creator-hint"><em>For a fresh crow: rolls a background, applies skills/stamina/equipment/starting trait, and adds universal starter items.</em></span>
     </div>
