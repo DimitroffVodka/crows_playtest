@@ -166,22 +166,24 @@ DO NOT: write tests for functions that don't exist yet. Wave 1 authors own those
 
 T0.2 implements this. Downstream agents code against it.
 
+> **Revised 2026-08-20.** Citations converted to `Book:Line` form (`R:` Rules, `C:` Characters, `F:` Ref — see the migration plan's header for the mapping). Five defects fixed before freeze: monster slots/expertises (B2), concrete type definitions (B3), tier precedence as early returns (B4), derived expertise max (H6), coin purse (H7). Everything else is unchanged.
+
 **`module/config.mjs`**
 
 ```js
 export const CROWS = {
   id: "crows",
   characteristics: { agility: "A", mind: "M", strength: "S" },
-  charRange: { min: -5, max: 5 },     // schema bounds; magic may exceed the PC cap
-  charPcCap: 4,                        // L188, enforced in advancement not schema
+  charRange: { min: -5, max: 5 },     // R:174 — schema bounds; magic may exceed the PC cap
+  charPcCap: 4,                        // C:640, enforced in advancement not schema
 
   tiers: { t1Max: 11, t2Max: 16 },
-  doomFaces: [2, 3],
-  critFaces: [19, 20],
+  doomFaces: [2, 3],                   // NB: these are 2d10 SUMS, not die faces
+  critFaces: [19, 20],                 //     (see L14 in the critique — rename deferred)
 
-  edgeBane: { numeric: 2 },            // single edge +2 / single bane -2 (L278/284)
+  edgeBane: { numeric: 2 },            // single edge +2 / single bane -2 (R:264)
 
-  // Expertises (L312-362). Category gates what a test may apply.
+  // Expertises (R:298-348). Category gates what a test may apply.
   expertises: {
     general: ["alchemy","athletics","blacksmithing","enchanting","endurance",
               "gymnastics","handlePet","historicalLore","lift","magicLore",
@@ -192,28 +194,38 @@ export const CROWS = {
     weapon: ["bashing","bow","chopping","slashing","stabbing","unarmed"]
   },
 
-  // Carry containers vs magic-item slots are now SEPARATE axes (L440 vs L452).
+  // Carry containers vs magic-item slots are now SEPARATE axes (R:426 vs R:438).
   carryContainers: { hand: 2, belt: 4, backpack: 10 },   // belt was 2 in PT1
   magicSlots: ["head","neck","waist","arms","finger","feet"],  // 1 item each
 
-  stackLimits: { potion: 5, lock: 3, oil: 2 },   // L446; default 1
-  coinPerSlot: 250,                              // L446 / changelog
+  stackLimits: { potion: 5, lock: 3, oil: 2 },   // R:432; default 1. Same KIND only;
+                                                 // hand slots never stack (R:432).
+
+  // --- Money (H7). Two ways a slot can carry coin, not one. ---------------
+  // C:1917: "An inventory slot can hold 250 loose coins OR 1 purse that holds
+  // up to 500 gc." Every PC starts with an empty coin purse (C:36), the Coin
+  // Purse item has quality tiers 500/1,000 gc (C:1940), and at least one trait
+  // grants +500 gc of purse capacity (C:1737). Modelling only `coinPerSlot`
+  // makes starting equipment unrepresentable.
+  coinPerSlot: 250,                              // loose coins, 1 slot
+  pursePerSlot: 1,                               // a purse occupies its slot alone
+  purseBaseCapacity: 500,                        // overridden per-item by quality tier
 
   corpseSlots: { tiny: 1, small: 2, medium: 4, large: 8, huge: 16, holyShit: 32 },
-  corpseStack: { tiny: 3 },                      // L500; all others 1
+  corpseStack: { tiny: 3 },                      // R:486; all others 1
 
   sizes: ["tiny","small","medium","large","huge","holyShit"],
   harvestDice: { tiny:"1d6", small:"1d6", medium:"1d6",
-                 large:"2d6", huge:"3d6", holyShit:"4d6" },   // L666
+                 large:"2d6", huge:"3d6", holyShit:"4d6" },   // R:652
 
-  greedBonus: { 1: 0.30, 2: 0.20, 3: 0.10 },     // L604, by DT number
-  encounter: { defaultEN: 9, crowdedEN: 8, bothEN: 7, immediateOn: 10 },  // L636
+  greedBonus: { 1: 0.30, 2: 0.20, 3: 0.10 },     // R:590, by DT number
+  encounter: { defaultEN: 9, crowdedEN: 8, bothEN: 7, immediateOn: 10 },  // R:622
 
   conditions: ["blessed","grabbed","prone","vulnerable","unconscious","weakened"],
   // NOTE: `boned` is DELETED. `hidden`/`invisible` were PT1 additions not in the
   // PT2 condition list — keep them only if the sheet needs them, and mark clearly.
 
-  expertiseAdvancement: [                        // L2373
+  expertiseAdvancement: [                        // C:621
     { txp: 100,    bonus: 1,  maxUses: 2 },
     { txp: 500,    bonus: 2,  maxUses: 2 },
     { txp: 1250,   bonus: 3,  maxUses: 2 },
@@ -225,9 +237,14 @@ export const CROWS = {
     { txp: 30000,  bonus: 9,  maxUses: 4 }
   ],
   expertiseAdvancementRepeat: 30000,             // "every 30,000 after", maxUses 4
-  charAdvancement: [5000, 15000, 30000],         // L2394
+  charAdvancement: [5000, 15000, 30000],         // C:642
   charAdvancementRepeat: 30000,
   retirementTXP: 60000,                          // changelog
+
+  // H6: expertise `max` is DERIVED from TXP, never stored. At creation (TXP 0)
+  // the cap is the table's first row, 2 — which is what makes a background's
+  // "Benefaction (2 uses)" grant legal on a brand-new crow.
+  expertiseMaxAtCreation: 2,                     // C:621 first row
 
   // unchanged from PT1 — re-verify in Wave 3 but do not restructure now
   weaponTypes: [...], weaponQualities: [...], armorTypes: [...],
@@ -240,41 +257,54 @@ export const CROWS = {
 **`CrowData` schema — changed fields only**
 
 ```js
-// REPLACES `skills`
+// REPLACES `skills`.
+// H6 FIX: `max` is NOT stored. It is a pure function of the actor's TXP via
+// CROWS.expertiseAdvancement, computed in prepareDerivedData. Storing it meant
+// a freshly created crow had uses=2 (from its background, C:103) against max=0
+// — the schema contradicted the creation rules. Deriving it removes the whole
+// class of drift, and R:294 backs this: uses are "determined at character
+// creation and can be increased through character advancement" — the CAP is a
+// property of advancement, not of the actor.
 expertises: new SchemaField(
   Object.fromEntries(allExpertiseKeys.map(k => [k, new SchemaField({
-    uses: new NumberField({ initial: 0, min: 0, integer: true }),
-    max:  new NumberField({ initial: 0, min: 0, integer: true })
+    uses: new NumberField({ initial: 0, min: 0, integer: true })
   })]))
 ),
+// derived, in prepareDerivedData:
+//   const max = expertiseMaxForTxp(this.xp.txp);   // 2 -> 3 at 5,000 -> 4 at 20,000
+//   for (const e of Object.values(this.expertises)) { e.max = max;
+//     e.spent = Math.max(0, e.uses - max); }        // surface, never silently clamp
 
 characteristics: { agility|mind|strength: { value: NumberField({min:-5, max:5}) } },
-// was min:-1 max:3 — both wrong for PT2
+// was min:-1 max:3 — both wrong for PT2 (R:174 gives the -5..5 range)
 
 conditions: new SchemaField({
   blessed:     new BooleanField({ initial: false }),   // was NumberField (leveled)
   grabbed:     new BooleanField({ initial: false }),
   prone:       new BooleanField({ initial: false }),
-  vulnerable:  new BooleanField({ initial: false }),   // NEW L558
+  vulnerable:  new BooleanField({ initial: false }),   // NEW R:544
   unconscious: new BooleanField({ initial: false }),
-  weakened:    new BooleanField({ initial: false })    // NEW L570
+  weakened:    new BooleanField({ initial: false })    // NEW R:556
   // `boned` DELETED
 }),
 
-// Wounds occupy PLAYER-CHOSEN backpack slots (L538), not a bare count.
+// Wounds occupy PLAYER-CHOSEN backpack slots (R:524), not a bare count.
 woundSlots: new SetField(new NumberField({ min: 0, max: 9, integer: true })),
 // derive `wounds` as woundSlots.size in prepareDerivedData for back-compat
+// OPEN (M12, not fixed here): `max: 9` hardcodes a 10-slot backpack while
+// carryContainers.backpack is config, and death is "all backpack slots wounded"
+// (R:524). Slot-granting traits exist (C:737 grants an extra belt slot).
 
 xp: { txp, spendable, expertiseBonusesSpent, charBonusesSpent },
 // renamed from skillBonusesSpent
 
-preparedTask: new SchemaField({          // L672-678: now a task, not a skill
+preparedTask: new SchemaField({          // R:658-664: now a task, not a skill
   task:  new StringField({ blank: true, initial: "" }),
   bonus: new NumberField({ initial: 2, integer: true }),   // was +1, now +2
   setOn: new StringField({ blank: true, initial: "" })
 }),
 
-npcConnection: new SchemaField({          // NEW L1792 / L4303
+npcConnection: new SchemaField({          // NEW C:40 / C:2551
   name: new StringField({ blank: true }),
   relationship: new StringField({ blank: true }),
   notes: new HTMLField()
@@ -283,47 +313,128 @@ npcConnection: new SchemaField({          // NEW L1792 / L4303
 
 **`MonsterData` — additions**
 
+> **B2 FIX.** Two defects corrected against a real stat block (`F:1397`):
+> `**Sage (Power 6) Size:** Medium **Power:** 6 **Type:** Human **Stamina:** 20 **Speed:** 5 **Slots:** 10 **Agility:** 1 **Mind:** 3 **Strength:** 0 **Expertises:** Historical Lore (2 uses), Magic Lore (2 uses)…`
+> — slots are a **count**, not a flag, and monsters carry **expertises**.
+
 ```js
-power:    new NumberField({ initial: 0, min: 0, max: 50, integer: true }),  // L5637
-reactions: new NumberField({ initial: 1, min: 0, integer: true }),          // L5641
-hasSlots: new BooleanField({ initial: false }),  // monsters false; humans/animals true (L5631)
+power:    new NumberField({ initial: 0, min: 0, integer: true }),           // F:704
+// NB: F:704 scales power "from 0 to 50, though future products could go even
+// higher" — a soft cap. Do NOT set max: 50; validate with a warning instead.
+// Observed range across the whole Ref Book is 1-11.
+
+reactions: new NumberField({ initial: 1, min: 0, integer: true }),          // F:708
+
+// WAS `hasSlots: BooleanField`. F:698: "Monsters don't have slots and die when
+// they are reduced to 0 Stamina. Humans and animals … do have slots, which count
+// as backpack slots for them." Wounds and death depend on the NUMBER, and stat
+// blocks print it (`**Slots:**10`, `**Slots:**15`). 0 means "no slots" — the
+// monster case — so the boolean is `slots > 0` and needs no separate field.
+slots:    new NumberField({ initial: 0, min: 0, integer: true }),           // F:698
+// F:700: a creature that gains another creature's stats KEEPS its original
+// slot count — so migration/polymorph must not overwrite this from a stat block.
+
+// NEW. Same shape as BackgroundData.expertises so one helper reads both.
+// Bare name in a stat block = 1 use; "(2 uses)" = 2 (F:1397, cf. C:103).
+expertises: new ArrayField(new SchemaField({
+              key:  new StringField({ required: true }),
+              uses: new NumberField({ initial: 1, min: 0, integer: true })
+            })),
+
 size:     new StringField({ choices: CROWS.sizes, initial: "medium" }),
+type:     new StringField({ blank: true }),   // "Human", "Animal", "Blood", … (F:1397)
 xRest:    new ArrayField(new SchemaField({
             name: new StringField(), max: new NumberField(), used: new NumberField()
-          }))                                                              // L5643
+          }))                                                              // F:710
+// F:714: a crit refunds 1 spent use of an X/Rest feature — wire in T1.1, not here.
 ```
 
 **`BackgroundData` — changed fields**
 
 ```js
 // REPLACES `skills: [String]`. Backgrounds grant 1 use in most expertises but
-// 2 in some (e.g. Acolyte of the Gardner: Benefaction 2, Elemental 2 — L1855).
+// 2 in some (e.g. Acolyte of the Gardner: Benefaction 2, Elemental 2 — C:103).
 expertises: new ArrayField(new SchemaField({
   key:  new StringField({ required: true }),
   uses: new NumberField({ initial: 1, min: 1, integer: true })
 })),
 
-// SEMANTIC CHANGE: now names the characteristic SET TO 2, not a +1 bonus (L1780)
+// SEMANTIC CHANGE: now names the characteristic SET TO 2, not a +1 bonus (C:28)
 characteristicAt2: new StringField({ initial: "any" }),
 
-startingGold: new StringField({ initial: "3d6" })   // L1788
+startingGold: new StringField({ initial: "3d6" })   // C:36
+```
+
+**Shared types** — *B3 FIX. These were named but never defined. `Layout` alone is consumed by T1.2 and T1.3 running in parallel; `TestResult` by T1.1, T1.7 and T2.2. Freezing signatures without freezing the shapes they pass just relocates the collision from files to data. Concrete shapes, frozen with the rest:*
+
+```js
+/** A labelled reason for an edge, a bane, or a numeric modifier. */
+type Label = { key: string, label: string, source?: string };
+//   { key: "flanking", label: "Flanking", source: "Actor.abc123" }
+
+/** A numeric bonus/penalty. SEPARATE channel from edges/banes (R:286) — these
+ *  never count toward an edge or bane tally. */
+type Mod = { key: string, label: string, value: number };
+//   { key: "range", label: "Beyond normal range (3 sq)", value: -6 }
+
+/** One inventory slot. `items` holds >1 entry only for a legal stack (R:432). */
+type Slot = {
+  container: "hand" | "belt" | "backpack" | "head" | "neck" | "waist"
+           | "arms" | "finger" | "feet",
+  index: number,                  // 0-based within its container
+  items: Array<{ id: string, kind: string }>,
+  wound: boolean,                 // backpack only (R:524)
+  spanId: string | null           // shared id across a multi-slot item's slots
+};
+
+/** The whole positional inventory. Contiguity and stacking are properties OF
+ *  this structure, so every packing rule is testable without Foundry. */
+type Layout = {
+  actorId: string,
+  capacities: { hand: number, belt: number, backpack: number },
+  slots: Slot[],                  // dense, ordered by container then index
+  coin: { loose: number, purses: Array<{ id: string, held: number, cap: number }> }
+};
+
+/** Everything needed to render, re-render, and audit one test. Persisted
+ *  verbatim to `message.flags.crows.test`. */
+type TestResult = {
+  actorId: string,
+  characteristic: "agility" | "mind" | "strength",
+  rawSum: number,                 // unmodified 2d10
+  charVal: number,
+  mods: Mod[],
+  eb: EdgeBaneResolution,
+  total: number,
+  tier: 1 | 2 | 3,
+  doom: boolean,
+  crit: boolean,
+  terminal: null | "doom" | "crit" | "unconscious",  // which early return fired
+  kind: "test" | "attack" | "casting",
+  targets: Array<{ tokenId: string, tier: 1|2|3, edges: Label[], banes: Label[] }>,
+  expertiseSpent: string | null   // expertise key, or null
+};
+
+type EdgeBaneResolution = {
+  numeric: -2 | 0 | 2,            // single edge/bane only
+  tierShift: -1 | 0 | 1,          // double edge/bane only
+  edges: Label[], banes: Label[], // as supplied, for the card's explanation
+  explanation: string
+};
 ```
 
 **Frozen function contracts** (Wave 1 implements; nobody changes the signatures)
 
 ```js
 // helpers/edges.mjs — pure, no Foundry
-resolveEdgesBanes(edges: Label[], banes: Label[]) => {
-  netEdges: 0|1|2, netBanes: 0|1|2,
-  numeric: -2|0|2,        // single edge/bane only
-  tierShift: -1|0|1,      // double edge/bane only
-  explanation: string
-}
-// Algorithm (verified against L292-298): clamp each side to 2, then subtract.
+resolveEdgesBanes(edges: Label[], banes: Label[]) => EdgeBaneResolution
+// Algorithm (verified against R:278-284): clamp each side to 2, then subtract.
 //   E = min(edges.length, 2); B = min(banes.length, 2); net = E - B
 //   net=+2 -> tierShift +1 | net=+1 -> numeric +2 | net=0 -> neutral
 //   net=-1 -> numeric -2   | net=-2 -> tierShift -1
 // Clamp-then-subtract is what makes "3 edges + 1 bane = ONE edge" come out right.
+// NB: the earlier draft also returned netEdges/netBanes. Dropped — they
+// overdetermine a single net value and invite drift (critique L20).
 
 // helpers/roll.mjs
 rollTest({ actor, characteristic, mods: Mod[], edges: Label[], banes: Label[],
@@ -334,7 +445,7 @@ applyExpertise(message: ChatMessage, expertiseKey: string) => Promise<TestResult
 packItem(layout: Layout, item, container, index) => {ok: boolean, reason?: string}
 canStack(a, b) => boolean
 layoutFor(actor) => Layout
-retrieveFromBackpack(layout, itemId, d10: number) => {ok, slotsMatched}
+retrieveFromBackpack(layout, itemId, d10: number) => {ok, slotsMatched: number[]}
 
 // helpers/migration.mjs — pure
 migrateCrowSystem(source: object) => object      // safe on partial deltas
@@ -342,25 +453,62 @@ migrateBackgroundSystem(source: object) => object
 SKILL_TO_EXPERTISE: Record<string, string>
 ```
 
-**Tier resolution precedence** — implement exactly this order, it is the most error-prone thing in the project:
+**Tier resolution precedence** — implement exactly this, it is the most error-prone thing in the project.
 
-```
-1. rawSum = 2d10 unmodified
-2. if rawSum in doomFaces  -> tier 1, TERMINAL.
-      Not rescuable by edges, expertise, bonuses, or anything else (L260).
-3. if rawSum in critFaces  -> tier 3, TERMINAL upward, regardless of banes (L258).
-4. eb = resolveEdgesBanes(edges, banes)
-5. total = rawSum + charVal + sum(mods) + eb.numeric
-6. tier = classifyTier(total)
-7. tier = clamp(tier + eb.tierShift, 1, 3)
-8. if attack && target.unconscious -> tier = max(tier, 3)   (L568)
-9. post interactive card
-10. on expertise spend (only if !doom): tier = min(tier + 1, 3)  (L306)
+> **B4 FIX.** The earlier draft numbered ten sequential steps and marked step 2 "TERMINAL" — but the list kept running to step 10, so "terminal" was unenforceable. It collided concretely: a **doom on an attack against an unconscious target** hit both step 2 (tier 1, terminal) and step 8 (tier 3). Rewritten as **early returns**, so terminal means terminal, and the doom/unconscious collision is resolved explicitly rather than by step order.
+
+```js
+function resolveTier({ rawSum, charVal, mods, edges, banes, kind, target }) {
+  const doom = CROWS.doomFaces.includes(rawSum);   // 2d10 SUM of 2 or 3 (R:246)
+  const crit = CROWS.critFaces.includes(rawSum);   // 2d10 SUM of 19 or 20 (R:244)
+  const eb   = resolveEdgesBanes(edges, banes);
+  const base = { rawSum, charVal, mods, eb, doom, crit };
+
+  // (1) Attack vs an unconscious target. R:554: "Attacks against you always
+  //     achieve a tier 3 result (though the attacker can roll to see if they
+  //     get a crit)." That parenthetical narrows what the roll is still FOR —
+  //     crit detection — which implies the tier is already settled. So this
+  //     outranks doom. `doom` is still reported so the Ref can adjudicate the
+  //     "major setback" (R:246) narratively; it does not lower the tier.
+  //     SEE OPEN QUESTION 7 — flip this one constant if MCDM says otherwise.
+  if (kind === "attack" && target?.conditions?.unconscious) {
+    return { ...base, total: null, tier: 3, terminal: "unconscious" };
+  }
+
+  // (2) Doom. Tier 1 "regardless of edges, expertises, and other bonuses"
+  //     (R:246). Expertise CANNOT rescue it — enforced at the spend gate too.
+  if (doom) return { ...base, total: null, tier: 1, terminal: "doom" };
+
+  // (3) Crit. Tier 3 "regardless of banes or other penalties" (R:244).
+  if (crit) return { ...base, total: null, tier: 3, terminal: "crit" };
+
+  // (4) Ordinary resolution.
+  const total = rawSum + charVal + sum(mods.map(m => m.value)) + eb.numeric;
+  const tier  = clamp(classifyTier(total) + eb.tierShift, 1, 3);
+  return { ...base, total, tier, terminal: null };
+}
 ```
 
-Store as `message.flags.crows.test = {rawSum, charVal, mods, eb, tier, doom, crit,
-expertiseSpent: null, actorId}` so the card is re-renderable and the spend is
-idempotent under double-click.
+The expertise spend is a separate gate, and it is **not** simply `if (!doom)`:
+
+```js
+// R:292: improve by one tier, max 3; one expertise and one use per test.
+function canSpendExpertise(result, key, actor) {
+  if (result.terminal === "doom")        return "a doom can't be improved";   // R:246
+  if (result.tier >= 3)                  return "already tier 3";             // no-op burn
+  if (result.expertiseSpent)             return "one expertise per test";     // R:292
+  if (!categoryAllows(result.kind, key)) return "wrong expertise category";   // R:913/R:384
+  if (actor.system.expertises[key]?.uses < 1) return "no uses left";
+  return null;   // ok
+}
+```
+
+Note the `tier >= 3` guard: without it a player can burn a limited use on a
+result that cannot improve. `terminal === "crit"` and `terminal === "unconscious"`
+are both already tier 3, so that one check covers them.
+
+Store the whole `TestResult` (shape above) at `message.flags.crows.test` so the
+card is re-renderable and the spend is idempotent under lag or double-click.
 
 ---
 
@@ -807,9 +955,10 @@ DELIVERABLE:
    - Buttons need type="button" or the surrounding form may submit.
    - Escape actor and item names; the card builds HTML from user-controlled data.
 2. Multi-target cards: one roll, a per-target tier row (T1.7 supplies the shape).
-3. Monster sheet: add power (0-50), reactions, X/Rest features with use tracking,
-   size. Monsters have no slots; humans and animals do (L5631) — the sheet must
-   switch on hasSlots.
+3. Monster sheet: add power (unbounded, see contract), reactions, X/Rest features
+   with use tracking, size, type, and expertises. Monsters have no slots; humans
+   and animals do (F:698) — the sheet switches on `slots > 0`, and renders the
+   slot grid with that many backpack slots when it is.
 4. CSS for the expertise panel, the 4-slot belt, the magic-slot panel, the six
    conditions, and the interactive card.
 
@@ -888,7 +1037,7 @@ existing HIGH/MED/LOW/INFO severity format.
 | T3.2 | `crows-traits` | 276 | 23 trees, L2459–3630. Leverage confirmed changed (Stacks on Stacks replaces Groundroll). Split across 3–4 agents by tree: **A** Alchemy→Blacksmithing (2459–2778), **B** Camping→Enchantment (2779–3016), **C** Illusion→Pets (3017–3358), **D** Reputation→Unarmed (3359–3630). Note the source's own typo: tree heading reads "Blackmsithing" at L2709. |
 | T3.3 | `crows-weapons` + `crows-armor` + `crows-ammunition` | 25 | L3749–4156. Armor types/upgrades/enchantments L3753–3941; weapon types/qualities/upgrades/enchantments L3946–4156. |
 | T3.4 | `crows-gear` + `crows-consumables` + `crows-loot` | 63 | L3635–3748 (cards, fine/masterwork, gear, money), L4157–4180 (crafting materials, treasure). Monster parts are now generic. |
-| T3.5 | `crows-monsters` | 11 → more | L5621–7058. Add `power`, `reactions`, `hasSlots`, `size`, `xRest` to every stat block. Expand: Animals/Potential Pets (5657–6131), Humans (6132–6553), Blood Creatures (6630), Ring Collector (6717), Undead (6760). |
+| T3.5 | `crows-monsters` | 11 → more | L5621–7058. Add `power`, `reactions`, `slots` (a **count** — 0 for monsters, the printed `**Slots:**N` for humans/animals), `size`, `type`, `expertises` (bare name = 1 use, "(2 uses)" = 2), and `xRest` to every stat block. Expand: Animals/Potential Pets (5657–6131), Humans (6132–6553), Blood Creatures (6630), Ring Collector (6717), Undead (6760). |
 | T3.6 | `crows-spellbooks` | 25 | L1459–1678. **Depends on T3.0** — this pack holds 5 of the 8 open HIGH findings. |
 | T3.7 | `crows-rules` | 1 journal, ~16 pages | Full rewrite: expertises, edges/banes, six conditions, new advancement tables, greed bonus, encounter EN, rest activities, sizes, corpse slots. **Depends on T3.0** and on T0.2 for terminology. |
 
@@ -961,9 +1110,11 @@ Pack build reminder: Foundry holds exclusive LevelDB locks while a world is open
 
 Carry these into the playtest feedback channel. Each is currently blocking a real implementation decision:
 
-1. **L538 wound/speed** — "for each slot occupied by a wound and an item" reads two ways, and the literal reading collapses a loaded PC's speed to 0 almost immediately. (Shipping the wound-only reading behind a setting.)
+1. **R:524 wound/speed** — "for each slot occupied by a wound and an item" reads **three** ways: (a) every occupied slot — which collapses a fully-loaded *unwounded* PC to speed 0 before they take any damage; (b) every wound; or (c) every slot holding **both** a wound and an item, which is coherent because wound placement is the PC's choice (R:524) and reads as a "drop your gear when you're hurt" incentive. Which is intended? (Shipping (b) behind a setting.)
 2. **Expertise vs. double bane ordering** — a double bane is −1 tier and an expertise is +1 tier. Do they simply net out, and does application order matter? No rule text covers this. (Assuming commutative.)
-3. **Background expertise uses** — L1776 says a background gives "1 use in some expertises," but entries list parentheticals like "Benefaction (2 uses)". Is the parenthetical the total or an addition to the base 1?
-4. **Counter damage vs. AD** — Counter deals "the tier 2 result of the weapon." Does that damage interact with Armor Defense normally?
+3. **Background expertise uses** — C:24 says a background gives "1 use in some expertises," but entries list parentheticals like "Benefaction (2 uses)" (C:103). Is the parenthetical the total or an addition to the base 1?
+4. ~~**Counter damage vs. AD**~~ — **withdrawn.** R:985 says you "deal the tier 2 result of the weapon you're wielding," which is ordinary weapon damage with no AD exemption stated, so it interacts with AD normally. No question to ask.
 5. **Greed Bonus scope** — "can't apply in that dungeon again to the group (or another group of PCs played by the same players)" implies tracking across characters and campaigns. Is a per-world, per-dungeon flag the intent?
-6. **Monster `power` values** — is a published power figure expected for every stat block, including uniques like the Ring Collector?
+6. **Monster `power` values** — is a published power figure expected for every stat block, including uniques like the Ring Collector? F:704 says the 0–50 scale may be exceeded by future products — should the ceiling be treated as soft? (Shipping it unbounded.)
+7. **Doom vs. an unconscious target** — R:554 says attacks against an unconscious creature "always achieve a tier 3 result (though the attacker can roll to see if they get a crit)", while R:246 says a doom is "automatically a tier 1 result." A doomed attack on a sleeping target satisfies both. We read the R:554 parenthetical as narrowing the roll to crit-detection only, so **unconscious wins and the tier stays 3**, with the doom still flagged for narrative adjudication. Confirm? (One constant in `resolveTier` — trivially reversible.)
+8. **Chaos roll vs. expertise** — the chaos roll fires on "a tier 1 result that isn't a doom" (R:1567), but expertise is spent *after* the roll and raises the tier. If a caster gets a tier 1, chaos-rolls a 1, then spends an expertise to reach tier 2, does the backlash still happen? (Blocking T1.1 and T1.8, which are dispatched in parallel.)
