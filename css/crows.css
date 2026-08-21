@@ -89,6 +89,102 @@
   /* Focus ring. */
   --crows-focus:        var(--crows-gold);
   --crows-focus-night:  #ff5a40;
+
+  /* Core neutrals — promoted from hardcoded literals. */
+  --crows-white:       #fff;      /* panel fills, inverted text */
+  --crows-ink-deep:    #1a1a1a;   /* text darker than --crows-ink */
+  --crows-ink-mid:     #444;      /* secondary body text */
+  --crows-ink-dim:     #666;      /* tertiary text */
+  --crows-ink-pale:    #aaa;      /* disabled / placeholder text */
+  --crows-paper-grey:  #eee;      /* inert surface, hairline */
+  --crows-paper-snow:  #fafafa;   /* lightest raised surface */
+
+  /* Paper surfaces — promoted from hardcoded literals. */
+  --crows-paper-tab:    #ede5d2;   /* tab + chip rest state (DS) */
+  --crows-paper-slot:   #f3eedf;   /* slot header (DS) */
+  --crows-paper-cream:  #f8f4e8;   /* warm recessed surface */
+
+  /* Link / roll blue — promoted from hardcoded literals. */
+  --crows-link:        #2a4080;   /* skill names, XP grants, cast bar (DS) */
+  --crows-link-hover:  #1a1a8a;   /* link hover (DS) */
+  --crows-link-deep:   #1a3070;   /* pressed link surface */
+  --crows-link-rule:   #4a6b8a;   /* link-tinted border */
+  --crows-link-bg:     #eef2ff;   /* link-tinted panel */
+  --crows-link-wash:   #f4f7fa;   /* faintest link panel */
+
+  /* Combat / danger — promoted from hardcoded literals. */
+  --crows-attack:         #882020;   /* attack button, wounded speed (DS) */
+  --crows-attack-hover:   #6a1010;   /* attack button hover (DS) */
+  --crows-attack-bright:  #b22020;   /* attack emphasis fill */
+  --crows-wound:          #5c1a1a;   /* wounded inventory slot (DS) */
+  --crows-wound-header:   #441111;   /* wounded slot header (DS) */
+  --crows-blood-rule:     #6a2a20;   /* blood-tinted border */
+  --crows-blood-bright:   #d05040;   /* blood emphasis fill */
+  --crows-blood-shadow:   #4a1a10;   /* deepest blood surface */
+  --crows-danger-bg:      #ffd6d6;   /* danger panel fill */
+  --crows-danger-pale:    #ffe8e8;   /* faintest danger fill */
+  --crows-danger-text:    #ffd0d0;   /* text on danger surfaces */
+
+  /* Rust / backlash — promoted from hardcoded literals. */
+  --crows-rust:       #804020;   /* backlash surface */
+  --crows-rust-rule:  #864c2a;   /* backlash border */
+  --crows-rust-text:  #ffb090;   /* text on backlash surfaces */
+
+  /* Gold — promoted from hardcoded literals. */
+  --crows-gold-mid:     #8a6600;   /* gold fill, pressed */
+  --crows-gold-dark:    #8a5a00;   /* gold text on light */
+  --crows-gold-bright:  #ffd668;   /* gold emphasis fill */
+  --crows-gold-pale:    #fff2c8;   /* faintest gold fill */
+  --crows-gold-rule:    #d8b258;   /* gold border */
+  --crows-rule-warm:    #c8c2b0;   /* warm neutral border */
+  --crows-rule-gold:    #e0d8b8;   /* gold-tinted hairline */
+
+  /* Blessed / green — promoted from hardcoded literals. */
+  --crows-blessed-text:    #2a4a2a;   /* text on blessed surfaces */
+  --crows-blessed-soft:    #d8e8d8;   /* blessed panel fill */
+  --crows-blessed-pale:    #e3f3e3;   /* faintest blessed fill */
+  --crows-blessed-deep:    #1a4a2a;   /* dark blessed surface */
+  --crows-blessed-shade:   #2a5a3a;   /* blessed surface, raised */
+  --crows-blessed-bright:  #4aa060;   /* blessed emphasis */
+
+  /* Village / crypt / miasma — promoted from hardcoded literals. */
+  --crows-village-rule:  #b8b8d0;   /* village border */
+  --crows-village-deep:  #2a2440;   /* dark village surface */
+  --crows-miasma-pale:   #d8c8ff;   /* faint miasma text */
+
+  /* Monster sheet (night) — promoted from hardcoded literals. */
+  --crows-night-label:      #d8c298;   /* stat labels (DS) */
+  --crows-night-mute:       #a89880;   /* muted night text */
+  --crows-night-raise:      #3a3025;   /* raised night surface */
+  --crows-night-edge:       #5a4a3a;   /* night border, firm */
+  --crows-night-rule-soft:  #6a5a4a;   /* night border, soft */
+  --crows-night-dim:        #8a7a6a;   /* night surface, dim */
+
+  /* Radii — promoted from hardcoded literals. */
+  --crows-radius:        3px;    /* default corner */
+  --crows-radius-panel:  4px;    /* panels and downtime cards */
+  --crows-radius-tight:  2px;    /* compact controls */
+
+  /* Type scale — promoted from hardcoded literals. */
+  --crows-text-micro:    10px;   /* smallest label */
+  --crows-text-tiny:     11px;   /* labels, chips, meta */
+  --crows-text-small:    12px;   /* secondary text */
+  --crows-sheet-text:    13px;   /* sheet body text (DS) */
+  --crows-text-mid:      14px;   /* emphasised body */
+  --crows-text-lead:     16px;   /* lead figures */
+  --crows-text-head:     20px;   /* monster name */
+  --crows-mini-value:    22px;   /* sub-stat value (DS) */
+  --crows-text-display:  28px;   /* dialog display figure */
+  --crows-stat-value:    32px;   /* primary stat value (DS) */
+
+  /* Component heights — promoted from hardcoded literals. */
+  --crows-statbox-h:   78px;   /* big stat box (DS) */
+  --crows-slot-h:      180px;  /* equipment slot (DS) */
+  --crows-inv-slot-h:  220px;  /* inventory slot (DS) */
+
+  /* Touch targets — promoted from hardcoded literals. */
+  --crows-touch-min:  32px;   /* minimum interactive target (DS) */
+  --crows-touch-sm:   28px;   /* compact interactive target */
 }
 
 .crows.sheet { font-family: var(--font-primary, "Signika", sans-serif); }
@@ -102,9 +198,9 @@
   flex-direction: column;
   gap: 8px;
   padding: 6px;
-  font-size: 13px;
-  color: #222;
-  background: #fdfbf6;
+  font-size: var(--crows-sheet-text);
+  color: var(--crows-ink);
+  background: var(--crows-paper);
 }
 
 .crows-crow input[type="text"],
@@ -113,7 +209,7 @@
 .crows-crow select {
   background: transparent;
   border: 0;
-  border-bottom: 1px solid #888;
+  border-bottom: 1px solid var(--crows-ink-fade);
   font: inherit;
   color: inherit;
   padding: 1px 3px;
@@ -123,12 +219,12 @@
 
 .crows-crow input:focus,
 .crows-crow textarea:focus,
-.crows-crow select:focus { outline: 1px solid #888; background: #fff; }
+.crows-crow select:focus { outline: 1px solid var(--crows-ink-fade); background: var(--crows-white); }
 
 .crows-crow .cc-section-title {
   text-align: center;
   font-weight: bold;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid var(--crows-ink);
   padding-bottom: 2px;
   margin-bottom: 4px;
   letter-spacing: 0.5px;
@@ -140,9 +236,9 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 6px;
-  border: 1px solid #222;
+  border: 1px solid var(--crows-ink);
   padding: 6px 8px;
-  background: #fff;
+  background: var(--crows-white);
 }
 
 .cc-id { display: flex; flex-direction: column; gap: 3px; }
@@ -154,16 +250,16 @@
 .cc-xp-row { display: flex; gap: 6px; align-items: stretch; }
 .cc-xp-cell {
   flex: 1;
-  border: 1px solid #222;
+  border: 1px solid var(--crows-ink);
   padding: 2px 6px;
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #fff;
+  background: var(--crows-white);
 }
-.cc-xp-cell label { font-weight: bold; font-size: 11px; flex: 1; }
+.cc-xp-cell label { font-weight: bold; font-size: var(--crows-text-tiny); flex: 1; }
 .cc-xp-cell input { width: 50px; text-align: center; }
-.cc-xp-cell .cc-xp-target { font-weight: bold; font-size: 14px; }
+.cc-xp-cell .cc-xp-target { font-weight: bold; font-size: var(--crows-text-mid); }
 
 /* -------- Big stat boxes row (S / A / M / Stamina / AD) -------- */
 
@@ -174,24 +270,24 @@
 }
 
 .cc-stat-box {
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-white);
   text-align: center;
   padding: 4px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 78px;
+  min-height: var(--crows-statbox-h);
 }
 
 .cc-stat-box.clickable { cursor: pointer; }
-.cc-stat-box.clickable:hover { background: #fff7d8; }
+.cc-stat-box.clickable:hover { background: var(--crows-gold-light); }
 
 .cc-stat-label {
   font-weight: bold;
-  font-size: 13px;
-  border-bottom: 1px solid #222;
+  font-size: var(--crows-sheet-text);
+  border-bottom: 1px solid var(--crows-ink);
   width: 100%;
   padding-bottom: 2px;
   margin-bottom: 4px;
@@ -199,23 +295,23 @@
 }
 
 .cc-stat-value {
-  font-size: 32px;
+  font-size: var(--crows-stat-value);
   font-weight: bold;
   font-family: "Georgia", serif;
   border: 0;
   width: 60px;
   text-align: center;
   background: transparent;
-  color: #222;
+  color: var(--crows-ink);
 }
 
-.cc-stat-value:focus { outline: 1px solid #888; background: #fff; }
+.cc-stat-value:focus { outline: 1px solid var(--crows-ink-fade); background: var(--crows-white); }
 
-.cc-stat-pair { display: flex; align-items: center; gap: 2px; font-size: 22px; }
-.cc-stat-pair input { width: 38px; font-size: 22px; font-weight: bold; }
-.cc-stat-pair .sep { color: #888; }
+.cc-stat-pair { display: flex; align-items: center; gap: 2px; font-size: var(--crows-mini-value); }
+.cc-stat-pair input { width: 38px; font-size: var(--crows-mini-value); font-weight: bold; }
+.cc-stat-pair .sep { color: var(--crows-ink-fade); }
 
-.cc-ad-derived { font-size: 32px; padding-top: 6px; }
+.cc-ad-derived { font-size: var(--crows-stat-value); padding-top: 6px; }
 
 /* -------- Sub-stat row (Speed / Shift / Conditions) -------- */
 
@@ -228,8 +324,8 @@
 
 /* Time panel (right of Conditions) */
 .cc-time {
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-white);
   padding: 4px 6px;
   display: flex;
   flex-direction: column;
@@ -237,19 +333,19 @@
   min-width: 230px;
 }
 .cc-time-row { display: flex; align-items: center; gap: 4px; padding-top: 2px; }
-.cc-time-cell { text-align: center; padding-right: 6px; border-right: 1px dotted #ccc; margin-right: 4px; }
+.cc-time-cell { text-align: center; padding-right: 6px; border-right: 1px dotted var(--crows-rule); margin-right: 4px; }
 .cc-time-row button {
-  background: #ede5d2;
-  border: 1px solid #222;
+  background: var(--crows-paper-tab);
+  border: 1px solid var(--crows-ink);
   padding: 3px 8px;
-  font-size: 11px;
+  font-size: var(--crows-text-tiny);
   cursor: pointer;
 }
-.cc-time-row button:hover { background: #fff7d8; }
+.cc-time-row button:hover { background: var(--crows-gold-light); }
 
 .cc-mini-box {
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-white);
   text-align: center;
   padding: 4px 8px;
   min-width: 64px;
@@ -257,26 +353,26 @@
   flex-direction: column;
   justify-content: center;
 }
-.cc-mini-value { font-size: 22px; font-weight: bold; font-family: "Georgia", serif; }
-.cc-speed-effective { color: #882020; }
-.cc-speed-base { font-size: 13px; color: #888; }
-.cc-mini-value input { width: 40px; font-size: 22px; font-weight: bold; text-align: center; }
-.cc-mini-label { font-size: 11px; color: #555; border-top: 1px solid #ccc; padding-top: 2px; margin-top: 2px; }
+.cc-mini-value { font-size: var(--crows-mini-value); font-weight: bold; font-family: "Georgia", serif; }
+.cc-speed-effective { color: var(--crows-attack); }
+.cc-speed-base { font-size: var(--crows-sheet-text); color: var(--crows-ink-fade); }
+.cc-mini-value input { width: 40px; font-size: var(--crows-mini-value); font-weight: bold; text-align: center; }
+.cc-mini-label { font-size: var(--crows-text-tiny); color: var(--crows-ink-mute); border-top: 1px solid var(--crows-rule); padding-top: 2px; margin-top: 2px; }
 
 .cc-conditions {
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-white);
   padding: 4px 6px;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.cc-conditions-title { font-weight: bold; text-align: center; border-bottom: 1px solid #222; padding-bottom: 2px; }
+.cc-conditions-title { font-weight: bold; text-align: center; border-bottom: 1px solid var(--crows-ink); padding-bottom: 2px; }
 .cc-conditions-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4px; align-items: center; }
 .cc-cond-cell { text-align: center; }
-.cc-cond-label { font-size: 11px; font-weight: bold; }
+.cc-cond-label { font-size: var(--crows-text-tiny); font-weight: bold; }
 .cc-cond-value { display: flex; align-items: center; justify-content: center; gap: 2px; }
-.cc-cond-value .cc-net { font-size: 16px; font-weight: bold; min-width: 18px; }
+.cc-cond-value .cc-net { font-size: var(--crows-text-lead); font-weight: bold; min-width: 18px; }
 .cc-cond-value button { width: 20px; height: 20px; padding: 0; }
 .cc-cond-cell input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
 
@@ -285,21 +381,21 @@
 .cc-tabs {
   display: flex;
   gap: 0;
-  border-bottom: 2px solid #222;
+  border-bottom: 2px solid var(--crows-ink);
 }
 .cc-tabs button {
-  background: #ede5d2;
-  border: 1px solid #222;
+  background: var(--crows-paper-tab);
+  border: 1px solid var(--crows-ink);
   border-bottom: 0;
   margin-right: -1px;
   padding: 4px 14px;
   font-weight: bold;
   cursor: pointer;
-  color: #444;
+  color: var(--crows-ink-mid);
 }
 .cc-tabs button.active {
-  background: #fff;
-  color: #222;
+  background: var(--crows-white);
+  color: var(--crows-ink);
   position: relative;
   z-index: 1;
 }
@@ -319,8 +415,8 @@
 }
 
 .cc-perks {
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-white);
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -335,28 +431,28 @@
   gap: 2px;
 }
 .cc-perk {
-  border: 1px solid #ccc;
+  border: 1px solid var(--crows-rule);
   padding: 3px 6px;
-  background: #faf6ec;
+  background: var(--crows-paper-warm);
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   cursor: pointer;
 }
-.cc-perk:hover { background: #fff2c8; }
+.cc-perk:hover { background: var(--crows-gold-pale); }
 .cc-perk-name { font-weight: bold; }
-.cc-perk-meta { font-size: 11px; color: #666; }
+.cc-perk-meta { font-size: var(--crows-text-tiny); color: var(--crows-ink-dim); }
 
 .cc-empty {
-  color: #888;
+  color: var(--crows-ink-fade);
   font-style: italic;
-  font-size: 12px;
+  font-size: var(--crows-text-small);
   padding: 4px;
 }
 
 .cc-skills {
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-white);
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -364,7 +460,7 @@
   overflow: hidden;
 }
 .cc-skills-horizontal { flex: 0 0 auto; }                       /* compact — all rows visible */
-.cc-skills-title { color: #2a4080; flex: 0 0 auto; }
+.cc-skills-title { color: var(--crows-link); flex: 0 0 auto; }
 
 .cc-skill-cols {
   display: grid;
@@ -392,8 +488,8 @@
 }
 
 .cc-skills-hint {
-  font-size: 11px;
-  color: #666;
+  font-size: var(--crows-text-tiny);
+  color: var(--crows-ink-dim);
   font-style: italic;
   text-align: center;
   margin-bottom: 4px;
@@ -402,8 +498,8 @@
 .cc-skill-group {
   font-weight: bold;
   text-align: center;
-  background: #ede5d2;
-  border: 1px solid #222;
+  background: var(--crows-paper-tab);
+  border: 1px solid var(--crows-ink);
   padding: 2px;
   margin-bottom: 2px;
 }
@@ -413,21 +509,21 @@
   grid-template-columns: 1fr 22px 22px;
   align-items: center;
   gap: 2px;
-  font-size: 12px;
+  font-size: var(--crows-text-small);
   padding: 1px 2px;
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted var(--crows-rule);
 }
 .cc-skill-row .cc-skill-name {
   text-align: left;
   background: transparent;
   border: 0;
-  color: #2a4080;
+  color: var(--crows-link);
   cursor: pointer;
   padding: 2px 0;
   font: inherit;
   font-weight: 500;
 }
-.cc-skill-row .cc-skill-name:hover { color: #1a1a8a; text-decoration: underline; }
+.cc-skill-row .cc-skill-name:hover { color: var(--crows-link-hover); text-decoration: underline; }
 .cc-skill-row input[type="checkbox"] {
   width: 14px;
   height: 14px;
@@ -444,18 +540,18 @@
 }
 
 .cc-slot {
-  border: 1px solid #222;
-  background: #fff;
-  min-height: 180px;
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-white);
+  min-height: var(--crows-slot-h);
   display: flex;
   flex-direction: column;
 }
 .cc-slot-header {
-  background: #f3eedf;
-  border-bottom: 1px solid #222;
+  background: var(--crows-paper-slot);
+  border-bottom: 1px solid var(--crows-ink);
   padding: 3px 6px;
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--crows-text-small);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -465,13 +561,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #aaa;
+  color: var(--crows-ink-pale);
   font-style: italic;
-  font-size: 12px;
+  font-size: var(--crows-text-small);
   padding: 4px;
   text-align: center;
 }
-.cc-slot.filled { background: #fdfbf6; }
+.cc-slot.filled { background: var(--crows-paper); }
 
 .cc-card {
   padding: 4px 6px;
@@ -480,28 +576,28 @@
   gap: 2px;
   cursor: pointer;
   flex: 1;
-  font-size: 11px;
+  font-size: var(--crows-text-tiny);
 }
-.cc-card:hover { background: #fff7d8; }
-.cc-card-name { font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 1px; font-size: 12px; }
-.cc-card-stack { font-weight: normal; font-size: 10px; color: #666; }
+.cc-card:hover { background: var(--crows-gold-light); }
+.cc-card-name { font-weight: bold; border-bottom: 1px solid var(--crows-rule); padding-bottom: 1px; font-size: var(--crows-text-small); }
+.cc-card-stack { font-weight: normal; font-size: var(--crows-text-micro); color: var(--crows-ink-dim); }
 .cc-card-line { line-height: 1.3; }
-.cc-card-cost { margin-top: auto; align-self: center; font-size: 10px; color: #555; }
+.cc-card-cost { margin-top: auto; align-self: center; font-size: var(--crows-text-micro); color: var(--crows-ink-mute); }
 .cc-attack-btn {
-  background: #882020;
-  color: #fff;
+  background: var(--crows-attack);
+  color: var(--crows-white);
   border: 0;
   padding: 2px 6px;
-  font-size: 11px;
+  font-size: var(--crows-text-tiny);
   font-weight: bold;
-  border-radius: 2px;
+  border-radius: var(--crows-radius-tight);
   cursor: pointer;
   align-self: stretch;
   margin-top: 4px;
 }
-.cc-attack-btn:hover { background: #6a1010; }
+.cc-attack-btn:hover { background: var(--crows-attack-hover); }
 .cc-card-name { cursor: pointer; }
-.cc-card-name:hover { background: #fff7d8; }
+.cc-card-name:hover { background: var(--crows-gold-light); }
 
 /* -------- INVENTORY tab: 10 backpack slots ----------------------- */
 
@@ -511,8 +607,8 @@
   gap: 8px;
   margin-bottom: 6px;
   padding: 4px;
-  background: #f3eedf;
-  border: 1px solid #ccc;
+  background: var(--crows-paper-slot);
+  border: 1px solid var(--crows-rule);
 }
 .cc-wounds-controls button { padding: 2px 8px; }
 
@@ -523,10 +619,10 @@
   gap: 4px;
 }
 .cc-inv-slot {
-  min-height: 220px;
+  min-height: var(--crows-inv-slot-h);
 }
 .cc-inv-slot .cc-wound-check {
-  font-size: 10px;
+  font-size: var(--crows-text-micro);
   font-weight: normal;
   font-style: italic;
   display: flex;
@@ -534,32 +630,32 @@
   gap: 4px;
 }
 .cc-inv-slot .cc-wound-check input { margin: 0; width: 14px; height: 14px; }
-.cc-inv-slot.wound { background: #5c1a1a; color: #fff; }
-.cc-inv-slot.wound .cc-slot-header { background: #441111; color: #fff; border-color: #882020; }
+.cc-inv-slot.wound { background: var(--crows-wound); color: var(--crows-white); }
+.cc-inv-slot.wound .cc-slot-header { background: var(--crows-wound-header); color: var(--crows-white); border-color: var(--crows-attack); }
 .cc-slot-wound {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 16px;
-  color: #fff;
+  font-size: var(--crows-text-lead);
+  color: var(--crows-white);
 }
 
 /* -------- Bio / Advancement ------------------------------------- */
 
 /* Spellbook cast bar */
-.crows-item.spellbook .cast-bar { display:flex; align-items:center; gap:8px; padding:6px 4px; margin-bottom:4px; border:1px solid #2a4080; background:#eef2ff; border-radius:3px; }
-.crows-item.spellbook .cast-btn { background:#2a4080; color:#fff; border:0; padding:4px 10px; font-weight:bold; border-radius:3px; cursor:pointer; }
-.crows-item.spellbook .cast-btn:hover { background:#1a3070; }
-.crows-item.spellbook .cast-hint { font-size:11px; color:#555; font-style:italic; }
+.crows-item.spellbook .cast-bar { display:flex; align-items:center; gap:8px; padding:6px 4px; margin-bottom:4px; border:1px solid var(--crows-link); background:var(--crows-link-bg); border-radius:var(--crows-radius); }
+.crows-item.spellbook .cast-btn { background:var(--crows-link); color:var(--crows-white); border:0; padding:4px 10px; font-weight:bold; border-radius:var(--crows-radius); cursor:pointer; }
+.crows-item.spellbook .cast-btn:hover { background:var(--crows-link-deep); }
+.crows-item.spellbook .cast-hint { font-size:var(--crows-text-tiny); color:var(--crows-ink-mute); font-style:italic; }
 
 /* --------- Chaos chat-card + dialog --------- */
 .crows.chaos-update { padding: 4px 6px; }
-.chaos-bar { background: #222; height: 8px; border-radius: 3px; overflow: hidden; margin-top: 2px; }
-.chaos-bar-fill { background: linear-gradient(90deg, #2a4080, #b22020); height: 100%; transition: width .15s ease; }
-.chaos-bar-hint { font-size: 11px; color: #555; margin-top: 2px; }
-.chaos-dialog-value { font-size: 28px; font-family: "Georgia", serif; text-align: center; }
+.chaos-bar { background: var(--crows-ink); height: 8px; border-radius: var(--crows-radius); overflow: hidden; margin-top: 2px; }
+.chaos-bar-fill { background: linear-gradient(90deg, var(--crows-link), var(--crows-attack-bright)); height: 100%; transition: width .15s ease; }
+.chaos-bar-hint { font-size: var(--crows-text-tiny); color: var(--crows-ink-mute); margin-top: 2px; }
+.chaos-dialog-value { font-size: var(--crows-text-display); font-family: "Georgia", serif; text-align: center; }
 
 /* --------- Advancement tab --------- */
 .cc-advancement.active { display: flex; flex-direction: column; gap: 6px; }
@@ -569,20 +665,20 @@
   gap: 6px;
   align-items: center;
   padding: 6px 8px;
-  background: #fff;
-  border: 1px solid #222;
+  background: var(--crows-white);
+  border: 1px solid var(--crows-ink);
 }
-.cc-adv-stat { display: flex; flex-direction: column; align-items: center; padding: 2px 8px; border-right: 1px dotted #ccc; min-width: 100px; }
+.cc-adv-stat { display: flex; flex-direction: column; align-items: center; padding: 2px 8px; border-right: 1px dotted var(--crows-rule); min-width: 100px; }
 .cc-adv-stat:last-of-type { border-right: 0; }
-.cc-adv-label { font-size: 10px; color: #666; text-transform: uppercase; }
-.cc-adv-stat strong { font-size: 16px; }
-.cc-adv-grant { background: #2a4080; color: #fff; border: 0; padding: 4px 8px; font-size: 11px; cursor: pointer; border-radius: 3px; }
-.cc-adv-grant:hover { background: #1a3070; }
-.cc-adv-pending { display:block; font-size: 10px; color: #b88a00; font-weight: bold; }
-.cc-adv-spend-btn { background: #b88a00; color: #fff; border: 0; padding: 4px 8px; font-size: 11px; cursor: pointer; border-radius: 3px; font-weight: bold; }
-.cc-adv-spend-btn:hover { background: #8a6600; }
+.cc-adv-label { font-size: var(--crows-text-micro); color: var(--crows-ink-dim); text-transform: uppercase; }
+.cc-adv-stat strong { font-size: var(--crows-text-lead); }
+.cc-adv-grant { background: var(--crows-link); color: var(--crows-white); border: 0; padding: 4px 8px; font-size: var(--crows-text-tiny); cursor: pointer; border-radius: var(--crows-radius); }
+.cc-adv-grant:hover { background: var(--crows-link-deep); }
+.cc-adv-pending { display:block; font-size: var(--crows-text-micro); color: var(--crows-gold); font-weight: bold; }
+.cc-adv-spend-btn { background: var(--crows-gold); color: var(--crows-white); border: 0; padding: 4px 8px; font-size: var(--crows-text-tiny); cursor: pointer; border-radius: var(--crows-radius); font-weight: bold; }
+.cc-adv-spend-btn:hover { background: var(--crows-gold-mid); }
 .adv-spend-form { padding: 4px; }
-.adv-spend-form .adv-opt { padding: 4px 0; border-bottom: 1px dotted #ccc; }
+.adv-spend-form .adv-opt { padding: 4px 0; border-bottom: 1px dotted var(--crows-rule); }
 .adv-spend-form .adv-skill-pair { padding-left: 24px; display: flex; gap: 8px; }
 .adv-spend-form select { padding: 2px; }
 
@@ -591,57 +687,57 @@
   flex-wrap: wrap;
   gap: 3px;
   padding: 4px;
-  background: #fff;
-  border: 1px solid #222;
+  background: var(--crows-white);
+  border: 1px solid var(--crows-ink);
   max-height: 64px;
   overflow-y: auto;
 }
 .cc-tree-chip {
-  background: #ede5d2;
-  border: 1px solid #888;
+  background: var(--crows-paper-tab);
+  border: 1px solid var(--crows-ink-fade);
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: var(--crows-text-tiny);
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--crows-radius);
 }
-.cc-tree-chip:hover { background: #fff7d8; }
-.cc-tree-chip.active { background: #2a4080; color: #fff; border-color: #2a4080; font-weight: bold; }
+.cc-tree-chip:hover { background: var(--crows-gold-light); }
+.cc-tree-chip.active { background: var(--crows-link); color: var(--crows-white); border-color: var(--crows-link); font-weight: bold; }
 
-.cc-trait-grid { display: flex; flex-direction: column; gap: 4px; background: #fff; border: 1px solid #222; padding: 6px; }
+.cc-trait-grid { display: flex; flex-direction: column; gap: 4px; background: var(--crows-white); border: 1px solid var(--crows-ink); padding: 6px; }
 .cc-trait-row { display: grid; grid-template-columns: 88px 1fr 1fr 1fr; gap: 4px; align-items: stretch; }
 .cc-tier-label {
-  background: #ede5d2;
-  border: 1px solid #888;
-  border-radius: 3px;
+  background: var(--crows-paper-tab);
+  border: 1px solid var(--crows-ink-fade);
+  border-radius: var(--crows-radius);
   padding: 4px;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-.cc-tier-label .ct-tier { font-weight: bold; font-size: 13px; }
-.cc-tier-label .ct-cost { font-size: 10px; color: #666; }
+.cc-tier-label .ct-tier { font-weight: bold; font-size: var(--crows-sheet-text); }
+.cc-tier-label .ct-cost { font-size: var(--crows-text-micro); color: var(--crows-ink-dim); }
 .cc-trait-cell {
-  border: 1px solid #888;
-  border-radius: 3px;
+  border: 1px solid var(--crows-ink-fade);
+  border-radius: var(--crows-radius);
   padding: 6px 8px;
-  background: #fafafa;
+  background: var(--crows-paper-snow);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 50px;
-  font-size: 12px;
+  font-size: var(--crows-text-small);
 }
-.cc-trait-cell.empty { background: transparent; border-color: #ddd; text-align: center; color: #ccc; }
-.cc-trait-cell.owned { background: #e3f3e3; border-color: #2a8040; }
-.cc-trait-cell.owned .ct-owned { color: #2a8040; font-weight: bold; }
-.cc-trait-cell.buyable { background: #fff7d8; border-color: #b88a00; cursor: pointer; }
-.cc-trait-cell.buyable:hover { background: #ffe89c; }
-.cc-trait-cell.buyable .ct-buy { color: #8a5a00; font-weight: bold; }
+.cc-trait-cell.empty { background: transparent; border-color: var(--crows-rule-soft); text-align: center; color: var(--crows-rule); }
+.cc-trait-cell.owned { background: var(--crows-blessed-pale); border-color: var(--crows-blessed); }
+.cc-trait-cell.owned .ct-owned { color: var(--crows-blessed); font-weight: bold; }
+.cc-trait-cell.buyable { background: var(--crows-gold-light); border-color: var(--crows-gold); cursor: pointer; }
+.cc-trait-cell.buyable:hover { background: var(--crows-gold-soft); }
+.cc-trait-cell.buyable .ct-buy { color: var(--crows-gold-dark); font-weight: bold; }
 .cc-trait-cell.locked { opacity: 0.55; }
-.cc-trait-cell.locked .ct-locked { color: #888; font-style: italic; }
+.cc-trait-cell.locked .ct-locked { color: var(--crows-ink-fade); font-style: italic; }
 .cc-trait-cell .ct-name { font-weight: bold; }
-.cc-trait-cell .ct-status { font-size: 11px; margin-top: 4px; }
+.cc-trait-cell .ct-status { font-size: var(--crows-text-tiny); margin-top: 4px; }
 
 .cc-bio .cc-field { display: grid; grid-template-columns: 120px 1fr; align-items: start; gap: 6px; margin-bottom: 6px; }
 .cc-bio textarea { width: 100%; }
@@ -651,35 +747,35 @@
 .cc-prepared-task {
   margin-top: 4px;
   padding: 4px 6px;
-  background: #fff4d6;
-  border: 1px solid #b88a00;
-  border-radius: 3px;
-  color: #6a4400;
-  font-size: 12px;
+  background: var(--crows-paper-deep);
+  border: 1px solid var(--crows-gold);
+  border-radius: var(--crows-radius);
+  color: var(--crows-gold-deep);
+  font-size: var(--crows-text-small);
 }
-.crows.rest-form .rest-opt { margin-bottom: 8px; padding: 4px; border-bottom: 1px dashed #ddd; }
+.crows.rest-form .rest-opt { margin-bottom: 8px; padding: 4px; border-bottom: 1px dashed var(--crows-rule-soft); }
 .crows.rest-form .rest-opt:last-of-type { border-bottom: 0; }
-.crows.rest-form .rest-prep-note { padding: 4px; background: #fff4d6; border: 1px solid #d8b258; border-radius: 3px; margin-bottom: 8px; }
-.crows.rest-activity { background: #f4f7fa; border-left: 3px solid #4a6b8a; padding: 6px 8px; margin: 2px 0; }
-.crows.rest-activity.identify-item { border-left-color: #6a4ca8; }
-.crows.rest-activity.prepare-for-task { border-left-color: #b88a00; }
-.crows.rest-activity.craft-equipment { border-left-color: #2a8040; }
-.crows.rest-activity.harvest { border-left-color: #864c2a; }
+.crows.rest-form .rest-prep-note { padding: 4px; background: var(--crows-paper-deep); border: 1px solid var(--crows-gold-rule); border-radius: var(--crows-radius); margin-bottom: 8px; }
+.crows.rest-activity { background: var(--crows-link-wash); border-left: 3px solid var(--crows-link-rule); padding: 6px 8px; margin: 2px 0; }
+.crows.rest-activity.identify-item { border-left-color: var(--crows-crypt); }
+.crows.rest-activity.prepare-for-task { border-left-color: var(--crows-gold); }
+.crows.rest-activity.craft-equipment { border-left-color: var(--crows-blessed); }
+.crows.rest-activity.harvest { border-left-color: var(--crows-rust-rule); }
 
 /* Miasma badges + effect list */
 .cc-miasma-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
 .cc-miasma-badge {
   padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 11px;
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-tiny);
   font-weight: bold;
   letter-spacing: 0.4px;
   text-transform: uppercase;
 }
-.cc-miasma-badge.in-miasma { background: #4a2a5a; color: #f0d8ff; border: 1px solid #6a3a8a; }
-.cc-miasma-badge.clear { background: #d8e8d8; color: #2a4a2a; border: 1px solid #2a8040; }
+.cc-miasma-badge.in-miasma { background: var(--crows-miasma-deep); color: var(--crows-miasma-text); border: 1px solid var(--crows-miasma); }
+.cc-miasma-badge.clear { background: var(--crows-blessed-soft); color: var(--crows-blessed-text); border: 1px solid var(--crows-blessed); }
 .cc-miasma-badge.permanent-npc {
-  background: #6a0a0a; color: #ffd0d0; border: 1px solid #b80000;
+  background: var(--crows-danger-deep); color: var(--crows-danger-text); border: 1px solid var(--crows-danger);
   animation: miasma-pulse 1.6s ease-in-out infinite;
 }
 @keyframes miasma-pulse {
@@ -689,33 +785,33 @@
 .cc-miasma-effects {
   margin: 4px 0 0 0;
   padding: 6px 8px 6px 22px;
-  background: #f6eef9;
-  border-left: 3px solid #6a3a8a;
-  border-radius: 3px;
-  font-size: 12px;
+  background: var(--crows-miasma-bg);
+  border-left: 3px solid var(--crows-miasma);
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-small);
 }
 .cc-miasma-effects li { margin-bottom: 3px; }
-.cc-miasma-effects .me-bucket { color: #888; font-size: 10px; }
-.crows.miasma-result.tier1 { border-left: 3px solid #b80000; padding: 4px 8px; }
-.crows.miasma-result.tier2 { border-left: 3px solid #b88a00; padding: 4px 8px; }
-.crows.miasma-result.tier3 { border-left: 3px solid #2a8040; padding: 4px 8px; }
-.crows.miasma-effect { background: #f6eef9; border-left: 3px solid #6a3a8a; padding: 6px 8px; }
+.cc-miasma-effects .me-bucket { color: var(--crows-ink-fade); font-size: var(--crows-text-micro); }
+.crows.miasma-result.tier1 { border-left: 3px solid var(--crows-danger); padding: 4px 8px; }
+.crows.miasma-result.tier2 { border-left: 3px solid var(--crows-gold); padding: 4px 8px; }
+.crows.miasma-result.tier3 { border-left: 3px solid var(--crows-blessed); padding: 4px 8px; }
+.crows.miasma-effect { background: var(--crows-miasma-bg); border-left: 3px solid var(--crows-miasma); padding: 6px 8px; }
 .crows.miasma-effect.catastrophic {
-  background: #ffd6d6; border-left: 3px solid #b80000;
+  background: var(--crows-danger-bg); border-left: 3px solid var(--crows-danger);
   font-weight: bold;
 }
-.crows.miasma-clear { background: #e8f8e8; border-left: 3px solid #2a8040; padding: 4px 8px; }
-.crows.miasma-toggle { background: #fff4d6; border: 1px solid #b88a00; padding: 4px 8px; border-radius: 3px; }
+.crows.miasma-clear { background: var(--crows-blessed-bg); border-left: 3px solid var(--crows-blessed); padding: 4px 8px; }
+.crows.miasma-toggle { background: var(--crows-paper-deep); border: 1px solid var(--crows-gold); padding: 4px 8px; border-radius: var(--crows-radius); }
 
 /* Crypt boons */
 .cc-crypt-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
 .cc-crypt-label {
   padding: 2px 8px;
-  background: #2a2440;
-  color: #d8c8ff;
-  border: 1px solid #4a4070;
-  border-radius: 3px;
-  font-size: 11px;
+  background: var(--crows-village-deep);
+  color: var(--crows-miasma-pale);
+  border: 1px solid var(--crows-village);
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-tiny);
   font-weight: bold;
   letter-spacing: 0.4px;
   text-transform: uppercase;
@@ -723,79 +819,79 @@
 .cc-active-boon {
   margin-top: 4px;
   padding: 6px 8px;
-  background: #f0eaff;
-  border: 1px solid #6a4ca8;
-  border-radius: 3px;
-  font-size: 12px;
+  background: var(--crows-crypt-bg);
+  border: 1px solid var(--crows-crypt);
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-small);
 }
-.cc-active-boon .cb-src { color: #888; font-size: 11px; margin-left: 4px; }
-.cc-active-boon .cb-uses { color: #6a4ca8; font-weight: bold; margin-left: 8px; }
-.cc-active-boon .cb-summary { margin-top: 4px; font-style: italic; color: #4a4070; }
+.cc-active-boon .cb-src { color: var(--crows-ink-fade); font-size: var(--crows-text-tiny); margin-left: 4px; }
+.cc-active-boon .cb-uses { color: var(--crows-crypt); font-weight: bold; margin-left: 8px; }
+.cc-active-boon .cb-summary { margin-top: 4px; font-style: italic; color: var(--crows-village); }
 .crows.crypt-inter, .crows.crypt-pray, .crows.crypt-expend {
-  background: #f0eaff; border-left: 3px solid #6a4ca8; padding: 6px 8px;
+  background: var(--crows-crypt-bg); border-left: 3px solid var(--crows-crypt); padding: 6px 8px;
 }
-.crows.crypt-cycle { background: #fff4d6; border-left: 3px solid #b88a00; padding: 4px 8px; }
+.crows.crypt-cycle { background: var(--crows-paper-deep); border-left: 3px solid var(--crows-gold); padding: 4px 8px; }
 .crows.crypt-form .crypt-opt { margin: 4px 0; }
 
 /* Village shell */
-.cc-village-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; font-size: 12px; }
-.cc-village-name { font-weight: bold; color: #4a4070; }
+.cc-village-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; font-size: var(--crows-text-small); }
+.cc-village-name { font-weight: bold; color: var(--crows-village); }
 .cc-village-prosp, .cc-village-cycle {
   padding: 1px 6px;
-  background: #f0f0f8;
-  border: 1px solid #b8b8d0;
-  border-radius: 3px;
-  font-size: 11px;
+  background: var(--crows-village-bg);
+  border: 1px solid var(--crows-village-rule);
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-tiny);
 }
 .crows.village-dialog .village-inst-table { width: 100%; border-collapse: collapse; margin: 6px 0; }
 .crows.village-dialog .village-inst-table th, .crows.village-dialog .village-inst-table td {
-  border-bottom: 1px solid #ddd; padding: 3px 6px; text-align: left;
+  border-bottom: 1px solid var(--crows-rule-soft); padding: 3px 6px; text-align: left;
 }
 .crows.village-dialog .village-found-form,
 .crows.village-dialog .village-prosp-form,
 .crows.village-dialog .village-name-form,
 .crows.village-dialog .village-cycle-form {
-  display: flex; gap: 6px; align-items: center; margin: 6px 0; padding: 4px; background: #f8f8f4; border-radius: 3px;
+  display: flex; gap: 6px; align-items: center; margin: 6px 0; padding: 4px; background: var(--crows-paper-sand); border-radius: var(--crows-radius);
 }
 .crows.village-found, .crows.village-upgrade, .crows.village-damaged, .crows.village-destroyed,
 .crows.village-prosperity, .crows.village-endcycle, .crows.village-event, .crows.village-avail {
-  background: #f8f8f4; border-left: 3px solid #b88a00; padding: 6px 8px;
+  background: var(--crows-paper-sand); border-left: 3px solid var(--crows-gold); padding: 6px 8px;
 }
-.crows.village-avail.yes { border-left-color: #2a8040; background: #e8f8e8; }
-.crows.village-avail.no { border-left-color: #b80000; background: #ffe8e8; }
+.crows.village-avail.yes { border-left-color: var(--crows-blessed); background: var(--crows-blessed-bg); }
+.crows.village-avail.no { border-left-color: var(--crows-danger); background: var(--crows-danger-pale); }
 .crows.village-event .ve-text { margin-top: 4px; font-style: italic; }
 
 /* Crafting panel */
-.cc-crafting-panel { margin-top: 12px; padding: 8px; background: #f8f8f0; border: 1px solid #ddd; border-radius: 4px; }
+.cc-crafting-panel { margin-top: 12px; padding: 8px; background: var(--crows-craft-bg); border: 1px solid var(--crows-rule-soft); border-radius: var(--crows-radius-panel); }
 .cc-crafting-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .cc-crafting-list { list-style: none; margin: 0; padding: 0; }
-.cc-crafting-item { padding: 6px; margin: 4px 0; background: #fff; border: 1px solid #ccc; border-radius: 3px; }
-.cc-crafting-item.complete { background: #e8f8e8; border-color: #2a8040; }
+.cc-crafting-item { padding: 6px; margin: 4px 0; background: var(--crows-white); border: 1px solid var(--crows-rule); border-radius: var(--crows-radius); }
+.cc-crafting-item.complete { background: var(--crows-blessed-bg); border-color: var(--crows-blessed); }
 .ci-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
-.ci-head .ci-meta { color: #888; font-size: 11px; }
-.ci-bar { height: 8px; background: #eee; border-radius: 3px; overflow: hidden; margin: 4px 0; }
-.ci-bar-fill { height: 100%; background: linear-gradient(90deg, #b88a00, #2a8040); }
-.ci-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 11px; }
+.ci-head .ci-meta { color: var(--crows-ink-fade); font-size: var(--crows-text-tiny); }
+.ci-bar { height: 8px; background: var(--crows-paper-grey); border-radius: var(--crows-radius); overflow: hidden; margin: 4px 0; }
+.ci-bar-fill { height: 100%; background: linear-gradient(90deg, var(--crows-gold), var(--crows-blessed)); }
+.ci-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: var(--crows-text-tiny); }
 .ci-row .ci-pts { font-weight: bold; }
-.ci-row .ci-mat { color: #666; font-style: italic; }
-.ci-notes { margin-top: 4px; color: #555; font-style: italic; font-size: 11px; }
+.ci-row .ci-mat { color: var(--crows-ink-dim); font-style: italic; }
+.ci-notes { margin-top: 4px; color: var(--crows-ink-mute); font-style: italic; font-size: var(--crows-text-tiny); }
 .crows.crafting-start, .crows.crafting-roll, .crows.crafting-done, .crows.crafting-cancel {
-  background: #f8f8f0; border-left: 3px solid #b88a00; padding: 6px 8px;
+  background: var(--crows-craft-bg); border-left: 3px solid var(--crows-craft); padding: 6px 8px;
 }
-.crows.crafting-done { border-left-color: #2a8040; background: #e8f8e8; }
-.crows.identify-roll.tier1 { background: #ffe0e0; border-left: 3px solid #b80000; padding: 6px 8px; }
-.crows.identify-roll.tier2 { background: #fff4d6; border-left: 3px solid #b88a00; padding: 6px 8px; }
-.crows.identify-roll.tier3 { background: #e8f8e8; border-left: 3px solid #2a8040; padding: 6px 8px; }
-.crows.identify-roll .id-item-desc { margin-top: 4px; padding: 4px; background: #fff; border-radius: 3px; }
+.crows.crafting-done { border-left-color: var(--crows-blessed); background: var(--crows-blessed-bg); }
+.crows.identify-roll.tier1 { background: var(--crows-blood-pale); border-left: 3px solid var(--crows-danger); padding: 6px 8px; }
+.crows.identify-roll.tier2 { background: var(--crows-paper-deep); border-left: 3px solid var(--crows-gold); padding: 6px 8px; }
+.crows.identify-roll.tier3 { background: var(--crows-blessed-bg); border-left: 3px solid var(--crows-blessed); padding: 6px 8px; }
+.crows.identify-roll .id-item-desc { margin-top: 4px; padding: 4px; background: var(--crows-white); border-radius: var(--crows-radius); }
 
 /* Downtime tab */
 .cc-tab.cc-downtime { display: none; padding: 12px; gap: 10px; }
 .cc-tab.cc-downtime.active { display: flex; flex-direction: column; }
 .cc-downtime .dt-panel {
   padding: 8px;
-  background: #f8f8f4;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  background: var(--crows-paper-sand);
+  border: 1px solid var(--crows-rule-soft);
+  border-radius: var(--crows-radius-panel);
 }
 .cc-downtime .dt-panel-header {
   display: flex;
@@ -807,16 +903,16 @@
 .cc-downtime .dt-panel-header strong { margin-right: auto; }
 .cc-downtime .dt-village .dt-village-stat {
   padding: 1px 6px;
-  background: #f0f0f8;
-  border: 1px solid #b8b8d0;
-  border-radius: 3px;
-  font-size: 11px;
+  background: var(--crows-village-bg);
+  border: 1px solid var(--crows-village-rule);
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-tiny);
 }
-.cc-downtime .dt-village { border-left: 3px solid #4a4070; }
-.cc-downtime .dt-crypt { border-left: 3px solid #6a4ca8; }
-.cc-downtime .dt-miasma { border-left: 3px solid #6a3a8a; }
-.cc-downtime .dt-crafting { border-left: 3px solid #b88a00; }
-.cc-mini-flag { margin-top: 4px; font-size: 11px; color: #666; }
+.cc-downtime .dt-village { border-left: 3px solid var(--crows-village); }
+.cc-downtime .dt-crypt { border-left: 3px solid var(--crows-crypt); }
+.cc-downtime .dt-miasma { border-left: 3px solid var(--crows-miasma); }
+.cc-downtime .dt-crafting { border-left: 3px solid var(--crows-craft); }
+.cc-mini-flag { margin-top: 4px; font-size: var(--crows-text-tiny); color: var(--crows-ink-dim); }
 
 /* Character creator launch + dialog */
 .cc-creator-launch {
@@ -824,30 +920,30 @@
   gap: 8px;
   align-items: center;
   padding: 8px;
-  background: #f8f4e8;
-  border: 1px solid #b88a00;
-  border-radius: 4px;
+  background: var(--crows-paper-cream);
+  border: 1px solid var(--crows-gold);
+  border-radius: var(--crows-radius-panel);
   margin-bottom: 8px;
 }
 .cc-creator-btn {
   font-weight: bold;
-  background: linear-gradient(180deg, #ffe89c, #fff4d6);
-  border: 1px solid #b88a00;
+  background: linear-gradient(180deg, var(--crows-gold-soft), var(--crows-paper-deep));
+  border: 1px solid var(--crows-gold);
   padding: 6px 12px;
-  border-radius: 3px;
+  border-radius: var(--crows-radius);
   cursor: pointer;
 }
-.cc-creator-btn:hover { background: linear-gradient(180deg, #ffd668, #ffe89c); }
-.cc-creator-hint { font-size: 11px; color: #6a4400; }
+.cc-creator-btn:hover { background: linear-gradient(180deg, var(--crows-gold-bright), var(--crows-gold-soft)); }
+.cc-creator-hint { font-size: var(--crows-text-tiny); color: var(--crows-gold-deep); }
 /* Force dark-on-cream text inside the wizard so it stays legible in Foundry
    dark mode (which otherwise inherits a light text color into our sections). */
 .crows.char-creator { display: flex; flex-direction: column; gap: 10px; padding: 4px; }
 .crows.char-creator section {
   padding: 8px;
-  border: 1px solid #c8c2b0;
-  border-radius: 4px;
-  background: #f8f8f4;
-  color: #2a2a2a;
+  border: 1px solid var(--crows-rule-warm);
+  border-radius: var(--crows-radius-panel);
+  background: var(--crows-paper-sand);
+  color: var(--crows-ink-soft);
 }
 .crows.char-creator section,
 .crows.char-creator section *,
@@ -855,56 +951,56 @@
 .crows.char-creator section p,
 .crows.char-creator section em,
 .crows.char-creator section strong,
-.crows.char-creator section span { color: #2a2a2a; }
+.crows.char-creator section span { color: var(--crows-ink-soft); }
 .crows.char-creator section header,
 .crows.char-creator section header strong {
-  color: #4a3a10;
+  color: var(--crows-gold-text);
   font-weight: bold;
-  font-size: 13px;
+  font-size: var(--crows-sheet-text);
   margin-bottom: 6px;
 }
 .crows.char-creator .row { display: flex; gap: 8px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
 .crows.char-creator .bg-preview {
   margin-top: 6px; padding: 6px;
-  background: #fff;
-  border: 1px solid #e0d8b8;
-  border-radius: 3px;
-  font-size: 12px;
-  color: #2a2a2a;
+  background: var(--crows-white);
+  border: 1px solid var(--crows-rule-gold);
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-small);
+  color: var(--crows-ink-soft);
 }
-.crows.char-creator .bp-row { margin: 2px 0; color: #2a2a2a; }
-.crows.char-creator .bp-row strong, .crows.char-creator .bp-row span { color: #2a2a2a; }
+.crows.char-creator .bp-row { margin: 2px 0; color: var(--crows-ink-soft); }
+.crows.char-creator .bp-row strong, .crows.char-creator .bp-row span { color: var(--crows-ink-soft); }
 .crows.char-creator .bp-desc {
   margin-top: 4px; padding-top: 4px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--crows-paper-grey);
   font-style: italic;
-  color: #555;
+  color: var(--crows-ink-mute);
   max-height: 200px;
   overflow-y: auto;
 }
-.crows.char-creator .bp-desc * { color: #555 !important; }
+.crows.char-creator .bp-desc * { color: var(--crows-ink-mute) !important; }
 /* Form controls explicit colors so they don't inherit Foundry's dark-form styling. */
 .crows.char-creator select,
 .crows.char-creator input[type="text"] {
-  background: #fff;
-  color: #1a1a1a;
-  border: 1px solid #b8b8a0;
+  background: var(--crows-white);
+  color: var(--crows-ink-deep);
+  border: 1px solid var(--crows-rule-firm);
   padding: 2px 4px;
 }
-.crows.char-creator select option { background: #fff; color: #1a1a1a; }
-.crows.char-creator input[type="checkbox"] { accent-color: #b88a00; }
+.crows.char-creator select option { background: var(--crows-white); color: var(--crows-ink-deep); }
+.crows.char-creator input[type="checkbox"] { accent-color: var(--crows-gold); }
 .crows.char-creator button {
-  background: #fff4d6;
-  color: #4a3a10;
-  border: 1px solid #b88a00;
+  background: var(--crows-paper-deep);
+  color: var(--crows-gold-text);
+  border: 1px solid var(--crows-gold);
   padding: 3px 10px;
-  border-radius: 3px;
+  border-radius: var(--crows-radius);
   cursor: pointer;
 }
-.crows.char-creator button:hover { background: #ffe89c; }
+.crows.char-creator button:hover { background: var(--crows-gold-soft); }
 .crows.char-creator .cc-sec-row[hidden] { display: none; }
-.crows.char-create { background: #fff4d6; border-left: 3px solid #b88a00; padding: 6px 8px; color: #2a2a2a; }
-.crows.char-create * { color: #2a2a2a; }
+.crows.char-create { background: var(--crows-paper-deep); border-left: 3px solid var(--crows-gold); padding: 6px 8px; color: var(--crows-ink-soft); }
+.crows.char-create * { color: var(--crows-ink-soft); }
 
 /* ────────────────────────────────────────────────────────────────────────
    Dark-mode legibility fix: every cream/light-background panel in the
@@ -923,7 +1019,7 @@
 .cc-prepared-task,
 .cc-active-boon,
 .cc-miasma-effects {
-  color: #2a2a2a;
+  color: var(--crows-ink-soft);
 }
 .crows.village-dialog *,
 .crows.crypt-form *,
@@ -950,34 +1046,34 @@
 .crows.craft-start-form select,
 .crows.craft-start-form input[type="text"],
 .crows.craft-start-form input[type="number"] {
-  background: #fff;
-  color: #1a1a1a;
-  border: 1px solid #b8b8a0;
+  background: var(--crows-white);
+  color: var(--crows-ink-deep);
+  border: 1px solid var(--crows-rule-firm);
   padding: 2px 4px;
 }
 .cc-downtime .dt-panel option,
 .crows.village-dialog option,
 .crows.rest-form option,
 .crows.crypt-form option,
-.crows.craft-start-form option { background: #fff; color: #1a1a1a; }
+.crows.craft-start-form option { background: var(--crows-white); color: var(--crows-ink-deep); }
 /* Buttons inside our cream panels — readable in both themes. */
 .cc-downtime .dt-panel button,
 .crows.village-dialog button,
 .crows.rest-form button,
 .crows.crypt-form button,
 .crows.craft-start-form button {
-  background: #fff4d6;
-  color: #4a3a10;
-  border: 1px solid #b88a00;
+  background: var(--crows-paper-deep);
+  color: var(--crows-gold-text);
+  border: 1px solid var(--crows-craft);
   padding: 3px 10px;
-  border-radius: 3px;
+  border-radius: var(--crows-radius);
   cursor: pointer;
 }
 .cc-downtime .dt-panel button:hover,
 .crows.village-dialog button:hover,
 .crows.rest-form button:hover,
 .crows.crypt-form button:hover,
-.crows.craft-start-form button:hover { background: #ffe89c; }
+.crows.craft-start-form button:hover { background: var(--crows-gold-soft); }
 .cc-downtime .dt-panel button:disabled,
 .crows.village-dialog button:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -1015,7 +1111,7 @@
 .crows.crafting-cancel,
 .crows.identify-roll,
 .crows.char-create {
-  color: #2a2a2a;
+  color: var(--crows-ink-soft);
 }
 .crows.xp-gain *, .crows.trait-purchase *, .crows.adv-spend *, .crows.rest-summary *,
 .crows.rest-activity *, .crows.dt-summary *, .crows.encounter-check *, .crows.damage-applied *,
@@ -1035,24 +1131,24 @@
   flex-direction: column;
   gap: 8px;
   padding: 8px;
-  background: #1f1a17;
-  color: #e8dccb;
-  font-size: 13px;
+  background: var(--crows-night);
+  color: var(--crows-night-text);
+  font-size: var(--crows-sheet-text);
 }
 .crows-monster.defeated { opacity: 0.7; filter: grayscale(0.5); }
 .crows-monster input,
 .crows-monster select,
 .crows-monster textarea {
-  background: #2a2520;
-  color: #f0e6d2;
-  border: 1px solid #4a3a2a;
+  background: var(--crows-night-soft);
+  color: var(--crows-night-warm);
+  border: 1px solid var(--crows-night-rule);
   padding: 2px 4px;
 }
 .crows-monster input:focus,
 .crows-monster select:focus,
 .crows-monster textarea:focus {
-  outline: 1px solid #b04030;
-  background: #322c25;
+  outline: 1px solid var(--crows-blood);
+  background: var(--crows-night-shade);
 }
 
 /* Title */
@@ -1060,40 +1156,40 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 2px solid #b04030;
+  border-bottom: 2px solid var(--crows-blood);
   padding-bottom: 4px;
 }
 .crows-monster .m-name {
   flex: 1;
-  font-size: 20px;
+  font-size: var(--crows-text-head);
   font-weight: bold;
   background: transparent;
   border: 0;
-  color: #f0e6d2;
+  color: var(--crows-night-warm);
   letter-spacing: 0.5px;
 }
 .crows-monster .m-defeated-badge {
   padding: 2px 8px;
-  background: #6a0a0a;
-  color: #ffd0d0;
-  border: 1px solid #b80000;
-  border-radius: 3px;
+  background: var(--crows-danger-deep);
+  color: var(--crows-danger-text);
+  border: 1px solid var(--crows-danger);
+  border-radius: var(--crows-radius);
   font-weight: bold;
-  font-size: 11px;
+  font-size: var(--crows-text-tiny);
   letter-spacing: 0.5px;
 }
 .crows-monster .m-colloquial {
-  font-size: 11px;
-  color: #b8a890;
+  font-size: var(--crows-text-tiny);
+  color: var(--crows-night-fade);
   font-style: italic;
 }
 .crows-monster .m-colloquial em { margin-right: 4px; }
 .crows-monster .m-chip {
   display: inline-block;
   padding: 1px 6px;
-  background: #2a2520;
-  border: 1px solid #4a3a2a;
-  border-radius: 3px;
+  background: var(--crows-night-soft);
+  border: 1px solid var(--crows-night-rule);
+  border-radius: var(--crows-radius);
   margin-right: 3px;
   font-style: normal;
 }
@@ -1102,18 +1198,18 @@
 .crows-monster .m-statblock {
   width: 100%;
   border-collapse: collapse;
-  background: #2a2520;
-  border: 1px solid #4a3a2a;
+  background: var(--crows-night-soft);
+  border: 1px solid var(--crows-night-rule);
 }
 .crows-monster .m-statblock td {
   padding: 4px 8px;
-  border: 1px solid #4a3a2a;
+  border: 1px solid var(--crows-night-rule);
   vertical-align: middle;
 }
-.crows-monster .m-statblock strong { color: #d8c298; font-weight: bold; }
+.crows-monster .m-statblock strong { color: var(--crows-night-label); font-weight: bold; }
 .crows-monster .m-cur { width: 50px; text-align: center; }
-.crows-monster .m-max { width: 50px; text-align: center; color: #a89880; }
-.crows-monster .m-modes { color: #a89880; font-size: 11px; margin-left: 4px; }
+.crows-monster .m-max { width: 50px; text-align: center; color: var(--crows-night-mute); }
+.crows-monster .m-modes { color: var(--crows-night-mute); font-size: var(--crows-text-tiny); margin-left: 4px; }
 .crows-monster .m-slots { margin-left: 12px; }
 
 /* Combat / condition row */
@@ -1126,39 +1222,39 @@
 .crows-monster .m-btn-dmg,
 .crows-monster .m-btn-heal {
   padding: 4px 10px;
-  border: 1px solid #4a3a2a;
-  border-radius: 3px;
+  border: 1px solid var(--crows-night-rule);
+  border-radius: var(--crows-radius);
   font-weight: bold;
   cursor: pointer;
 }
 .crows-monster .m-btn-dmg {
-  background: linear-gradient(180deg, #6a2010, #b04030);
-  color: #fff;
+  background: linear-gradient(180deg, var(--crows-blood-deep), var(--crows-blood));
+  color: var(--crows-white);
 }
-.crows-monster .m-btn-dmg:hover { background: linear-gradient(180deg, #804020, #d05040); }
+.crows-monster .m-btn-dmg:hover { background: linear-gradient(180deg, var(--crows-rust), var(--crows-blood-bright)); }
 .crows-monster .m-btn-heal {
-  background: linear-gradient(180deg, #1a4a2a, #2a8040);
-  color: #fff;
+  background: linear-gradient(180deg, var(--crows-blessed-deep), var(--crows-blessed));
+  color: var(--crows-white);
 }
-.crows-monster .m-btn-heal:hover { background: linear-gradient(180deg, #2a5a3a, #4aa060); }
+.crows-monster .m-btn-heal:hover { background: linear-gradient(180deg, var(--crows-blessed-shade), var(--crows-blessed-bright)); }
 .crows-monster .m-cond-toggles { display: flex; gap: 4px; margin-left: auto; }
 .crows-monster .m-cond-btn {
   padding: 3px 10px;
-  background: #2a2520;
-  color: #b8a890;
-  border: 1px solid #4a3a2a;
-  border-radius: 3px;
-  font-size: 11px;
+  background: var(--crows-night-soft);
+  color: var(--crows-night-fade);
+  border: 1px solid var(--crows-night-rule);
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-tiny);
   font-weight: bold;
   cursor: pointer;
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
-.crows-monster .m-cond-btn:hover { background: #322c25; }
+.crows-monster .m-cond-btn:hover { background: var(--crows-night-shade); }
 .crows-monster .m-cond-btn.on {
-  background: #4a2a5a;
-  color: #f0d8ff;
-  border-color: #6a3a8a;
+  background: var(--crows-miasma-deep);
+  color: var(--crows-miasma-text);
+  border-color: var(--crows-miasma);
 }
 
 /* Section header (Attacks/Traits/Notes) */
@@ -1166,34 +1262,34 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #b04030;
+  border-bottom: 1px solid var(--crows-blood);
   padding-bottom: 2px;
   margin-bottom: 4px;
   font-weight: bold;
-  color: #d8c298;
+  color: var(--crows-night-label);
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: var(--crows-text-small);
 }
 .crows-monster .m-add-btn {
-  background: linear-gradient(180deg, #4a3a2a, #6a5a4a);
-  color: #f0e6d2;
-  border: 1px solid #6a5a4a;
+  background: linear-gradient(180deg, var(--crows-night-rule), var(--crows-night-rule-soft));
+  color: var(--crows-night-warm);
+  border: 1px solid var(--crows-night-rule-soft);
   padding: 2px 8px;
-  font-size: 11px;
-  border-radius: 3px;
+  font-size: var(--crows-text-tiny);
+  border-radius: var(--crows-radius);
   cursor: pointer;
 }
-.crows-monster .m-add-btn:hover { background: linear-gradient(180deg, #5a4a3a, #8a7a6a); }
+.crows-monster .m-add-btn:hover { background: linear-gradient(180deg, var(--crows-night-edge), var(--crows-night-dim)); }
 .crows-monster .m-del-btn {
-  background: #4a1a10;
-  color: #ffb0a0;
-  border: 1px solid #6a2a20;
+  background: var(--crows-blood-shadow);
+  color: var(--crows-blood-text);
+  border: 1px solid var(--crows-blood-rule);
   padding: 0 6px;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--crows-radius);
 }
-.crows-monster .m-del-btn:hover { background: #6a2a20; }
+.crows-monster .m-del-btn:hover { background: var(--crows-blood-rule); }
 
 /* Attacks grid */
 .crows-monster .m-attacks { display: flex; flex-direction: column; gap: 4px; }
@@ -1204,56 +1300,56 @@
   align-items: center;
 }
 .crows-monster .m-attack-head {
-  font-size: 10px;
+  font-size: var(--crows-text-micro);
   font-weight: bold;
-  color: #b8a890;
+  color: var(--crows-night-fade);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   padding: 2px 4px;
-  border-bottom: 1px solid #4a3a2a;
+  border-bottom: 1px solid var(--crows-night-rule);
 }
 .crows-monster .m-attack-name {
-  background: linear-gradient(180deg, #2a2520, #3a3025);
-  color: #f0e6d2;
-  border: 1px solid #4a3a2a;
-  border-left: 3px solid #b04030;
+  background: linear-gradient(180deg, var(--crows-night-soft), var(--crows-night-raise));
+  color: var(--crows-night-warm);
+  border: 1px solid var(--crows-night-rule);
+  border-left: 3px solid var(--crows-blood);
   padding: 4px 8px;
   text-align: left;
   font-weight: bold;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--crows-radius);
 }
 .crows-monster .m-attack-name:hover {
-  background: linear-gradient(180deg, #3a3025, #4a3a2a);
-  border-left-color: #ff5a40;
+  background: linear-gradient(180deg, var(--crows-night-raise), var(--crows-night-rule));
+  border-left-color: var(--crows-focus-night);
 }
 .crows-monster .m-cur-readonly,
 .crows-monster .m-range-readonly,
 .crows-monster .m-p-readonly {
   text-align: center;
   padding: 4px;
-  color: #d8c298;
+  color: var(--crows-night-label);
 }
-.crows-monster .m-range-readonly { text-align: left; color: #e8dccb; font-style: italic; font-size: 12px; }
+.crows-monster .m-range-readonly { text-align: left; color: var(--crows-night-text); font-style: italic; font-size: var(--crows-text-small); }
 .crows-monster .m-p-toggle {
   padding: 2px 4px;
-  background: #2a2520;
-  color: #b8a890;
-  border: 1px solid #4a3a2a;
-  border-radius: 3px;
+  background: var(--crows-night-soft);
+  color: var(--crows-night-fade);
+  border: 1px solid var(--crows-night-rule);
+  border-radius: var(--crows-radius);
   font-weight: bold;
   cursor: pointer;
 }
-.crows-monster .m-p-toggle.on { background: #6a2010; color: #ffb090; border-color: #b04030; }
+.crows-monster .m-p-toggle.on { background: var(--crows-blood-deep); color: var(--crows-rust-text); border-color: var(--crows-blood); }
 
 /* Traits */
 .crows-monster .m-traits { display: flex; flex-direction: column; gap: 4px; }
 .crows-monster .m-trait {
   padding: 6px;
-  background: #2a2520;
-  border: 1px solid #4a3a2a;
-  border-left: 3px solid #6a3a8a;
-  border-radius: 3px;
+  background: var(--crows-night-soft);
+  border: 1px solid var(--crows-night-rule);
+  border-left: 3px solid var(--crows-miasma);
+  border-radius: var(--crows-radius);
 }
 .crows-monster .m-trait-head {
   display: flex;
@@ -1262,17 +1358,17 @@
   margin-bottom: 4px;
 }
 .crows-monster .m-trait-name { flex: 1; font-weight: bold; }
-.crows-monster .m-trait-name-readonly { flex: 1; color: #d8c298; font-weight: bold; }
-.crows-monster .m-trait-uses { width: 100px; font-size: 11px; }
+.crows-monster .m-trait-name-readonly { flex: 1; color: var(--crows-night-label); font-weight: bold; }
+.crows-monster .m-trait-uses { width: 100px; font-size: var(--crows-text-tiny); }
 .crows-monster .m-trait-uses-chip {
   padding: 1px 6px;
-  background: #4a2a5a;
-  color: #f0d8ff;
-  border-radius: 3px;
-  font-size: 11px;
+  background: var(--crows-miasma-deep);
+  color: var(--crows-miasma-text);
+  border-radius: var(--crows-radius);
+  font-size: var(--crows-text-tiny);
 }
 .crows-monster .m-trait-effect { width: 100%; resize: vertical; }
-.crows-monster .m-trait-effect-readonly { color: #e8dccb; font-size: 12px; }
+.crows-monster .m-trait-effect-readonly { color: var(--crows-night-text); font-size: var(--crows-text-small); }
 .crows-monster .m-trait-effect-readonly p { margin: 2px 0; }
 
 .crows-monster .m-notes { display: flex; flex-direction: column; gap: 4px; }
@@ -1281,7 +1377,7 @@
 .crows-monster .m-empty {
   grid-column: 1 / -1;
   padding: 8px;
-  color: #888;
+  color: var(--crows-ink-fade);
   font-style: italic;
   text-align: center;
 }
@@ -1295,7 +1391,7 @@
   padding: 4px;
 }
 .crows.monster-dmg-form label,
-.crows.monster-heal-form label { color: #2a2a2a; }
+.crows.monster-heal-form label { color: var(--crows-ink-soft); }
 
 /* ════════════════════════════════════════════════════════════════════
    /harden + /adapt — touch targets ≥32px, responsive breakpoints,
@@ -1313,10 +1409,10 @@
 }
 .cc-cond-value button,
 .cc-wounds-controls button {
-  min-width: 28px;
-  min-height: 28px;
+  min-width: var(--crows-touch-sm);
+  min-height: var(--crows-touch-sm);
   padding: 4px 8px;
-  font-size: 14px;
+  font-size: var(--crows-text-mid);
 }
 
 /* Skill-bonus checkboxes — bumped from 14px to 18px with extra padding. */
@@ -1332,13 +1428,13 @@
 .crows-crow input:focus-visible,
 .crows-crow select:focus-visible,
 .crows-crow [role="tab"]:focus-visible {
-  outline: 2px solid #b88a00;
+  outline: 2px solid var(--crows-focus);
   outline-offset: 2px;
 }
 .crows-monster button:focus-visible,
 .crows-monster input:focus-visible,
 .crows-monster select:focus-visible {
-  outline: 2px solid #ff5a40;
+  outline: 2px solid var(--crows-focus-night);
   outline-offset: 2px;
 }
 
@@ -1360,11 +1456,11 @@
 }
 
 /* Tab buttons themselves — bump to ≥32px tall for touch. */
-.cc-tabs button { min-height: 32px; }
+.cc-tabs button { min-height: var(--crows-touch-min); }
 
 /* Color-blind affordance: the In Miasma / No Miasma badges already carry
    "⚠" prefix when in Miasma. Make the "clear" variant explicit too. */
 .cc-miasma-badge.clear::before { content: "○ "; }
 
 /* Active-tab indicator beyond color — add a bottom-rule emphasis. */
-.cc-tabs button[aria-selected="true"] { box-shadow: inset 0 -3px 0 #b88a00; }
+.cc-tabs button[aria-selected="true"] { box-shadow: inset 0 -3px 0 var(--crows-gold); }
