@@ -16,11 +16,14 @@ packs/*/LOG.old
 # Local-only dev tooling — not part of the public release.
 verify.sh
 dev/
-.planning/
 .claude/
 CLAUDE.md
 GEMINI.md
 AGENTS.md
+
+# .planning/ IS tracked as of 2026-08-20 — the Playtest 2 migration and execution
+# plans are the design record for v0.2.0 and were previously untracked, i.e. one
+# bad redirection from being lost. Note these become public on push.
 
 # Internal planning / scratch docs not for public consumption.
 docs/superpowers/
