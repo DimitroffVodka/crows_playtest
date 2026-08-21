@@ -1,6 +1,7 @@
 _id: crowsspell0light
 _key: "!items!crowsspell0light"
 name: Light
+img: icons/magic/light/explosion-star-glow-yellow.webp
 type: spellbook
 system:
   description: "<p>The object sheds light. The brightness of the light depends on the casting.</p>"

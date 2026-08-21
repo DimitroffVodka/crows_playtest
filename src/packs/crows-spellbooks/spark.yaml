@@ -1,6 +1,7 @@
 _id: crowsspellspark1
 _key: "!items!crowsspellspark1"
 name: Spark
+img: icons/magic/lightning/bolt-beam-strike-blue.webp
 type: spellbook
 system:
   description: "<p>You hurl crackling sparks at up to 2 targets within range.</p>"

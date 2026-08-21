@@ -1,6 +1,7 @@
 _id: crowsconsration1
 _key: "!items!crowsconsration1"
 name: Ration
+img: icons/consumables/food/bread-toast-tan.webp
 type: consumable
 system:
   description: "<p>A day's worth of food. Can be consumed to avoid starvation and get the benefits of a rest.</p>"

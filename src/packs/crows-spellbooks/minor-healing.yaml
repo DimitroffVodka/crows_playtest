@@ -1,6 +1,7 @@
 _id: crowsspellminhl1
 _key: "!items!crowsspellminhl1"
 name: Minor Healing
+img: icons/magic/life/heart-area-circle-red-green.webp
 type: spellbook
 system:
   description: "<p>Target regains Stamina based on the casting.</p>"

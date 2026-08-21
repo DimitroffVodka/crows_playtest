@@ -1,6 +1,7 @@
 _id: crowsspellfirhn1
 _key: "!items!crowsspellfirhn1"
 name: Fire Hands
+img: icons/magic/fire/projectile-arrow-fire-orange-yellow.webp
 type: spellbook
 system:
   description: "<p>You send a gout of fire from your hands at a creature in melee range.</p>"

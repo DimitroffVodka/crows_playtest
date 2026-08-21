@@ -1,6 +1,7 @@
 _id: crowsgear0crddck
 _key: "!items!crowsgear0crddck"
 name: Card Deck
+img: icons/sundries/gaming/card-astronomy-pink.webp
 type: gear
 system:
   description: "<p>Standard deck of 54 playing cards, including 2 jokers.</p>"

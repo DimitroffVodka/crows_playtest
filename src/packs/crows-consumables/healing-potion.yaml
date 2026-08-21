@@ -1,6 +1,7 @@
 _id: crowsconsheal001
 _key: "!items!crowsconsheal001"
 name: Healing Potion
+img: icons/consumables/potions/bottle-bulb-corked-glowing-red.webp
 type: consumable
 system:
   description: "<p>Consume to regain 1d6 Stamina, or remove 1 wound if Stamina is already at maximum.</p>"

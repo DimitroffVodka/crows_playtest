@@ -2,7 +2,7 @@ _id: crowsweap0haxe01
 _key: "!items!crowsweap0haxe01"
 name: Handaxe
 type: weapon
-img: icons/weapons/axes/axe-broad.webp
+img: icons/weapons/axes/axe-battle-simple.webp
 system:
   description: "<p>A light chopping axe that can be thrown. Dismember.</p>"
   type: chopping

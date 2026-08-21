@@ -2,6 +2,11 @@
 
   {{!-- ─────────────────────── Title strip ─────────────────────── --}}
   <header class="m-title">
+    <div class="m-portrait-frame">
+      <img class="m-portrait" src="{{actor.img}}" alt="{{actor.name}}"
+           data-action="editImage" data-edit="img"
+           data-tooltip="Click to change portrait">
+    </div>
     <input type="text" name="name" value="{{actor.name}}" class="m-name">
     {{#if defeated}}<span class="m-defeated-badge" title="Stamina at 0 — defeated.">DEFEATED</span>{{/if}}
   </header>

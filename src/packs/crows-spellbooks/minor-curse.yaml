@@ -1,6 +1,7 @@
 _id: crowsspellmincu1
 _key: "!items!crowsspellmincu1"
 name: Minor Curse
+img: icons/magic/unholy/hand-claw-fire-blue.webp
 type: spellbook
 system:
   description: "<p>You place a minor curse on a creature you touch.</p>"

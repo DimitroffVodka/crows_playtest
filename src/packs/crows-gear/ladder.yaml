@@ -1,6 +1,7 @@
 _id: crowsgear0ladder
 _key: "!items!crowsgear0ladder"
 name: Ladder
+img: icons/sundries/misc/ladder.webp
 type: gear
 system:
   description: "<p>A collapsable ladder.</p><p>Maneuver: The ladder expands 10 feet.</p><p>Fine (500 gc): The ladder expands 20 feet. Masterwork (1,000 gc): The ladder expands 30 feet.</p>"

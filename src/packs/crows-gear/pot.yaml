@@ -1,6 +1,7 @@
 _id: crowsgear0pot001
 _key: "!items!crowsgear0pot001"
 name: Pot
+img: icons/containers/kitchenware/pot-meal.webp
 type: gear
 system:
   description: "<p>Iron pot for cooking. Makes great scrambled eggs and soup!</p><p>Blacksmithing +1 | 1 iron bar | 5</p>"

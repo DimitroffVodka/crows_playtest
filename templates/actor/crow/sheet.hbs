@@ -1,6 +1,11 @@
 <div class="crows-crow">
 
   <header class="cc-header">
+    <div class="cc-portrait-frame">
+      <img class="cc-portrait" src="{{actor.img}}" alt="{{actor.name}}"
+           data-action="editImage" data-edit="img"
+           data-tooltip="Click to change portrait">
+    </div>
     <div class="cc-id">
       <div class="cc-field">
         <label>Name</label>
@@ -190,6 +195,7 @@
         {{#if perks.length}}
           {{#each perks as |p|}}
             <div class="cc-perk" data-action="openItem" data-item-id="{{p.id}}">
+              <img class="cc-item-icon sm" src="{{p.img}}" alt="">
               <span class="cc-perk-name">{{p.name}}</span>
               <span class="cc-perk-meta">{{p.tree}} · t{{p.tier}}</span>
             </div>
@@ -213,6 +219,7 @@
           {{#if s.card}}
             <div class="cc-card">
               <div class="cc-card-name" data-action="openItem" data-item-id="{{s.card.id}}" title="Open item sheet">
+                <img class="cc-item-icon" src="{{s.card.img}}" alt="">
                 {{s.card.name}}{{#if s.card.stack}} <span class="cc-card-stack">Stack {{s.card.stack}}</span>{{/if}}
               </div>
               {{#each s.card.summary.lines as |line|}}
@@ -251,7 +258,7 @@
             <div class="cc-slot-wound">&#10006; wound</div>
           {{else if cell.card}}
             <div class="cc-card" data-action="openItem" data-item-id="{{cell.card.id}}">
-              <div class="cc-card-name">{{cell.card.name}}{{#if cell.card.stack}} <span class="cc-card-stack">Stack {{cell.card.stack}}</span>{{/if}}</div>
+              <div class="cc-card-name"><img class="cc-item-icon" src="{{cell.card.img}}" alt="">{{cell.card.name}}{{#if cell.card.stack}} <span class="cc-card-stack">Stack {{cell.card.stack}}</span>{{/if}}</div>
               {{#each cell.card.summary.lines as |line|}}
                 <div class="cc-card-line">{{line}}</div>
               {{/each}}

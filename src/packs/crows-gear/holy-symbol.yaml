@@ -1,6 +1,7 @@
 _id: crowsgear0holysm
 _key: "!items!crowsgear0holysm"
 name: Holy Symbol
+img: icons/magic/holy/barrier-shield-winged-cross.webp
 type: gear
 system:
   description: "<p>A symbol of your god. Can be worn in the neck slot, but isn't magic.</p>"

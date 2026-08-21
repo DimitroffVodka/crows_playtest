@@ -1,6 +1,7 @@
 _id: crowsgear0oilflk
 _key: "!items!crowsgear0oilflk"
 name: Oil Flask
+img: icons/consumables/potions/flask-corked-yellow-glow.webp
 type: gear
 system:
   description: "<p>Pint of oil. Consume to refuel a lantern.</p><p>Alchemy +1 | 1 of any Small or larger creature's fat | 5</p>"

@@ -1,6 +1,7 @@
 _id: crowsloot0telekn
 _key: "!items!crowsloot0telekn"
 name: Minor Telekinesis Ring
+img: icons/equipment/finger/ring-ball-silver.webp
 type: gear
 system:
   description: "<p><strong>Stack</strong> 10 | <strong>UD</strong> 1 (Rest; Activate)</p><p><strong>Action:</strong> Pick an unattended Small or smaller object within 10 squares of you. You vertically slide that object up to 10 squares.</p><p><em>Enchanting +1 | gem worth 200 gc</em></p>"

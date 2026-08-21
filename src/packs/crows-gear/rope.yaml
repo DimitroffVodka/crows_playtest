@@ -1,6 +1,7 @@
 _id: crowsgear0rope01
 _key: "!items!crowsgear0rope01"
 name: Rope
+img: icons/sundries/survival/rope-braided-yellow.webp
 type: gear
 system:
   description: "<p>50 feet of rope. If secured, no test is required to climb.</p><p>Fine (500 gc): 100 feet of strong, light rope. Fine (1,000 gc): 150 feet of strong, light rope.</p>"

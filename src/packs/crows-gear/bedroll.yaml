@@ -1,6 +1,7 @@
 _id: crowsgear0bedrol
 _key: "!items!crowsgear0bedrol"
 name: Bedroll
+img: icons/sundries/survival/bedroll-blue-red.webp
 type: gear
 system:
   description: "<p>You must rest on a bedroll if you don't have a bed available.</p>"

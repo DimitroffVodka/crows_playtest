@@ -1,6 +1,7 @@
 _id: crowsspellminph1
 _key: "!items!crowsspellminph1"
 name: Minor Phantasm
+img: icons/magic/control/fear-fright-jackolanter-orange.webp
 type: spellbook
 system:
   description: "<p>You create a silent phantom image of your choice for the duration within a space within range. The maximum size of the image is based on the casting.</p>"

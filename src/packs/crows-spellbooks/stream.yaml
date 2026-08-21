@@ -1,6 +1,7 @@
 _id: crowsspellstrm01
 _key: "!items!crowsspellstrm01"
 name: Stream
+img: icons/magic/water/projectile-water-wave-teal.webp
 type: spellbook
 system:
   description: "<p>You unleash a stream of elemental force in a line, hitting all creatures in its path.</p>"

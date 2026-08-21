@@ -1,6 +1,7 @@
 _id: crowsarmrlight01
 _key: "!items!crowsarmrlight01"
 name: Light Armor
+img: icons/equipment/chest/breastplate-banded-leather-brown.webp
 type: armor
 system:
   description: ""

@@ -1,6 +1,7 @@
 _id: crowsconsspeedpt
 _key: "!items!crowsconsspeedpt"
 name: Speed Potion
+img: icons/consumables/potions/bottle-bulb-corked-labeled-blue.webp
 type: consumable
 system:
   description: "<p>Consume to increase your speed by 1.</p>"

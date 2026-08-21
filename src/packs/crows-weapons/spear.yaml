@@ -2,7 +2,7 @@ _id: crowsweap0spear1
 _key: "!items!crowsweap0spear1"
 name: Spear
 type: weapon
-img: icons/weapons/polearms/spear-flared.webp
+img: icons/weapons/polearms/spear-flared-gray.webp
 system:
   description: "<p>A thrusting pole weapon. Brutal.</p>"
   type: stabbing

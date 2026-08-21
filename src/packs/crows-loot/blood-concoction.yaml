@@ -1,6 +1,7 @@
 _id: crowsloot0bldcnc
 _key: "!items!crowsloot0bldcnc"
 name: Blood Concoction
+img: icons/consumables/potions/flask-red-bubbles-vortex.webp
 type: gear
 system:
   description: "<p><strong>Stack</strong> 5 | Unique Item</p><p><strong>Maneuver:</strong> You consume the potion and must make a Strength RR.</p><table><thead><tr><th>≤11</th><th>12-16</th><th>17+</th></tr></thead><tbody><tr><td>Your lower body is now a slug tail. Your speed is reduced by 2.</td><td>You gain both the tier 1 and 3 results.</td><td>Your eyes are compound and you can see in the dark.</td></tr></tbody></table><p><em>Unique item from the Ring Collector encounter.</em></p>"

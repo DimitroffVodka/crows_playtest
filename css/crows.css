@@ -34,6 +34,45 @@
    palette. Override these in a user theme if you want a re-skin without
    touching the rest of the stylesheet.
    ==================================================================== */
+/* ====================================================================
+   TYPEFACES — self-hosted, no CDN. The books use licensed faces we do
+   not have binaries for; these are the closest OFL-licensed stand-ins,
+   matching the CROWS design system's substitution note:
+     Uncial Antiqua → flared uncial display caps (sheet + monster titles)
+     Grenze Gotisch → condensed gothic (stat labels, tabs, card titles)
+     EB Garamond    → old-style text serif (all running text)
+   Grenze and Garamond are variable fonts, so one file covers each
+   weight range. Swap the files in fonts/ when licensed binaries arrive.
+   ==================================================================== */
+@font-face {
+  font-family: "Uncial Antiqua";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/uncial-antiqua.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Grenze Gotisch";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("../fonts/grenze-gotisch.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../fonts/eb-garamond.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../fonts/eb-garamond-italic.woff2") format("woff2");
+}
+
 :root {
   /* Paper / parchment surfaces (cream theme — PC sheet). */
   --crows-paper:        #fdfbf6;
@@ -185,6 +224,26 @@
   /* Touch targets — promoted from hardcoded literals. */
   --crows-touch-min:  32px;   /* minimum interactive target (DS) */
   --crows-touch-sm:   28px;   /* compact interactive target */
+
+  /* Imagery. */
+  --crows-portrait:    96px;  /* actor portrait, crow sheet header */
+  --crows-portrait-sm: 56px;  /* actor portrait, monster title strip */
+  --crows-icon:        28px;  /* item icon in slot cards and lists */
+  --crows-icon-sm:     20px;  /* item icon in dense rows */
+
+  /* Typefaces — see the @font-face block above. */
+  --crows-face-display: "Uncial Antiqua", "Grenze Gotisch", serif;
+  --crows-face-title:   "Grenze Gotisch", "Uncial Antiqua", serif;
+  --crows-face-body:    "EB Garamond", "Iowan Old Style", Georgia, serif;
+  /* Figures deliberately break from the book faces — see the note on the
+     figures rule at the end of this file. Neither display face can render
+     an unambiguous digit at sheet sizes. */
+  --crows-face-figure:  var(--font-primary, "Signika"), sans-serif;
+
+  /* Tracking — uncial and gothic caps need air; body does not. */
+  --crows-track-display: 0.02em;
+  --crows-track-caps:    0.08em;
+  --crows-track-wide:    0.14em;
 }
 
 .crows.sheet { font-family: var(--font-primary, "Signika", sans-serif); }
@@ -234,12 +293,65 @@
 
 .cc-header {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 6px;
+  grid-template-columns: auto 2fr 1fr;   /* portrait | identity | XP */
+  gap: 10px;
   border: 1px solid var(--crows-ink);
   padding: 6px 8px;
   background: var(--crows-white);
+  align-items: start;
 }
+
+/* -------- Item icons --------
+   Every Foundry Item carries an `img`; the sheet used to discard it and
+   render text-only rows. Icons are decorative here (the adjacent name is
+   the accessible label), so alt="" keeps them out of the a11y tree. */
+.cc-item-icon {
+  width: var(--crows-icon);
+  height: var(--crows-icon);
+  object-fit: cover;
+  border: 1px solid var(--crows-rule-firm);
+  background: var(--crows-paper-sand);
+  vertical-align: middle;
+  margin-right: 6px;
+  flex: none;
+  border-radius: var(--crows-radius-tight);
+}
+.cc-item-icon.sm { width: var(--crows-icon-sm); height: var(--crows-icon-sm); margin-right: 5px; }
+
+/* The perk row is a flex line — keep the icon from stretching. */
+.cc-perk { display: flex; align-items: center; }
+
+/* Card titles are block-level, so a 28px icon pushed the name onto the
+   next line. Make the title a flex row so icon and name share a baseline. */
+.cc-card-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cc-card-name .cc-item-icon { margin-right: 0; }
+
+/* -------- Portrait -------- */
+.cc-portrait-frame {
+  width: var(--crows-portrait);
+  height: var(--crows-portrait);
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-paper-sand);
+  overflow: hidden;
+  flex: none;
+  position: relative;
+}
+.cc-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+  border: 0;
+  transition: filter 0.15s ease;
+}
+.cc-portrait:hover { filter: brightness(1.08) contrast(1.04); }
+.cc-portrait-frame:focus-within { outline: 2px solid var(--crows-focus); outline-offset: 2px; }
 
 .cc-id { display: flex; flex-direction: column; gap: 3px; }
 .cc-id .cc-field { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 6px; }
@@ -1159,6 +1271,28 @@
   border-bottom: 2px solid var(--crows-blood);
   padding-bottom: 4px;
 }
+.crows-monster .m-portrait-frame {
+  width: var(--crows-portrait-sm);
+  height: var(--crows-portrait-sm);
+  flex: none;
+  border: 1px solid var(--crows-night-rule);
+  background: var(--crows-night-soft);
+  overflow: hidden;
+}
+.crows-monster .m-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+  border: 0;
+  transition: filter 0.15s ease;
+}
+.crows-monster .m-portrait:hover { filter: brightness(1.15); }
+.crows-monster .m-portrait-frame:focus-within {
+  outline: 2px solid var(--crows-focus-night);
+  outline-offset: 2px;
+}
 .crows-monster .m-name {
   flex: 1;
   font-size: var(--crows-text-head);
@@ -1415,6 +1549,21 @@
   font-size: var(--crows-text-mid);
 }
 
+/* Monster sheet — the crow sheet got touch minimums above, this one never
+   did, so Foundry's own button sizing left these at 22-28px. Primary
+   actions take the full minimum; inline controls take the compact one. */
+.crows-monster .m-btn-dmg,
+.crows-monster .m-btn-heal {
+  min-height: var(--crows-touch-min);
+}
+.crows-monster .m-add-btn,
+.crows-monster .m-del-btn,
+.crows-monster .m-cond-btn,
+.crows-monster .m-p-toggle {
+  min-width: var(--crows-touch-sm);
+  min-height: var(--crows-touch-sm);
+}
+
 /* Skill-bonus checkboxes — bumped from 14px to 18px with extra padding. */
 .cc-skill-row input[type="checkbox"] {
   width: 18px;
@@ -1464,3 +1613,121 @@
 
 /* Active-tab indicator beyond color — add a bottom-rule emphasis. */
 .cc-tabs button[aria-selected="true"] { box-shadow: inset 0 -3px 0 var(--crows-gold); }
+
+/* ====================================================================
+   10. TYPOGRAPHY — the book voice
+   ====================================================================
+   Foundry's default is Signika. These rules replace it on crows sheets
+   with the three-face system: uncial for titles, condensed gothic for
+   labels and figures, old-style serif for running text.
+
+   Placed last on purpose — font-family here must win over the earlier
+   `font: inherit` on form controls and Foundry's own sheet defaults.
+   ==================================================================== */
+
+/* -------- Running text -------- */
+.crows-crow,
+.crows-monster,
+.crows.sheet,
+.crows.chat-card,
+.crows.rest-form,
+.crows.crypt-form,
+.crows.village-dialog,
+.crows.craft-start-form,
+.crows.char-creator {
+  font-family: var(--crows-face-body);
+}
+
+/* Form controls inherit `font: inherit` earlier, which resets the family
+   to Foundry's. Re-assert it. */
+.crows-crow input, .crows-crow textarea, .crows-crow select,
+.crows-monster input, .crows-monster textarea, .crows-monster select {
+  font-family: var(--crows-face-body);
+}
+
+/* -------- Display: sheet + monster titles -------- */
+.crows-monster .m-name {
+  font-family: var(--crows-face-display);
+  letter-spacing: var(--crows-track-display);
+  font-weight: 400;
+}
+
+/* -------- Titles & labels: condensed gothic, caps, tracked -------- */
+.cc-section-title,
+.cc-skills-title,
+.cc-conditions-title,
+.cc-adv-header,
+.cc-crafting-header,
+.cc-slot-header,
+.cc-skill-group,
+.cc-weapon-group,
+.cc-mini-label,
+.cc-cond-label,
+.cc-stat-label,
+.cc-tier-label,
+.cc-adv-label,
+.crows-monster .m-section-header {
+  font-family: var(--crows-face-title);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Tabs read as chapter markers. */
+.cc-tabs button {
+  font-family: var(--crows-face-title);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* -------- Figures: gothic numerals, tabular so columns line up --------
+   Scoped under .crows-crow / .crows-monster on purpose: most of these are
+   <input> elements, and the form-control rule above (`.crows-crow input`,
+   specificity 0-1-1) would otherwise outrank a bare class and drag the
+   figures back to the body serif. */
+.crows-crow input.cc-stat-value,
+.crows-crow .cc-stat-value,
+.crows-crow input.cc-ad-derived,
+.crows-crow .cc-ad-derived,
+.crows-crow .cc-mini-value,
+.crows-crow .cc-mini-value input,
+.crows-crow .cc-stat-pair,
+.crows-crow .cc-stat-pair input,
+.crows-crow .cc-xp-cell input,
+.crows-monster .m-cur,
+.crows-monster .m-max {
+  /* Neither book face works for figures, and this was measured, not
+     guessed:
+       - Grenze Gotisch draws blackletter digits; its "5" is an
+         unreadable mark at sheet sizes.
+       - EB Garamond ships only old-style figures. Google's woff2 subset
+         omits the `lnum` feature entirely — requesting lining figures
+         changes the rendered width by 0.00px, so it cannot be forced.
+     These are numbers a player reads under pressure, so legibility wins.
+     The design system specifies gothic figures, but that is for printed
+     cards, not a live sheet. Labels and titles keep the book voice. */
+  font-family: var(--crows-face-figure);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 700;
+}
+
+/* -------- Named things: item, perk, attack and skill names -------- */
+.cc-card-name,
+.cc-perk-name,
+.cc-village-name,
+.crows-monster .m-attack-name,
+.crows-monster .m-trait-name-readonly {
+  font-family: var(--crows-face-title);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Skill names stay body-serif — they are a long scannable list, and the
+   gothic condensed hurts legibility at 11px across three columns. */
+.cc-skill-name { font-family: var(--crows-face-body); font-weight: 600; }
+
+/* EB Garamond has a small x-height; at the sheet's 13px it reads a step
+   smaller than Signika did. Nudge the running text up to compensate
+   without touching the label and figure scales. */
+.crows-crow { font-size: var(--crows-text-mid); }

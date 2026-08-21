@@ -1,6 +1,7 @@
 _id: crowsspellsumob1
 _key: "!items!crowsspellsumob1"
 name: Summon Object
+img: icons/magic/symbols/chevron-elipse-circle-blue.webp
 type: spellbook
 system:
   description: "<p>You create a mundane object that appears in any open slot in your inventory of your choice and lasts for the duration. The value of the object in gc is based on the casting.</p>"

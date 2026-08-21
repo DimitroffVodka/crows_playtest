@@ -1,6 +1,7 @@
 _id: crowsgear0torch1
 _key: "!items!crowsgear0torch1"
 name: Torch
+img: icons/sundries/lights/torch-black.webp
 type: gear
 system:
   description: "<p>Maneuver: Light 5/5</p><p>Fine (100 gc): 2 UD. Masterwork (200 gc): 3 UD.</p>"

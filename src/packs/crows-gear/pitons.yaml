@@ -1,6 +1,7 @@
 _id: crowsgear0pitons
 _key: "!items!crowsgear0pitons"
 name: Pitons
+img: icons/tools/fasteners/nails-steel-brown.webp
 type: gear
 system:
   description: "<p>Iron spikes used to secure ropes. Come in multiples of 10.</p><p>Blacksmithing +1 | 1 iron bar | 5</p>"

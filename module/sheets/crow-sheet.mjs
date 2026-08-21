@@ -109,6 +109,7 @@ function slotCard(it) {
   return {
     id: it.id,
     name: it.name,
+    img: it.img,
     type: it.type,
     stack: s.stackMax > 1 ? `${s.quantity ?? 1}/${s.stackMax}` : null,
     summary: summarizeItem(it),
@@ -251,6 +252,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.perks = this.document.items.filter(i => i.type === "trait").map(t => ({
       id: t.id,
       name: t.name,
+      img: t.img,
       tree: t.system?.tree ?? "",
       tier: t.system?.tier ?? 1,
       column: t.system?.column ?? 1,

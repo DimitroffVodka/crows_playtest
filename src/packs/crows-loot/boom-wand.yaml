@@ -1,6 +1,7 @@
 _id: crowsloot0boomwd
 _key: "!items!crowsloot0boomwd"
 name: Boom Wand
+img: icons/weapons/staves/staff-ornate-wood-red.webp
 type: gear
 system:
   description: "<p><strong>Stack</strong> 2 | <strong>UD</strong> 1 (Useless; Activate)</p><p><strong>Action:</strong> You create a 5 cube of fire within 15 squares of you. Each creature in the area must make an Agility RR.</p><table><thead><tr><th>≤11</th><th>12-16</th><th>17+</th></tr></thead><tbody><tr><td>0 dam</td><td>5 dam</td><td>10 dam</td></tr></tbody></table><p><em>Enchanting +1 | gem worth 100 gc</em></p>"

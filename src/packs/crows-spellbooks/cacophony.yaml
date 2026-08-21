@@ -1,6 +1,7 @@
 _id: crowsspellcacph1
 _key: "!items!crowsspellcacph1"
 name: Cacophony
+img: icons/magic/sonic/scream-wail-shout-teal.webp
 type: spellbook
 system:
   description: "<p>You create a phantom noise of your choice for the duration that emanates from a square within range. The distance at which it can be heard in squares is based on the casting.</p>"

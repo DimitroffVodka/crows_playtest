@@ -1,6 +1,7 @@
 _id: crowsspellminbl1
 _key: "!items!crowsspellminbl1"
 name: Minor Blessing
+img: icons/magic/holy/angel-winged-humanoid-blue.webp
 type: spellbook
 system:
   description: "<p>You touch a creature and grant them a blessing based on the casting.</p>"

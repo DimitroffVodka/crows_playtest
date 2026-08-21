@@ -1,6 +1,7 @@
 _id: crowsgear0magnfy
 _key: "!items!crowsgear0magnfy"
 name: Magnifying Glass
+img: icons/tools/scribal/magnifying-glass.webp
 type: gear
 system:
   description: "<p>Can be used to better inspect the minute visual details of nearby creatures and objects.</p>"

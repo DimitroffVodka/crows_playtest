@@ -1,6 +1,7 @@
 _id: crowsloot0magicw
 _key: "!items!crowsloot0magicw"
 name: Magic Wand
+img: icons/weapons/staves/staff-simple-blue.webp
 type: gear
 system:
   description: "<p><strong>Stack</strong> 2</p><p>What does it do? C'mon just activate it. You know you wanna.</p>"

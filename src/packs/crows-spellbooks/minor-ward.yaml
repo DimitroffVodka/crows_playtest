@@ -1,6 +1,7 @@
 _id: crowsspellminwd1
 _key: "!items!crowsspellminwd1"
 name: Minor Ward
+img: icons/magic/defensive/armor-shield-barrier-steel.webp
 type: spellbook
 system:
   description: "<p>Target gains AD based on the casting.</p>"

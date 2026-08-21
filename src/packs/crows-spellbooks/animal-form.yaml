@@ -1,6 +1,7 @@
 _id: crowsspellanfrm1
 _key: "!items!crowsspellanfrm1"
 name: Animal Form
+img: icons/magic/nature/wolf-paw-glow-green.webp
 type: spellbook
 system:
   description: "<p>You gain the stats and form of an animal. Your gear is assumed by your form. If you die, you revert back. Your animal form's maximum power is based on the casting.</p>"

@@ -1,6 +1,7 @@
 _id: crowsgear0spygls
 _key: "!items!crowsgear0spygls"
 name: Spyglass
+img: icons/tools/navigation/spyglass-telescope-blue.webp
 type: gear
 system:
   description: "<p>Can be used to make things appear 3 times closer.</p><p>Fine (500 gc): Makes things appear 6 times closer. Fine (1,000 gc): Makes things appear 10 times closer.</p>"

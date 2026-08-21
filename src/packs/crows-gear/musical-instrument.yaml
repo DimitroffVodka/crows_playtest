@@ -1,6 +1,7 @@
 _id: crowsgear0musins
 _key: "!items!crowsgear0musins"
 name: Musical Instrument
+img: icons/tools/instruments/flute-simple-wood.webp
 type: gear
 system:
   description: "<p>This is a portable musical instrument, like a lute, lyre, mandolin, drum, or fife. When you play it, it must occupy both your hand slots.</p>"

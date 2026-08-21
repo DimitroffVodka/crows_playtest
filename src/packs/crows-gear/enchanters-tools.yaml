@@ -1,6 +1,7 @@
 _id: crowsgear0enchts
 _key: "!items!crowsgear0enchts"
 name: Enchanter's Tools
+img: icons/tools/laboratory/mortar-empty-grey.webp
 type: gear
 system:
   description: "<p>Required to make crafting rolls for enchanting items.</p><p>Fine (500 gc): Enchanting crafting rolls gain a +1 bonus. Masterwork (1,000 gc): Enchanting crafting rolls gain a +2 bonus.</p>"

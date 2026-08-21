@@ -1,6 +1,7 @@
 _id: crowsgear0merscl
 _key: "!items!crowsgear0merscl"
 name: Merchant's Scales
+img: icons/tools/hand/scale-balances-merchant-brown.webp
 type: gear
 system:
   description: "<p>Used to determine the weight of Tiny objects and creatures that sit still.</p>"

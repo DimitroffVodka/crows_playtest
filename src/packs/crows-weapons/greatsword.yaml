@@ -2,7 +2,7 @@ _id: crowsweap0grswrd
 _key: "!items!crowsweap0grswrd"
 name: Greatsword
 type: weapon
-img: icons/weapons/swords/sword-guard-ornate-steel.webp
+img: icons/weapons/swords/greatsword-crossguard-steel.webp
 system:
   description: "<p>A massive two-handed sword. Disengage, Parry 6.</p>"
   type: slashing

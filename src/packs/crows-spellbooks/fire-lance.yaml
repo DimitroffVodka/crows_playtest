@@ -1,6 +1,7 @@
 _id: crowsspellfirla1
 _key: "!items!crowsspellfirla1"
 name: Fire Lance
+img: icons/magic/fire/beam-jet-stream-trails-orange.webp
 type: spellbook
 system:
   description: "<p>You hurl a lance of fire at a target within range.</p>"

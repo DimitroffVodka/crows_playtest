@@ -1,6 +1,7 @@
 _id: crowsgear0lantrn
 _key: "!items!crowsgear0lantrn"
 name: Lantern
+img: icons/sundries/lights/lantern-battery-steel.webp
 type: gear
 system:
   description: "<p>UD: 2 (Refuel w oil; DT). Maneuver: Light 10/10.</p><p>Fine (1,000 gc): 3 UD. Masterwork (2,000 gc): 4 UD.</p>"

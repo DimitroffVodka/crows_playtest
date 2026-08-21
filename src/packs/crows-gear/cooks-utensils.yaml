@@ -1,6 +1,7 @@
 _id: crowsgear0cookut
 _key: "!items!crowsgear0cookut"
 name: Cook's Utensils
+img: icons/tools/cooking/pot-camping-iron-black.webp
 type: gear
 system:
   description: "<p>Required for some special rest activities as part of the Travel trait tree.</p>"

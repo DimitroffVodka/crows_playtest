@@ -1,6 +1,7 @@
 _id: crowsgear0crfmed
 _key: "!items!crowsgear0crfmed"
 name: Crafting Material, Medium
+img: icons/commodities/leather/fur-pelt-brown.webp
 type: gear
 system:
   description: "<p>Exact crafting material is determined by the Ref.</p>"

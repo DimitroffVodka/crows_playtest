@@ -1,6 +1,7 @@
 _id: crowsgear0blksmt
 _key: "!items!crowsgear0blksmt"
 name: Blacksmith's Tools
+img: icons/tools/smithing/anvil.webp
 type: gear
 system:
   description: "<p>Required to make crafting rolls for blacksmithing items.</p><p>Fine (500 gc): Blacksmithing crafting rolls gain a +1 bonus. Masterwork (1,000 gc): Blacksmithing crafting rolls gain a +2 bonus.</p>"

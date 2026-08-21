@@ -1,6 +1,7 @@
 _id: crowsspellbonec1
 _key: "!items!crowsspellbonec1"
 name: Bone Capture
+img: icons/magic/death/bones-crossed-gray.webp
 type: spellbook
 system:
   description: "<p>You attack a creature with necrotic magic that twists their bones.</p>"

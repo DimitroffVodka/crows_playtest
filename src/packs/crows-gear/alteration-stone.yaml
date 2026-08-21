@@ -1,6 +1,7 @@
 _id: crowsgear0altstn
 _key: "!items!crowsgear0altstn"
 name: Alteration Stone
+img: icons/magic/symbols/rune-sigil-green-purple.webp
 type: gear
 system:
   description: "<p>Choose one benefit when you make the stone. The creature carrying it gains it:</p><ul><li>You don't need to eat or drink to live.</li><li>You don't need to breathe to live.</li><li>The stone sheds light 5/5.</li></ul>"

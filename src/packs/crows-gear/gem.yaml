@@ -1,6 +1,7 @@
 _id: crowsgear0gem001
 _key: "!items!crowsgear0gem001"
 name: Gem
+img: icons/commodities/gems/gem-faceted-asscher-blue.webp
 type: gear
 system:
   description: "<p>A shiny rock. Exact gem type and value are determined by the Ref.</p>"

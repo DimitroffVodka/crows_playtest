@@ -1,6 +1,7 @@
 _id: crowsconsballbrg
 _key: "!items!crowsconsballbrg"
 name: Ball Bearings
+img: icons/commodities/materials/glass-orb-marble-green.webp
 type: consumable
 system:
   description: "<p>A bag of 1,000. Spread over a 2 x 2 area of ground. Creatures entering the area must make an Agility RR.</p>"

@@ -1,6 +1,7 @@
 _id: crowsgear0journl
 _key: "!items!crowsgear0journl"
 name: Journal
+img: icons/sundries/books/book-notebook-spiral-blue.webp
 type: gear
 system:
   description: "<p>A bound journal of 200 pages that are blank. Don't worry, you'll fill them!</p>"

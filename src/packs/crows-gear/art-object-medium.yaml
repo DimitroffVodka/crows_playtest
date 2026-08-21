@@ -1,6 +1,7 @@
 _id: crowsgear0artmed
 _key: "!items!crowsgear0artmed"
 name: Art Object, Medium
+img: icons/commodities/treasure/statue-bust-stone-grey.webp
 type: gear
 system:
   description: "<p>A valuable treasure. Specific work of art and value are determined by the Ref.</p>"

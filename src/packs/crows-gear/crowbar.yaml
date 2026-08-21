@@ -1,6 +1,7 @@
 _id: crowsgear0crwbar
 _key: "!items!crowsgear0crwbar"
 name: Crowbar
+img: icons/tools/hand/pry-bar-hook-steel.webp
 type: gear
 system:
   description: "<p>An iron bar that can be used in prying.</p><p>Fine (750 gc): Gives a +1 bonus on tests that use the crowbar. Masterwork (1,500 gc): Gives a +2 bonus on tests that use the crowbar.</p><p>Blacksmithing +1 | 1 iron bar | 5</p>"

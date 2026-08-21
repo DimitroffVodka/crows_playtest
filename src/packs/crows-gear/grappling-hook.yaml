@@ -1,6 +1,7 @@
 _id: crowsgear0grphok
 _key: "!items!crowsgear0grphok"
 name: Grappling Hook
+img: icons/tools/fasteners/chain-claw-hook-steel.webp
 type: gear
 system:
   description: "<p>Can be added to rope to create an item that takes up 2 slots. Makes hurling and securing rope easier.</p>"

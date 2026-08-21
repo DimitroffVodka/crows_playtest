@@ -1,6 +1,7 @@
 _id: crowsconsacidvl1
 _key: "!items!crowsconsacidvl1"
 name: Acid Vial
+img: icons/consumables/potions/bottle-bulb-corked-green.webp
 type: consumable
 system:
   description: "<p>Pouring the vial onto a surface destroys up to 1 cubic foot of mundane matter.</p><p><strong>Action:</strong> You can make a ranged 5 attack with it using Agility.</p>"

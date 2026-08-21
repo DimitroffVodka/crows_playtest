@@ -1,6 +1,7 @@
 _id: crowsgear0tenfpo
 _key: "!items!crowsgear0tenfpo"
 name: Ten-Foot Pole
+img: icons/commodities/wood/kindling-stick-brown.webp
 type: gear
 system:
   description: "<p>A 10-foot-long wooden pole. For poking. Also prodding!</p>"

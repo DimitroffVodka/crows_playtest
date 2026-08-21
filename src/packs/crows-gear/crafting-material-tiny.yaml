@@ -1,6 +1,7 @@
 _id: crowsgear0crftny
 _key: "!items!crowsgear0crftny"
 name: Crafting Material, Tiny
+img: icons/commodities/metal/barstock-broken-steel.webp
 type: gear
 system:
   description: "<p>Exact crafting material is determined by the Ref.</p>"

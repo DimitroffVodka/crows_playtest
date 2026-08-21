@@ -1,6 +1,7 @@
 _id: crowsgear0chain1
 _key: "!items!crowsgear0chain1"
 name: Chain
+img: icons/commodities/metal/chain-silver.webp
 type: gear
 system:
   description: "<p>A 10-foot length of iron chain.</p><p>Blacksmithing +1 | 1 iron bar | 5</p>"

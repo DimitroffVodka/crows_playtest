@@ -1,6 +1,7 @@
 _id: crowsgear0arttny
 _key: "!items!crowsgear0arttny"
 name: Art Object, Tiny
+img: icons/commodities/treasure/brooch-crown-gold.webp
 type: gear
 system:
   description: "<p>A valuable treasure. Specific work of art and value are determined by the Ref.</p>"

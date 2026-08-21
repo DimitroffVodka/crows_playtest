@@ -1,6 +1,7 @@
 _id: crowsspellmonst1
 _key: "!items!crowsspellmonst1"
 name: Monster Sense
+img: icons/magic/perception/eye-ringed-glow-angry-large-red.webp
 type: spellbook
 system:
   description: "<p>You know the exact location of creatures who aren't humans or animals within a number of squares of you based on the casting. You can detect them through walls, floors, and ceilings.</p>"

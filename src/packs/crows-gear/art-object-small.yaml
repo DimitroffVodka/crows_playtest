@@ -1,6 +1,7 @@
 _id: crowsgear0artsml
 _key: "!items!crowsgear0artsml"
 name: Art Object, Small
+img: icons/commodities/treasure/cup-trophy-gold.webp
 type: gear
 system:
   description: "<p>A valuable treasure. Specific work of art and value are determined by the Ref.</p>"

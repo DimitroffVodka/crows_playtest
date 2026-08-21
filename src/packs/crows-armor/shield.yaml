@@ -1,6 +1,7 @@
 _id: crowsarmrshield1
 _key: "!items!crowsarmrshield1"
 name: Shield
+img: icons/equipment/shield/buckler-wooden-round-hole.webp
 type: armor
 system:
   description: ""

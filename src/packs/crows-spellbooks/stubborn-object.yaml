@@ -1,6 +1,7 @@
 _id: crowsspellstbob1
 _key: "!items!crowsspellstbob1"
 name: Stubborn Object
+img: icons/magic/control/hypnosis-mesmerism-eye-tan.webp
 type: spellbook
 system:
   description: "<p>The target is fixed in space, and can't fall or be moved by any effect except a creature with a Strength equal to or higher than a number based on the casting.</p>"

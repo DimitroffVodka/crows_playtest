@@ -1,6 +1,7 @@
 _id: crowsgear0mirror
 _key: "!items!crowsgear0mirror"
 name: Mirror
+img: icons/sundries/survival/mirror-plain.webp
 type: gear
 system:
   description: "<p>A hand mirror, useful for looking around corners and at your own mug.</p>"

@@ -1,6 +1,7 @@
 _id: crowsspellcrupt1
 _key: "!items!crowsspellcrupt1"
 name: Corrupt
+img: icons/magic/unholy/strike-beam-blood-large-red-blue.webp
 type: spellbook
 system:
   description: "<p>You hurl corrupting necrotic energy at a creature within range.</p>"

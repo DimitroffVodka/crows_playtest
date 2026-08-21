@@ -1,6 +1,7 @@
 _id: crowsspell0jaunt
 _key: "!items!crowsspell0jaunt"
 name: Jaunt
+img: icons/magic/movement/trail-streak-impact-blue.webp
 type: spellbook
 system:
   description: "<p>You teleport a number of squares based on the casting.</p>"

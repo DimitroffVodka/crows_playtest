@@ -1,6 +1,7 @@
 _id: crowsspellrepar1
 _key: "!items!crowsspellrepar1"
 name: Repair
+img: icons/magic/symbols/rune-sigil-green.webp
 type: spellbook
 system:
   description: "<p>You touch a damaged object and cause it to regain Stamina based on the casting.</p>"

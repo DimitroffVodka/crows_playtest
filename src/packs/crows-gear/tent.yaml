@@ -1,6 +1,7 @@
 _id: crowsgear0tent01
 _key: "!items!crowsgear0tent01"
 name: Tent
+img: icons/sundries/survival/shelter-tent-small.webp
 type: gear
 system:
   description: "<p>Canvas tent that sleeps up to 3 humans comfortably.</p>"

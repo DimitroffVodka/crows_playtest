@@ -1,6 +1,7 @@
 _id: crowsconssooth01
 _key: "!items!crowsconssooth01"
 name: Soothing Candy
+img: icons/consumables/food/candy-bar.webp
 type: consumable
 system:
   description: "<p>Consume a candy to remove 1 boned level from yourself.</p><p><em>Note: no printed gc cost on the playtest card (Ref-distributed loot, like gems and art objects).</em></p>"

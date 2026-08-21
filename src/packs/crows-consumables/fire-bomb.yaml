@@ -1,6 +1,7 @@
 _id: crowsconsfirebmb
 _key: "!items!crowsconsfirebmb"
 name: Fire Bomb
+img: icons/weapons/ammunition/ammunition-grenade.webp
 type: consumable
 system:
   description: "<p>You throw the bomb up to 10 squares. It explodes in a 3-square cube. Each creature in the cube must make an Agility RR.</p>"

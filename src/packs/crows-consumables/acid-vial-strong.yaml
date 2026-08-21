@@ -1,6 +1,7 @@
 _id: crowsconsacidvls
 _key: "!items!crowsconsacidvls"
 name: Strong Acid Vial
+img: icons/consumables/potions/flask-corked-green.webp
 type: consumable
 system:
   description: "<p>Pouring the vial onto a surface destroys up to 5 cubic feet of mundane matter.</p><p><strong>Action:</strong> You can make a ranged 5 attack with it using Agility.</p>"

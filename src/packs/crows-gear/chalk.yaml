@@ -1,6 +1,7 @@
 _id: crowsgear0chalk1
 _key: "!items!crowsgear0chalk1"
 name: Chalk
+img: icons/tools/scribal/ink-quill-pink.webp
 type: gear
 system:
   description: "<p>A piece of chalk, available in blue, white, and yellow.</p>"

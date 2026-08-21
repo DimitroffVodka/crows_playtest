@@ -1,6 +1,7 @@
 _id: crowsgear0whistl
 _key: "!items!crowsgear0whistl"
 name: Whistle
+img: icons/tools/instruments/horn-flared-wood.webp
 type: gear
 system:
   description: "<p>Maneuver: You create a loud noise that can be heard from 20 squares away.</p>"

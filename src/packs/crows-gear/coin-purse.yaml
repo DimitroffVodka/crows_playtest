@@ -1,6 +1,7 @@
 _id: crowsgear0cnprse
 _key: "!items!crowsgear0cnprse"
 name: Coin Purse
+img: icons/containers/bags/coinpouch-cloth-purple.webp
 type: gear
 system:
   description: "<p>Holds up to 500 coins.</p><p>Fine (500 gc): Holds up to 750 gc. Masterwork (1,000 gc): Holds up to 1,000 gc.</p>"

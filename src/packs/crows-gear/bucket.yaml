@@ -1,6 +1,7 @@
 _id: crowsgear0bucket
 _key: "!items!crowsgear0bucket"
 name: Bucket
+img: icons/containers/kitchenware/bowl-clay-brown.webp
 type: gear
 system:
   description: "<p>Can hold up to 3 gallons of liquid.</p>"

@@ -1,6 +1,7 @@
 _id: crowsspellcrwtr1
 _key: "!items!crowsspellcrwtr1"
 name: Create Water
+img: icons/magic/water/orb-ice-glow.webp
 type: spellbook
 system:
   description: "<p>You make water that fills a vessel or falls from the air. The amount you make is based on the casting.</p>"

@@ -2,7 +2,7 @@ _id: crowsweap0maul01
 _key: "!items!crowsweap0maul01"
 name: Maul
 type: weapon
-img: icons/weapons/hammers/hammer-war-steel.webp
+img: icons/weapons/hammers/hammer-double-steel.webp
 system:
   description: "<p>A massive two-handed bashing weapon. Bashing, Pummeling.</p>"
   type: bashing

@@ -1,6 +1,7 @@
 _id: crowsspelltlobj1
 _key: "!items!crowsspelltlobj1"
 name: Teleport Object
+img: icons/magic/movement/portal-vortex-orange.webp
 type: spellbook
 system:
   description: "<p>You teleport the target a number of squares based on the casting. You can teleport it into a willing creature's open hand slot, including yours.</p>"

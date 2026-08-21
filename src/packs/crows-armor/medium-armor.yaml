@@ -1,6 +1,7 @@
 _id: crowsarmrmediu01
 _key: "!items!crowsarmrmediu01"
 name: Medium Armor
+img: icons/equipment/chest/breastplate-metal-scaled-grey.webp
 type: armor
 system:
   description: ""

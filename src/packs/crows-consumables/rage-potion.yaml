@@ -1,6 +1,7 @@
 _id: crowsconsragepot
 _key: "!items!crowsconsragepot"
 name: Rage Potion
+img: icons/consumables/potions/bottle-round-corked-orange.webp
 type: consumable
 system:
   description: "<p>Consume to gain +5 AD and deal an additional 2 damage with melee attacks. Lasts as long as you keep making attacks against creatures each round.</p>"

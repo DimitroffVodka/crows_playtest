@@ -1,6 +1,7 @@
 _id: crowsloot0potion
 _key: "!items!crowsloot0potion"
 name: Potion
+img: icons/consumables/potions/bottle-round-corked-blue.webp
 type: gear
 system:
   description: "<p><strong>Stack</strong> 5</p><p>Just drink it. What's the worst that could happen?</p>"

@@ -1,6 +1,7 @@
 _id: crowsconshrtrtn1
 _key: "!items!crowsconshrtrtn1"
 name: Hearty Ration
+img: icons/consumables/food/bowl-stew-brown.webp
 type: consumable
 system:
   description: "<p>When you consume this ration during a rest, you remove 1 additional wound.</p>"

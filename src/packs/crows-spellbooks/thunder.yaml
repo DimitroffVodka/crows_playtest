@@ -1,6 +1,7 @@
 _id: crowsspellthndr1
 _key: "!items!crowsspellthndr1"
 name: Thunder
+img: icons/magic/sonic/explosion-impact-shock-wave.webp
 type: spellbook
 system:
   description: "<p>You unleash a burst of thunder that pushes creatures back.</p>"

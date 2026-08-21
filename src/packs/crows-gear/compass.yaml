@@ -1,6 +1,7 @@
 _id: crowsgear0compas
 _key: "!items!crowsgear0compas"
 name: Compass
+img: icons/tools/navigation/compass-brass-blue-red.webp
 type: gear
 system:
   description: "<p>When you make a test related to the guide travel role and carry a compass, the test gains a +1 bonus.</p><p>Fine (1,000 gc): The bonus rises to +2. Masterwork (2,000 gc): The bonus rises to +3.</p>"

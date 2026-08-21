@@ -1,6 +1,7 @@
 _id: crowsgear0string
 _key: "!items!crowsgear0string"
 name: String
+img: icons/commodities/cloth/thread-and-needle.webp
 type: gear
 system:
   description: "<p>1,000 feet of string.</p>"

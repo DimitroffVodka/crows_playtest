@@ -1,6 +1,7 @@
 _id: crowsspelltkshp1
 _key: "!items!crowsspelltkshp1"
 name: Take Shape
+img: icons/magic/nature/barrier-shield-wood-vines.webp
 type: spellbook
 system:
   description: "<p>You attempt to change your form to match a creature.</p>"

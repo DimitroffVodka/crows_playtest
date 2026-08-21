@@ -1,6 +1,7 @@
 _id: crowsconsanimfd1
 _key: "!items!crowsconsanimfd1"
 name: Animal Feed
+img: icons/consumables/grains/bread-loaf-boule-rustic-brown.webp
 type: consumable
 system:
   description: "<p>A day's worth of food for a pet. Must be consumed during a rest to get the benefit of resting.</p>"

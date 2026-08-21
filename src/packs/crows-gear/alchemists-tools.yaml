@@ -1,6 +1,7 @@
 _id: crowsgear0alchts
 _key: "!items!crowsgear0alchts"
 name: Alchemist's Tools
+img: icons/tools/laboratory/alembic-glass-ball-blue.webp
 type: gear
 system:
   description: "<p>Required to make crafting rolls for alchemy items.</p><p>Fine (500 gc): Alchemy crafting rolls gain a +1 bonus. Masterwork (1,000 gc): Alchemy crafting rolls gain a +2 bonus.</p><p>Alchemy +1 | 1 vial of any monster's blood | 20</p>"
