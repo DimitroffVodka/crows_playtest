@@ -367,6 +367,25 @@ function expertiseMaxForTxp(txp = 0) {
   return rows.at(-1).maxUses;                              // 2 -> 3 @5k -> 4 @20k
 }
 
+/** Over-budget surfacing. REQUIRED because `crows.migrationExpertiseBudget`
+ *  defaults to "report-only" — the migration reports and writes nothing, so an
+ *  over-budget character stays over-budget indefinitely. A migration-time
+ *  journal entry scrolls away; this does not.
+ *
+ *  Derived, never stored. Zero for any legally-advanced crow, so it costs
+ *  nothing on a normal sheet and is loud on a migrated one. The crow sheet
+ *  (T2.1) shows a badge when it is non-zero. */
+function expertiseOverBudget(actor) {
+  const spent  = Object.values(actor.system.expertises)
+                       .reduce((n, e) => n + (e.uses ?? 0), 0);
+  const budget = expertiseBudgetForTxp(
+    actor.system.xp?.txp ?? 0,
+    backgroundUsesFor(actor),                 // sums the background item
+    actor.system.xp?.expertiseBonusesSpent
+  );
+  return Math.max(0, spent - budget);
+}
+
 /** Wound speed penalty. DEFAULT = reading (c) — see the migration plan §1.4.
  *  (c) counts only backpack slots holding BOTH a wound and an item; it is the
  *  only reading under which "a backpack slot of the PC's CHOICE" (R:524) bears
@@ -625,13 +644,23 @@ SKILL_TO_EXPERTISE: Record<string, string>
 // It MUST NOT attempt the expertise budget. See below for why.
 
 // ---- LAYER (b): world migration on `ready` --------------------------------
-// Has the whole Actor, including embedded items. Runs once, gated on the
-// world's stored system version. T2.3 wires it; T1.3 writes it.
+// Has the whole Actor, including embedded items. T2.3 wires it; T1.3 writes it.
 reconcileActorExpertises(actor) => {
   granted: Record<string, number>,
   trimmed: Array<{ key: string, from: number, to: number }>,
-  desired: number, budget: number
+  desired: number, budget: number, overBudget: number
 }
+//
+// CALLED FROM TWO PLACES, not one. The world migration runs once, gated on the
+// world's stored version — but a PT1 actor IMPORTED AFTER that point (dragged
+// in from another world, restored from a compendium or a backup) never passes
+// through it and would silently keep its over-budget uses. So also call it from
+// a createActor hook when the incoming actor carries pre-0.2.0 shape.
+//   1. world migration on `ready`  — the bulk pass, gated on system version
+//   2. createActor                 — the straggler pass, gated on the actor's
+//                                    own stored version stamp
+// Stamp each reconciled actor (`flags.crows.expertiseReconciled`) so neither
+// path can run twice on the same document.
 
 // H5 FIX — the expertise budget. Converting PT1 skill bonuses 1:1 and clamping
 // only PER-EXPERTISE mints characters far outside anything PT2 advancement can
@@ -672,9 +701,22 @@ reconcileExpertiseBudget(converted, budget, maxPerExpertise) => {
 // BREADTH of training, which is what a PT1 sheet full of low bonuses actually
 // represented. Every removal lands in `trimmed` and must reach the GM report.
 //
-// World setting `crows.migrationExpertiseBudget`: "enforce" (default) | "report-only".
-// "report-only" skips step 2 and lets the GM rebalance by hand — some tables
-// would rather start over-powered than have a migration nerf a character.
+// World setting `crows.migrationExpertiseBudget`:
+//   "report-only" (DEFAULT) — compute the budget, report it, WRITE NOTHING.
+//                             Step 2 does not run. `trimmed` is still populated
+//                             so the GM can see exactly what enforcing would do.
+//   "enforce"               — apply step 2 and write the trimmed distribution.
+//
+// Report-only is the default because an over-budget character is a BALANCE
+// problem, not a data-integrity one: nothing crashes, the sheet is just strong.
+// That makes it the GM's call, not the migration's, and a migration should not
+// silently rewrite a player's sheet to win an argument about balance.
+//
+// CONSEQUENCE — because the default writes nothing, the over-budget state is
+// PERMANENT until a GM acts on it. A one-time journal entry is not enough
+// visibility for a permanent state, so prepareDerivedData must surface it on
+// the sheet as well (see Derived helpers: `expertiseOverBudget`). Without that,
+// the report scrolls away and the character stays quietly over-powered forever.
 ```
 
 **Tier resolution precedence** — implement exactly this, it is the most error-prone thing in the project.
@@ -915,10 +957,17 @@ DELIVERABLE:
        budget. That is correct and expected.
      - layer (b) `reconcileActorExpertises(actor)` calls expertiseBudgetForTxp()
        then reconcileExpertiseBudget(), once, against the whole actor.
-   Water-level down, never top up, put every trimmed use in the report, honour
-   `crows.migrationExpertiseBudget` ("enforce" default, "report-only" skips the
-   trim). This is the single most visible thing the migration does to someone's
-   character — if it is silent, it is wrong.
+   DEFAULT IS "report-only" — compute the budget, populate `trimmed` so the GM
+   can see what enforcing would do, and WRITE NOTHING. Only `"enforce"` applies
+   the water-level trim. An over-budget character is a balance problem, not a
+   data-integrity one, so it is the GM's call and not the migration's.
+   Because the default writes nothing, also implement `expertiseOverBudget()`
+   as derived data — the over-budget state is permanent until a GM acts, and a
+   one-time journal entry is not enough visibility for a permanent state.
+   Call reconcileActorExpertises from BOTH the `ready` world migration and a
+   createActor hook, stamped with `flags.crows.expertiseReconciled` so neither
+   runs twice — an actor imported after the world pass would otherwise never be
+   checked at all.
 3. Conditions: drop `boned` — it has no PT2 equivalent, do not silently convert
    it to `weakened` (different duration and semantics). `blessed > 0` -> true.
 4. Wounds: `wounds: N` -> N backpack indices, PREFERRING EMPTY SLOTS, lowest
@@ -956,8 +1005,16 @@ ACCEPTANCE:
       * water-levelling is EXACT and stable: assert the full granted map, not
         just the total, including the alphabetically-first tie-break
       * desired < budget is NOT topped up
-      * "report-only" leaves the over-budget distribution intact and still reports
+      * DEFAULT "report-only" WRITES NOTHING — assert stored uses are byte-for-
+        byte unchanged after reconcile, while `trimmed` is still populated
+      * "enforce" is the only mode that mutates
       * per-expertise max still applies after the total trim
+      * expertiseOverBudget() returns 0 for a legally-advanced crow and the
+        exact surplus for the 24-use fixture
+      * reconcile is stamped and does not run twice: calling it again after the
+        world pass is a no-op
+      * an actor created AFTER the world migration still gets reconciled by the
+        createActor path
   - WOUND-INDEX tests (M12):
       * wounds prefer empty backpack slots; a wound forced onto an occupied slot
         is reported

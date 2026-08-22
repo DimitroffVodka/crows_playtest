@@ -277,14 +277,39 @@ Runs on `init` when `system.version` on a world predates 0.2.0.
    budget        = backgroundUses + 3 × min(xp.skillBonusesSpent, bonusesEarned)
    ```
 
-   If the converted total exceeds the budget, **water-level down** — repeatedly remove one use from whichever expertise currently has the most, ties broken by the alphabetically-first key — until it fits. Water-levelling rather than keeping the strongest few, because a PT1 sheet full of modest bonuses represented *breadth* of training, and that is the part worth preserving. Never top up when the total comes in under budget. Every removed use goes in the GM report. The world setting `crows.migrationExpertiseBudget: "report-only"` skips the trim for tables that would rather start over-powered than have a migration nerf a character.
+   **The default is `"report-only"` — the migration computes the budget, reports it, and writes nothing.** An over-budget character is a balance problem, not a data-integrity one: nothing breaks, the sheet is just strong. That makes it the GM's call rather than the migration's, and a migration should not silently rewrite a player's sheet to win an argument about balance.
+
+   Setting `crows.migrationExpertiseBudget: "enforce"` applies the trim: **water-level down** — repeatedly remove one use from whichever expertise currently has the most, ties broken by the alphabetically-first key — until it fits. Water-levelling rather than keeping the strongest few, because a PT1 sheet full of modest bonuses represented *breadth* of training, and that is the part worth preserving. Never top up when the total comes in under budget. Either way the full desired-vs-budget table goes in the GM report, so the GM can see exactly what enforcing would do.
+
+   **Two consequences of defaulting to report-only:**
+   - The over-budget state is **permanent** until a GM acts, so it must be visible on the sheet, not only in a migration-time journal that scrolls away. `expertiseOverBudget()` is derived data and the crow sheet shows a badge when it is non-zero.
+   - Reconciliation must also run from a **`createActor` hook**, not only the one-time world migration. A Playtest 1 actor imported *after* the world pass — dragged in from another world, restored from a backup or a compendium — would otherwise never be checked at all. Both paths stamp `flags.crows.expertiseReconciled` so neither runs twice.
+
+   Which layer this runs in matters and is not a free choice — see §2.3a.
 2. **Conditions.** Delete `boned` (its penalty has no PT2 equivalent to preserve). `blessed > 0` → `blessed: true`.
 3. **Slots.** Belt capacity grows 2→4 — safe, no data loss. Magic-slot items move from `containers` to the new magic axis by matching `equipSlotTypes`. Items whose contiguity is now illegal get flagged, not silently moved: emit a GM report listing them.
 4. **Wounds.** `wounds: N` → assign to N backpack slot indices. **Prefer empty slots, lowest index first, and only then occupied ones.** PT1 filled bottom-up regardless of contents, but under reading (c) a wound landing on an occupied slot costs 1 speed — so a naive bottom-up migration would silently slow existing characters. Placing into empty slots first reproduces the PT1 speed profile as closely as the new rule allows; list any wound forced onto an occupied slot in the GM report. The player can rearrange afterwards.
 5. **Characteristics.** No transform needed, but the schema's old `max: 3` means no existing data can be out of range.
 6. **`preparedTask.skill`** → drop into `task` as free text with a note.
 
-Write this as pure functions in `helpers/migration.mjs` with unit tests over fixture actors in `dev/fixtures/`, so the migration is testable without a live world. **Test against update deltas, not just whole documents** — `migrateData` runs on partial updates too.
+### 2.3a Which migration layer does what
+
+Two layers, and conflating them is the classic bug — the first draft of this plan conflated them.
+
+| | **(a)** `DataModel.migrateData(source)` | **(b)** world migration on `ready` |
+| --- | --- | --- |
+| Sees | the raw `system` object, nothing else | the whole Actor, embedded Items included |
+| Runs | every load, **and on partial update deltas** | once, gated on the stored system version |
+| Intent | idempotent **shape coercion** | one-time **policy** |
+| Does | skills→expertises, boned dropped, blessed→boolean, preparedTask, wounds→slot indices | the expertise budget, slot re-layout, the GM report |
+
+**The expertise budget cannot run in layer (a).** Three independent reasons:
+
+1. `backgroundUses` is summed from the actor's **background Item**. Embedded items are not in `system`, so `migrateData` cannot reach it. This one is a hard blocker.
+2. The budget needs `xp.txp`, and a partial delta may omit `xp` entirely — the delta fixture deliberately does. No TXP means either a throw or an assumed `0`, which would trim a character to nothing on a routine field edit.
+3. `migrateData` has no way to know it has already run. Applied there, the budget would also hit already-migrated Playtest 2 characters who legitimately earned their uses.
+
+So layer (a) converts shape and is *expected* to leave `uses` over budget; layer (b) reconciles, once, against the whole actor. Write both as pure functions in `helpers/migration.mjs` with unit tests over the fixtures in `test/fixtures/actors/`, so they are testable without a live world. **Test against update deltas, not just whole documents** — `migrateData` runs on partial updates too.
 
 Emit a GM-visible summary journal of everything the migration touched or flagged. Do not silently drop data.
 
