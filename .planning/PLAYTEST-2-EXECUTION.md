@@ -476,11 +476,18 @@ slots:    new NumberField({ initial: 0, min: 0, integer: true }),           // F
 // F:700: a creature that gains another creature's stats KEEPS its original
 // slot count — so migration/polymorph must not overwrite this from a stat block.
 
-// NEW. Same shape as BackgroundData.expertises so one helper reads both.
-// Bare name in a stat block = 1 use; "(2 uses)" = 2 (F:1397, cf. C:103).
+// NEW. Same THREE-QUANTITY model as CrowData — a creature that spends an
+// expertise and then rests has to restore to something, and that something is
+// `max`. NOT the same shape as BackgroundData: a background stores a one-off
+// GRANT (`uses`), whereas this is a live pool that is spent and refreshed.
+// Bare name in a stat block = 1; "(2 uses)" = 2 (F:1397). Migration and content
+// both write value = max = the printed number.
+// `key` is constrained so an OCR-split or misspelled name fails at load rather
+// than entering content silently.
 expertises: new ArrayField(new SchemaField({
-              key:  new StringField({ required: true }),
-              uses: new NumberField({ initial: 1, min: 0, integer: true })
+              key:   new StringField({ required: true, choices: ALL_EXPERTISES }),
+              value: new NumberField({ initial: 1, min: 0, integer: true }),
+              max:   new NumberField({ initial: 1, min: 0, integer: true })
             })),
 
 size:     new StringField({ choices: CROWS.sizes, initial: "medium" }),
@@ -1489,8 +1496,10 @@ DO NOT: touch crow-sheet.mjs or its template (T2.1).
 TASK T2.3 — Registration, migration wiring, character creator
 OWNS:    module/crows.mjs, module/helpers/character-creator.mjs,
          module/helpers/creation.mjs, module/conditions.mjs
-         (module/conditions.mjs moved here from nobody: it is the status-effect
-          REGISTRATION and belongs with the entry point. T1.7 supplies the
+         (module/conditions.mjs is HANDED OFF from T0.2 after the contract
+          freeze — it is the status-effect REGISTRATION and belongs with the
+          entry point. Wave 0 is complete before Wave 1 starts, so this is a
+          sequential handoff, not concurrent ownership. T1.7 supplies the
           condition MECHANICS and the mirror logic and must not edit this file.)
 READS:   all helpers and data models, .planning/CONTRACT.md
 SOURCE:  Master.md C:14–42 (crow creation), C:89–602 (all 36 backgrounds)
