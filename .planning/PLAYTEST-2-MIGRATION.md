@@ -233,14 +233,14 @@ Phase 2 (spend):  player clicks "Apply <expertise>" on the card
 
 Design notes:
 - Doom and crit are computed from the **unmodified 2d10 sum** and override tier shifts in both directions (R:244–248: crit → T3 "regardless of banes"; doom → T1 "regardless of edges, expertises, and other bonuses"). **Expertise cannot rescue a doom** — enforce this.
-- The expertise-spend button must be gated: only the actor's owner, only once per card, only a category-legal expertise, only if `uses > 0`.
+- The expertise-spend button must be gated: only the actor's owner, only once per card, only a category-legal expertise, only if `value > 0` (the remaining pool, not the owned `max`).
 - Store the resolution state in a message flag (`flags.crows.test`) so the card is re-renderable and the spend is idempotent under lag/double-click.
 - `edges`/`banes` arrive as labelled arrays so the card can explain *why* ("flanking", "high ground", "weakened").
 
 ### 2.2 Data model changes
 
 **`data/actor/crow.mjs`**
-- `skills` → `expertises`: `{ <key>: { uses: Number, max: Number } }`
+- `skills` → `expertises`: `{ <key>: { value: Number, max: Number } }` — `value` is remaining, `max` is owned. A single count cannot survive spend-then-rest.
 - `characteristics.*.value`: `min: -5, max: 5` (PC cap of 4 enforced in advancement, not schema — magic can exceed)
 - `conditions`: drop `boned`; `blessed` NumberField → BooleanField; add `vulnerable`, `weakened` BooleanFields
 - `wounds`: Number → the wound *slot assignment* must be player-chosen, so this becomes a set of occupied backpack slot indices. **Unbounded above** — backpack capacity is config plus trait grants, and schema validation runs on source before derived data exists, so the bound is enforced in `prepareDerivedData` and at the mutation site. An index past the current capacity is orphaned and surfaced, never clamped or dropped; otherwise removing a slot-granting trait would silently heal a wounded character. Death is capacity-relative and evaluated on wound *gain* only, so a shrinking capacity flags for the Ref rather than instantly killing someone.
@@ -312,11 +312,11 @@ Two layers, and conflating them is the classic bug — the first draft of this p
 
 **The expertise budget cannot run in layer (a).** Three independent reasons:
 
-1. `backgroundUses` is summed from the actor's **background Item**. Embedded items are not in `system`, so `migrateData` cannot reach it. This one is a hard blocker.
+1. `backgroundUses` needs the background's **grants**, and the actor stores only `system.background` — a NAME. There is **no embedded Background Item** to sum. Resolving it requires a compendium lookup (id first, then name; stamp the id; report and skip on failure), which a pure per-document transform cannot perform. This one is a hard blocker.
 2. The budget needs `xp.txp`, and a partial delta may omit `xp` entirely — the delta fixture deliberately does. No TXP means either a throw or an assumed `0`, which would trim a character to nothing on a routine field edit.
 3. `migrateData` has no way to know it has already run. Applied there, the budget would also hit already-migrated Playtest 2 characters who legitimately earned their uses.
 
-So layer (a) converts shape and is *expected* to leave `uses` over budget; layer (b) reconciles, once, against the whole actor. Write both as pure functions in `helpers/migration.mjs` with unit tests over the fixtures in `test/fixtures/actors/`, so they are testable without a live world. **Test against update deltas, not just whole documents** — `migrateData` runs on partial updates too.
+So layer (a) converts shape and is *expected* to leave `max` over budget; layer (b) reconciles, once, against the whole actor. Write both as pure functions in `helpers/migration.mjs` with unit tests over the fixtures in `test/fixtures/actors/`, so they are testable without a live world. **Test against update deltas, not just whole documents** — `migrateData` runs on partial updates too.
 
 Emit a GM-visible summary journal of everything the migration touched or flagged. Do not silently drop data.
 

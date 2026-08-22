@@ -235,12 +235,16 @@ export const CROWS = {
   // --- Money (H7). Two ways a slot can carry coin, not one. ---------------
   // C:1917: "An inventory slot can hold 250 loose coins OR 1 purse that holds
   // up to 500 gc." Every PC starts with an empty coin purse (C:36), the Coin
-  // Purse item has quality tiers 500/1,000 gc (C:1940), and at least one trait
+  // Bursting Purse (C:1737) is the ONLY published capacity increase; there is no
+  // per-quality-tier purse capacity (an earlier note cited C:1940 for that, but
+  // C:1940 is the Gear Prices row). One trait
   // grants +500 gc of purse capacity (C:1737). Modelling only `coinPerSlot`
   // makes starting equipment unrepresentable.
   coinPerSlot: 250,                              // loose coins, 1 slot
   pursePerSlot: 1,                               // a purse occupies its slot alone
-  purseBaseCapacity: 500,                        // overridden per-item by quality tier
+  purseBaseCapacity: 500,                        // C:1917. NOT overridden by quality
+                                                 // tier — Bursting Purse (C:1737) is the
+                                                 // only published increase.
 
   corpseSlots: { tiny: 1, small: 2, medium: 4, large: 8, huge: 16, holyShit: 32 },
   corpseStack: { tiny: 3 },                      // R:486; all others 1
@@ -707,13 +711,15 @@ reconcileActorExpertises(actor) => {
 // grants at most 3 (C:615). The total pool needs its own ceiling.
 //
 // C1 — WHY THIS IS LAYER (b) AND CANNOT BE LAYER (a):
-//   * `backgroundUses` is summed from the actor's BACKGROUND ITEM. Embedded
-//     items are not in `system`, so migrateCrowSystem() cannot see it.
+//   * `backgroundUses` needs the background's GRANTS, and the actor stores only
+//     `system.background` (a NAME) — there is no embedded Background Item at
+//     all. Resolving it means a compendium lookup, which a pure per-document
+//     transform cannot do.
 //   * The budget needs `xp.txp`. A partial delta may not carry `xp` at all —
 //     test/fixtures/actors/pt1-crow-delta.json deliberately omits it.
 //   * Running it per-delta would re-trim on every subsequent partial update,
 //     compounding the reduction each time a player edited an unrelated field.
-// So layer (a) converts shape and leaves `uses` possibly over-budget; layer (b)
+// So layer (a) converts shape and leaves `max` possibly over-budget; layer (b)
 // reconciles once, against the whole actor, and reports.
 expertiseBudgetForTxp(txp, backgroundUses, expertiseBonusesSpent) => number
 //   bonusesEarned    = rows of CROWS.expertiseAdvancement with txp <= actor txp,
@@ -887,7 +893,8 @@ DELIVERABLE:
    declineExpertise(message). Must enforce the `canSpendExpertise` gate:
    - actor owner only
    - once per message (idempotent under double-click / lag)
-   - uses > 0, decrement on success
+   - `value > 0`; decrement `value` on success. NEVER touch `max` — that is the
+     owned pool and only advancement/enforcement may change it.
    - CATEGORY GATE: weapon expertises only on weapon attacks, spellcasting only
      on castings and spell attacks, general on neither (R:913 / R:384)
    - REFUSE on doom. Expertise cannot rescue a doom (R:246). Test this explicitly.
@@ -1023,15 +1030,18 @@ DELIVERABLE:
      sabotage|sleightOfHand -> thievery
      handleAnimal    -> handlePet
    All others map 1:1 by name. pickLock survives as its own expertise.
-2. bonus -> uses conversion, 1:1, clamped to the max-uses for that actor's TXP
+2. bonus -> uses conversion, 1:1, writing BOTH `value` and `max` to the converted
+   amount, clamped to the max-uses for that actor's TXP
    band (CROWS.expertiseAdvancement).
 2b. THEN THE TOTAL BUDGET — but IN LAYER (b), NOT HERE. Per-expertise clamping
    alone is not enough: a PT1 crow with 12 skills at bonus 2 converts to 24
    uses, while a PT2 bonus grants at most 3 (C:615). But the budget needs the
-   actor's BACKGROUND ITEM (embedded, not in `system`) and `xp.txp` (absent
+   background's GRANTS — and the actor stores only `system.background`, a NAME,
+   with NO embedded Background Item to sum, so resolving it needs a compendium
+   lookup — and `xp.txp` (absent
    from partial deltas), and re-running it per-delta would compound the trim on
    every unrelated edit. So:
-     - layer (a) `migrateCrowSystem` converts shape and may leave `uses` over
+     - layer (a) `migrateCrowSystem` converts shape and may leave `max` over
        budget. That is correct and expected.
      - layer (b) `reconcileActorExpertises(actor)` calls expertiseBudgetForTxp()
        then reconcileExpertiseBudget(), once, against the whole actor.
@@ -1068,13 +1078,20 @@ ACCEPTANCE:
     placed, belt widened.
   - A test passing a PARTIAL DELTA (e.g. {system:{skills:{climb:{bonus:0}}}})
     asserting no crash and no invented sibling fields.
-  - A zero-value test: bonus 0 survives as uses 0, is not dropped as falsy.
-  - A collapse test: climb bonus 1 + swim bonus 2 -> athletics uses 2.
+  - A zero-value test: bonus 0 survives as value=max=0, not dropped as falsy.
+  - A collapse test: climb bonus 1 + swim bonus 2 -> athletics value=max=2.
+  - BACKGROUND LOOKUP tests (there is no embedded Background Item):
+      * resolves by `backgroundId` when present
+      * falls back to `background` name, trimmed and case-insensitive
+      * stamps `backgroundId` on first successful resolution
+      * UNRESOLVED -> reported AND the actor's budget skipped entirely.
+        Assert it is NOT treated as backgroundUses = 0. Until T3.1 lands this
+        is the only reachable case, so it is the one that must be right.
   - An illegal-placement test asserting the item is reported, not moved.
   - LAYER SEPARATION tests (C1):
       * migrateCrowSystem() on the delta fixture (no xp, no items) does NOT
         attempt a budget and does NOT throw
-      * migrateCrowSystem() on the full fixture leaves uses OVER budget —
+      * migrateCrowSystem() on the full fixture leaves `max` OVER budget —
         assert 24, i.e. shape-only conversion, no trim
       * reconcileActorExpertises() on the same actor performs the trim
   - BUDGET tests (H5):
@@ -1083,7 +1100,7 @@ ACCEPTANCE:
       * water-levelling is EXACT and stable: assert the full granted map, not
         just the total, including the alphabetically-first tie-break
       * desired < budget is NOT topped up
-      * DEFAULT "report-only" WRITES NOTHING — assert stored uses are byte-for-
+      * DEFAULT "report-only" WRITES NOTHING — assert stored value/max are byte-for-
         byte unchanged after reconcile, while `trimmed` is still populated
       * "enforce" is the only mode that mutates
       * per-expertise max still applies after the total trim
@@ -1154,7 +1171,20 @@ SOURCE:  Master.md R:586–624 (end of DT, greed, encounters), R:626–680 (rest
 
 DELIVERABLE:
 1. Rest restores ALL Stamina, ALL expertise uses, and removes 1 wound OF THE
-   PLAYER'S CHOICE. Expertise refresh is BLOCKED when resting in Miasma (R:628).
+   PLAYER'S CHOICE. Concretely, for every expertise: `value = max`. Do NOT write
+   `max` — that is the owned pool. Expertise refresh is BLOCKED when resting in
+   the Miasma (R:1375): leave `value` exactly as it is and apply every OTHER
+   effect of the rest normally. That suppression is only expressible because
+   value and max are separate; do not "optimise" it back into one number.
+1b. ALSO reset every trait use pool on the same rest: for each trait item with
+   `system.usePool`, set `usePool.used = 0`. FOUR published traits depend on
+   this and nothing else resets them — C:921, C:1361, C:1501 (Mind-sized) and
+   C:1739 (Agility-sized), all "regaining all uses when you finish a rest".
+   A trait pool is NOT suppressed by the Miasma; R:1375 names expertises only.
+   You own the reset. T2.1 owns displaying remaining/overused on the sheet, and
+   the derivation itself (max = max(0, characteristic), overused = used - max)
+   is specified in CONTRACT.md §5 — implement it where you read it, and do not
+   clamp `used` downward when a characteristic drops.
 2. Halfway-point rule: end-of-DT effects end and end-of-DT UD roll at the rest's
    midpoint (R:630).
 3. Rest activities — revised and new:
@@ -1244,7 +1274,10 @@ DELIVERABLE:
    1d6 per damage instance; weakened is a bane on all tests. All three expire at
    end of DT. Conditions are strictly boolean now — you cannot gain a second
    instance (R:528).
-2. Status-effect sync for all six conditions. NOT a naive bidirectional sync —
+2. Status-effect sync for all six conditions. You own the LOGIC; T2.3 owns
+   `module/conditions.mjs` and the hook registration. Export what you need from
+   your own files and let T2.3 wire it — do not edit conditions.mjs or crows.mjs.
+   NOT a naive bidirectional sync —
    that loops, or leaves two sources disagreeing. Freeze the COMMAND FLOW
    (CONTRACT.md §5b):
      a. intercept the Token HUD toggle and translate it into an update to
@@ -1455,7 +1488,10 @@ DO NOT: touch crow-sheet.mjs or its template (T2.1).
 ```
 TASK T2.3 — Registration, migration wiring, character creator
 OWNS:    module/crows.mjs, module/helpers/character-creator.mjs,
-         module/helpers/creation.mjs
+         module/helpers/creation.mjs, module/conditions.mjs
+         (module/conditions.mjs moved here from nobody: it is the status-effect
+          REGISTRATION and belongs with the entry point. T1.7 supplies the
+          condition MECHANICS and the mirror logic and must not edit this file.)
 READS:   all helpers and data models, .planning/CONTRACT.md
 SOURCE:  Master.md C:14–42 (crow creation), C:89–602 (all 36 backgrounds)
 
