@@ -110,10 +110,10 @@ OWNS (exclusive write):
   module/conditions.mjs
   lang/en.json
 READS:   all of module/ (to understand current usage), .planning/PLAYTEST-2-MIGRATION.md
-SOURCE:  Master.md L178-188 (characteristics), L304-372 (expertises),
-         L424-512 (sizes + inventory + corpses), L540-572 (conditions),
-         L1774-1794 (creation), L2355-2411 (advancement),
-         L5621-5665 (creature stats: power, slots, X/Rest)
+SOURCE:  Master.md R:164–174 (characteristics), R:290–358 (expertises),
+         R:410–498 (sizes + inventory + corpses), R:526–558 (conditions),
+         C:22–42 (creation), C:603–659 (advancement),
+         F:688–732 (creature stats: power, slots, X/Rest)
 
 DELIVERABLE: See "Part 1.1 Contract specification" in this document. Implement it
 exactly. Where the spec is under-determined, decide, and add a `// CONTRACT:`
@@ -766,7 +766,7 @@ OWNS:    module/helpers/migration.mjs (new), test/migration.test.js,
 READS:   .planning/CONTRACT.md, module/data/**, dev/fixtures/actors/*,
          git show master:module/data/actor/crow.mjs  (the OLD schema — read it
          from git, the working tree already has the new one)
-SOURCE:  Master.md L304-372, PLAYTEST-2-MIGRATION.md section 2.3
+SOURCE:  Master.md R:290–358, PLAYTEST-2-MIGRATION.md section 2.3
 
 CONTEXT: Two distinct migration layers, and conflating them is the classic bug:
   (a) TypeDataModel.migrateData(source) — per-document field transforms, runs on
@@ -841,8 +841,8 @@ DO NOT: register hooks or touch crows.mjs. Pure functions only — T2.3 wires th
 TASK T1.4 — Advancement tables and trait purchase
 OWNS:    module/helpers/advancement.mjs, test/advancement.test.js
 READS:   .planning/CONTRACT.md, module/config.mjs, module/data/item/trait.mjs
-SOURCE:  Master.md L2355-2411 (XP, both tables, new PC after death),
-         L2413-2423 (buying traits, minimum modifier)
+SOURCE:  Master.md C:603–659 (XP, both tables, new PC after death),
+         C:661–671 (buying traits, minimum modifier)
 
 CONTEXT: advancement.mjs has 32 `skill` references. Both TXP tables are fully
 replaced — do not try to preserve the old numbers.
@@ -850,19 +850,19 @@ replaced — do not try to preserve the old numbers.
 DELIVERABLE:
 1. New Expertise & Stamina table (CROWS.expertiseAdvancement) with the max-uses
    curve 2/2/2/2/2/3/3/4/4 and "every 30,000 after".
-2. Each bonus is a THREE-WAY choice (L2365): 3 expertise uses distributed freely
+2. Each bonus is a THREE-WAY choice (C:613): 3 expertise uses distributed freely
    (including into expertises you don't have) without exceeding max; OR +2 Stamina
    max; OR 1 use + 1 Stamina max. Return the options; do not auto-pick.
 3. Characteristic table 5000/15000/30000/+30k, cap 4, and if all three are at 4
-   the bonus becomes +2 Stamina instead (L2392).
+   the bonus becomes +2 Stamina instead (C:640).
 4. XP accrual: treasure value / player count, excluding purchased, crafted,
-   taken-from-innocent, and ally-owned goods (L2357). Unique items carry an
+   taken-from-innocent, and ally-owned goods (C:605). Unique items carry an
    explicit XP value.
-5. Spending is gated to end-of-rest (L2361).
+5. Spending is gated to end-of-rest (C:609).
 6. Traits: starting traits 500 XP; a trait must connect by line to one you own on
-   the same tree; one purchase each (L2419).
+   the same tree; one purchase each (C:667).
 7. New PC after death: extra background rolls equal to the dead PC's bonus count;
-   optional TXP floor matching the party's lowest (L2405-2409).
+   optional TXP floor matching the party's lowest (C:653–657).
 8. Retirement threshold 60,000 TXP.
 
 ACCEPTANCE:
@@ -882,36 +882,36 @@ TASK T1.5 — Rest, DT, encounters, greed bonus
 OWNS:    module/helpers/rest.mjs, module/helpers/dungeon-turn.mjs,
          module/helpers/greed.mjs (new), test/rest.test.js
 READS:   .planning/CONTRACT.md, module/helpers/usage-die.mjs, module/helpers/miasma.mjs
-SOURCE:  Master.md L600-638 (end of DT, greed, encounters), L640-694 (resting,
+SOURCE:  Master.md R:586–624 (end of DT, greed, encounters), R:626–680 (resting,
          rest encounters, all rest activities, town activities)
 
 DELIVERABLE:
 1. Rest restores ALL Stamina, ALL expertise uses, and removes 1 wound OF THE
-   PLAYER'S CHOICE. Expertise refresh is BLOCKED when resting in Miasma (L642).
+   PLAYER'S CHOICE. Expertise refresh is BLOCKED when resting in Miasma (R:628).
 2. Halfway-point rule: end-of-DT effects end and end-of-DT UD roll at the rest's
-   midpoint (L644).
+   midpoint (R:630).
 3. Rest activities — revised and new:
    - Prepare for Task: now +2 (was +1), binds to a task string not a skill,
      lasts until the next completed rest.
    - Tend Wounds: target needs >=2 wounds, CANNOT be self, removes 2, once/rest.
-   - Harvest: generic monster parts, 1d6/2d6/3d6/4d6 by corpse size (L666).
+   - Harvest: generic monster parts, 1d6/2d6/3d6/4d6 by corpse size (R:652).
    - Repair Armor (NEW): restore one armor/shield to full AD.
    - Seclude Camp (NEW): EN -1 for this rest; one person per group; does NOT
      require finishing the rest.
    - Craft Equipment, Identify Item: carry forward.
-4. Town rest activities (L692): up to 4/day without sleeping, ~2h each, benefits
+4. Town rest activities (R:678): up to 4/day without sleeping, ~2h each, benefits
    land after the 2 hours rather than at end of rest. Tend Wounds is the exception
    — still needs 4h sleep, once/day.
-5. Rest is blocked entirely if the actor has the magicOverload flag from T1.2 (L474).
+5. Rest is blocked entirely if the actor has the magicOverload flag from T1.2 (R:460).
 6. Encounter check: 1d10 >= EN. EN 9 default, 8 if crowded (>20 creatures) OR
    chaos left behind, 7 if BOTH. A rolled 10 fires immediately; a triggering 9 or
-   lower telegraphs a sign now and fires during the next DT (L636-638).
+   lower telegraphs a sign now and fires during the next DT (R:622–624).
 7. helpers/greed.mjs: +30%/+20%/+10% on treasure found in DTs 1-3 of a first
    entry, once per dungeon per PLAYER GROUP — persists across characters, so key
-   a world flag by dungeon id, not by actor (L614).
+   a world flag by dungeon id, not by actor (R:600).
 8. Delete blessed/boned reset; replace with end-of-DT expiry for blessed,
    vulnerable, and weakened.
-9. Configurable DT length: 30 default / 60 / 20 / 1d6-rooms (L630).
+9. Configurable DT length: 30 default / 60 / 20 / 1d6-rooms (R:616).
 
 ACCEPTANCE:
   - Test: Miasma rest does NOT refresh expertise uses.
@@ -930,9 +930,9 @@ TASK T1.6 — Village, institutions, crafting, hirelings
 OWNS:    module/helpers/village.mjs, module/helpers/crafting.mjs,
          module/helpers/hirelings.mjs (new), test/village.test.js
 READS:   .planning/CONTRACT.md, module/helpers/crypt.mjs
-SOURCE:  Master.md L4287-4441 (village, prosperity, trade, village crafting),
-         L4442-4889 (all 13 institutions), L4890-4933 (home, retirement, other
-         villages), L4251-4286 (hirelings), L1679-1752 (crafting, IDing items)
+SOURCE:  Master.md C:2535–2689 (village, prosperity, trade, village crafting),
+         C:2690–3137 (all 13 institutions), C:3138–3179 (home, retirement, other
+         villages), C:2499–2534 (hirelings), R:1665–1736 (crafting, IDing items)
          Institution line starts: Alchemist 4458, Auction House 4497, Barracks 4511,
          Beacon 4558, Blacksmith 4591, Bookseller 4635, Crypt 4665, Enchanter 4716,
          General Store 4744, Inn 4779, Stables 4799, Temple 4850
@@ -940,15 +940,15 @@ SOURCE:  Master.md L4287-4441 (village, prosperity, trade, village crafting),
 DELIVERABLE:
 1. DELETE the availability-roll code. Item availability is now purely a function
    of merchant institution level (changelog). Institution level counts changed —
-   re-derive every one from L4442-4889, do not assume PT1 values.
-2. New institutions: Barracks (L4511), Beacon (L4558).
-3. Temple no longer sells crafting materials but CAN craft for you (L4850).
-4. Auction house no longer sells monster parts (L4497).
+   re-derive every one from C:2690–3137, do not assume PT1 values.
+2. New institutions: Barracks (C:2759), Beacon (C:2806).
+3. Temple no longer sells crafting materials but CAN craft for you (C:3098).
+4. Auction house no longer sells monster parts (C:2745).
 5. Prosperity can be raised by spending 10,000 gc on village items.
 6. Crafting on generic monster PARTS, not specific organs.
 7. helpers/hirelings.mjs: employment terms, control, death-of-PC handling
-   (L4251-4286).
-8. Not Your Village / Founding Other Villages / Other Villages (L4293, L4910, L4916).
+   (C:2499–2534).
+8. Not Your Village / Founding Other Villages / Other Villages (C:2541, C:3158, C:3164).
 
 ACCEPTANCE:
   - Zero references to availability rolls remain.
@@ -956,7 +956,7 @@ ACCEPTANCE:
     the source line cited in a comment per institution.
   - npm test green; ./verify.sh passes.
 DO NOT: touch crypt.mjs (crypt boons are PT1 work that survives — verify only,
-        and report to the orchestrator if L4665 has changed it).
+        and report to the orchestrator if C:2913 has changed it).
 ```
 
 ### T1.7 — Damage, conditions, combat resolution
@@ -967,16 +967,16 @@ OWNS:    module/helpers/damage.mjs, module/helpers/combat.mjs (new),
          module/helpers/attack.mjs, test/damage.test.js
 READS:   .planning/CONTRACT.md, module/helpers/edges.mjs (T1.1 — coordinate on
          the Label shape via CONTRACT.md, do not edit it), module/data/actor/*
-SOURCE:  Master.md L518-538 (AD, piercing, stamina, wounds), L540-572 (conditions),
-         L923-1004 (attacks, melee, ranged, crits, multi-target, flanking, high
-         ground, reactions, counter), L769-796 (cover, concealment)
+SOURCE:  Master.md R:504–524 (AD, piercing, stamina, wounds), R:526–558 (conditions),
+         R:909–990 (attacks, melee, ranged, crits, multi-target, flanking, high
+         ground, reactions, counter), R:755–782 (cover, concealment)
 
 DELIVERABLE:
 1. Conditions rewritten (see CONTRACT.md): boned deleted; blessed now grants an
    edge AND bonus damage equal to the attack's characteristic; vulnerable adds
    1d6 per damage instance; weakened is a bane on all tests. All three expire at
    end of DT. Conditions are strictly boolean now — you cannot gain a second
-   instance (L542).
+   instance (R:528).
 2. Bidirectional Active Effect sync for all six conditions.
    Use CONST.ACTIVE_EFFECT_CHANGE_TYPES — see .planning/API-NOTES.md, and note
    verify.sh BLOCKS ACTIVE_EFFECT_MODES.
@@ -984,18 +984,18 @@ DELIVERABLE:
    dialog survives from PT1. Vulnerable adds 1d6 BEFORE AD is applied.
 4. Wounds land in a player-chosen backpack slot — call into T1.2's layout API.
 5. helpers/combat.mjs:
-   - Counter reaction (L997): triggered by an adjacent attacker's T1 on a melee
+   - Counter reaction (R:983): triggered by an adjacent attacker's T1 on a melee
      attack / Grab / Knockback / Escape Grab. Deals the counterer's weapon tier 2;
      on the trigger's DOOM, tier 3 instead. NOT triggered by a T1 opportunity attack.
-   - Crit on an attack grants an extra action (L971).
-   - Ranged miss with allies adjacent (L957): roll any die, on ODD hit a random
-     adjacent ally for tier 2. On a DOOM, hit an ally for tier 3 automatically (L959).
-   - Ranged beyond normal range: -2 per square. This is a PENALTY, not a bane (L955).
-   - Ranged at an adjacent target: a BANE (L961).
-   - Flanking (L979) and high ground (L987): edge sources. Emit Labels for T1.1.
-   - Multi-target (L975): ONE roll, but per-target edges/banes can resolve to
+   - Crit on an attack grants an extra action (R:957).
+   - Ranged miss with allies adjacent (R:943): roll any die, on ODD hit a random
+     adjacent ally for tier 2. On a DOOM, hit an ally for tier 3 automatically (R:945).
+   - Ranged beyond normal range: -2 per square. This is a PENALTY, not a bane (R:941).
+   - Ranged at an adjacent target: a BANE (R:947).
+   - Flanking (R:965) and high ground (R:973): edge sources. Emit Labels for T1.1.
+   - Multi-target (R:961): ONE roll, but per-target edges/banes can resolve to
      DIFFERENT TIERS per target. The result shape must be per-target.
-6. Cover and concealment (L769-796) as edge/bane sources.
+6. Cover and concealment (R:755–782) as edge/bane sources.
 
 ACCEPTANCE:
   - Test: vulnerable adds 1d6 and it is absorbed by AD (not piercing-like).
@@ -1105,7 +1105,7 @@ TASK T2.1 — Crow sheet rewrite for Playtest 2
 OWNS:    module/sheets/crow-sheet.mjs (921 lines), templates/actor/crow/sheet.hbs (469)
 READS:   everything in module/helpers/ and module/data/ (all frozen by now),
          .planning/CONTRACT.md
-SOURCE:  Master.md L440-512 (slots), L304-372 (expertises), L2355-2423 (advancement)
+SOURCE:  Master.md R:426–498 (slots), R:290–358 (expertises), C:603–671 (advancement)
 
 CONTEXT: 57 `skill` refs in the .mjs and 37 in the .hbs. This is the largest
 single integration job. ApplicationV2 + HandlebarsApplicationMixin throughout —
@@ -1143,7 +1143,7 @@ TASK T2.2 — Interactive test card, monster sheet, styles
 OWNS:    templates/chat/*.hbs, module/sheets/monster-sheet.mjs,
          templates/actor/monster.hbs, css/crows.css
 READS:   module/helpers/roll.mjs, expertise.mjs, combat.mjs, .planning/API-NOTES.md
-SOURCE:  Master.md L256-262, L270-306, L5621-5665 (creature stats)
+SOURCE:  Master.md R:242–248, R:256–292, F:688–732 (creature stats)
 
 DELIVERABLE:
 1. Rewrite templates/chat/test-card.hbs (currently 19 lines) as the INTERACTIVE
@@ -1179,7 +1179,7 @@ TASK T2.3 — Registration, migration wiring, character creator
 OWNS:    module/crows.mjs, module/helpers/character-creator.mjs,
          module/helpers/creation.mjs
 READS:   all helpers and data models, .planning/CONTRACT.md
-SOURCE:  Master.md L1766-1794 (crow creation), L1841-2354 (all 36 backgrounds)
+SOURCE:  Master.md C:14–42 (crow creation), C:89–602 (all 36 backgrounds)
 
 DELIVERABLE:
 1. crows.mjs: register data models INDIVIDUALLY (CONFIG.Actor.dataModels.crow = ...),
@@ -1191,11 +1191,11 @@ DELIVERABLE:
 3. Register the six status effects; remove boned.
 4. Character creator rebuilt for PT2:
    - 2d6 background roll or pick from 36 (unchanged mechanic).
-   - Background sets ONE characteristic to 2 (L1780) — this is a SET, not a +1.
+   - Background sets ONE characteristic to 2 (C:28) — this is a SET, not a +1.
      Remaining two: player picks {1, 0} or {-1, 2}, assigned freely.
    - Background grants expertise USES (1 or 2 each), not skill bonuses.
-   - Universal kit: empty coin purse, knife, rope, 6 rations, and 3d6 gc (L1788).
-   - New step: NPC connection (L1792).
+   - Universal kit: empty coin purse, knife, rope, 6 rations, and 3d6 gc (C:36).
+   - New step: NPC connection (C:40).
    - Starting speed 5.
 
 ACCEPTANCE:
@@ -1234,22 +1234,22 @@ existing HIGH/MED/LOW/INFO severity format.
 | Task | Pack | Docs | Notes |
 | --- | --- | --- | --- |
 | T3.0 | — | — | Audit the 8 open HIGH findings from `docs/discrepancies/SUMMARY.md`. Fix or confirm fixed. **Blocks T3.6 and T3.7.** |
-| T3.1 | `crows-backgrounds` | 36 | **Every one changed.** L1841–2354, per-background line starts listed below. `skills` → `expertises` with uses; `characteristicAt2`; starting equipment per the changelog (many swaps: bear traps, smoke bombs, gluepots, nets, ball bearings). |
-| T3.2 | `crows-traits` | 276 | 23 trees, L2459–3630. Leverage confirmed changed (Stacks on Stacks replaces Groundroll). Split across 3–4 agents by tree: **A** Alchemy→Blacksmithing (2459–2778), **B** Camping→Enchantment (2779–3016), **C** Illusion→Pets (3017–3358), **D** Reputation→Unarmed (3359–3630). Note the source's own typo: tree heading reads "Blackmsithing" at L2709. |
-| T3.3 | `crows-weapons` + `crows-armor` + `crows-ammunition` | 25 | L3749–4156. Armor types/upgrades/enchantments L3753–3941; weapon types/qualities/upgrades/enchantments L3946–4156. |
-| T3.4 | `crows-gear` + `crows-consumables` + `crows-loot` | 63 | L3635–3748 (cards, fine/masterwork, gear, money), L4157–4180 (crafting materials, treasure). Monster parts are now generic. |
-| T3.5 | `crows-monsters` | 11 → more | L5621–7058. Add `power`, `reactions`, `slots` (a **count** — 0 for monsters, the printed `**Slots:**N` for humans/animals), `size`, `type`, `expertises` (bare name = 1 use, "(2 uses)" = 2), and `xRest` to every stat block. Expand: Animals/Potential Pets (5657–6131), Humans (6132–6553), Blood Creatures (6630), Ring Collector (6717), Undead (6760). |
-| T3.6 | `crows-spellbooks` | 25 | L1459–1678. **Depends on T3.0** — this pack holds 5 of the 8 open HIGH findings. |
+| T3.1 | `crows-backgrounds` | 36 | **Every one changed.** C:89–602, per-background line starts listed below. `skills` → `expertises` with uses; `characteristicAt2`; starting equipment per the changelog (many swaps: bear traps, smoke bombs, gluepots, nets, ball bearings). |
+| T3.2 | `crows-traits` | 276 | 23 trees, C:707–1878. Leverage confirmed changed (Stacks on Stacks replaces Groundroll). Split across 3–4 agents by tree: **A** Alchemy→Blacksmithing (2459–2778), **B** Camping→Enchantment (2779–3016), **C** Illusion→Pets (3017–3358), **D** Reputation→Unarmed (3359–3630). Note the source's own typo: tree heading reads "Blackmsithing" at C:957. |
+| T3.3 | `crows-weapons` + `crows-armor` + `crows-ammunition` | 25 | C:1997–2404. Armor types/upgrades/enchantments C:2001–2189; weapon types/qualities/upgrades/enchantments C:2194–2404. |
+| T3.4 | `crows-gear` + `crows-consumables` + `crows-loot` | 63 | C:1883–1996 (cards, fine/masterwork, gear, money), C:2405–2428 (crafting materials, treasure). Monster parts are now generic. |
+| T3.5 | `crows-monsters` | 11 → more | F:688–2123. Add `power`, `reactions`, `slots` (a **count** — 0 for monsters, the printed `**Slots:**N` for humans/animals), `size`, `type`, `expertises` (bare name = 1 use, "(2 uses)" = 2), and `xRest` to every stat block. Expand: Animals/Potential Pets (5657–6131), Humans (6132–6553), Blood Creatures (6630), Ring Collector (6717), Undead (6760). |
+| T3.6 | `crows-spellbooks` | 25 | R:1445–1664. **Depends on T3.0** — this pack holds 5 of the 8 open HIGH findings. |
 | T3.7 | `crows-rules` | 1 journal, ~16 pages | Full rewrite: expertises, edges/banes, six conditions, new advancement tables, greed bonus, encounter EN, rest activities, sizes, corpse slots. **Depends on T3.0** and on T0.2 for terminology. |
 
 **New content (T3.8–T3.11)** — new packs, so fully independent:
 
 | Task | Deliverable | Source |
 | --- | --- | --- |
-| T3.8 | `crows-adventures` (JournalEntry): Blood Library, 8 rooms | L7249–7632 |
-| T3.9 | `crows-adventures`: Floating Manor, 15 rooms | L7633–8228 |
-| T3.10 | `crows-adventures`: POI Ruined Tower, POI Ruined Windmill, village of Gadwick, dungeon hooks, awarding treasures | L7059–7248 |
-| T3.11 | `crows-tables` (RollTable): travel encounters — Any Monster, Bad Weather, Merchant, Miasma-Touched, Monster from Nearby, Strong Miasma, Traveler, Wild Animal, Interesting Things | L4943–5620 |
+| T3.8 | `crows-adventures` (JournalEntry): Blood Library, 8 rooms | D:193–576 |
+| T3.9 | `crows-adventures`: Floating Manor, 15 rooms | D:577–1168 |
+| T3.10 | `crows-adventures`: POI Ruined Tower, POI Ruined Windmill, village of Gadwick, dungeon hooks, awarding treasures | D:12–192 |
+| T3.11 | `crows-tables` (RollTable): travel encounters — Any Monster, Bad Weather, Merchant, Miasma-Touched, Monster from Nearby, Strong Miasma, Traveler, Wild Animal, Interesting Things | F:10–687 |
 
 T3.8 and T3.9 both target `crows-adventures`. Give them separate subdirectories under `src/packs/crows-adventures/` and have one agent add the pack to `system.json` — or simpler, give each its own pack and merge later.
 
