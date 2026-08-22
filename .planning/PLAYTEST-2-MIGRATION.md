@@ -99,13 +99,21 @@ Known edge/bane sources to wire: flanking (edge, R:965), high ground (edge, R:97
 - **Contiguity:** a multi-slot item must occupy adjacent slots *of the same type*. No 10-foot pole across one hand + one belt; no backpack slots 2 and 7.
 - **Stacking:** 5 potions, 3 locks, 2 oil flasks per slot. Same *kind* only (5 different potions is fine; 3 potions + 2 locks is not). Hand slots can't stack.
 - **Coinage:** 250 gc max loose per slot — this is why a coin purse matters.
-- **Wounds:** fill a backpack slot **of the PC's choice** (PT1 filled bottom-up). Speed −1 per occupied slot. All backpack slots wounded = death.
+- **Wounds:** fill a backpack slot **of the PC's choice** (PT1 filled bottom-up). Speed −1 per backpack slot holding **both** a wound and an item (see the ambiguity note below). All backpack slots wounded = death.
 - **Combat backpack retrieval (R:478):** maneuver, declare item, roll 1d10; if ≥ at least one of the item's backpack slot numbers you draw it, else you may only rearrange.
 - **Magic slot overload (R:460):** more than one magic item in the same slot → can't rest, and 1d6 wounds at end of each DT.
 - **Corpse slots (R:486):** Tiny 1 (stack 3), Small 2, Medium 4, Large 8, Huge 16, Holy Shit! 32 — plus the corpse's own equipment.
 - Armor: choose one suit in your backpack as worn; can only change outside combat rounds (R:472).
 
-> **Ambiguity to flag to MCDM:** R:524 reads "For each slot occupied by a wound and an item, your speed is reduced by 1." Reading it as *"each backpack slot occupied by either a wound or an item"* makes speed collapse almost immediately for a loaded PC. Reading it as *"each wound"* is the sane one. Implement the wound-only reading behind a system setting until clarified.
+> **Ambiguity to flag to MCDM (decided 2026-08-20 — shipping (c)):** R:524 reads "Each wound they take fills up a backpack slot of the PC's choice. For each slot occupied by a wound and an item, your speed is reduced by 1." Three readings:
+>
+> | | Reading | |
+> |---|---|---|
+> | (a) | every occupied slot — wound *or* item | **Rejected.** Speed is 5 (C:24) and the backpack is 10 slots (R:428), so a fully-loaded *unwounded* PC would already be at speed 0. |
+> | (b) | every wound | Leaves "of the PC's choice" with no bearing on the sentence it introduces. |
+> | **(c)** | every slot holding **both** a wound and an item | **Shipping.** Placement becomes the decision the text implies; dropping gear is a maneuver (R:480), so the incentive is actionable. |
+>
+> (c) is never harsher than (b) — the penalty is a subset of the wounds — and slots holding both must already be a legal state, or a fully-loaded PC could never take a wound and would be unkillable by wounds. Reading (b) stays available via the world setting `crows.woundSpeedRule: "wound-only"`.
 
 ### 1.5 Breaking: Creation & Advancement (C:14–42, C:603–659)
 
@@ -262,7 +270,7 @@ Runs on `init` when `system.version` on a world predates 0.2.0.
 1. **Skills → expertises.** Apply the mapping table (§1.1). Where two PT1 skills collapse into one PT2 expertise (climb/jump/swim → Athletics), take the **max** bonus, then convert bonus → uses 1:1 clamped to the tier max for the actor's TXP.
 2. **Conditions.** Delete `boned` (its penalty has no PT2 equivalent to preserve). `blessed > 0` → `blessed: true`.
 3. **Slots.** Belt capacity grows 2→4 — safe, no data loss. Magic-slot items move from `containers` to the new magic axis by matching `equipSlotTypes`. Items whose contiguity is now illegal get flagged, not silently moved: emit a GM report listing them.
-4. **Wounds.** `wounds: N` → assign to the bottom N backpack slot indices, preserving PT1 behavior as the starting arrangement; player can rearrange after.
+4. **Wounds.** `wounds: N` → assign to N backpack slot indices. **Prefer empty slots, lowest index first, and only then occupied ones.** PT1 filled bottom-up regardless of contents, but under reading (c) a wound landing on an occupied slot costs 1 speed — so a naive bottom-up migration would silently slow existing characters. Placing into empty slots first reproduces the PT1 speed profile as closely as the new rule allows; list any wound forced onto an occupied slot in the GM report. The player can rearrange afterwards.
 5. **Characteristics.** No transform needed, but the schema's old `max: 3` means no existing data can be out of range.
 6. **`preparedTask.skill`** → drop into `task` as free text with a note.
 
@@ -301,7 +309,7 @@ Emit a GM-visible summary journal of everything the migration touched or flagged
 ### M3 — Inventory rewrite
 - Positional slot model with contiguity, stacking, and the 250 gc coinage rule.
 - Magic-item slot axis, incl. the overload penalty.
-- Player-chosen wound slots; speed penalty (behind a setting until the R:524 ambiguity is resolved).
+- Player-chosen wound slots; speed penalty per reading (c) — slots holding both a wound and an item — with reading (b) behind the `crows.woundSpeedRule` setting.
 - Combat backpack retrieval (maneuver + 1d10 ≥ slot number).
 - Corpse slots by size.
 - **Gate:** slot packer unit tests + sheet drag/drop verified live.
@@ -355,7 +363,7 @@ Per the best-practices checklist, before setting `verified: 14`:
 
 ## Part 5 — Open questions
 
-1. **R:524 wound/speed reading** — "for each slot occupied by a wound and an item" is ambiguous (§1.4). Implement the wound-only reading behind a setting; ask MCDM.
+1. **R:524 wound/speed reading** — "for each slot occupied by a wound and an item" reads three ways (§1.4). **Decided 2026-08-20: shipping (c)**, slots holding both a wound and an item, with (b) behind `crows.woundSpeedRule`. Still worth confirming with MCDM — see question A2 in the execution plan's Part 7.
 2. **Expertise uses at creation** — backgrounds grant "1 use in some expertises" but several list "(2 uses)" entries. Confirm whether the parenthetical is the whole grant or an addition.
 3. **Expertise vs. double bane ordering** — if a test has a double bane (−1 tier) and the player spends an expertise (+1 tier), do they cancel, and does order matter? Currently no rule text. Assume commutative net-shift; flag it.
 4. **Counter damage vs. AD** — Counter deals "the tier 2 result of the weapon"; confirm whether that damage interacts with AD normally.

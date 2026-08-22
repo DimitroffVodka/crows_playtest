@@ -295,6 +295,33 @@ woundSlots: new SetField(new NumberField({ min: 0, max: 9, integer: true })),
 // carryContainers.backpack is config, and death is "all backpack slots wounded"
 // (R:524). Slot-granting traits exist (C:737 grants an extra belt slot).
 
+// --- Wound speed penalty. DEFAULT = reading (c). --------------------------
+// R:524: "Each wound they take fills up a backpack slot of the PC's CHOICE.
+// For each slot occupied by a wound and an item, your speed is reduced by 1
+// (to a minimum of 0)."
+//
+// (c) counts only slots holding BOTH a wound and an item. Chosen because it is
+// the only reading under which "of the PC's choice" bears on the sentence that
+// immediately follows it, and because slots holding both must already be legal
+// — otherwise a fully-loaded PC could never take a wound, and since death is
+// "all backpack slots have wounds" they'd be unkillable by wounds.
+// It is also never harsher than (b): the penalty is a SUBSET of the wounds.
+//
+// Rejected: (a) every occupied slot — speed is 5 (C:24) and the backpack is 10
+// (R:428), so a loaded but UNWOUNDED PC would already be at speed 0.
+//
+// Both live readings are one predicate over Layout.slots:
+//   (c) default : s => s.wound && s.items.length > 0
+//   (b) setting : s => s.wound
+speedPenaltyFromWounds(layout, rule = "wound-and-item") {
+  const p = rule === "wound-only" ? (s => s.wound)
+                                  : (s => s.wound && s.items.length > 0);
+  return layout.slots.filter(s => s.container === "backpack" && p(s)).length;
+}
+// world setting `crows.woundSpeedRule`: "wound-and-item" (default) | "wound-only"
+// Flip only this. Speed floors at 0 (R:524); apply AFTER other speed effects
+// so prone-halving and this don't fight over rounding.
+
 xp: { txp, spendable, expertiseBonusesSpent, charBonusesSpent },
 // renamed from skillBonusesSpent
 
@@ -412,7 +439,18 @@ type TestResult = {
   terminal: null | "doom" | "crit" | "unconscious",  // which early return fired
   kind: "test" | "attack" | "casting",
   targets: Array<{ tokenId: string, tier: 1|2|3, edges: Label[], banes: Label[] }>,
-  expertiseSpent: string | null   // expertise key, or null
+  expertiseSpent: string | null,  // expertise key, or null
+
+  // --- A1 COMMIT POINT ---------------------------------------------------
+  // Rules that key on "a tier N result" read the FINAL, post-expertise tier.
+  // A miss is *defined* as a tier 1 result on an attack (R:921), so if triggers
+  // read the pre-expertise value, a weapon expertise could never convert a
+  // miss — which is the entire purpose of the six weapon expertises. R:292
+  // agrees: an expertise improves "the test's RESULT".
+  //
+  // Therefore NOTHING downstream may fire while `state === "pending"`.
+  state: "pending" | "committed",
+  commitReason: "no-legal-spend" | "spent" | "declined" | "terminal" | null
 };
 
 type EdgeBaneResolution = {
@@ -440,6 +478,31 @@ resolveEdgesBanes(edges: Label[], banes: Label[]) => EdgeBaneResolution
 rollTest({ actor, characteristic, mods: Mod[], edges: Label[], banes: Label[],
            flavor, attack, casting, targets }) => Promise<TestResult>
 applyExpertise(message: ChatMessage, expertiseKey: string) => Promise<TestResult>
+declineExpertise(message: ChatMessage) => Promise<TestResult>
+// ^ REQUIRED. Without an explicit decline, a card with a legal spend available
+//   stays `pending` forever and its downstream effects never fire.
+
+// A1: the commit lifecycle. T1.1 owns this; T1.7, T1.8 and T2.2 consume it.
+//
+//   rollTest()
+//     ├─ terminal (doom/crit/unconscious)   -> committed, "terminal"
+//     ├─ no legal spend available            -> committed, "no-legal-spend"
+//     └─ otherwise                           -> PENDING, card shows spend/decline
+//   applyExpertise()   -> committed, "spent"
+//   declineExpertise() -> committed, "declined"
+//
+// On commit — and ONLY on commit — emit `crowsTestCommitted` with the final
+// TestResult. Everything that reads a tier hangs off that hook:
+//   * miss / damage application            (T1.7, R:915)
+//   * Counter reaction window              (T1.7, R:985)
+//   * chaos roll -> backlash               (T1.8, R:1567)
+//   * Silent armor -> weakened             (T1.7, C:2140)
+//   * card re-render into its final state  (T2.2)
+//
+// A doom commits immediately, because it can't be rescued (R:246). Note it
+// does NOT route through the chaos roll: R:1563 gives two independent paths to
+// a backlash, and a doom on a casting IS one of them. The chaos roll is the
+// other, and fires only on "a tier 1 result that isn't a doom" (R:1567).
 
 // helpers/slots.mjs — pure, no Foundry
 packItem(layout: Layout, item, container, index) => {ok: boolean, reason?: string}
@@ -527,22 +590,31 @@ OWNS:    module/helpers/edges.mjs (new), module/helpers/roll.mjs,
 READS:   .planning/CONTRACT.md, .planning/API-NOTES.md, module/config.mjs,
          module/data/actor/crow.mjs, templates/chat/test-card.hbs (read only —
          T2.2 owns the rewrite)
-SOURCE:  Master.md L256-262 (crits/dooms), L270-302 (edges/banes/bonuses),
-         L304-372 (expertise), L378-390 (assist), L392-400 (attacks/castings)
+SOURCE:  R:242-248 (crits/dooms), R:256-288 (edges/banes/bonuses),
+         R:290-358 (expertise), R:364-376 (assist), R:378-386 (attacks/castings)
 
 DELIVERABLE:
 1. helpers/edges.mjs — resolveEdgesBanes per the contract. Pure, no Foundry.
-2. helpers/roll.mjs — rollTest() implementing the 10-step precedence in
-   CONTRACT.md exactly. Two independent modifier channels: edges/banes (counted,
-   then resolved) and mods (summed). Per L300 these NEVER mix — a masterwork
-   tool's +2 is not an edge.
-3. helpers/expertise.mjs — applyExpertise(message, key). Must enforce:
+2. helpers/roll.mjs — rollTest() implementing `resolveTier` from CONTRACT.md
+   exactly. It is a chain of EARLY RETURNS, not a numbered list — "terminal"
+   has to actually terminate. Two independent modifier channels: edges/banes
+   (counted, then resolved) and mods (summed). Per R:286 these NEVER mix — a
+   masterwork tool's +2 is not an edge.
+3. helpers/expertise.mjs — applyExpertise(message, key) AND
+   declineExpertise(message). Must enforce the `canSpendExpertise` gate:
    - actor owner only
    - once per message (idempotent under double-click / lag)
    - uses > 0, decrement on success
    - CATEGORY GATE: weapon expertises only on weapon attacks, spellcasting only
-     on castings and spell attacks, general on neither (L394/L398)
-   - REFUSE on doom. Expertise cannot rescue a doom (L260). Test this explicitly.
+     on castings and spell attacks, general on neither (R:913 / R:384)
+   - REFUSE on doom. Expertise cannot rescue a doom (R:246). Test this explicitly.
+   - REFUSE when tier is already 3, so a limited use can't be burned for nothing.
+3b. YOU OWN THE A1 COMMIT LIFECYCLE. Every rule that keys on "a tier N result"
+   reads the FINAL, post-expertise tier, so nothing downstream may fire while
+   `state === "pending"`. Set state/commitReason per the contract and emit
+   `crowsTestCommitted` with the final TestResult on commit — exactly once.
+   T1.7 (miss, Counter, Silent armor), T1.8 (chaos roll) and T2.2 (final card
+   render) all hang off that hook and cannot work without it.
 4. Delete all `boned` handling. Blessed is now an edge source, not a ±1.
 5. Export everything through game.crows for probes.
 6. Rewrite dev/probes/p05-roll.mjs for the new engine.
@@ -555,6 +627,15 @@ ACCEPTANCE:
     +10 of mods, and all three at once.
   - Tests asserting crit is terminal against a double bane.
   - Test asserting a weapon expertise is REFUSED on a casting.
+  - Test asserting a spend is REFUSED when the tier is already 3.
+  - COMMIT LIFECYCLE tests:
+      * terminal result           -> state "committed", reason "terminal", on the
+                                     first render, with no pending window at all
+      * no uses / no legal category -> "committed", "no-legal-spend"
+      * legal spend available     -> "pending", and NO commit event emitted yet
+      * applyExpertise            -> "committed", "spent", event emitted once
+      * declineExpertise          -> "committed", "declined", event emitted once
+      * double-click on either    -> still exactly ONE commit event
   - ./verify.sh passes; npm test green.
 DO NOT: touch sheets/, templates/, or any other helper. If another helper calls
         rollTest with the old signature, leave it broken — its owner fixes it.
@@ -567,36 +648,49 @@ TASK T1.2 — Inventory slot rewrite
 OWNS:    module/helpers/slots.mjs, module/helpers/corpses.mjs (new),
          test/slots.test.js
 READS:   .planning/CONTRACT.md, module/config.mjs, module/data/item/*.mjs
-SOURCE:  Master.md L440-512 (slots, magic slots, equipped, armor, swapping,
-         corpses), L538 (wounds and speed)
+SOURCE:  R:426-498 (slots, magic slots, equipped, armor, swapping,
+         corpses), R:524 (wounds and speed)
 
 CONTEXT: The current slots.mjs (34 lines) is a capacity SUM with no positional
 model. This is a rewrite, not a patch.
 
 DELIVERABLE:
 1. Positional layout: hand[2], belt[4], backpack[10], plus six magic slots as a
-   SEPARATE axis (L452). Do not model magic slots as carry containers.
+   SEPARATE axis (R:438). Do not model magic slots as carry containers.
 2. Contiguity: a multi-slot item occupies adjacent indices IN ONE container.
-   Reject hand+belt spanning; reject backpack 2 and 7 (L444).
+   Reject hand+belt spanning; reject backpack 2 and 7 (R:430).
 3. Stacking: per CROWS.stackLimits, same KIND only — 5 different potions stack,
-   3 potions + 2 locks do not (L446). Hand slots never stack.
+   3 potions + 2 locks do not (R:432). Hand slots never stack.
 4. Coinage: 250 gc loose per slot.
 5. Wounds occupy player-chosen backpack indices (system.woundSlots).
-6. Speed penalty — SEE THE AMBIGUITY BELOW. Implement behind a system setting
-   `crows.woundSpeedRule` with values "wounds-only" (default) and "literal".
+6. Speed penalty — RESOLVED 2026-08-20, implement exactly as specified in the
+   contract's `speedPenaltyFromWounds`. Setting `crows.woundSpeedRule` takes
+   "wound-and-item" (DEFAULT) and "wound-only". Do not invent a third value.
 7. retrieveFromBackpack(layout, itemId, d10): maneuver + 1d10 >= at least one of
-   the item's backpack slot numbers (L492).
+   the item's backpack slot numbers (R:478).
 8. Magic slot overload: >1 magic item in a slot -> flag `magicOverload`, consumed
    by T1.7 (1d6 wounds/DT) and T1.5 (cannot rest). Expose the flag; do not
    implement those effects here.
-9. helpers/corpses.mjs: corpse slot cost by size + carried equipment (L498).
+9. helpers/corpses.mjs: corpse slot cost by size + carried equipment (R:484).
 
-AMBIGUITY (do not resolve unilaterally, and do not paper over):
-  L538 reads "For each slot occupied by a wound and an item, your speed is
-  reduced by 1." Literally — each backpack slot holding EITHER a wound or an item
-  — a loaded PC hits speed 0 almost immediately. Default to the wound-only
-  reading, implement "literal" behind the setting, and append the case to
-  docs/discrepancies/SUMMARY.md.
+RESOLVED AMBIGUITY (was: "do not resolve unilaterally"):
+  R:524 reads "Each wound they take fills up a backpack slot of the PC's choice.
+  For each slot occupied by a wound and an item, your speed is reduced by 1."
+  Three readings; the decision is reading (c) — count only backpack slots holding
+  BOTH a wound and an item:
+    (a) every occupied slot   REJECTED — speed is 5 (C:24), backpack is 10
+                              (R:428), so a loaded but UNWOUNDED PC is at speed 0.
+    (b) every wound           available as `crows.woundSpeedRule: "wound-only"`.
+    (c) wound AND item        DEFAULT. The only reading under which "of the PC's
+                              choice" bears on the sentence it introduces, and
+                              never harsher than (b) — the penalty is a subset
+                              of the wounds.
+  Consequence for this task: the penalty is a property of the LAYOUT, not of
+  `woundSlots.size`. Your `Layout` must let a caller ask, per backpack slot,
+  whether it holds a wound and whether it holds items — `Slot.wound` and
+  `Slot.items` in the contract already do. Do not collapse wounds to a count.
+  Logged in docs/discrepancies/playtest-2-source-issues.md (I2) and carried to
+  MCDM as question A2; the setting exists so a reversal is one value change.
 
 ACCEPTANCE:
   - Unit tests: contiguity rejection (cross-container and non-adjacent),
@@ -841,32 +935,49 @@ OWNS:    module/helpers/spellcasting.mjs, module/helpers/backlash.mjs,
          module/helpers/chaos.mjs, module/data/item/spellbook.mjs,
          test/spellcasting.test.js
 READS:   .planning/CONTRACT.md, module/helpers/roll.mjs (T1.1 — consume, do not edit)
-SOURCE:  Master.md L1459-1563 (spellbooks: rank, discipline, casting time, target,
-         range, AoE, duration, UD), L1565-1581 (summons, backlash triggers,
-         chaos roll), L1587-1673 (the 105-row backlash table)
+SOURCE:  R:1445-1549 (spellbooks: rank, discipline, casting time, target,
+         range, AoE, duration, UD), R:1551-1567 (summons, backlash triggers,
+         chaos roll), R:1573-1659 (the 105-row backlash table)
 
 CONTEXT — THE BIG CHANGE: Playtest 1 modelled backlash risk as a GM-secret
 WORLD-LEVEL CHAOS COUNT that accumulated across casts and fired at a threshold.
-chaos.mjs (102 lines) implements that. PLAYTEST 2 DELETES IT ENTIRELY.
+chaos.mjs (102 lines) implements that. PLAYTEST 2 DELETES THE ACCUMULATOR — but
+NOT every trace of chaos. Read deliverable 1b before you delete anything.
 
 DELIVERABLE:
-1. GUT chaos.mjs. Backlash now triggers on exactly two events (L1577-1581):
-     a. doom on a casting
+1. GUT the accumulator in chaos.mjs. Backlash now triggers on exactly two
+   independent events (R:1563):
+     a. doom on a casting  — goes STRAIGHT to backlash, no chaos roll
      b. chaos roll: on a TIER 1 THAT IS NOT A DOOM, roll 1d6; a 1 = backlash
-   No accumulator, no threshold, no world flag. Do not try to preserve the
-   counter. Report to T1.3's owner that any stored count is dead data to drop
-   with a note in the migration report.
-2. Spellbook UD roll on EVERY cast (L1557). A CRIT SKIPS THE UD ROLL (L1559).
+   No threshold, no world flag. Report to T1.3's owner that any stored count is
+   dead data to drop with a note in the migration report.
+1b. DO NOT conclude the mechanic is gone. All six Discipline Mastery traits
+   still read "...don't add to the chaos count" (Alteration C:765, Benefaction
+   C:917, Conjuration C:1117, Elemental C:1173, Illusion C:1275, Necromancy
+   C:1507). The term appears NOWHERE in the Rules Book — it is stale Playtest 1
+   phrasing, and the intended reading is:
+       rank 0-1 spells of your discipline DON'T TRIGGER A CHAOS ROLL.
+   So expose a per-discipline, per-rank suppression hook on the chaos roll.
+   The traits' second clause (rank 2+ treated as 2 ranks lower on the backlash
+   table) needs no reinterpretation — R:1559 is unchanged. See
+   docs/discrepancies/playtest-2-source-issues.md H1 and MCDM question A3.
+1c. TIMING — the chaos roll fires on the COMMITTED tier, never the phase-1 tier.
+   T1.1 owns the commit lifecycle and emits `crowsTestCommitted`; subscribe to
+   that. A caster who rolls a tier 1 and then spends a spellcasting expertise to
+   reach tier 2 gets NO chaos roll, because a miss is defined as a tier 1
+   *result* (R:921) and expertise improves "the test's result" (R:292). Do not
+   read the tier before commit.
+2. Spellbook UD roll on EVERY cast (R:1543). A CRIT SKIPS THE UD ROLL (R:1545).
 3. Backlash resolution: d100 + spell rank on the table. Resolves INSTEAD of the
-   spell, but STILL COSTS THE UD ROLL (L1573). Duplicate durational backlashes
+   spell, but STILL COSTS THE UD ROLL (R:1559). Duplicate durational backlashes
    re-roll unless they stack. Backlash UD roll at end of DT.
 4. If a backlash needs a creature target but the spell targeted an object, the
-   CASTER becomes the target (L1575).
+   CASTER becomes the target (R:1561).
 5. Spellbook schema: rank 0-5, discipline, castingTime (action/maneuver/reaction/
    outOfCombat), target, range, areaOfEffect (aura/cube/line), duration
    (instant/DT/UD), ud.
 6. Casting is ALWAYS a Mind test; only the matching spellcasting expertise applies.
-7. Summoned creatures behave as pets but need no command test (L1567).
+7. Summoned creatures behave as pets but need no command test (R:1553).
 
 BACKLASH TABLE ERRATA — transcribe verbatim, then log to
 docs/discrepancies/crows-rules.md, do NOT silently correct:
@@ -875,12 +986,20 @@ docs/discrepancies/crows-rules.md, do NOT silently correct:
     (Agility/Mind/Strength). Probably Strength.
 
 ACCEPTANCE:
-  - Test: doom on a casting triggers backlash AND still rolls UD.
-  - Test: tier 1 non-doom rolls 1d6; only a 1 triggers.
+  - Test: doom on a casting triggers backlash AND still rolls UD, WITHOUT a
+    chaos roll — the two backlash routes are independent (R:1563).
+  - Test: committed tier 1 non-doom rolls 1d6; only a 1 triggers.
   - Test: tier 2 and tier 3 never trigger a chaos roll.
+  - Test: a tier 1 raised to tier 2 by an expertise spend triggers NO chaos roll
+    — i.e. you subscribed to the commit event and not the phase-1 result.
+  - Test: no chaos roll fires while the test is still `pending`.
+  - Test: Mastery suppression — a rank 0 and a rank 1 spell of the matching
+    discipline skip the chaos roll; rank 2 does not; a non-matching discipline
+    at rank 0 does not.
   - Test: crit skips the UD roll.
   - Test: all 105 table rows parse, and d100+rank clamps correctly at the top.
-  - Zero references to a chaos counter/threshold remain.
+  - Zero references to a chaos counter/threshold remain (the SUPPRESSION HOOK is
+    not a counter — it stays).
   - npm test green; ./verify.sh passes.
 DO NOT: touch roll.mjs or edges.mjs. Consume them.
 ```
@@ -1108,13 +1227,65 @@ Pack build reminder: Foundry holds exclusive LevelDB locks while a world is open
 
 ## Part 7 — Questions for MCDM
 
-Carry these into the playtest feedback channel. Each is currently blocking a real implementation decision:
+Carry these into the playtest feedback channel. **Each states the reading we shipped**, so MCDM only has to confirm or correct rather than answer from scratch. Every default is one constant or one predicate — all are cheaply reversible.
 
-1. **R:524 wound/speed** — "for each slot occupied by a wound and an item" reads **three** ways: (a) every occupied slot — which collapses a fully-loaded *unwounded* PC to speed 0 before they take any damage; (b) every wound; or (c) every slot holding **both** a wound and an item, which is coherent because wound placement is the PC's choice (R:524) and reads as a "drop your gear when you're hurt" incentive. Which is intended? (Shipping (b) behind a setting.)
-2. **Expertise vs. double bane ordering** — a double bane is −1 tier and an expertise is +1 tier. Do they simply net out, and does application order matter? No rule text covers this. (Assuming commutative.)
-3. **Background expertise uses** — C:24 says a background gives "1 use in some expertises," but entries list parentheticals like "Benefaction (2 uses)" (C:103). Is the parenthetical the total or an addition to the base 1?
-4. ~~**Counter damage vs. AD**~~ — **withdrawn.** R:985 says you "deal the tier 2 result of the weapon you're wielding," which is ordinary weapon damage with no AD exemption stated, so it interacts with AD normally. No question to ask.
-5. **Greed Bonus scope** — "can't apply in that dungeon again to the group (or another group of PCs played by the same players)" implies tracking across characters and campaigns. Is a per-world, per-dungeon flag the intent?
-6. **Monster `power` values** — is a published power figure expected for every stat block, including uniques like the Ring Collector? F:704 says the 0–50 scale may be exceeded by future products — should the ceiling be treated as soft? (Shipping it unbounded.)
-7. **Doom vs. an unconscious target** — R:554 says attacks against an unconscious creature "always achieve a tier 3 result (though the attacker can roll to see if they get a crit)", while R:246 says a doom is "automatically a tier 1 result." A doomed attack on a sleeping target satisfies both. We read the R:554 parenthetical as narrowing the roll to crit-detection only, so **unconscious wins and the tier stays 3**, with the doom still flagged for narrative adjudication. Confirm? (One constant in `resolveTier` — trivially reversible.)
-8. **Chaos roll vs. expertise** — the chaos roll fires on "a tier 1 result that isn't a doom" (R:1567), but expertise is spent *after* the roll and raises the tier. If a caster gets a tier 1, chaos-rolls a 1, then spends an expertise to reach tier 2, does the backlash still happen? (Blocking T1.1 and T1.8, which are dispatched in parallel.)
+### A. Blocking a real implementation decision
+
+**A1 — When does a "tier N result" trigger read: before or after an expertise is spent?**
+*Affects T1.1, T1.7, T1.8, T2.2 — four agents dispatched in parallel.*
+
+Expertise is spent *after* the roll and raises the tier by one (R:292). At least five rules key on "get a tier 1 result": a miss (R:915, R:921), the Counter reaction (R:985), the chaos roll (R:1567), Silent armor (C:2140) and the unarmoured sneak reroll (C:1725). If a caster gets a tier 1, then spends a spellcasting expertise to reach tier 2 — was there a chaos roll? If an attacker gets a tier 1 and then spends a weapon expertise — could the defender still Counter?
+
+**Shipping: triggers read the FINAL, post-expertise tier.** The reasoning is that a miss is defined as a tier 1 result on an attack (R:921); if triggers read the pre-expertise value, a weapon expertise could never convert a miss into a hit, which would make all six weapon expertises nearly worthless. R:292 agrees — an expertise improves "the test's **result**."
+
+Consequence, and the reason this is worth answering first: downstream effects cannot fire until the expertise window closes, so the interactive chat card needs an explicit **commit point** rather than resolving in one step.
+
+**A2 — R:524 wound/speed: which of three readings?**
+
+> "Each wound they take fills up a backpack slot of the PC's choice. For each slot occupied by a wound and an item, your speed is reduced by 1 (to a minimum of 0)."
+
+| | Reading | Note |
+|---|---|---|
+| (a) | every occupied slot — wound *or* item | Excluded: speed is 5 (C:24) and the backpack is 10 slots (R:428), so a fully-loaded **unwounded** PC would already be at speed 0 |
+| (b) | every wound | Makes "of the PC's choice" have no bearing on the rule that immediately follows it |
+| (c) | every slot holding **both** a wound and an item | Placement becomes the decision the sentence implies; never harsher than (b); dropping gear is a maneuver (R:480), so the incentive is actionable |
+
+**Shipping: (c), with (b) behind a system setting.** Note that slots holding both a wound and an item must already be a legal state — otherwise a fully-loaded PC could not take wounds at all, and since death is "all backpack slots have wounds," they would be unkillable by wounds.
+
+**A3 — Do the Discipline Mastery traits' "chaos count" clauses now mean the chaos roll?**
+
+All six Mastery traits (Alteration C:765, Benefaction C:917, Conjuration C:1117, Elemental C:1173, Illusion C:1275, Necromancy C:1507) still read "Non-doom tier 1 results of rank 0 and 1 *«discipline»* spells you cast don't add to **the chaos count**." The chaos count was replaced by the per-cast chaos roll (R:1563–1567), and the term appears **nowhere in the Rules Book**.
+
+**Shipping: read as "rank 0–1 spells of your discipline don't trigger a chaos roll."** The intent maps exactly, since a non-doom tier 1 is precisely the chaos roll's trigger. The traits' second clause (rank 2+ treated as 2 ranks lower on the backlash table) needs no reinterpretation — R:1559 is unchanged. Logged in `docs/discrepancies/playtest-2-source-issues.md` H1.
+
+**A4 — Doom vs. an unconscious target.**
+
+R:554 says attacks against an unconscious creature "always achieve a tier 3 result (though the attacker can roll to see if they get a crit)". R:246 says a doom is "automatically a tier 1 result." A doomed attack on a sleeping target satisfies both.
+
+**Shipping: unconscious wins, the tier stays 3**, with the doom still flagged so the Ref can adjudicate the "major setback" narratively. The R:554 parenthetical narrows what the roll is still *for* — crit detection — which implies the tier is already settled.
+
+**A5 — Expertise vs. double bane ordering.**
+
+A double bane is −1 tier, an expertise is +1 tier. Do they net out, and does application order matter? No rule text covers it. **Shipping: commutative net-shift.**
+
+**A6 — Background expertise uses.**
+
+C:24 says a background gives "1 use in some expertises," but entries list parentheticals like "Benefaction (2 uses)" (C:103). Is the parenthetical the total, or an addition to the base 1? **Shipping: the total.**
+
+### B. Bug reports — no answer needed to proceed
+
+**B1 — Elemental Mastery describes *conjuration* spells (C:1169 / C:1173).**
+
+The Elemental Mastery body names "conjuration spells" in both clauses. It is the only one of the six Mastery traits that doesn't name its own discipline. Taken literally the trait grants an elementalist nothing.
+
+**This was already reported for Playtest 1** and is unchanged in the PT2 packet — see `docs/discrepancies/SUMMARY.md` line 49. **Shipping: implemented as "elemental"**, with the source text retained in a `sourceNote` for audit. One-word fix on MCDM's side.
+
+### C. Lower priority
+
+**C1 — Greed Bonus scope.** "Can't apply in that dungeon again to the group (or another group of PCs played by the same players)" implies tracking across characters and campaigns. **Shipping: a per-world, per-dungeon flag.**
+
+**C2 — Monster `power`.** Is a published figure expected for every stat block, including uniques like the Ring Collector? F:704 says the 0–50 scale "could go even higher" in future products — should the ceiling be treated as soft? **Shipping: unbounded, validated with a warning.** Observed range in the Ref Book is 1–11.
+
+---
+
+*Withdrawn:* **Counter damage vs. AD.** R:985 says you "deal the tier 2 result of the weapon you're wielding" — ordinary weapon damage with no AD exemption stated, so it interacts with AD normally. No question to ask.
