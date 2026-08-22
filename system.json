@@ -1,9 +1,9 @@
 {
   "id": "crows",
   "title": "MCDM Crows (Playtest)",
-  "description": "Foundry VTT system for the MCDM Crows TTRPG public playtest (May-June 2026). Includes 2d10 tier-roll engine, slot inventory, conditions, spellcasting/Chaos/Backlash, Dungeon Turns, rest activities, Miasma, Crypt boons, Village system, Crafting, advancement & trait purchase, character creator wizard, and transcribed playtest entries across 11 compendiums.",
-  "version": "0.1.3",
-  "compatibility": { "minimum": "13", "verified": "14" },
+  "description": "Foundry VTT system for the MCDM Crows TTRPG public playtest (August-September 2026). Includes the 2d10 tier-roll engine with edges/banes and post-roll expertises, positional slot inventory, conditions, spellcasting with the per-cast chaos roll and backlash table, Dungeon Turns, rest activities, Miasma, Crypt boons, Village system, Crafting, advancement & trait purchase, character creator wizard, and transcribed playtest entries across 11 compendiums.",
+  "version": "0.2.0",
+  "compatibility": { "minimum": "14", "verified": "14" },
   "authors": [{ "name": "dimit", "url": "https://github.com/DimitroffVodka" }],
   "url": "https://github.com/DimitroffVodka/crows_playtest",
   "manifest": "https://github.com/DimitroffVodka/crows_playtest/releases/latest/download/system.json",

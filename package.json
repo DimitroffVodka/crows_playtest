@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "test:watch": "node --test --watch \"test/**/*.test.mjs\"",
+    "verify": "./verify.sh && npm test",
     "pack": "for p in crows-backgrounds crows-traits crows-weapons crows-armor crows-gear crows-consumables crows-ammunition crows-spellbooks crows-monsters crows-loot crows-rules; do npx fvtt package pack -n $p --in src/packs/$p --out packs --yaml || exit 1; done",
     "pack:backgrounds":  "fvtt package pack -n crows-backgrounds  --in src/packs/crows-backgrounds  --out packs --yaml",
     "pack:traits":       "fvtt package pack -n crows-traits       --in src/packs/crows-traits       --out packs --yaml",

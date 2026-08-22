@@ -1,0 +1,84 @@
+{
+  "_comment": [
+    "Playtest 1 crow, captured in the v0.1.3 shape. This is the primary input for",
+    "T1.3's migration tests. It is deliberately AWKWARD, not typical:",
+    "",
+    "  - 12 skills at bonus 2. Converted 1:1 that is 24 expertise uses, while a PT2",
+    "    advancement bonus grants at most 3 (C:615). This is the H5 budget case —",
+    "    at 3,500 TXP this crow has earned 5 bonuses, so the ceiling is",
+    "    backgroundUses + 3*5. The migration MUST water-level down and report.",
+    "  - Collapsing pairs are populated with DIFFERENT bonuses (climb 1 / jump 0 /",
+    "    swim 2) so the max-wins rule is observable, not accidentally satisfied.",
+    "  - boned is non-zero, and must be DROPPED, not converted to weakened.",
+    "  - blessed is 2 (leveled) and must become the boolean true.",
+    "  - wounds: 3 with a partly-full backpack, so wound placement has both empty",
+    "    and occupied slots available (M12 / reading (c)).",
+    "  - preparedTask.skill is set, and must become free-text task."
+  ],
+  "name": "Fixture Crow (PT1)",
+  "type": "crow",
+  "system": {
+    "characteristics": {
+      "agility": { "value": 2 },
+      "mind": { "value": 0 },
+      "strength": { "value": 1 }
+    },
+    "skills": {
+      "climb":         { "bonus": 1 },
+      "jump":          { "bonus": 0 },
+      "swim":          { "bonus": 2 },
+      "hide":          { "bonus": 2 },
+      "sneak":         { "bonus": 1 },
+      "sabotage":      { "bonus": 2 },
+      "sleightOfHand": { "bonus": 1 },
+      "handleAnimal":  { "bonus": 2 },
+      "pickLock":      { "bonus": 2 },
+      "lift":          { "bonus": 2 },
+      "search":        { "bonus": 2 },
+      "endurance":     { "bonus": 2 },
+      "gymnastics":    { "bonus": 2 },
+      "alchemy":       { "bonus": 2 },
+      "blacksmithing": { "bonus": 2 },
+      "enchanting":    { "bonus": 0 },
+      "navigate":      { "bonus": 2 },
+      "historicalLore":{ "bonus": 1 },
+      "magicLore":     { "bonus": 0 },
+      "monsterLore":   { "bonus": 0 },
+      "natureLore":    { "bonus": 0 },
+      "religiousLore": { "bonus": 0 }
+    },
+    "stamina": { "value": 14, "max": 18 },
+    "speed": 5,
+    "wounds": 3,
+    "xp": {
+      "txp": 3500,
+      "spendable": 250,
+      "skillBonusesSpent": 5,
+      "charBonusesSpent": 0
+    },
+    "conditions": {
+      "blessed": 2,
+      "boned": 1
+    },
+    "preparedTask": {
+      "skill": "pickLock",
+      "detail": "the vault door on level 2",
+      "setOn": "2026-05-20"
+    },
+    "containers": {
+      "hand":     ["item-shortsword", "item-shield"],
+      "belt":     ["item-potion-healing", "item-rope"],
+      "backpack": ["item-lantern", "item-rations", "item-crowbar", null, null, null, null, null, null, null]
+    },
+    "coins": 412
+  },
+  "items": [
+    { "_id": "item-shortsword",      "name": "Shortsword",       "type": "weapon",     "system": { "slots": 1 } },
+    { "_id": "item-shield",          "name": "Shield",           "type": "armor",      "system": { "slots": 1, "armorType": "shield" } },
+    { "_id": "item-potion-healing",  "name": "Potion of Healing","type": "consumable", "system": { "slots": 1, "stackKind": "potion" } },
+    { "_id": "item-rope",            "name": "Rope",             "type": "gear",       "system": { "slots": 1 } },
+    { "_id": "item-lantern",         "name": "Lantern",          "type": "gear",       "system": { "slots": 1 } },
+    { "_id": "item-rations",         "name": "Rations",          "type": "gear",       "system": { "slots": 1 } },
+    { "_id": "item-crowbar",         "name": "Crowbar",          "type": "gear",       "system": { "slots": 1 } }
+  ]
+}

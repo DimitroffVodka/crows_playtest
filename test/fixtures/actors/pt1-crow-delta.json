@@ -1,0 +1,25 @@
+{
+  "_comment": [
+    "PARTIAL UPDATE DELTA, not a whole document.",
+    "",
+    "migrateData() runs on update deltas as well as on full source objects, and the",
+    "classic bug is assuming sibling fields exist. Passing this through",
+    "migrateCrowSystem() must not crash, must not invent characteristics/xp/",
+    "conditions that were not in the delta, and must not drop `bonus: 0` as falsy.",
+    "",
+    "Three separate hazards are packed in deliberately:",
+    "  - `climb.bonus: 0`   — zero must survive as uses 0, not vanish",
+    "  - no `xp` key        — so the budget check has no TXP to read; it must",
+    "                         degrade gracefully rather than assume 0 and trim",
+    "                         everything to nothing",
+    "  - `boned` alone      — dropping it must not require reading `blessed`"
+  ],
+  "system": {
+    "skills": {
+      "climb": { "bonus": 0 }
+    },
+    "conditions": {
+      "boned": 2
+    }
+  }
+}

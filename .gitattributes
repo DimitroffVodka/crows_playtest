@@ -1,0 +1,21 @@
+# Built LevelDB compendiums. Tracked deliberately (see .gitignore) so the system
+# installs and runs straight from a clone, with no build step.
+#
+# Marking them binary stops git attempting textual diffs and 3-way merges on
+# sstables — a merge of two .ldb files produces a corrupt database, not a
+# conflict you can resolve by hand.
+#
+# NOTE this does NOT stop the working-tree churn. Foundry rewrites CURRENT and
+# rotates MANIFEST-* on every world launch (LevelDB compaction), so those still
+# show as modified. The real fix is a release workflow that builds packs from
+# src/packs/*.yaml — see .planning/API-NOTES.md, T0.1 decision 2.
+packs/** binary
+packs/**/*.ldb -diff -merge
+packs/**/CURRENT -diff -merge
+packs/**/MANIFEST-* -diff -merge
+
+# Source of truth for compendium content — normal text, diff these.
+src/packs/**/*.yaml text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
