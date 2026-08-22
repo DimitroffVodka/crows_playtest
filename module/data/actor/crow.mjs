@@ -97,10 +97,27 @@ export class CrowData extends TypeDataModel {
         prone:       new fields.BooleanField({ initial: false }),  // R:542
         unconscious: new fields.BooleanField({ initial: false }),  // R:554
         vulnerable:  new fields.BooleanField({ initial: false }),  // R:544 NEW
-        weakened:    new fields.BooleanField({ initial: false })   // R:556 NEW
+        weakened:    new fields.BooleanField({ initial: false }),  // R:556 NEW
+        // The `dead` status effect maps here, exactly as it does on MonsterData.
+        // Review found `dead` had NO crow-side destination: only MonsterData
+        // owned `defeated`, so the mirror in conditions.mjs had nowhere to write
+        // for a PC and the mapping was silently actor-type-dependent. Symmetric
+        // now — one mapping, no branching. Set by the death adjudication at the
+        // wound-gain mutation (R:524), never from derived data.
+        defeated:    new fields.BooleanField({ initial: false })
       }),
 
+      // The background's NAME. This is what applyBackground() has always
+      // written and it is all a PT1 actor carries.
       background: new fields.StringField({ blank: true }),
+
+      // CONTRACT: stable identity for the background, added because H5's budget
+      // needs the background's expertise grants and there is NO embedded
+      // Background Item to read them from — `background` is a bare name string.
+      // Resolution is by id when present, falling back to name; layer (b)
+      // stamps the id once it resolves, so later runs are stable against
+      // renames. An unresolved lookup is REPORTED, never treated as zero.
+      backgroundId: new fields.StringField({ blank: true, initial: "" }),
 
       // NEW — creation step 4 (C:40, C:2551).
       npcConnection: new fields.SchemaField({

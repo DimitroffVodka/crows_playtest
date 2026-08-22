@@ -27,31 +27,62 @@ export class TraitData extends TypeDataModel {
       //
       // The restriction is a STRUCTURED discriminator, not a free string. A bare
       // "alchemy" is ambiguous — item type? gear subtype? trait tree? — and
-      // T1.2 would have to guess. `dimension` names which axis to test and
-      // `values` lists the accepted values on it, which also covers cases like a
-      // holster restricted to a weaponType. Empty `dimension` = unrestricted.
+      // T1.2 would have to guess.
+      //
+      // Each dimension names a REAL DOCUMENT PATH, frozen here so T1.2 does not
+      // have to invent one. A first draft listed `consumableKind`, which does
+      // not exist on ConsumableData at all, and `weaponType`, whose actual path
+      // is `system.type` — both would have been unimplementable:
+      //
+      //   dimension     path tested            legal values
+      //   ------------- --------------------- --------------------------------
+      //   ""            (unrestricted)         —
+      //   itemType      item.type              weapon|armor|gear|consumable|…
+      //   gearSubtype   item.system.subtype    CROWS.gearSubtypes
+      //   weaponType    item.system.type       CROWS.weaponTypes
+      //
+      // C:737's "only ... alchemy items" is `{dimension:"gearSubtype",
+      // values:["tool"]}` or an itemType restriction, whichever Wave 3 finds
+      // matches the actual alchemy item set — that call is content's, not this
+      // model's, but the AXIS is frozen either way.
       slotGrants: new fields.ArrayField(new fields.SchemaField({
         container: new fields.StringField({ choices: CROWS.containerKeys }),
         count: new fields.NumberField({ initial: 1, min: 1, integer: true }),
         restriction: new fields.SchemaField({
           dimension: new fields.StringField({
             blank: true, initial: "",
-            choices: ["", "itemType", "gearSubtype", "weaponType", "consumableKind"]
+            choices: ["", "itemType", "gearSubtype", "weaponType"]
           }),
           values: new fields.ArrayField(new fields.StringField(), { initial: [] })
         })
       }), { initial: [] }),
 
       // CONTRACT: a per-rest use pool, sized by a CHARACTERISTIC rather than a
-      // fixed number. Three published traits need exactly this:
-      //   C:921  benefaction — "use this trait a number of times equal to your
-      //                        Mind, regaining all uses when you finish [a rest]"
-      //   C:1361 knowledge   — same shape
-      //   C:1501 necromancy  — same shape
-      // `sizedBy` empty means `fixedMax` is the pool; otherwise the pool is the
-      // named characteristic and `fixedMax` is ignored. Same value/max split as
-      // expertises, for the same reason: `used` must survive a spend so a rest
-      // knows what to restore.
+      // fixed number. FOUR published traits need exactly this — an initial draft
+      // said three and missed the Agility one:
+      //   C:921  benefaction — "a number of times equal to your Mind, regaining
+      //                         all uses when you finish [a rest]"
+      //   C:1361 knowledge   — Mind
+      //   C:1501 necromancy  — Mind
+      //   C:1739 armor       — "equal to your Agility and then must finish a
+      //                         rest before" — same shape, different stat
+      //
+      // FROZEN SEMANTICS, because a characteristic is not a constant:
+      //   max        = sizedBy ? max(0, actor.characteristics[sizedBy].value)
+      //                        : fixedMax
+      //                A characteristic can be NEGATIVE (R:174 allows -5), and a
+      //                negative pool is meaningless — it floors at 0, which
+      //                means the trait simply cannot be used. It is not an error.
+      //   remaining  = max(0, max - used)
+      //   rest       = used -> 0 (R:628). Nothing else resets it.
+      //   overused   = max(0, used - max). Reachable WITHOUT cheating: spend at
+      //                Mind 3, then take a Mind drain to 1. Report it; never
+      //                retroactively refund, and never clamp `used` downward —
+      //                that would silently hand back a spent use.
+      //
+      // `used` is stored rather than `remaining` for the same reason expertises
+      // store {value,max}: the pool size is derived and can move underneath you,
+      // so the durable fact is what was SPENT, not what is left.
       usePool: new fields.SchemaField({
         sizedBy: new fields.StringField({
           blank: true, initial: "",

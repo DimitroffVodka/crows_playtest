@@ -298,13 +298,33 @@ export const CROWS = {
 // property of advancement, not of the actor.
 expertises: new SchemaField(
   Object.fromEntries(allExpertiseKeys.map(k => [k, new SchemaField({
-    uses: new NumberField({ initial: 0, min: 0, integer: true })
+    value: new NumberField({ initial: 0, min: 0, integer: true }),  // REMAINING now
+    max:   new NumberField({ initial: 0, min: 0, integer: true })   // OWNED, persistent
   })]))
 ),
+// THREE quantities. Conflating any two of them corrupts characters — a single
+// mutable count cannot survive spend-then-rest, because at 0 nothing
+// distinguishes "granted 1 and spent" from "granted 2 and spent twice" from
+// "never owned", and restoring to the CAP mints uses nobody bought.
+//   value        stored, remaining right now  — spending decrements this
+//   max          stored, permanently owned    — background + advancement
+//   expertiseCap derived, the legal 2/3/4 ceiling for this TXP
+//
 // derived, in prepareDerivedData:
-//   const max = expertiseMaxForTxp(this.xp.txp);   // 2 -> 3 at 5,000 -> 4 at 20,000
-//   for (const e of Object.values(this.expertises)) { e.max = max;
-//     e.spent = Math.max(0, e.uses - max); }        // surface, never silently clamp
+//   const cap = expertiseMaxForTxp(this.xp.txp);   // 2 -> 3 at 5,000 -> 4 at 20,000
+//   for (const e of Object.values(this.expertises)) {
+//     e.overCap = Math.max(0, e.max - cap);        // surface, never silently clamp
+//     e.overMax = Math.max(0, e.value - e.max); }  // should be 0; report, don't trust
+//
+// WHO WRITES WHAT — frozen, because four Wave 1 tasks touch this:
+//   migration (T1.3)   value = max = converted grant
+//   spend     (T1.1)   value -= 1        (never touches max)
+//   rest      (T1.5)   value = max       (R:628)
+//   …in Miasma (T1.5)  leave value alone (R:1375) — inexpressible with one field
+//   advancement (T1.4) max += n, and value += n with it (C:615)
+//   H5 enforce (T1.3)  trims max, then clamps value <= max
+//   H5 budget  (T1.3)  reads max, NEVER value — otherwise the reported
+//                      over-budget figure shrinks every time a player spends
 
 characteristics: { agility|mind|strength: { value: NumberField({min:-5, max:5}) } },
 // was min:-1 max:3 — both wrong for PT2 (R:174 gives the -5..5 range)
@@ -335,7 +355,9 @@ woundSlots: new SetField(new NumberField({ min: 0, integer: true })),
 //   const orphaned = [...this.woundSlots].filter(i => i >= cap);
 //   this.wounds           = held.length;       // back-compat scalar
 //   this.orphanedWounds   = orphaned;          // SURFACE, never drop
-//   this.deadFromWounds   = held.length >= cap;   // R:524 "all backpack slots"
+//   this.woundCapacityFilled = held.length >= cap;  // R:524 "all backpack slots"
+//   REPORTING ONLY — never adjudicate death here; it can flip true because
+//   CAPACITY SHRANK. Death is decided at the wound-GAIN mutation.
 //
 // Two things the old `max: 9` was hiding, both worth stating outright:
 //  1. NEVER clamp or discard an out-of-range index. If a slot-granting trait is
@@ -389,7 +411,7 @@ function expertiseMaxForTxp(txp = 0) {
  *  (T2.1) shows a badge when it is non-zero. */
 function expertiseOverBudget(actor) {
   const spent  = Object.values(actor.system.expertises)
-                       .reduce((n, e) => n + (e.uses ?? 0), 0);
+                       .reduce((n, e) => n + (e.max ?? 0), 0);   // OWNED, not remaining
   const budget = expertiseBudgetForTxp(
     actor.system.xp?.txp ?? 0,
     backgroundUsesFor(actor),                 // sums the background item
@@ -476,7 +498,12 @@ expertises: new ArrayField(new SchemaField({
 })),
 
 // SEMANTIC CHANGE: now names the characteristic SET TO 2, not a +1 bonus (C:28)
-characteristicAt2: new StringField({ initial: "any" }),
+characteristicOptionsAt2: new ArrayField(
+  new StringField({ choices: Object.keys(CROWS.characteristics) }), { initial: [] }
+),
+// An ARRAY. The 36 shipped backgrounds hold 30 fixed, 4 two-way choices
+// ("mind or strength") and 2 "any" — a singular string cannot encode a choice.
+// This is the background's ALLOWED SET; the player's pick lands on the actor.
 
 startingGold: new StringField({ initial: "3d6" })   // C:36
 ```
@@ -694,10 +721,36 @@ expertiseBudgetForTxp(txp, backgroundUses, expertiseBonusesSpent) => number
 //   bonusesToUses    = min(expertiseBonusesSpent ?? bonusesEarned, bonusesEarned)
 //   budget           = backgroundUses + 3 * bonusesToUses      // 3 = C:615 max
 //
-// `backgroundUses` is the sum over the actor's background item's expertises
-// (1 each, or the parenthetical where given — C:103). PT1 recorded how many
-// bonuses went to skills in `xp.skillBonusesSpent`; carry it, but never trust it
-// above what the PT2 table says the actor has earned at their TXP.
+// PT1 recorded how many bonuses went to skills in `xp.skillBonusesSpent`; carry
+// it, but never trust it above what the PT2 table says the actor has earned.
+//
+// !! `backgroundUses` HAS NO EMBEDDED SOURCE — read this before implementing !!
+//
+// An earlier draft said "the sum over the actor's BACKGROUND ITEM's expertises".
+// There is no such item. `applyBackground()` writes `system.background = bg.name`
+// (helpers/creation.mjs) and CrowData stores it as a bare StringField: the
+// background is a NAME, not an embedded document. There is nothing to sum.
+//
+// FROZEN LOOKUP ROUTE:
+//   1. resolve `system.backgroundId` against the crows-backgrounds compendium
+//   2. else resolve `system.background` (the name), trimmed, case-insensitive
+//   3. on success stamp `backgroundId`, so later runs survive a rename
+//   4. on failure REPORT IT and skip this actor's budget entirely.
+//      An unresolved background must NEVER be read as backgroundUses = 0. That
+//      yields the smallest possible budget and therefore the LARGEST possible
+//      over-budget figure — the migration would report a character as wildly
+//      over-allocated at exactly the moment it knows least about them.
+//
+// DEPENDENCY, previously undeclared: this needs PT2 background content in the
+// compendium, which is T3.1's output, not Wave 1's. It is survivable because the
+// budget runs in LAYER (b) at world-migration time, long after packs are built,
+// and because the default is report-only. But it means:
+//   * T1.3 implements the lookup and the unresolved-reporting path in Wave 1;
+//   * the budget is only MEANINGFUL once T3.1 has landed;
+//   * T1.3's tests must cover the unresolved case explicitly — until T3.1 lands
+//     the unresolved case is the ONLY case.
+// PLAYTEST-2-MIGRATION.md §2.3 item 7 explains why backgrounds are re-transcribed
+// rather than migrated, which is what creates this ordering.
 
 reconcileExpertiseBudget(converted, budget, maxPerExpertise) => {
   granted: Record<string, number>,
@@ -787,7 +840,7 @@ function canSpendExpertise(result, key, actor) {
   if (result.tier >= 3)                  return "already tier 3";             // no-op burn
   if (result.expertiseSpent)             return "one expertise per test";     // R:292
   if (!categoryAllows(result.kind, key)) return "wrong expertise category";   // R:913/R:384
-  if (actor.system.expertises[key]?.uses < 1) return "no uses left";
+  if ((actor.system.expertises[key]?.value ?? 0) < 1) return "no uses left";
   return null;   // ok
 }
 ```
@@ -898,6 +951,19 @@ DELIVERABLE:
    "wound-and-item" (DEFAULT) and "wound-only". Do not invent a third value.
 7. retrieveFromBackpack(layout, itemId, d10): maneuver + 1d10 >= at least one of
    the item's backpack slot numbers (R:478).
+7b. CAPACITY: layoutFor() MUST call CROWS effectiveCapacities() with the actor's
+   collected trait slotGrants. Do NOT start from CROWS.carryContainers directly.
+   CrowData.prepareDerivedData calls the same function with the same grants, and
+   if you build capacity a second way the wound derivation and the layout WILL
+   disagree the moment a slot-granting trait exists (C:737 is a real one).
+   NOTE wounds do not REDUCE capacity — they OCCUPY slots within it.
+7c. COIN: build Layout.coin from GearData.purse {isPurse, held, baseCapacity}
+   plus loose CrowData.currency. Bursting Purse (C:1737) adds
+   CROWS.purseTraitBonus to exactly ONE purse — the greatest baseCapacity, ties
+   broken by lowest item id. That allocation is frozen in gear.mjs; implement it,
+   do not invent another. Acceptance: a base purse and a trait-boosted purse both
+   round-trip coins in and out, and the C:36 starting kit (empty purse + 3d6 gc
+   loose) builds.
 8. Magic slot overload: >1 magic item in a slot -> flag `magicOverload`, consumed
    by T1.7 (1d6 wounds/DT) and T1.5 (cannot rest). Expose the flag; do not
    implement those effects here.
@@ -1446,11 +1512,11 @@ existing HIGH/MED/LOW/INFO severity format.
 | Task | Pack | Docs | Notes |
 | --- | --- | --- | --- |
 | T3.0 | — | — | Audit the 8 open HIGH findings from `docs/discrepancies/SUMMARY.md`. Fix or confirm fixed. **Blocks T3.6 and T3.7.** |
-| T3.1 | `crows-backgrounds` | 36 | **Every one changed.** C:89–602, per-background line starts listed below. `skills` → `expertises` with uses; `characteristicAt2`; starting equipment per the changelog (many swaps: bear traps, smoke bombs, gluepots, nets, ball bearings). |
+| T3.1 | `crows-backgrounds` | 36 | **Every one changed.** C:89–602, per-background line starts listed below. `skills` → `expertises` as `{key, uses}` (bare name = 1 use, "(2 uses)" = 2); `characteristicOptionsAt2` as an ARRAY (fixed → 1 entry, "X or Y" → 2, "any" → all 3); starting equipment per the changelog (many swaps: bear traps, smoke bombs, gluepots, nets, ball bearings). |
 | T3.2 | `crows-traits` | 276 | 23 trees, C:707–1878. Leverage confirmed changed (Stacks on Stacks replaces Groundroll). Split across 3–4 agents by tree: **A** Alchemy→Blacksmithing (2459–2778), **B** Camping→Enchantment (2779–3016), **C** Illusion→Pets (3017–3358), **D** Reputation→Unarmed (3359–3630). Note the source's own typo: tree heading reads "Blackmsithing" at C:957. |
 | T3.3 | `crows-weapons` + `crows-armor` + `crows-ammunition` | 25 | C:1997–2404. Armor types/upgrades/enchantments C:2001–2189; weapon types/qualities/upgrades/enchantments C:2194–2404. |
 | T3.4 | `crows-gear` + `crows-consumables` + `crows-loot` | 63 | C:1883–1996 (cards, fine/masterwork, gear, money), C:2405–2428 (crafting materials, treasure). Monster parts are now generic. |
-| T3.5 | `crows-monsters` | 11 → more | F:688–2123. Add `power`, `reactions`, `slots` (a **count** — 0 for monsters, the printed `**Slots:**N` for humans/animals), `size`, `type`, `expertises` (bare name = 1 use, "(2 uses)" = 2), and `xRest` to every stat block. Expand: Animals/Potential Pets (5657–6131), Humans (6132–6553), Blood Creatures (6630), Ring Collector (6717), Undead (6760). |
+| T3.5 | `crows-monsters` | 11 → more | F:688–2123. Add `power`, `reactions`, `slots` (a **count** — 0 for monsters, the printed `**Slots:**N` for humans/animals), `size`, `creatureType` (NOT `type`), `expertises` as `{key, value, max}` with value = max = the printed uses (bare name = 1, "(2 uses)" = 2), and `xRest` to every stat block. A human or animal MUST have `slots > 0` (F:698) — a 0 there is an incomplete transcription, and `suspectMissingSlots` flags it. Expand: Animals/Potential Pets (5657–6131), Humans (6132–6553), Blood Creatures (6630), Ring Collector (6717), Undead (6760). |
 | T3.6 | `crows-spellbooks` | 25 | R:1445–1664. **Depends on T3.0** — this pack holds 5 of the 8 open HIGH findings. |
 | T3.7 | `crows-rules` | 1 journal, ~16 pages | Full rewrite: expertises, edges/banes, six conditions, new advancement tables, greed bonus, encounter EN, rest activities, sizes, corpse slots. **Depends on T3.0** and on T0.2 for terminology. |
 

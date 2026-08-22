@@ -37,7 +37,7 @@ The single largest change. **Not a rename.**
 
 | | Playtest 1 (implemented) | Playtest 2 |
 | --- | --- | --- |
-| Shape | `skills.<key>.bonus` (0–2), added into the roll formula | `expertises.<key>.uses` / `.max`, a spendable pool |
+| Shape | `skills.<key>.bonus` (0–2), added into the roll formula | `expertises.<key>.value` (remaining) / `.max` (owned), a spendable pool |
 | When applied | Pre-roll, baked into `2d10 + char + skillBonus` | **Post-roll** — after seeing the result, spend 1 use to improve the result by one tier (max T3) |
 | Limit | None | One expertise **and** one use per test |
 | Refresh | n/a | All uses restored on finishing a rest (R:628); **not** restored when resting in Miasma |

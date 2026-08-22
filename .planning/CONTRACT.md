@@ -112,15 +112,23 @@ characteristics.{agility|mind|strength}.value : NumberField(min -5, max 5)   // 
 woundSlots: SetField(NumberField(min 0))     // NO max — capacity is derived (M12)
                                              // REPLACES the `wounds` number
 
-conditions: SchemaField({ blessed grabbed prone unconscious vulnerable weakened })
-                                             // all BooleanField; `boned` deleted
+conditions: SchemaField({ blessed grabbed prone unconscious vulnerable weakened
+                          defeated })        // all BooleanField; `boned` deleted
+                                             // `defeated` mirrors MonsterData so the
+                                             // `dead` status has ONE mapping, not an
+                                             // actor-type-dependent one
 
 xp.expertiseBonusesSpent                     // renamed from skillBonusesSpent
 preparedTask: { task: String, bonus: 2, setOn: String }   // setOn is a STRING
 npcConnection: { name, relationship, notes }       // NEW (C:40, C:2551)
 crafting.projects[].expertise                      // renamed from .skill
 currency: NumberField                              // LOOSE coin only; purses are ITEMS
+background:   StringField                          // the background's NAME
+backgroundId: StringField                          // NEW — stable compendium id,
+                                                   // stamped on first resolution
 ```
+
+> **There is no embedded Background Item.** `applyBackground()` writes `system.background = bg.name` and that is all a PT1 actor carries. Anything needing the background's *grants* — H5's `backgroundUses` above all — must resolve `backgroundId`, else the name, against the `crows-backgrounds` compendium, stamp the id on success, and **report** on failure. An unresolved background must never be read as `0`: that produces the smallest budget and therefore the largest over-budget figure, exactly when the migration knows least about the character.
 
 > **The three expertise quantities.** `R:294`: *"Each expertise has a number of uses, which is determined at character creation and can be increased through character advancement. You can use an expertise a number of times equal its uses. You regain all uses of an expertise when you finish a rest."*
 >
@@ -216,18 +224,48 @@ Unchanged: `description tree tier column connectsTo isStarting restActivity`, de
 slotGrants: ArrayField({
   container: choices(containerKeys),
   count:     NumberField(min 1),          // min 1 — see below
-  restriction: { dimension: ""|itemType|gearSubtype|weaponType|consumableKind,
-                 values: [String] }
+  restriction: { dimension: ""|itemType|gearSubtype|weaponType, values: [String] }
 })
 usePool: { sizedBy: ""|agility|mind|strength, fixedMax: Number, used: Number }
 ```
+
+**Each restriction dimension names a real document path**, frozen so T1.2 does not have to invent one:
+
+| `dimension` | path tested | legal values |
+|---|---|---|
+| `""` | *(unrestricted)* | — |
+| `itemType` | `item.type` | `weapon` `armor` `gear` `consumable` … |
+| `gearSubtype` | `item.system.subtype` | `CROWS.gearSubtypes` |
+| `weaponType` | `item.system.type` | `CROWS.weaponTypes` |
+
+> A first draft listed `consumableKind`, which **does not exist** on `ConsumableData`, and gave `weaponType` no path when the real one is `system.type`. Both were unimplementable.
 
 `slotGrants` exists because critique M12 states backpack capacity is "config plus trait grants" and has `prepareDerivedData` read `backpackCapacity` — but **nothing could express a grant**, so capacity could never vary and the capacity-relative design was theoretical. `C:737` is the real case: *"You gain an additional belt slot that can only be used to hold alchemy items."*
 
 - `count` is **min 1**. No published trait removes a slot, and a negative grant could shrink capacity into a character's wounds and kill them.
 - The restriction is **structured, not a free string**. A bare `"alchemy"` is ambiguous — item type? gear subtype? trait tree? — and T1.2 would have to guess. `dimension` names the axis; `values` lists what passes on it. This also covers a holster restricted by `weaponType`.
 
-`usePool` is a per-rest pool **sized by a characteristic**, which three published traits need: `C:921` (benefaction), `C:1361` (knowledge) and `C:1501` (necromancy) all read *"use this trait a number of times equal to your Mind, regaining all uses when you finish a rest."* Same `used`-survives-the-spend reasoning as expertises.
+`usePool` is a per-rest pool **sized by a characteristic**, which **four** published traits need — an earlier count of three missed the Agility one:
+
+| Trait | Sized by |
+|---|---|
+| `C:921` benefaction | Mind |
+| `C:1361` knowledge | Mind |
+| `C:1501` necromancy | Mind |
+| `C:1739` armor | **Agility** — *"a number of times equal to your Agility and then must finish a rest before"* |
+
+**Frozen semantics**, because a characteristic is not a constant:
+
+```
+max       = sizedBy ? max(0, actor.characteristics[sizedBy].value) : fixedMax
+remaining = max(0, max - used)
+rest      = used -> 0   (R:628)
+overused  = max(0, used - max)
+```
+
+`max(0, …)` matters: a characteristic can be **negative** (`R:174` allows −5), and a negative pool is meaningless — it floors at 0, meaning the trait simply cannot be used. That is not an error state.
+
+`overused` is reachable without cheating — spend at Mind 3, then take a Mind drain to 1. **Report it; never refund, and never clamp `used` downward**, which would silently hand back a spent use. `used` is stored rather than `remaining` for the same reason expertises store `{value, max}`: the pool size is derived and can move underneath you, so the durable fact is what was *spent*.
 
 > **`expertiseGrants` was here and has been REMOVED.** Review found **no** trait in the corpus that grants a fixed expertise to its own owner. The real cases are dynamic and target something else: Tricks/Extra Tricks grant a *choice* of expertises to a **pet**, and Memorization grants the expertise of a chosen lore book *until replaced*. A fixed `{key, uses}` array on the owning crow's trait models neither, and the H5 budget spec never included trait grants. Those belong on the affected actor with source and expiry — T1.6's (pets) and T1.4's (advancement) call.
 
@@ -237,8 +275,17 @@ usePool: { sizedBy: ""|agility|mind|strength, fixedMax: Number, used: Number }
 
 ```js
 purse: { isPurse: Boolean, held: Number, baseCapacity: Number = 500 }
-// derived: purseCapacity (0 for non-purses), purseOverfull
+// derived: purseBaseCap (0 for non-purses), purseOverBase
 ```
+
+**Trait-adjusted capacity — the allocation is frozen, because it is not divisible.** `C:1737` (Bursting Purse): *"You can carry an additional 500 gc in a coin **purse**."* Singular. With two purses the bonus cannot split and cannot repeat, so it lands on exactly one, and *which* must be deterministic or two clients compute different capacities.
+
+```
+effectiveCap(purse) = baseCapacity + (isBonusTarget ? CROWS.purseTraitBonus : 0)
+bonus target        = greatest baseCapacity; ties -> lowest item id
+```
+
+Greatest-first because it is the only choice that never *reduces* total carrying capacity; the id tiebreak is stable across clients and reloads in a way inventory **order** is not. `gear.mjs` cannot see the actor, so it exposes the base only — **`slots.mjs` applies the bonus** when building `Layout.coin`.
 
 Part 1.1 freezes `Layout.coin.purses[]` as `{id, held, cap}`, but **nothing owned either number** — `CrowData.currency` is explicitly *loose coin only* and a purse is an Item, so T1.2 had no source and the universal starting kit (*"an empty coin purse ... and 3d6 gc"*, `C:36`) was unrepresentable.
 
@@ -261,7 +308,9 @@ Part 1.1 freezes `Layout.coin.purses[]` as `{id, held, cap}`, but **nothing owne
 
 The guard is not optional: without it step 3 re-triggers step 1. Mirror only when the effect's presence actually disagrees with the boolean, and make the write a no-op when they already agree.
 
-**`dead` ↔ `conditions.defeated`** is the one id where the two vocabularies differ.
+**`dead` ↔ `conditions.defeated`** is the one id where the two vocabularies differ. **Both** `CrowData` and `MonsterData` now carry `defeated`, so the mapping is a single rule with no actor-type branch — previously only monsters had it, and the mirror had nowhere to write for a PC.
+
+**Ownership:** `module/conditions.mjs` and the hook registration in `module/crows.mjs` belong to **T2.3** (entry point), not T1.7. T1.7 supplies the condition *mechanics* and the mirror logic; T2.3 wires it. Neither may edit the other's file.
 
 Condition *mechanics* are never Active Effect `changes`. Active Effects remain right for durational backlash effects (`R:1561`) and magic items — and there, v14 takes a **string** `type: "add"`; `CONST.ACTIVE_EFFECT_CHANGE_TYPES` holds priorities, not modes (`.add` is `20`). See `.planning/API-NOTES.md` §1.
 
@@ -292,9 +341,9 @@ This is expected and is Wave 1's job. Do not "fix" it from another task.
 ## 8. Verification
 
 ```
-npm test        27 tests, 8 suites, 0 fail
+npm test        42 tests, 12 suites, 0 fail
 ./verify.sh     exit 0
-node --check    clean on all six changed files
+node --check    clean on all changed files
 ```
 
 `test/config.test.mjs` pins the invariants above — the `expertiseMaxForTxp(0) === 2` boundary, the `bonusesEarnedAtTxp` repeat rule, the 30-expertise catalogue, the deleted PT1 skill keys, `backpackSize === undefined`, and that the migration fixture is genuinely over budget. If a later edit drifts from this document, those fail.

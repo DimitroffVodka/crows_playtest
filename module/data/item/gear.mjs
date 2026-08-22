@@ -46,11 +46,33 @@ export class GearData extends TypeDataModel {
   }
 
   prepareDerivedData() {
-    // Effective capacity = base + trait bonuses. The owning actor applies
-    // CROWS.purseTraitBonus when it has Bursting Purse (C:1737); this model
-    // exposes the base so slots.mjs can build Layout.coin.purses[].cap from one
-    // place. Non-purses report 0 rather than a misleading 500.
-    this.purseCapacity = this.purse?.isPurse ? (this.purse.baseCapacity ?? 0) : 0;
-    this.purseOverfull = (this.purse?.held ?? 0) > this.purseCapacity;
+    // BASE capacity only. The item cannot see the actor, so it cannot know
+    // whether Bursting Purse applies — `Layout.coin.purses[].cap` is assembled
+    // by slots.mjs, which can. Non-purses report 0 rather than a misleading 500.
+    this.purseBaseCap = this.purse?.isPurse ? (this.purse.baseCapacity ?? 0) : 0;
+    // Overfull against the BASE. slots.mjs recomputes it against the effective
+    // cap; this one only catches content that ships a purse already over its own
+    // base, which is a data error rather than a trait interaction.
+    this.purseOverBase = (this.purse?.held ?? 0) > this.purseBaseCap;
   }
+
+  /**
+   * CONTRACT — trait-adjusted purse capacity, frozen here so T1.2 does not have
+   * to invent an allocation.
+   *
+   * C:1737 (Bursting Purse): "You can carry an additional 500 gc in a coin
+   * purse." SINGULAR. With two purses in the inventory the bonus is not
+   * divisible and not repeatable, so it must land on exactly one, and WHICH one
+   * has to be deterministic or two clients compute different capacities.
+   *
+   *   effectiveCap(purse) = baseCapacity + (isBonusTarget ? purseTraitBonus : 0)
+   *
+   * The bonus target is the purse with the greatest `baseCapacity`; ties break
+   * on the lowest item id. Greatest-first because it is the only choice that
+   * never reduces total carrying capacity, and the id tiebreak is stable across
+   * clients and reloads in a way that inventory ORDER is not.
+   *
+   * Applied by slots.mjs when building Layout.coin. Not applied here — this
+   * model deliberately cannot see the actor.
+   */
 }

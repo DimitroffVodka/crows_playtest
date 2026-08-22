@@ -20,7 +20,12 @@ export class MonsterData extends TypeDataModel {
       power: new fields.NumberField({ initial: 0, min: 0, integer: true }),   // F:704
 
       size: new fields.StringField({ initial: "medium", choices: CROWS.sizes }),
-      creatureType: new fields.StringField({ initial: "animal", choices: CROWS.creatureTypes }),
+      // Default is `blood`, NOT `animal`. F:698 says animals HAVE slots, so the
+      // old default paired an animal with `slots: 0` — an internally invalid
+      // creature on every freshly created document, which then trips
+      // `suspectMissingSlots` for no reason. `blood` is a monster type, for
+      // which `slots: 0` is correct.
+      creatureType: new fields.StringField({ initial: "blood", choices: CROWS.creatureTypes }),
 
       stamina: new fields.SchemaField({
         value: new fields.NumberField({ initial: 5, min: 0, integer: true }),
