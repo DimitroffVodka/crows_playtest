@@ -1,6 +1,8 @@
 const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
-import { CROWS, ALL_EXPERTISES, expertiseMaxForTxp, bonusesEarnedAtTxp } from "../../config.mjs";
+import {
+  CROWS, ALL_EXPERTISES, expertiseMaxForTxp, bonusesEarnedAtTxp, effectiveCapacities
+} from "../../config.mjs";
 
 /**
  * Crow (PC) data model — Playtest 2.
@@ -22,13 +24,33 @@ const charField = () => new fields.SchemaField({
 
 export class CrowData extends TypeDataModel {
   static defineSchema() {
-    // REPLACES `skills`. CONTRACT: `max` is NOT stored — it is a pure function
-    // of TXP (see expertiseMaxForTxp). Storing it meant a freshly created crow
-    // had uses=2 from its background (C:103) against max=0.
+    // REPLACES `skills`. THREE distinct quantities, and conflating any two of
+    // them corrupts characters (review finding 1):
+    //
+    //   value  — uses REMAINING right now. Spending decrements this.
+    //   max    — uses OWNED, from background + advancement. Persistent.
+    //   cap    — the legal ceiling 2/3/4 for this TXP. DERIVED, not stored.
+    //
+    // R:294: "Each expertise has a number of uses, which is determined at
+    // character creation and can be increased through character advancement.
+    // You can use an expertise a number of times equal its uses. You regain all
+    // uses of an expertise when you finish a rest."
+    //
+    // A single mutable count cannot survive spend-then-rest: once it hits 0
+    // there is no way to tell an expertise granted at 1 from one granted at 2
+    // from one never owned, so rest cannot restore correctly. Restoring to the
+    // derived cap instead would MINT uses nobody purchased.
+    //
+    // {value, max} also matches `stamina` in this same schema, so the rest/
+    // refresh idiom reads the same way for both.
+    //   rest (R:628)              -> value = max
+    //   rest in Miasma (R:1375)   -> leave value alone, everything else applies
+    //   advancement (C:615)       -> raise max, and value with it
     const expertises = {};
     for (const key of ALL_EXPERTISES) {
       expertises[key] = new fields.SchemaField({
-        uses: new fields.NumberField({ initial: 0, min: 0, integer: true })
+        value: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        max: new fields.NumberField({ initial: 0, min: 0, integer: true })
       });
     }
 
@@ -101,7 +123,10 @@ export class CrowData extends TypeDataModel {
       preparedTask: new fields.SchemaField({
         task: new fields.StringField({ blank: true, initial: "" }),
         bonus: new fields.NumberField({ initial: 2, integer: true }),
-        setOn: new fields.NumberField({ initial: 0, min: 0, integer: true })
+        // StringField per Part 1.1. It was a NumberField, which would coerce the
+        // PT1 fixture's "2026-05-20" to 0 and lose the audit value. Holds either
+        // a DT counter rendered as text or a date — migration canonicalises.
+        setOn: new fields.StringField({ blank: true, initial: "" })
       }),
 
       // CONTRACT: `effects` held a d10+boned roll in PT1. `boned` is gone, so
@@ -144,35 +169,60 @@ export class CrowData extends TypeDataModel {
     this.ad = ad;
     this.adMax = adMax;
 
-    // --- Expertise caps (H6). Derived, never stored. ------------------------
-    const max = expertiseMaxForTxp(this.xp?.txp ?? 0);
-    this.expertiseMax = max;
-    let spentTotal = 0;
+    // --- Expertise cap (H6). Derived, never stored. -------------------------
+    // NOTE the vocabulary: `cap` is the ADVANCEMENT CEILING for this TXP.
+    // `e.max` is what this crow actually OWNS and is stored. They are different
+    // numbers and conflating them is review finding 1.
+    const cap = expertiseMaxForTxp(this.xp?.txp ?? 0);
+    this.expertiseCap = cap;
+    let ownedTotal = 0, remainingTotal = 0;
     for (const e of Object.values(this.expertises ?? {})) {
-      e.max = max;
-      // Surface an over-cap value rather than clamping it. The migration can
-      // legitimately leave one here (report-only is the default), and silently
-      // clamping would hide exactly what the GM is supposed to be deciding on.
-      e.overMax = Math.max(0, (e.uses ?? 0) - max);
-      spentTotal += e.uses ?? 0;
+      // Surface an over-cap allocation rather than clamping it. The migration
+      // legitimately leaves one (report-only is the default), and clamping would
+      // hide exactly what the GM is supposed to be deciding on.
+      e.overCap = Math.max(0, (e.max ?? 0) - cap);
+      // A rest sets value = max; nothing should ever leave value above max, but
+      // report it rather than trust it.
+      e.overMax = Math.max(0, (e.value ?? 0) - (e.max ?? 0));
+      ownedTotal += e.max ?? 0;
+      remainingTotal += e.value ?? 0;
     }
-    this.expertiseSpentTotal = spentTotal;
+    // The H5 budget compares OWNED against the budget. It must not use
+    // `remaining`, or the reported over-budget figure would shrink every time a
+    // player spent a use, even though their permanent allocation never changed.
+    this.expertiseOwnedTotal = ownedTotal;
+    this.expertiseRemainingTotal = remainingTotal;
 
-    // --- Wounds (M12). Capacity-relative and NON-DESTRUCTIVE. ---------------
-    // `backpackCapacity` is the config base; a Wave 1 trait/item pass may raise
-    // it, and this must keep working when it does.
-    const cap = this.backpackCapacity ?? CROWS.carryContainers.backpack;
-    this.backpackCapacity = cap;
+    // --- Capacity (M12 + review finding 5) ----------------------------------
+    // Sum this actor's trait slot grants and run them through the ONE shared
+    // pure function, so this and slots.mjs cannot disagree about how many
+    // backpack slots exist. Previously this read a config constant and the
+    // grants were never summed anywhere, which made the trait-aware capacity
+    // the contract promised purely notional.
+    const grants = [];
+    for (const i of this.parent.items) {
+      if (i.type !== "trait") continue;
+      for (const g of i.system?.slotGrants ?? []) grants.push(g);
+    }
+    this.capacities = effectiveCapacities(grants);
+    const backpackCap = this.capacities.backpack;
+    this.backpackCapacity = backpackCap;
+
+    // --- Wounds. Capacity-relative and NON-DESTRUCTIVE. ---------------------
     const all = [...(this.woundSlots ?? [])];
-    const held = all.filter(i => i < cap);
+    const held = all.filter(i => i < backpackCap);
     // NEVER drop an out-of-range index: if a slot-granting trait is removed its
     // wounds must not evaporate, which would spontaneously heal the character.
-    this.orphanedWounds = all.filter(i => i >= cap);
+    this.orphanedWounds = all.filter(i => i >= backpackCap);
     this.wounds = held.length;                 // back-compat scalar
-    // Death is capacity-relative (R:524 "all backpack slots"), not >= 10.
-    // Evaluate on wound GAIN only — see the mutation site. Computing it here is
-    // reporting, not adjudication: a shrinking capacity must NOT auto-kill.
-    this.deadFromWounds = held.length >= cap;
+
+    // REPORTING ONLY — deliberately not named `dead`. R:524 kills a creature
+    // when all backpack slots hold wounds, but this flag can also flip to true
+    // because CAPACITY SHRANK (a trait removed), and that must alert the Ref,
+    // never kill anyone. Death is adjudicated at the wound-GAIN mutation by
+    // comparing pre/post state and emitting a `becameDead` event. Nothing may
+    // adjudicate from derived preparation.
+    this.woundCapacityFilled = backpackCap > 0 && held.length >= backpackCap;
 
     // --- Effective speed ----------------------------------------------------
     //   grabbed / unconscious -> 0 (R:536, R:554)

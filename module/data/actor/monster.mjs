@@ -1,6 +1,6 @@
 const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
-import { CROWS } from "../../config.mjs";
+import { CROWS, ALL_EXPERTISES } from "../../config.mjs";
 
 /**
  * Creature data model — Playtest 2. Covers monsters, humans and animals.
@@ -33,10 +33,15 @@ export class MonsterData extends TypeDataModel {
           value: new fields.NumberField({ initial: 0, min: 0, integer: true })
         }))
       }),
+      // R:174 bounds EVERY creature's characteristics to -5..5, not just PCs.
+      // These were unbounded, so a transcription typo could ship a Mind of 30.
       characteristics: new fields.SchemaField({
-        agility: new fields.NumberField({ initial: 0, integer: true }),
-        mind: new fields.NumberField({ initial: 0, integer: true }),
-        strength: new fields.NumberField({ initial: 0, integer: true })
+        agility: new fields.NumberField({
+          initial: 0, min: CROWS.charRange.min, max: CROWS.charRange.max, integer: true }),
+        mind: new fields.NumberField({
+          initial: 0, min: CROWS.charRange.min, max: CROWS.charRange.max, integer: true }),
+        strength: new fields.NumberField({
+          initial: 0, min: CROWS.charRange.min, max: CROWS.charRange.max, integer: true })
       }),
       ad: new fields.NumberField({ initial: 0, min: 0, integer: true }),
 
@@ -57,11 +62,16 @@ export class MonsterData extends TypeDataModel {
       // more. If a creature can use more than one ... their stat block will say so."
       reactions: new fields.NumberField({ initial: 1, min: 0, integer: true }),
 
-      // NEW. Same shape as BackgroundData.expertises so one helper reads both.
-      // A bare name in a stat block is 1 use; "(2 uses)" is 2 (F:1397, cf. C:103).
+      // NEW. A bare name in a stat block is 1 use; "(2 uses)" is 2 (F:1397).
+      // Same three-quantity model as CrowData: `max` is owned, `value` is what
+      // remains this rest. A creature that spends an expertise and then rests
+      // has to restore to something, and that something is `max`.
+      // `key` is constrained to ALL_EXPERTISES so an OCR-split or misspelled
+      // name fails loudly at load instead of entering content silently.
       expertises: new fields.ArrayField(new fields.SchemaField({
-        key: new fields.StringField({ required: true }),
-        uses: new fields.NumberField({ initial: 1, min: 0, integer: true })
+        key: new fields.StringField({ required: true, choices: ALL_EXPERTISES }),
+        value: new fields.NumberField({ initial: 1, min: 0, integer: true }),
+        max: new fields.NumberField({ initial: 1, min: 0, integer: true })
       }), { initial: [] }),
 
       // F:710-714 — "X/Rest" limited-use features. A crit refunds 1 spent use;
@@ -115,9 +125,17 @@ export class MonsterData extends TypeDataModel {
     const held = all.filter(i => i < cap);
     this.orphanedWounds = all.filter(i => i >= cap);
     this.wounds = held.length;
-    // A creature with slots dies when all of them hold wounds (R:524). A
-    // creature WITHOUT slots dies at 0 Stamina instead (F:698) — that is
-    // damage.mjs's call, not this model's.
-    this.deadFromWounds = this.hasSlots && held.length >= cap;
+    // REPORTING ONLY, same as CrowData — see the note there. A creature with
+    // slots dies when all of them hold wounds (R:524); one WITHOUT slots dies
+    // at 0 Stamina instead (F:698). Both are damage.mjs's call at the mutation,
+    // never adjudicated from derived preparation.
+    this.woundCapacityFilled = this.hasSlots && held.length >= cap;
+
+    // F:698 — humans and animals HAVE slots. A stat block of one of those types
+    // with slots: 0 is almost certainly an incomplete transcription rather than
+    // a deliberate statement, so surface it for Wave 3 instead of silently
+    // treating the creature as a slotless monster.
+    this.suspectMissingSlots =
+      !this.hasSlots && ["human", "animal"].includes(this.creatureType);
   }
 }

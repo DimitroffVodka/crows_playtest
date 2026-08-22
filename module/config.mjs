@@ -65,9 +65,14 @@ export const CROWS = {
   handSlotsNeverStack: true,                     // R:432
 
   // Money. Two ways a slot can carry coin, not one (C:1917).
-  coinPerSlot: 250,                       // loose coins in 1 slot
-  pursePerSlot: 1,                        // a purse occupies its slot alone
-  purseBaseCapacity: 500,                 // per-item quality tier may raise it (C:1940)
+  coinPerSlot: 250,                       // loose coins in 1 slot (C:1917)
+  pursePerSlot: 1,                        // a purse occupies its slot alone (C:1917)
+  purseBaseCapacity: 500,                 // C:1917 — "1 purse that holds up to 500 gc"
+  // The only published capacity increase is the Bursting Purse trait, C:1737:
+  // "You can carry an additional 500 gc in a coin purse." (An earlier note here
+  // cited C:1940 for per-quality-tier capacity — C:1940 is the Gear Prices row
+  // and says no such thing. Corrected after review.)
+  purseTraitBonus: 500,                   // C:1737
 
   corpseSlots: { tiny: 1, small: 2, medium: 4, large: 8, huge: 16, holyShit: 32 },  // R:486
   corpseStack: { tiny: 3 },               // R:486; every other size is 1
@@ -131,13 +136,53 @@ export const CROWS = {
   gearSubtypes: ["tool", "utility", "light", "wand", "ring", "wornMagic", "treasure"]
 };
 
-/** Every expertise key, flattened. The order is general -> spellcasting -> weapon
- *  and is STABLE — sheets and the migration's tie-breaks depend on it. */
+/**
+ * Every expertise key, flattened in CATEGORY order (general -> spellcasting ->
+ * weapon). This is the DISPLAY order — sheets group by category and rely on it.
+ *
+ * It is NOT a tie-break order. The migration's water-levelling breaks ties on
+ * the alphabetically-first key, and category order is not alphabetical:
+ * `blacksmithing` precedes `bashing` here but follows it alphabetically, so the
+ * two orders trim different expertises. Use EXPERTISES_ALPHABETICAL for that.
+ */
 export const ALL_EXPERTISES = [
   ...CROWS.expertises.general,
   ...CROWS.expertises.spellcasting,
   ...CROWS.expertises.weapon
 ];
+
+/**
+ * The same 30 keys, sorted for DETERMINISTIC TIE-BREAKS. Locale-independent by
+ * construction — plain codepoint comparison, never localeCompare, so a French
+ * client and an English client trim the same expertise.
+ */
+export const EXPERTISES_ALPHABETICAL = [...ALL_EXPERTISES]
+  .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+
+/**
+ * Effective container capacities = the config base plus validated trait grants.
+ *
+ * PURE, and deliberately so: both the wound derivation on the actor and the
+ * positional layout in slots.mjs must call THIS, or they can disagree about how
+ * many backpack slots exist the moment a slot-granting trait is present
+ * (review finding 5).
+ *
+ * `grants` is a flat list of {container, count, appliesTo} — the caller collects
+ * them from the actor's trait items. Counts below 1 are ignored rather than
+ * subtracting: no published trait removes a slot, and a negative grant would let
+ * bad content silently kill a character by shrinking capacity into their wounds.
+ */
+export function effectiveCapacities(grants = []) {
+  const caps = { ...CROWS.carryContainers };
+  for (const m of CROWS.magicSlots) caps[m] = 1;
+  for (const g of grants) {
+    if (!g || !(g.container in caps)) continue;
+    const n = Number(g.count);
+    if (!Number.isInteger(n) || n < 1) continue;
+    caps[g.container] += n;
+  }
+  return caps;
+}
 
 /** Which category an expertise belongs to, or undefined if the key is unknown. */
 export function expertiseCategory(key) {

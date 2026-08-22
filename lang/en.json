@@ -37,9 +37,9 @@
   "CROWS.ExpertiseCategory.general": "General",
   "CROWS.ExpertiseCategory.spellcasting": "Spellcasting",
   "CROWS.ExpertiseCategory.weapon": "Weapon",
-  "CROWS.ExpertiseCategory.generalHint": "Applies to tests used in exploration and investigation.",
-  "CROWS.ExpertiseCategory.spellcastingHint": "Applies to castings only.",
-  "CROWS.ExpertiseCategory.weaponHint": "Applies to weapon attacks only.",
+  "CROWS.ExpertiseCategory.generalHint": "Exploration, investigation, and crafting tests.",
+  "CROWS.ExpertiseCategory.spellcastingHint": "Castings and spell attacks.",
+  "CROWS.ExpertiseCategory.weaponHint": "Weapon attacks only.",
 
   "CROWS.Expertise.alchemy": "Alchemy",
   "CROWS.Expertise.alchemyHint": "Make and know about potions, poisons, and bombs.",

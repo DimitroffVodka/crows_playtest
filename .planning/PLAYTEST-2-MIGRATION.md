@@ -290,7 +290,14 @@ Runs on `init` when `system.version` on a world predates 0.2.0.
 3. **Slots.** Belt capacity grows 2→4 — safe, no data loss. Magic-slot items move from `containers` to the new magic axis by matching `equipSlotTypes`. Items whose contiguity is now illegal get flagged, not silently moved: emit a GM report listing them.
 4. **Wounds.** `wounds: N` → assign to N backpack slot indices. **Prefer empty slots, lowest index first, and only then occupied ones.** PT1 filled bottom-up regardless of contents, but under reading (c) a wound landing on an occupied slot costs 1 speed — so a naive bottom-up migration would silently slow existing characters. Placing into empty slots first reproduces the PT1 speed profile as closely as the new rule allows; list any wound forced onto an occupied slot in the GM report. The player can rearrange afterwards.
 5. **Characteristics.** No transform needed, but the schema's old `max: 3` means no existing data can be out of range.
-6. **`preparedTask.skill`** → drop into `task` as free text with a note.
+6. **`preparedTask.skill`** → drop into `task` as free text with a note. `setOn` is a **StringField** in PT2 — canonicalise both historical numeric DT counters and date strings into it. It was a NumberField, which coerced the fixture's `"2026-05-20"` to `0`.
+
+7. **Backgrounds are NOT migrated — they are REPLACED.** Two independent reasons, both verified against the 36 shipped documents:
+
+   - **The `uses` data does not exist in PT1.** A PT1 background stores a bare list (`skills: [handleAnimal, natureLore, ...]`). PT2 needs per-key uses — `C:103` for that same background reads *"Benefaction (2 uses), Elemental (2 uses)"*. The number 2 appears nowhere in PT1 data, so no transform can produce it.
+   - **Collapsing pairs silently reduce the grant COUNT.** 43 PT1 keys across 25 of 36 backgrounds map onto a shared PT2 expertise, and **8 backgrounds grant both halves of a pair** — Thief loses two (`hide+sneak`, `sabotage+sleightOfHand`: 7 skills → 5 expertises). For an *actor* max-wins handles a collapse; for a *background* there is no bonus to max, so two grants become one.
+
+   `migrateBackgroundSystem` therefore does **best-effort shape conversion only**, and its output is **overwritten** by the re-transcribed Wave 3 content (T3.1, `C:89–602`). This matters beyond content: **H5's `backgroundUses` must read the re-transcribed background**, never a migrated one, or the budget input is wrong and the GM decides on bad numbers.
 
 ### 2.3a Which migration layer does what
 

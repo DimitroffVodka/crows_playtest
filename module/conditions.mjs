@@ -2,10 +2,31 @@
  * Foundry status effects — Playtest 2.
  *
  * CONTRACT: `system.conditions` on the actor is AUTHORITATIVE. These status
- * effects MIRROR it for the token HUD and are driven FROM it, never the reverse.
- * The roll pipeline reads `system.conditions` directly (Weakened -> a bane,
- * Blessed -> an edge), and two sources of truth for "is this creature weakened"
- * would desync mid-roll.
+ * effects MIRROR it for the token HUD. The roll pipeline reads
+ * `system.conditions` directly (Weakened -> a bane, Blessed -> an edge), and two
+ * sources of truth for "is this creature weakened" would desync mid-roll.
+ *
+ * THE COMMAND FLOW — freeze this, not just the source of truth. "Driven from the
+ * boolean, never the reverse" was too blunt: taken literally, a Ref toggling a
+ * condition on the Token HUD would create a status effect and the roll engine
+ * would never see it. What is actually one-way is AUTHORITY, not user intent:
+ *
+ *   1. HUD toggle is INTERCEPTED and translated into an update to
+ *      `system.conditions.<key>` — the toggle expresses intent, it does not
+ *      write state.
+ *   2. The boolean is canonical and is what every rule reads.
+ *   3. An idempotent, LOOP-GUARDED mirror then adds or removes the matching
+ *      status effect to match the boolean.
+ *
+ * The guard matters: without it step 3 re-triggers step 1. Mirror only when the
+ * effect's presence actually disagrees with the boolean, and make the write a
+ * no-op when they already agree.
+ *
+ * The `dead` status maps to `conditions.defeated`, not to a same-named boolean —
+ * it is the one id where the two vocabularies differ.
+ *
+ * T1.7's brief says "bidirectional Active Effect sync". Read it as the flow
+ * above; a naive two-way sync loops or leaves two sources disagreeing.
  *
  * Do NOT implement condition mechanics as Active Effect `changes`. Active
  * Effects remain correct for durational backlash effects (R:1561) and magic

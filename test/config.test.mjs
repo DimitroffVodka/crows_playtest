@@ -3,8 +3,8 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  CROWS, ALL_EXPERTISES, expertiseCategory,
-  expertiseMaxForTxp, bonusesEarnedAtTxp
+  CROWS, ALL_EXPERTISES, EXPERTISES_ALPHABETICAL, expertiseCategory,
+  expertiseMaxForTxp, bonusesEarnedAtTxp, effectiveCapacities
 } from "../module/config.mjs";
 
 /**
@@ -136,6 +136,135 @@ describe("conditions", () => {
     assert.ok(CROWS.conditions.includes("vulnerable"));
     assert.ok(CROWS.conditions.includes("weakened"));
     assert.equal(CROWS.conditions.length, 6);
+  });
+});
+
+describe("expertise pool state transitions — review finding 1", () => {
+  // The data model needs a Foundry runtime, so these exercise the SEMANTICS the
+  // schema encodes: {value, max} where max is owned and value is remaining.
+  // A single count cannot survive this sequence, which is the whole point.
+  const rest = (e) => ({ ...e, value: e.max });
+  const spend = (e) => ({ ...e, value: Math.max(0, e.value - 1) });
+
+  test("spend then rest restores the OWNED amount, not the cap", () => {
+    const granted2 = { value: 2, max: 2 };          // background gave 2 (C:103)
+    const afterSpend = spend(spend(granted2));
+    assert.deepEqual(afterSpend, { value: 0, max: 2 });
+    assert.deepEqual(rest(afterSpend), { value: 2, max: 2 }, "rest restores to 2");
+  });
+
+  test("an expertise granted at 1 and one granted at 2 stay distinguishable at 0", () => {
+    // This is exactly what a single mutable count destroys.
+    const a = spend({ value: 1, max: 1 });
+    const b = spend(spend({ value: 2, max: 2 }));
+    assert.equal(a.value, 0);
+    assert.equal(b.value, 0);
+    assert.notEqual(a.max, b.max, "the owned amounts must still differ");
+    assert.equal(rest(a).value, 1);
+    assert.equal(rest(b).value, 2);
+  });
+
+  test("rest never mints uses up to the advancement cap", () => {
+    // At 20,000 TXP the cap is 4, but a crow owning 1 must rest back to 1.
+    const cap = expertiseMaxForTxp(20000);
+    assert.equal(cap, 4);
+    const owned1 = spend({ value: 1, max: 1 });
+    assert.equal(rest(owned1).value, 1, "must not restore to the cap");
+  });
+
+  test("resting in the Miasma leaves spent uses spent (R:1375)", () => {
+    const afterSpend = spend({ value: 2, max: 2 });
+    const miasmaRest = (e) => e;                    // refresh suppressed
+    assert.deepEqual(miasmaRest(afterSpend), { value: 1, max: 2 });
+    // Inexpressible with one conflated count — there would be nothing to hold.
+  });
+
+  test("the H5 budget must read OWNED, which spending does not change", () => {
+    const before = [{ value: 2, max: 2 }, { value: 3, max: 3 }];
+    const after = before.map(spend);
+    const owned = (es) => es.reduce((n, e) => n + e.max, 0);
+    const remaining = (es) => es.reduce((n, e) => n + e.value, 0);
+    assert.equal(owned(before), owned(after), "owned is stable across play");
+    assert.notEqual(remaining(before), remaining(after));
+  });
+});
+
+describe("tie-break ordering — review finding 9", () => {
+  test("category order is NOT alphabetical, so they cannot be the same list", () => {
+    assert.notDeepEqual(ALL_EXPERTISES, EXPERTISES_ALPHABETICAL);
+  });
+
+  test("the documented cross-category collision resolves alphabetically", () => {
+    // `blacksmithing` precedes `bashing` in category order but follows it
+    // alphabetically — the two orders trim different expertises.
+    assert.ok(ALL_EXPERTISES.indexOf("blacksmithing") < ALL_EXPERTISES.indexOf("bashing"));
+    assert.ok(EXPERTISES_ALPHABETICAL.indexOf("bashing")
+            < EXPERTISES_ALPHABETICAL.indexOf("blacksmithing"));
+  });
+
+  test("alphabetical order holds all 30 keys and is locale-independent", () => {
+    assert.equal(EXPERTISES_ALPHABETICAL.length, 30);
+    assert.equal(EXPERTISES_ALPHABETICAL[0], "alchemy");
+    assert.deepEqual([...EXPERTISES_ALPHABETICAL].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)),
+                     EXPERTISES_ALPHABETICAL);
+  });
+});
+
+describe("effectiveCapacities — review finding 5", () => {
+  test("no grants returns the config base, plus 1 per magic slot", () => {
+    const c = effectiveCapacities([]);
+    assert.equal(c.backpack, 10);
+    assert.equal(c.belt, 4);
+    for (const m of CROWS.magicSlots) assert.equal(c[m], 1);
+  });
+
+  test("a belt grant raises belt only (C:737)", () => {
+    const c = effectiveCapacities([{ container: "belt", count: 1 }]);
+    assert.equal(c.belt, 5);
+    assert.equal(c.backpack, 10, "unrelated containers untouched");
+  });
+
+  test("grants stack and the base is never mutated", () => {
+    effectiveCapacities([{ container: "backpack", count: 3 }]);
+    assert.equal(CROWS.carryContainers.backpack, 10, "config must not be mutated");
+    assert.equal(effectiveCapacities([
+      { container: "backpack", count: 1 }, { container: "backpack", count: 2 }
+    ]).backpack, 13);
+  });
+
+  test("junk grants are ignored, never subtracted", () => {
+    // A negative grant could shrink capacity into a character's wounds and kill
+    // them, so these are dropped rather than applied.
+    for (const bad of [{ container: "backpack", count: -5 },
+                       { container: "backpack", count: 0 },
+                       { container: "nonsense", count: 2 },
+                       { container: "backpack", count: 1.5 }, null]) {
+      assert.equal(effectiveCapacities([bad]).backpack, 10, JSON.stringify(bad));
+    }
+  });
+});
+
+describe("purse money — review finding 2", () => {
+  test("the constants describe one slot's two alternatives (C:1917)", () => {
+    assert.equal(CROWS.coinPerSlot, 250);
+    assert.equal(CROWS.purseBaseCapacity, 500);
+    assert.equal(CROWS.pursePerSlot, 1);
+  });
+
+  test("the starting kit is representable: empty purse + 3d6 gc loose (C:36)", () => {
+    const purse = { isPurse: true, held: 0, baseCapacity: CROWS.purseBaseCapacity };
+    const loose = 11;                                  // a 3d6 roll
+    assert.equal(purse.held, 0);
+    assert.ok(loose <= CROWS.coinPerSlot, "fits in one slot as loose coin");
+    // and coins round-trip into it
+    const moved = Math.min(loose, purse.baseCapacity - purse.held);
+    assert.deepEqual({ held: purse.held + moved, loose: loose - moved },
+                     { held: 11, loose: 0 });
+  });
+
+  test("Bursting Purse is the only published capacity increase (C:1737)", () => {
+    assert.equal(CROWS.purseTraitBonus, 500);
+    assert.equal(CROWS.purseBaseCapacity + CROWS.purseTraitBonus, 1000);
   });
 });
 

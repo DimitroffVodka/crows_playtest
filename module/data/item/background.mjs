@@ -1,6 +1,6 @@
 const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
-import { ALL_EXPERTISES } from "../../config.mjs";
+import { CROWS, ALL_EXPERTISES } from "../../config.mjs";
 
 export class BackgroundData extends TypeDataModel {
   static defineSchema() {
@@ -9,10 +9,25 @@ export class BackgroundData extends TypeDataModel {
       flavor: new fields.StringField({ blank: true }),
 
       // SEMANTIC CHANGE (C:28): PT1 stored the characteristic receiving a +1.
-      // PT2 backgrounds SET one characteristic to 2 — "You background makes one
-      // of your characteristics a 2" — and the player assigns {1,0} or {-1,2}
-      // to the rest. Renamed so no downstream reader can mistake the meaning.
-      characteristicAt2: new fields.StringField({ initial: "any" }),
+      // PT2 backgrounds SET one characteristic to 2 — "Your background makes one
+      // of your characteristics a 2. Sometimes the background assigns this
+      // increase. Other times it gives you a choice."
+      //
+      // An ARRAY, not a string. The shipped 36 backgrounds already contain three
+      // distinct forms — a fixed characteristic (30 of them), a two-way choice
+      // ("mind or strength", "agility or strength", "agility or mind" — 4), and
+      // "any" (2). A singular free string cannot represent the choice cases, and
+      // invites content to encode them as prose that T2.3 would have to parse.
+      //
+      // This is the background's ALLOWED SET. The player's actual pick lands in
+      // the actor's `characteristics`, never here.
+      //   fixed  -> ["mind"]
+      //   choice -> ["mind", "strength"]
+      //   any    -> ["agility", "mind", "strength"]
+      characteristicOptionsAt2: new fields.ArrayField(
+        new fields.StringField({ choices: Object.keys(CROWS.characteristics) }),
+        { initial: [] }
+      ),
 
       stamina: new fields.NumberField({ initial: 5, min: 1, integer: true }),
       startingTrait: new fields.StringField({ blank: true }),

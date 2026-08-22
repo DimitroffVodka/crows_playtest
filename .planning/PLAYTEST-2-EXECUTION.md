@@ -1166,9 +1166,20 @@ DELIVERABLE:
    1d6 per damage instance; weakened is a bane on all tests. All three expire at
    end of DT. Conditions are strictly boolean now — you cannot gain a second
    instance (R:528).
-2. Bidirectional Active Effect sync for all six conditions.
-   Use CONST.ACTIVE_EFFECT_CHANGE_TYPES — see .planning/API-NOTES.md, and note
-   verify.sh BLOCKS ACTIVE_EFFECT_MODES.
+2. Status-effect sync for all six conditions. NOT a naive bidirectional sync —
+   that loops, or leaves two sources disagreeing. Freeze the COMMAND FLOW
+   (CONTRACT.md §5b):
+     a. intercept the Token HUD toggle and translate it into an update to
+        `system.conditions.<key>` — the toggle is INTENT, it does not write state
+     b. the boolean is canonical; every rule reads it
+     c. an idempotent, LOOP-GUARDED mirror adds/removes the status effect to
+        match. Mirror only when presence disagrees with the boolean; no-op when
+        they already agree, or (c) re-triggers (a).
+   `dead` maps to `conditions.defeated` — the one id where the vocabularies differ.
+   Condition mechanics are NEVER Active Effect `changes`; the roll engine reads
+   the booleans. Effects are for durational backlash (R:1561) and magic items,
+   and there v14 takes a STRING `type: "add"` — ACTIVE_EFFECT_CHANGE_TYPES holds
+   PRIORITIES, not modes. See .planning/API-NOTES.md §1; verify.sh guards both.
 3. Damage: AD -> Stamina -> wounds. Piercing bypasses AD. Multi-AD priority
    dialog survives from PT1. Vulnerable adds 1d6 BEFORE AD is applied.
 4. Wounds land in a player-chosen backpack slot — call into T1.2's layout API.

@@ -38,7 +38,13 @@ Category gates what a test may apply. Attacks accept **weapon or spellcasting**
 - **spellcasting** (6): `alteration benefaction conjuration elemental illusion necromancy`
 - **weapon** (6): `bashing bow chopping slashing stabbing unarmed`
 
-Exports: `ALL_EXPERTISES` (flattened, **stable order** general → spellcasting → weapon — sheets and migration tie-breaks depend on it) and `expertiseCategory(key)`.
+Exports:
+
+- `ALL_EXPERTISES` — flattened in **category order** (general → spellcasting → weapon). This is the **display** order; sheets group by category and rely on it.
+- `EXPERTISES_ALPHABETICAL` — the same 30 keys sorted by codepoint, **never `localeCompare`**. This is the **tie-break** order the migration's water-levelling uses.
+- `expertiseCategory(key)`, `expertiseMaxForTxp(txp)`, `bonusesEarnedAtTxp(txp)`, `effectiveCapacities(grants)`.
+
+> **These two orders are not interchangeable.** `blacksmithing` precedes `bashing` in category order and follows it alphabetically, so a tie containing both trims a *different* expertise depending on which list you use. The migration spec says alphabetically-first; use `EXPERTISES_ALPHABETICAL`.
 
 ### Inventory
 
@@ -51,7 +57,8 @@ Exports: `ALL_EXPERTISES` (flattened, **stable order** general → spellcasting 
 | `stackLimits` | `{potion:5, lock:3, oil:2}` | default 1, same KIND only (R:432) |
 | `handSlotsNeverStack` | `true` | R:432 |
 | `coinPerSlot` | `250` | loose coins in one slot (C:1917) |
-| `pursePerSlot` / `purseBaseCapacity` | `1` / `500` | a purse occupies its slot alone (C:1917, C:1940) |
+| `pursePerSlot` / `purseBaseCapacity` | `1` / `500` | a purse occupies its slot alone (C:1917) |
+| `purseTraitBonus` | `500` | Bursting Purse, the only published increase (C:1737) |
 | `corpseSlots` | `{tiny:1, small:2, medium:4, large:8, huge:16, holyShit:32}` | R:486 |
 | `corpseStack` | `{tiny:3}` | every other size is 1 |
 | `harvestDice` | `{tiny/small/medium:"1d6", large:"2d6", huge:"3d6", holyShit:"4d6"}` | R:652 |
@@ -94,8 +101,11 @@ bonusesEarnedAtTxp(txp = 0)   // 0->0, 100->1, 3500->5, 30000->9, 60000->10, 900
 **Changed from PT1:**
 
 ```js
-expertises: SchemaField({ <30 keys>: SchemaField({ uses: NumberField(min 0) }) })
-// `max` is NOT stored — derived from TXP in prepareDerivedData (H6)
+expertises: SchemaField({ <30 keys>: SchemaField({
+  value: NumberField(min 0),   // uses REMAINING now — spending decrements this
+  max:   NumberField(min 0)    // uses OWNED (background + advancement) — persistent
+}) })
+// The legal ceiling 2/3/4 is DERIVED as `expertiseCap`, and is a THIRD number.
 
 characteristics.{agility|mind|strength}.value : NumberField(min -5, max 5)   // was -1..3
 
@@ -106,26 +116,46 @@ conditions: SchemaField({ blessed grabbed prone unconscious vulnerable weakened 
                                              // all BooleanField; `boned` deleted
 
 xp.expertiseBonusesSpent                     // renamed from skillBonusesSpent
-preparedTask: { task: String, bonus: 2, setOn }    // was { skill, detail, setOn }, +1 -> +2
+preparedTask: { task: String, bonus: 2, setOn: String }   // setOn is a STRING
 npcConnection: { name, relationship, notes }       // NEW (C:40, C:2551)
 crafting.projects[].expertise                      // renamed from .skill
 currency: NumberField                              // LOOSE coin only; purses are ITEMS
 ```
+
+> **The three expertise quantities.** `R:294`: *"Each expertise has a number of uses, which is determined at character creation and can be increased through character advancement. You can use an expertise a number of times equal its uses. You regain all uses of an expertise when you finish a rest."*
+>
+> | | Stored? | Meaning |
+> |---|---|---|
+> | `value` | yes | remaining right now |
+> | `max` | yes | permanently owned |
+> | `expertiseCap` | **derived** | legal ceiling 2/3/4 for this TXP |
+>
+> A single mutable count cannot survive spend-then-rest: at 0 you cannot tell an expertise granted at 1 from one granted at 2 from one never owned, so rest cannot restore correctly — and restoring to the *cap* would mint uses nobody bought.
+>
+> - rest (`R:628`) → `value = max`
+> - **rest in the Miasma (`R:1375`) → leave `value` alone**, everything else about the rest applies. This is inexpressible with one field.
+> - advancement (`C:615`) → raise `max`, and `value` with it
+> - **the H5 budget reads `max`**, never `value` — otherwise the reported over-budget figure shrinks every time a player spends.
 
 **Derived (`prepareDerivedData`):**
 
 | Field | Meaning |
 |---|---|
 | `ad` / `adMax` | summed from worn armor |
-| `expertiseMax` | `expertiseMaxForTxp(xp.txp)` |
-| `expertises[k].max` / `.overMax` | the cap, and any surplus — **surfaced, never clamped** |
-| `expertiseSpentTotal` | total uses held |
-| `backpackCapacity` | config base; a Wave 1 trait pass may raise it |
+| `expertiseCap` | `expertiseMaxForTxp(xp.txp)` — the legal ceiling, 2/3/4 |
+| `expertises[k].overCap` | `max − cap` — an over-allocation, **surfaced, never clamped** |
+| `expertises[k].overMax` | `value − max` — should always be 0; reported, not trusted |
+| `expertiseOwnedTotal` | Σ `max`. **This is the H5 budget's input.** |
+| `expertiseRemainingTotal` | Σ `value` |
+| `capacities` | `effectiveCapacities(grants)` — every container, base + trait grants |
+| `backpackCapacity` | `capacities.backpack` |
 | `wounds` | count of wound slots **within** capacity (back-compat scalar) |
 | `orphanedWounds` | indices **beyond** capacity — preserved, never dropped |
-| `deadFromWounds` | `wounds >= capacity` (R:524). **Reporting, not adjudication** — evaluate death on wound GAIN, so a shrinking capacity cannot auto-kill |
+| `woundCapacityFilled` | **REPORTING ONLY.** Renamed from `deadFromWounds`, which invited exactly the misuse its own comment warned against — it can flip true because capacity *shrank*. Death is adjudicated at the wound-**gain** mutation by comparing pre/post state and emitting `becameDead`. **Nothing may adjudicate from derived preparation.** |
 | `effectiveSpeed` / `speedNote` | grabbed/unconscious → 0, prone → halved |
 | `bonusesEarned` | `bonusesEarnedAtTxp(xp.txp)` |
+
+> **Capacity has exactly one implementation.** `prepareDerivedData` collects `slotGrants` from the actor's trait items and calls the shared pure `effectiveCapacities()`. `slots.mjs` must call the same function. Previously this read a config constant and nothing summed grants anywhere, so the trait-aware capacity the contract promised was notional and the wound derivation could disagree with the layout.
 
 > **`conditionNet` is DELETED.** It was `(blessed − boned)` as a ±1 on every roll. PT2 has no `boned`, and Blessed is an **edge** (R:532), not a numeric modifier — the two channels are explicitly separate (R:286). `helpers/roll.mjs` must build edges/banes instead. **T1.1 owns that.**
 >
@@ -142,13 +172,17 @@ power:      NumberField(min 0)          // NO max — F:704 calls 0-50 a soft sc
 slots:      NumberField(min 0)          // a COUNT; 0 means "a monster" (F:698)
 woundSlots: SetField(NumberField)       // creatures WITH slots take wounds
 reactions:  NumberField(initial 1)      // F:708
-expertises: ArrayField({key, uses})     // F:1397 — bare name = 1 use, "(2 uses)" = 2
+characteristics.*: NumberField(min -5, max 5)   // R:174 bounds EVERY creature
+expertises: ArrayField({ key: choices(ALL_EXPERTISES), value, max })
+                                        // same 3-quantity model as CrowData;
+                                        // key CONSTRAINED so an OCR-split name
+                                        // fails at load, not silently in content
 xRest:      ArrayField({name, max, used})   // F:710; a crit refunds 1 use (T1.1 wires it)
 creatureType: + "human"                 // F:1397 prints Type: Human
 conditions: the six, plus `defeated`    // `boned` deleted here too
 ```
 
-Derived: `hasSlots` (`slots > 0` — deliberately **no** separate boolean to drift), `wounds`, `orphanedWounds`, `deadFromWounds`.
+Derived: `hasSlots` (`slots > 0` — deliberately **no** separate boolean to drift), `wounds`, `orphanedWounds`, `woundCapacityFilled` (reporting only, as on CrowData), and `suspectMissingSlots` — true when a `human`/`animal` has `slots: 0`, which `F:698` says should not happen and is almost certainly an incomplete transcription for Wave 3 to fix.
 
 > F:700 — a creature that gains another creature's stats **keeps its original slot count**. Migration and polymorph must not overwrite `slots` from a stat block.
 
@@ -159,13 +193,16 @@ Derived: `hasSlots` (`slots > 0` — deliberately **no** separate boolean to dri
 ```js
 expertises: ArrayField({ key: choices(ALL_EXPERTISES), uses: NumberField(min 1) })
                             // REPLACES skills:[String]. C:103 — "Benefaction (2 uses)"
-characteristicAt2: String   // SEMANTIC CHANGE: names the characteristic SET TO 2 (C:28),
-                            // not a +1. Renamed from characteristicBonus so no reader
-                            // can mistake the meaning.
+characteristicOptionsAt2: ArrayField(StringField({ choices: agility|mind|strength }))
 startingGold: "3d6"         // C:36
 ```
 
 Derived: `totalExpertiseUses` — the sum. **This is the number the H5 budget needs**, and the reason the budget must run in the world-migration layer: it requires reading the background **Item**, which `migrateData(source)` cannot see.
+
+> **`characteristicOptionsAt2` is an ARRAY, and that is load-bearing.** `C:28`: *"Your background makes one of your characteristics a 2. Sometimes the background assigns this increase. Other times it gives you a choice."* The 36 shipped backgrounds already contain all three forms — 30 fixed, **4 two-way choices** (`"mind or strength"`, `"agility or strength"`, `"agility or mind"`), and **2 `any`**. A singular string cannot hold a choice, and invites content to encode one as prose that T2.3 would have to parse and guess at.
+>
+> This is the background's **allowed set**. The player's actual pick lands in the actor's `characteristics`, never here.
+> `fixed → ["mind"]` · `choice → ["mind","strength"]` · `any → ["agility","mind","strength"]`
 
 ---
 
@@ -176,13 +213,57 @@ Unchanged: `description tree tier column connectsTo isStarting restActivity`, de
 **Two additions, both marked `// CONTRACT:` in the source:**
 
 ```js
-slotGrants: ArrayField({ container: choices(containerKeys), count, restrictedTo })
-expertiseGrants: ArrayField({ key: choices(ALL_EXPERTISES), uses })
+slotGrants: ArrayField({
+  container: choices(containerKeys),
+  count:     NumberField(min 1),          // min 1 — see below
+  restriction: { dimension: ""|itemType|gearSubtype|weaponType|consumableKind,
+                 values: [String] }
+})
+usePool: { sizedBy: ""|agility|mind|strength, fixedMax: Number, used: Number }
 ```
 
-`slotGrants` exists because critique M12 states backpack capacity is "config plus trait grants" and has `prepareDerivedData` read `backpackCapacity` — but **nothing could express a grant**, so capacity could never vary and the capacity-relative design was theoretical. `C:737` is a real case: *"You gain an additional belt slot that can only be used to hold alchemy items"* — `restrictedTo` carries that clause; `slots.mjs` (T1.2) enforces it.
+`slotGrants` exists because critique M12 states backpack capacity is "config plus trait grants" and has `prepareDerivedData` read `backpackCapacity` — but **nothing could express a grant**, so capacity could never vary and the capacity-relative design was theoretical. `C:737` is the real case: *"You gain an additional belt slot that can only be used to hold alchemy items."*
 
-`expertiseGrants` lets the H5 budget account for trait-granted uses instead of mistaking them for over-spend. Wave 3 populates it while re-verifying the 276 traits.
+- `count` is **min 1**. No published trait removes a slot, and a negative grant could shrink capacity into a character's wounds and kill them.
+- The restriction is **structured, not a free string**. A bare `"alchemy"` is ambiguous — item type? gear subtype? trait tree? — and T1.2 would have to guess. `dimension` names the axis; `values` lists what passes on it. This also covers a holster restricted by `weaponType`.
+
+`usePool` is a per-rest pool **sized by a characteristic**, which three published traits need: `C:921` (benefaction), `C:1361` (knowledge) and `C:1501` (necromancy) all read *"use this trait a number of times equal to your Mind, regaining all uses when you finish a rest."* Same `used`-survives-the-spend reasoning as expertises.
+
+> **`expertiseGrants` was here and has been REMOVED.** Review found **no** trait in the corpus that grants a fixed expertise to its own owner. The real cases are dynamic and target something else: Tricks/Extra Tricks grant a *choice* of expertises to a **pet**, and Memorization grants the expertise of a chosen lore book *until replaced*. A fixed `{key, uses}` array on the owning crow's trait models neither, and the H5 budget spec never included trait grants. Those belong on the affected actor with source and expiry — T1.6's (pets) and T1.4's (advancement) call.
+
+---
+
+## 5a. `GearData` — the coin purse
+
+```js
+purse: { isPurse: Boolean, held: Number, baseCapacity: Number = 500 }
+// derived: purseCapacity (0 for non-purses), purseOverfull
+```
+
+Part 1.1 freezes `Layout.coin.purses[]` as `{id, held, cap}`, but **nothing owned either number** — `CrowData.currency` is explicitly *loose coin only* and a purse is an Item, so T1.2 had no source and the universal starting kit (*"an empty coin purse ... and 3d6 gc"*, `C:36`) was unrepresentable.
+
+`C:1917` — *"An inventory slot can hold 250 loose coins or 1 purse that holds up to 500 gc."* `C:1737` (Bursting Purse) is the **only** published capacity increase: *"an additional 500 gc in a coin purse"* → `CROWS.purseTraitBonus`.
+
+> An earlier note cited `C:1940` for per-quality-tier purse capacity. **`C:1940` is the Gear Prices row and says no such thing** — corrected.
+
+---
+
+## 5b. Conditions — authority AND command flow
+
+`system.conditions` is **authoritative**; Foundry status effects mirror it for the token HUD. But "driven from the boolean, never the reverse" was too blunt and contradicted T1.7's brief, which says *bidirectional sync*. Taken literally, a Ref toggling a condition on the Token HUD would create a status effect the roll engine never sees. What is one-way is **authority**, not user intent:
+
+```
+1. HUD toggle is INTERCEPTED and translated into an update to
+   system.conditions.<key>          — the toggle expresses intent, not state
+2. the boolean is canonical         — every rule reads it
+3. an idempotent, LOOP-GUARDED mirror adds/removes the status effect to match
+```
+
+The guard is not optional: without it step 3 re-triggers step 1. Mirror only when the effect's presence actually disagrees with the boolean, and make the write a no-op when they already agree.
+
+**`dead` ↔ `conditions.defeated`** is the one id where the two vocabularies differ.
+
+Condition *mechanics* are never Active Effect `changes`. Active Effects remain right for durational backlash effects (`R:1561`) and magic items — and there, v14 takes a **string** `type: "add"`; `CONST.ACTIVE_EFFECT_CHANGE_TYPES` holds priorities, not modes (`.add` is `20`). See `.planning/API-NOTES.md` §1.
 
 ---
 
