@@ -37,6 +37,18 @@ Existing harness, all of it reusable:
 - `dev/fixtures/setup.mjs` / `teardown.mjs` — idempotent test-world data.
 - `docs/discrepancies/` — per-pack YAML-vs-source cross-validation with HIGH/MED/LOW/INFO severities.
 
+> **Two conventions that will silently waste your work if you get them wrong.**
+>
+> 1. **Unit tests must be named `*.test.mjs`, never `*.test.js`.** The runner is
+>    `node --test "test/**/*.test.mjs"` (T0.3). A `.js` file is not matched by that
+>    glob, so it never executes — and `npm test` still reports **green**, because it
+>    simply never saw the file. Every Wave 1 brief said `.test.js` until this was
+>    caught pre-dispatch; they now say `.mjs`. A test that cannot fail is worse
+>    than no test, because it buys false confidence.
+> 2. **`dev/` is gitignored.** Probes there are real and runnable, but they will
+>    never be committed — so anything another agent must READ cannot live there.
+>    Unit-test fixtures are in **`test/fixtures/actors/`** for exactly that reason.
+
 > **Discrepancy with the research doc you supplied:** `foundry-system-development-best-practices.md` says to use `CONST.ACTIVE_EFFECT_MODES`. This repo's `verify.sh` blocks that and requires `CONST.ACTIVE_EFFECT_CHANGE_TYPES` for v14. The repo guard was written against a live v14 world, so trust it — but have T0.1 confirm against the v14 API mirror and record the answer, because getting this wrong silently breaks every Active Effect.
 
 **Missing piece:** there is no unit-test runner. Wave 1 is mostly pure functions with tricky truth tables (edge/bane resolution, slot packing, migration mapping) that must not require a running Foundry to test. **T0.3 adds one.**
@@ -139,7 +151,7 @@ DO NOT: touch helpers/, sheets/, or templates/. Downstream code WILL break —
 TASK T0.3 — Unit test runner for pure helpers
 OWNS:    package.json (test scripts + devDeps only — coordinate with T0.1 which
          owns the rest of the file; run T0.3 after T0.1 lands), vitest.config.js,
-         test/**, dev/fixtures/actors/*.json
+         test/**, test/fixtures/actors/*.json
 READS:   verify.sh, dev/probes/*, module/helpers/*
 SOURCE:  n/a
 
@@ -151,7 +163,7 @@ DELIVERABLE:
    Math.clamp, Roll where unavoidable) so helpers can be imported in node.
    Keep the shim minimal and honest — if a helper genuinely needs Foundry, it is
    not a pure helper and belongs in a probe instead.
-4. Fixture actors in dev/fixtures/actors/: at minimum one Playtest 1 crow with
+4. Fixture actors in test/fixtures/actors/: at minimum one Playtest 1 crow with
    skills, wounds, boned, and a full inventory — this is the migration test input.
    Include a partial-update-delta fixture (a bare {"system":{"skills":{"climb":
    {"bonus":0}}}} object), because migrateData runs on deltas, not just whole docs.
@@ -804,7 +816,7 @@ Wave 1 leaves the system **non-functional in-world** — sheets still reference 
 ```
 TASK T1.1 — Edge/bane resolution and two-phase roll pipeline
 OWNS:    module/helpers/edges.mjs (new), module/helpers/roll.mjs,
-         module/helpers/expertise.mjs (new), test/edges.test.js, test/roll.test.js
+         module/helpers/expertise.mjs (new), test/edges.test.mjs, test/roll.test.mjs
 READS:   .planning/CONTRACT.md, .planning/API-NOTES.md, module/config.mjs,
          module/data/actor/crow.mjs, templates/chat/test-card.hbs (read only —
          T2.2 owns the rewrite)
@@ -864,7 +876,7 @@ DO NOT: touch sheets/, templates/, or any other helper. If another helper calls
 ```
 TASK T1.2 — Inventory slot rewrite
 OWNS:    module/helpers/slots.mjs, module/helpers/corpses.mjs (new),
-         test/slots.test.js
+         test/slots.test.mjs
 READS:   .planning/CONTRACT.md, module/config.mjs, module/data/item/*.mjs
 SOURCE:  R:426-498 (slots, magic slots, equipped, armor, swapping,
          corpses), R:524 (wounds and speed)
@@ -924,9 +936,9 @@ DO NOT: touch sheets/ or templates/. Drag-and-drop UI is T2.1.
 
 ```
 TASK T1.3 — Playtest 1 -> Playtest 2 data migration
-OWNS:    module/helpers/migration.mjs (new), test/migration.test.js,
+OWNS:    module/helpers/migration.mjs (new), test/migration.test.mjs,
          dev/probes/p12-migration.mjs (new)
-READS:   .planning/CONTRACT.md, module/data/**, dev/fixtures/actors/*,
+READS:   .planning/CONTRACT.md, module/data/**, test/fixtures/actors/*,
          git show master:module/data/actor/crow.mjs  (the OLD schema — read it
          from git, the working tree already has the new one)
 SOURCE:  Master.md R:290–358, PLAYTEST-2-MIGRATION.md section 2.3
@@ -1028,7 +1040,7 @@ DO NOT: register hooks or touch crows.mjs. Pure functions only — T2.3 wires th
 
 ```
 TASK T1.4 — Advancement tables and trait purchase
-OWNS:    module/helpers/advancement.mjs, test/advancement.test.js
+OWNS:    module/helpers/advancement.mjs, test/advancement.test.mjs
 READS:   .planning/CONTRACT.md, module/config.mjs, module/data/item/trait.mjs
 SOURCE:  Master.md C:603–659 (XP, both tables, new PC after death),
          C:661–671 (buying traits, minimum modifier)
@@ -1069,7 +1081,7 @@ DO NOT: touch the trait-tree purchase UI (that grid lives in crow-sheet.mjs, T2.
 ```
 TASK T1.5 — Rest, DT, encounters, greed bonus
 OWNS:    module/helpers/rest.mjs, module/helpers/dungeon-turn.mjs,
-         module/helpers/greed.mjs (new), test/rest.test.js
+         module/helpers/greed.mjs (new), test/rest.test.mjs
 READS:   .planning/CONTRACT.md, module/helpers/usage-die.mjs, module/helpers/miasma.mjs
 SOURCE:  Master.md R:586–624 (end of DT, greed, encounters), R:626–680 (resting,
          rest encounters, all rest activities, town activities)
@@ -1117,7 +1129,7 @@ DO NOT: touch damage.mjs or conditions (T1.7 owns those).
 ```
 TASK T1.6 — Village, institutions, crafting, hirelings
 OWNS:    module/helpers/village.mjs, module/helpers/crafting.mjs,
-         module/helpers/hirelings.mjs (new), test/village.test.js
+         module/helpers/hirelings.mjs (new), test/village.test.mjs
 READS:   .planning/CONTRACT.md, module/helpers/crypt.mjs
 SOURCE:  Master.md C:2535–2689 (village, prosperity, trade, village crafting),
          C:2690–3137 (all 13 institutions), C:3138–3179 (home, retirement, other
@@ -1153,7 +1165,7 @@ DO NOT: touch crypt.mjs (crypt boons are PT1 work that survives — verify only,
 ```
 TASK T1.7 — Damage, conditions, combat
 OWNS:    module/helpers/damage.mjs, module/helpers/combat.mjs (new),
-         module/helpers/attack.mjs, test/damage.test.js
+         module/helpers/attack.mjs, test/damage.test.mjs
 READS:   .planning/CONTRACT.md, module/helpers/edges.mjs (T1.1 — coordinate on
          the Label shape via CONTRACT.md, do not edit it), module/data/actor/*
 SOURCE:  Master.md R:504–524 (AD, piercing, stamina, wounds), R:526–558 (conditions),
@@ -1215,7 +1227,7 @@ DO NOT: touch roll.mjs or edges.mjs. Consume them; do not edit them.
 TASK T1.8 — Spellcasting pipeline and backlash
 OWNS:    module/helpers/spellcasting.mjs, module/helpers/backlash.mjs,
          module/helpers/chaos.mjs, module/data/item/spellbook.mjs,
-         test/spellcasting.test.js
+         test/spellcasting.test.mjs
 READS:   .planning/CONTRACT.md, module/helpers/roll.mjs (T1.1 — consume, do not edit)
 SOURCE:  R:1445-1549 (spellbooks: rank, discipline, casting time, target,
          range, AoE, duration, UD), R:1551-1567 (summons, backlash triggers,
