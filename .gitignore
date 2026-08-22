@@ -25,9 +25,15 @@ AGENTS.md
 # plans are the design record for v0.2.0 and were previously untracked, i.e. one
 # bad redirection from being lost. Note these become public on push.
 
-# Internal planning / scratch docs not for public consumption.
+# Internal agent scratch — plans/specs from the old workflow, not for publication.
 docs/superpowers/
-docs/discrepancies/
+
+# docs/discrepancies/ and docs/RULES-BREAKDOWN.md ARE tracked as of 2026-08-20.
+# They are errata reports and structural analysis, not rules text: ~75 words of
+# quoted MCDM prose across the whole set, all of it quoted in order to argue
+# about it. packs/ already ships all 437 transcribed documents publicly, so
+# these add no exposure the compendiums don't already carry — and the errata are
+# the feedback the playtest exists to collect.
 
 # Note: /packs/ (built LevelDB) IS committed so the system installs and runs
 # without a build step. Source YAML lives under src/packs/ for contributors.
