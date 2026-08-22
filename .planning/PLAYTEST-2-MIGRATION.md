@@ -243,7 +243,7 @@ Design notes:
 - `skills` → `expertises`: `{ <key>: { uses: Number, max: Number } }`
 - `characteristics.*.value`: `min: -5, max: 5` (PC cap of 4 enforced in advancement, not schema — magic can exceed)
 - `conditions`: drop `boned`; `blessed` NumberField → BooleanField; add `vulnerable`, `weakened` BooleanFields
-- `wounds`: Number → the wound *slot assignment* must be player-chosen, so this becomes a set of occupied backpack slot indices
+- `wounds`: Number → the wound *slot assignment* must be player-chosen, so this becomes a set of occupied backpack slot indices. **Unbounded above** — backpack capacity is config plus trait grants, and schema validation runs on source before derived data exists, so the bound is enforced in `prepareDerivedData` and at the mutation site. An index past the current capacity is orphaned and surfaced, never clamped or dropped; otherwise removing a slot-granting trait would silently heal a wounded character. Death is capacity-relative and evaluated on wound *gain* only, so a shrinking capacity flags for the Ref rather than instantly killing someone.
 - `xp.skillBonusesSpent` → `xp.expertiseBonusesSpent`
 - `preparedTask`: `{ skill, detail, setOn }` → `{ task: String, bonus: 2, setOn }`
 - New: `npcConnection`, `greedBonusClaimed` (per-dungeon flag lives better on a Scene/journal flag — decide during M2)
@@ -268,6 +268,16 @@ Design notes:
 Runs on `init` when `system.version` on a world predates 0.2.0.
 
 1. **Skills → expertises.** Apply the mapping table (§1.1). Where two PT1 skills collapse into one PT2 expertise (climb/jump/swim → Athletics), take the **max** bonus, then convert bonus → uses 1:1 clamped to the tier max for the actor's TXP.
+
+   **Then reconcile against a total budget.** Clamping each expertise individually is not enough: a PT1 crow with 12 skills at bonus 2 converts to 24 uses, while a PT2 advancement bonus grants at most 3 (C:615). Without a pool ceiling the migration mints characters no amount of PT2 advancement could produce.
+
+   ```
+   bonusesEarned = rows of CROWS.expertiseAdvancement at or below the actor's TXP
+                   (+1 per 30,000 beyond the last row)
+   budget        = backgroundUses + 3 × min(xp.skillBonusesSpent, bonusesEarned)
+   ```
+
+   If the converted total exceeds the budget, **water-level down** — repeatedly remove one use from whichever expertise currently has the most, ties broken by the alphabetically-first key — until it fits. Water-levelling rather than keeping the strongest few, because a PT1 sheet full of modest bonuses represented *breadth* of training, and that is the part worth preserving. Never top up when the total comes in under budget. Every removed use goes in the GM report. The world setting `crows.migrationExpertiseBudget: "report-only"` skips the trim for tables that would rather start over-powered than have a migration nerf a character.
 2. **Conditions.** Delete `boned` (its penalty has no PT2 equivalent to preserve). `blessed > 0` → `blessed: true`.
 3. **Slots.** Belt capacity grows 2→4 — safe, no data loss. Magic-slot items move from `containers` to the new magic axis by matching `equipSlotTypes`. Items whose contiguity is now illegal get flagged, not silently moved: emit a GM report listing them.
 4. **Wounds.** `wounds: N` → assign to N backpack slot indices. **Prefer empty slots, lowest index first, and only then occupied ones.** PT1 filled bottom-up regardless of contents, but under reading (c) a wound landing on an occupied slot costs 1 speed — so a naive bottom-up migration would silently slow existing characters. Placing into empty slots first reproduces the PT1 speed profile as closely as the new rule allows; list any wound forced onto an occupied slot in the GM report. The player can rearrange afterwards.

@@ -289,11 +289,33 @@ conditions: new SchemaField({
 }),
 
 // Wounds occupy PLAYER-CHOSEN backpack slots (R:524), not a bare count.
-woundSlots: new SetField(new NumberField({ min: 0, max: 9, integer: true })),
-// derive `wounds` as woundSlots.size in prepareDerivedData for back-compat
-// OPEN (M12, not fixed here): `max: 9` hardcodes a 10-slot backpack while
-// carryContainers.backpack is config, and death is "all backpack slots wounded"
-// (R:524). Slot-granting traits exist (C:737 grants an extra belt slot).
+//
+// M12 FIX: NO `max` on the schema. The earlier draft used `max: 9`, hardcoding
+// a 10-slot backpack — but backpack size is config (`carryContainers.backpack`)
+// and slot-granting traits exist (C:737). More fundamentally, schema validation
+// runs on SOURCE, before derived data exists, so it cannot see a capacity that
+// traits and items contribute to. Capacity is enforced in derived data and at
+// the mutation site, where a useful error can be given.
+woundSlots: new SetField(new NumberField({ min: 0, integer: true })),
+
+// derived, in prepareDerivedData — capacity-relative, and NON-DESTRUCTIVE:
+//   const cap = this.backpackCapacity;         // config + trait/item grants
+//   const held     = [...this.woundSlots].filter(i => i <  cap);
+//   const orphaned = [...this.woundSlots].filter(i => i >= cap);
+//   this.wounds           = held.length;       // back-compat scalar
+//   this.orphanedWounds   = orphaned;          // SURFACE, never drop
+//   this.deadFromWounds   = held.length >= cap;   // R:524 "all backpack slots"
+//
+// Two things the old `max: 9` was hiding, both worth stating outright:
+//  1. NEVER clamp or discard an out-of-range index. If a slot-granting trait is
+//     removed, its wounds must not silently evaporate — that would spontaneously
+//     heal a character. Orphan them and show them on the sheet.
+//  2. Death is capacity-relative, not `>= 10`. Evaluate it on wound GAIN only.
+//     If you also evaluate it when capacity SHRINKS, removing a trait can
+//     instantly kill a wounded PC. Flag that case for the Ref instead.
+//
+// Humans and animals have slots too (F:698), so MonsterData needs the same
+// `woundSlots` field and the same derivation whenever `slots > 0`.
 
 // --- Wound speed penalty. DEFAULT = reading (c). --------------------------
 // R:524: "Each wound they take fills up a backpack slot of the PC's CHOICE.
@@ -514,6 +536,39 @@ retrieveFromBackpack(layout, itemId, d10: number) => {ok, slotsMatched: number[]
 migrateCrowSystem(source: object) => object      // safe on partial deltas
 migrateBackgroundSystem(source: object) => object
 SKILL_TO_EXPERTISE: Record<string, string>
+
+// H5 FIX — the expertise budget. Converting PT1 skill bonuses 1:1 and clamping
+// only PER-EXPERTISE mints characters far outside anything PT2 advancement can
+// produce: a PT1 crow with 12 skills at bonus 2 lands on 24 uses, while a bonus
+// grants at most 3 (C:615). The total pool needs its own ceiling.
+expertiseBudgetForTxp(txp, backgroundUses, expertiseBonusesSpent) => number
+//   bonusesEarned    = rows of CROWS.expertiseAdvancement with txp <= actor txp,
+//                      plus one per expertiseAdvancementRepeat beyond the last row
+//   bonusesToUses    = min(expertiseBonusesSpent ?? bonusesEarned, bonusesEarned)
+//   budget           = backgroundUses + 3 * bonusesToUses      // 3 = C:615 max
+//
+// `backgroundUses` is the sum over the actor's background item's expertises
+// (1 each, or the parenthetical where given — C:103). PT1 recorded how many
+// bonuses went to skills in `xp.skillBonusesSpent`; carry it, but never trust it
+// above what the PT2 table says the actor has earned at their TXP.
+
+reconcileExpertiseBudget(converted, budget, maxPerExpertise) => {
+  granted: Record<string, number>,
+  trimmed: Array<{ key: string, from: number, to: number }>,
+  desired: number, budget: number
+}
+// Deterministic, and it must be — the tests pin the exact distribution.
+//   1. Clamp each expertise to `maxPerExpertise` (the TXP-derived per-key cap).
+//   2. While total > budget: remove 1 use from whichever expertise currently has
+//      the MOST uses; ties broken by the alphabetically-FIRST key.
+//   3. Never top up. If desired < budget the difference is simply unspent.
+// Water-levelling rather than greedy-by-strength: it preserves the character's
+// BREADTH of training, which is what a PT1 sheet full of low bonuses actually
+// represented. Every removal lands in `trimmed` and must reach the GM report.
+//
+// World setting `crows.migrationExpertiseBudget`: "enforce" (default) | "report-only".
+// "report-only" skips step 2 and lets the GM rebalance by hand — some tables
+// would rather start over-powered than have a migration nerf a character.
 ```
 
 **Tier resolution precedence** — implement exactly this, it is the most error-prone thing in the project.
@@ -729,10 +784,24 @@ DELIVERABLE:
    All others map 1:1 by name. pickLock survives as its own expertise.
 2. bonus -> uses conversion, 1:1, clamped to the max-uses for that actor's TXP
    band (CROWS.expertiseAdvancement).
+2b. THEN THE TOTAL BUDGET — do not skip this, it is the difference between a
+   legal character and a broken one. Per-expertise clamping alone is not enough:
+   a PT1 crow with 12 skills at bonus 2 converts to 24 uses, while a PT2 bonus
+   grants at most 3 (C:615). Call expertiseBudgetForTxp() then
+   reconcileExpertiseBudget() per the contract. Water-level down, never top up,
+   and put every trimmed use in the report. Honour the world setting
+   `crows.migrationExpertiseBudget` ("enforce" default, "report-only" skips the
+   trim). This is the single most visible thing the migration does to someone's
+   character — if it is silent, it is wrong.
 3. Conditions: drop `boned` — it has no PT2 equivalent, do not silently convert
    it to `weakened` (different duration and semantics). `blessed > 0` -> true.
-4. Wounds: `wounds: N` -> woundSlots = the bottom N indices, preserving PT1
-   bottom-up behavior as the initial arrangement.
+4. Wounds: `wounds: N` -> N backpack indices, PREFERRING EMPTY SLOTS, lowest
+   index first, and only then occupied ones. PT1 filled bottom-up regardless of
+   contents; under wound/speed reading (c) a wound on an occupied slot costs 1
+   speed, so naive bottom-up would silently slow every migrated character.
+   Report any wound forced onto an occupied slot.
+   Write indices only — do NOT clamp them to 10. Capacity is derived (M12), and
+   an index past the current capacity is orphaned and surfaced, never dropped.
 5. Slot re-layout: belt 2->4 is a safe widening. Magic-slot items move from the
    old containers map to the new magic axis by matching equipSlotTypes. Items
    whose placement is now ILLEGAL under contiguity get COLLECTED AND REPORTED,
@@ -749,6 +818,19 @@ ACCEPTANCE:
   - A zero-value test: bonus 0 survives as uses 0, is not dropped as falsy.
   - A collapse test: climb bonus 1 + swim bonus 2 -> athletics uses 2.
   - An illegal-placement test asserting the item is reported, not moved.
+  - BUDGET tests (H5):
+      * the pathological case — 12 skills at bonus 2, low TXP — lands inside
+        expertiseBudgetForTxp() and reports every trimmed use
+      * water-levelling is EXACT and stable: assert the full granted map, not
+        just the total, including the alphabetically-first tie-break
+      * desired < budget is NOT topped up
+      * "report-only" leaves the over-budget distribution intact and still reports
+      * per-expertise max still applies after the total trim
+  - WOUND-INDEX tests (M12):
+      * wounds prefer empty backpack slots; a wound forced onto an occupied slot
+        is reported
+      * an index >= current capacity is preserved and surfaced as orphaned,
+        NOT clamped and NOT dropped
   - npm test green; ./verify.sh passes.
 DO NOT: register hooks or touch crows.mjs. Pure functions only — T2.3 wires them.
 ```
