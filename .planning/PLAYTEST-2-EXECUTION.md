@@ -166,7 +166,26 @@ DO NOT: write tests for functions that don't exist yet. Wave 1 authors own those
 
 T0.2 implements this. Downstream agents code against it.
 
-> **Revised 2026-08-20.** Citations converted to `Book:Line` form (`R:` Rules, `C:` Characters, `F:` Ref — see the migration plan's header for the mapping). Five defects fixed before freeze: monster slots/expertises (B2), concrete type definitions (B3), tier precedence as early returns (B4), derived expertise max (H6), coin purse (H7). Everything else is unchanged.
+> **Revised 2026-08-20.** Citations converted to `Book:Line` form (`R:` Rules, `C:` Characters, `F:` Ref — see the migration plan's header for the mapping).
+>
+> **Round 1** — five defects: monster slots/expertises (B2), concrete type definitions (B3), tier precedence as early returns (B4), derived expertise max (H6), coin purse (H7).
+> **Round 2** — wound/speed reading (c), the A1 commit point, migration budget (H5), wound-slot bound (M12).
+> **Round 3 (pre-freeze read-through)** — ten more:
+>
+> | | |
+> |---|---|
+> | C1 | the expertise budget was specified in the pure per-document layer, where it provably cannot run. Split into layer (a) shape-only and layer (b) reconcile. |
+> | C2 | `canSpendExpertise` had no `state` check — a declined card was still spendable. |
+> | C3 | `total` typed `number` but `null` on every terminal path. |
+> | C4 | `resolveTier` returns a `TierResolution`, not a `TestResult`; multi-target semantics defined. |
+> | C5 | `speedPenaltyFromWounds` was sitting inside the schema field list. |
+> | C6 | `expertiseMaxForTxp(0)` was undefined — now returns `expertiseMaxAtCreation`. |
+> | C7 | conditions vs Active Effects settled: system booleans authoritative, effects mirror. |
+> | C8 | the render hook fires twice (verified live) — idempotent binding is mandatory. |
+> | C9 | `Layout.capacities` was missing the six magic slots. |
+> | C10 | `resolveTier` takes a `TargetRef` snapshot, not a Foundry document. |
+>
+> C7 and C8 are new information from T0.1, verified against Foundry 14.367 — see `.planning/API-NOTES.md`.
 
 **`module/config.mjs`**
 
@@ -317,32 +336,7 @@ woundSlots: new SetField(new NumberField({ min: 0, integer: true })),
 // Humans and animals have slots too (F:698), so MonsterData needs the same
 // `woundSlots` field and the same derivation whenever `slots > 0`.
 
-// --- Wound speed penalty. DEFAULT = reading (c). --------------------------
-// R:524: "Each wound they take fills up a backpack slot of the PC's CHOICE.
-// For each slot occupied by a wound and an item, your speed is reduced by 1
-// (to a minimum of 0)."
-//
-// (c) counts only slots holding BOTH a wound and an item. Chosen because it is
-// the only reading under which "of the PC's choice" bears on the sentence that
-// immediately follows it, and because slots holding both must already be legal
-// — otherwise a fully-loaded PC could never take a wound, and since death is
-// "all backpack slots have wounds" they'd be unkillable by wounds.
-// It is also never harsher than (b): the penalty is a SUBSET of the wounds.
-//
-// Rejected: (a) every occupied slot — speed is 5 (C:24) and the backpack is 10
-// (R:428), so a loaded but UNWOUNDED PC would already be at speed 0.
-//
-// Both live readings are one predicate over Layout.slots:
-//   (c) default : s => s.wound && s.items.length > 0
-//   (b) setting : s => s.wound
-speedPenaltyFromWounds(layout, rule = "wound-and-item") {
-  const p = rule === "wound-only" ? (s => s.wound)
-                                  : (s => s.wound && s.items.length > 0);
-  return layout.slots.filter(s => s.container === "backpack" && p(s)).length;
-}
-// world setting `crows.woundSpeedRule`: "wound-and-item" (default) | "wound-only"
-// Flip only this. Speed floors at 0 (R:524); apply AFTER other speed effects
-// so prone-halving and this don't fight over rounding.
+// Wound speed penalty is NOT a schema field — see "Derived helpers" below.
 
 xp: { txp, spendable, expertiseBonusesSpent, charBonusesSpent },
 // renamed from skillBonusesSpent
@@ -359,6 +353,48 @@ npcConnection: new SchemaField({          // NEW C:40 / C:2551
   notes: new HTMLField()
 })
 ```
+
+**Derived helpers** — *not schema fields. These are plain functions; do not paste them into `defineSchema()`.*
+
+```js
+/** C6: the per-expertise cap, derived from TXP. Below the table's first row
+ *  (txp 100) it is CROWS.expertiseMaxAtCreation — NOT 0 and NOT undefined.
+ *  Getting this wrong reinstates the H6 bug: a background grants 2 uses
+ *  (C:103) to a TXP-0 crow, which must be legal on day one. */
+function expertiseMaxForTxp(txp = 0) {
+  const rows = CROWS.expertiseAdvancement.filter(r => txp >= r.txp);
+  if (!rows.length) return CROWS.expertiseMaxAtCreation;   // 2
+  return rows.at(-1).maxUses;                              // 2 -> 3 @5k -> 4 @20k
+}
+
+/** Wound speed penalty. DEFAULT = reading (c) — see the migration plan §1.4.
+ *  (c) counts only backpack slots holding BOTH a wound and an item; it is the
+ *  only reading under which "a backpack slot of the PC's CHOICE" (R:524) bears
+ *  on the sentence it introduces, and it is never harsher than (b) because the
+ *  penalty is a subset of the wounds. Reading (a) — every occupied slot — is
+ *  rejected outright: speed is 5 (C:24) against a 10-slot backpack (R:428), so
+ *  a loaded but UNWOUNDED PC would already be immobile. */
+function speedPenaltyFromWounds(layout, rule = "wound-and-item") {
+  const p = rule === "wound-only" ? (s => s.wound)
+                                  : (s => s.wound && s.items.length > 0);
+  return layout.slots.filter(s => s.container === "backpack" && p(s)).length;
+}
+// world setting `crows.woundSpeedRule`: "wound-and-item" (default) | "wound-only"
+// Flip only this. Speed floors at 0 (R:524); apply AFTER other speed effects so
+// prone-halving and this don't fight over rounding.
+```
+
+**C7 — conditions vs Active Effects. Decide once, here.**
+
+> **The `system.conditions` booleans are authoritative.** The roll pipeline reads them directly (`target.conditions.unconscious`, Weakened → a bane, Blessed → an edge). Foundry status effects **mirror** them for the token HUD and are driven *from* them — never the reverse. Do not implement condition mechanics as Active Effect `changes`; two sources of truth for "is this creature weakened" will desync, and the roll pipeline must not have to resolve a disagreement mid-roll.
+>
+> Active Effects are still the right tool for **durational backlash effects** (R:1561, "UD for backlash effects are rolled at the end of each DT") and for magic items. When you write one, v14 changed the shape — verified live on 14.367 in `.planning/API-NOTES.md` §1:
+>
+> ```js
+> changes: [{ key: "system.speed", value: "-1", type: "add" }]   // string type
+> ```
+>
+> The numeric `mode:` field is legacy and auto-migrates. **`CONST.ACTIVE_EFFECT_CHANGE_TYPES` values are PRIORITIES, not modes** — `.add` is `20`, so `type: CONST.ACTIVE_EFFECT_CHANGE_TYPES.add` writes `20` where `"add"` was meant. Use the key string.
 
 **`MonsterData` — additions**
 
@@ -440,9 +476,25 @@ type Slot = {
  *  this structure, so every packing rule is testable without Foundry. */
 type Layout = {
   actorId: string,
-  capacities: { hand: number, belt: number, backpack: number },
+  // C9: every container in Slot.container appears here. The six magic slots are
+  // 1 each (CROWS.magicSlots) and are listed explicitly rather than assumed, so
+  // a trait that ever grants a second finger slot has somewhere to say so.
+  capacities: {
+    hand: number, belt: number, backpack: number,
+    head: number, neck: number, waist: number,
+    arms: number, finger: number, feet: number
+  },
   slots: Slot[],                  // dense, ordered by container then index
   coin: { loose: number, purses: Array<{ id: string, held: number, cap: number }> }
+};
+
+/** C10: what resolveTier receives for the target. A PLAIN SNAPSHOT, not a Token,
+ *  TokenDocument or Actor — that is what keeps resolveTier pure and unit-testable.
+ *  The caller flattens: { tokenId, conditions: actor.system.conditions }. */
+type TargetRef = {
+  tokenId: string,
+  conditions: { unconscious: boolean, prone: boolean, grabbed: boolean,
+                blessed: boolean, weakened: boolean, vulnerable: boolean }
 };
 
 /** Everything needed to render, re-render, and audit one test. Persisted
@@ -454,13 +506,25 @@ type TestResult = {
   charVal: number,
   mods: Mod[],
   eb: EdgeBaneResolution,
-  total: number,
+  // C3: null on every terminal path. A doom/crit/unconscious result returns
+  // before a modified total is ever computed, and reporting a total there would
+  // imply the modifiers mattered. They did not.
+  total: number | null,
   tier: 1 | 2 | 3,
   doom: boolean,
   crit: boolean,
   terminal: null | "doom" | "crit" | "unconscious",  // which early return fired
   kind: "test" | "attack" | "casting",
-  targets: Array<{ tokenId: string, tier: 1|2|3, edges: Label[], banes: Label[] }>,
+
+  // C4: MULTI-TARGET. R:961 — one roll, but per-target edges/banes can resolve
+  // to different tiers. `tier` above is the BASE resolution, computed with only
+  // the roll-level edges/banes and no target. Each entry below is a separate
+  // resolveTier() call sharing this same `rawSum`, with that target's edges and
+  // banes appended. A single-target attack has exactly one entry whose tier may
+  // still differ from the base (e.g. the target is prone).
+  // Read `targets[].tier` to apply damage; read `tier` only to describe the roll.
+  targets: Array<{ tokenId: string, tier: 1|2|3, edges: Label[], banes: Label[],
+                   terminal: null | "doom" | "crit" | "unconscious" }>,
   expertiseSpent: string | null,  // expertise key, or null
 
   // --- A1 COMMIT POINT ---------------------------------------------------
@@ -474,6 +538,19 @@ type TestResult = {
   state: "pending" | "committed",
   commitReason: "no-legal-spend" | "spent" | "declined" | "terminal" | null
 };
+
+// C8 — IDEMPOTENCY IS NOT OPTIONAL, and lag is not the main threat.
+// Verified live on Foundry 14.367 (.planning/API-NOTES.md §2): the
+// `renderChatMessageHTML` hook FIRES TWICE per render. A handler bound the
+// naive way is bound twice, so ONE click spends TWO uses. Bind behind a marker:
+//
+//   const btn = html.querySelector('[data-action="crows-spend-expertise"]');
+//   if (!btn || btn.dataset.crowsBound === "1") return;
+//   btn.dataset.crowsBound = "1";
+//
+// Note `html` is a native HTMLLIElement, NOT jQuery — `html.find()` will throw.
+// The hook also re-fires after any flag update, which is exactly how the card
+// re-renders itself; that is confirmed and is the mechanism this design rests on.
 
 type EdgeBaneResolution = {
   numeric: -2 | 0 | 2,            // single edge/bane only
@@ -532,15 +609,44 @@ canStack(a, b) => boolean
 layoutFor(actor) => Layout
 retrieveFromBackpack(layout, itemId, d10: number) => {ok, slotsMatched: number[]}
 
-// helpers/migration.mjs — pure
+// helpers/migration.mjs — TWO LAYERS. Conflating them is the classic bug, and
+// C1 showed the contract itself had conflated them.
+//
+// ---- LAYER (a): TypeDataModel.migrateData(source) ------------------------
+// Per-document, pure, and runs on PARTIAL UPDATE DELTAS as well as whole
+// documents. It sees `system` and nothing else: no embedded items, no sibling
+// fields it did not receive, possibly no `xp` at all.
 migrateCrowSystem(source: object) => object      // safe on partial deltas
 migrateBackgroundSystem(source: object) => object
 SKILL_TO_EXPERTISE: Record<string, string>
+// Layer (a) does the SHAPE work only: skills -> expertises via the map (max wins
+// on collapsing pairs), boned dropped, blessed number -> boolean, preparedTask
+// .skill -> .task, wounds count -> woundSlots indices.
+// It MUST NOT attempt the expertise budget. See below for why.
+
+// ---- LAYER (b): world migration on `ready` --------------------------------
+// Has the whole Actor, including embedded items. Runs once, gated on the
+// world's stored system version. T2.3 wires it; T1.3 writes it.
+reconcileActorExpertises(actor) => {
+  granted: Record<string, number>,
+  trimmed: Array<{ key: string, from: number, to: number }>,
+  desired: number, budget: number
+}
 
 // H5 FIX — the expertise budget. Converting PT1 skill bonuses 1:1 and clamping
 // only PER-EXPERTISE mints characters far outside anything PT2 advancement can
 // produce: a PT1 crow with 12 skills at bonus 2 lands on 24 uses, while a bonus
 // grants at most 3 (C:615). The total pool needs its own ceiling.
+//
+// C1 — WHY THIS IS LAYER (b) AND CANNOT BE LAYER (a):
+//   * `backgroundUses` is summed from the actor's BACKGROUND ITEM. Embedded
+//     items are not in `system`, so migrateCrowSystem() cannot see it.
+//   * The budget needs `xp.txp`. A partial delta may not carry `xp` at all —
+//     test/fixtures/actors/pt1-crow-delta.json deliberately omits it.
+//   * Running it per-delta would re-trim on every subsequent partial update,
+//     compounding the reduction each time a player edited an unrelated field.
+// So layer (a) converts shape and leaves `uses` possibly over-budget; layer (b)
+// reconciles once, against the whole actor, and reports.
 expertiseBudgetForTxp(txp, backgroundUses, expertiseBonusesSpent) => number
 //   bonusesEarned    = rows of CROWS.expertiseAdvancement with txp <= actor txp,
 //                      plus one per expertiseAdvancementRepeat beyond the last row
@@ -575,8 +681,11 @@ reconcileExpertiseBudget(converted, budget, maxPerExpertise) => {
 
 > **B4 FIX.** The earlier draft numbered ten sequential steps and marked step 2 "TERMINAL" — but the list kept running to step 10, so "terminal" was unenforceable. It collided concretely: a **doom on an attack against an unconscious target** hit both step 2 (tier 1, terminal) and step 8 (tier 3). Rewritten as **early returns**, so terminal means terminal, and the doom/unconscious collision is resolved explicitly rather than by step order.
 
+> **C4.** `resolveTier` returns a **`TierResolution`, not a `TestResult`** — the tier-resolution subset only: `{rawSum, charVal, mods, eb, doom, crit, total, tier, terminal}`. It has no `state`, `commitReason`, `actorId`, `characteristic`, `kind`, `targets` or `expertiseSpent`. `rollTest()` calls it — once for the base resolution with no target, then once per target with that target's edges/banes appended — and assembles the `TestResult` from the results. `resolveTier` is pure: it takes a `TargetRef` snapshot, never a Foundry document.
+
 ```js
 function resolveTier({ rawSum, charVal, mods, edges, banes, kind, target }) {
+  // target?: TargetRef — a plain snapshot. Omit it for the base resolution.
   const doom = CROWS.doomFaces.includes(rawSum);   // 2d10 SUM of 2 or 3 (R:246)
   const crit = CROWS.critFaces.includes(rawSum);   // 2d10 SUM of 19 or 20 (R:244)
   const eb   = resolveEdgesBanes(edges, banes);
@@ -590,6 +699,9 @@ function resolveTier({ rawSum, charVal, mods, edges, banes, kind, target }) {
   //     "major setback" (R:246) narratively; it does not lower the tier.
   //     SEE OPEN QUESTION 7 — flip this one constant if MCDM says otherwise.
   if (kind === "attack" && target?.conditions?.unconscious) {
+    // NB `crit` stays in `base` and is still reported. R:554 explicitly keeps
+    // the crit roll live here, so T1.7 must still grant the crit's extra action
+    // (R:957) off `crit`, not off `terminal`.
     return { ...base, total: null, tier: 3, terminal: "unconscious" };
   }
 
@@ -612,6 +724,11 @@ The expertise spend is a separate gate, and it is **not** simply `if (!doom)`:
 ```js
 // R:292: improve by one tier, max 3; one expertise and one use per test.
 function canSpendExpertise(result, key, actor) {
+  // C2 — STATE FIRST. Without this a declined card is still spendable: decline
+  // sets state "committed"/"declined" but leaves expertiseSpent null, so every
+  // other guard passes and the spend lands AFTER downstream effects have
+  // already fired off the committed tier. This check must come first.
+  if (result.state === "committed")      return "already resolved";
   if (result.terminal === "doom")        return "a doom can't be improved";   // R:246
   if (result.tier >= 3)                  return "already tier 3";             // no-op burn
   if (result.expertiseSpent)             return "one expertise per test";     // R:292
@@ -624,6 +741,10 @@ function canSpendExpertise(result, key, actor) {
 Note the `tier >= 3` guard: without it a player can burn a limited use on a
 result that cannot improve. `terminal === "crit"` and `terminal === "unconscious"`
 are both already tier 3, so that one check covers them.
+
+The `state === "committed"` guard subsumes the terminal cases too — a terminal
+result commits on creation — but keep the explicit `terminal === "doom"` line
+anyway: it is the one the tests assert against, and it names the rule.
 
 Store the whole `TestResult` (shape above) at `message.flags.crows.test` so the
 card is re-renderable and the spend is idempotent under lag or double-click.
@@ -784,12 +905,17 @@ DELIVERABLE:
    All others map 1:1 by name. pickLock survives as its own expertise.
 2. bonus -> uses conversion, 1:1, clamped to the max-uses for that actor's TXP
    band (CROWS.expertiseAdvancement).
-2b. THEN THE TOTAL BUDGET — do not skip this, it is the difference between a
-   legal character and a broken one. Per-expertise clamping alone is not enough:
-   a PT1 crow with 12 skills at bonus 2 converts to 24 uses, while a PT2 bonus
-   grants at most 3 (C:615). Call expertiseBudgetForTxp() then
-   reconcileExpertiseBudget() per the contract. Water-level down, never top up,
-   and put every trimmed use in the report. Honour the world setting
+2b. THEN THE TOTAL BUDGET — but IN LAYER (b), NOT HERE. Per-expertise clamping
+   alone is not enough: a PT1 crow with 12 skills at bonus 2 converts to 24
+   uses, while a PT2 bonus grants at most 3 (C:615). But the budget needs the
+   actor's BACKGROUND ITEM (embedded, not in `system`) and `xp.txp` (absent
+   from partial deltas), and re-running it per-delta would compound the trim on
+   every unrelated edit. So:
+     - layer (a) `migrateCrowSystem` converts shape and may leave `uses` over
+       budget. That is correct and expected.
+     - layer (b) `reconcileActorExpertises(actor)` calls expertiseBudgetForTxp()
+       then reconcileExpertiseBudget(), once, against the whole actor.
+   Water-level down, never top up, put every trimmed use in the report, honour
    `crows.migrationExpertiseBudget` ("enforce" default, "report-only" skips the
    trim). This is the single most visible thing the migration does to someone's
    character — if it is silent, it is wrong.
@@ -818,6 +944,12 @@ ACCEPTANCE:
   - A zero-value test: bonus 0 survives as uses 0, is not dropped as falsy.
   - A collapse test: climb bonus 1 + swim bonus 2 -> athletics uses 2.
   - An illegal-placement test asserting the item is reported, not moved.
+  - LAYER SEPARATION tests (C1):
+      * migrateCrowSystem() on the delta fixture (no xp, no items) does NOT
+        attempt a budget and does NOT throw
+      * migrateCrowSystem() on the full fixture leaves uses OVER budget —
+        assert 24, i.e. shape-only conversion, no trim
+      * reconcileActorExpertises() on the same actor performs the trim
   - BUDGET tests (H5):
       * the pathological case — 12 skills at bonus 2, low TXP — lands inside
         expertiseBudgetForTxp() and reports every trimmed use
