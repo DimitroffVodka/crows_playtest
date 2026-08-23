@@ -826,12 +826,18 @@ describe("migrateBackgroundSystem — best-effort shape, overwritten by T3.1", (
 /* ========================================================================== */
 
   test("a collapsing pair LOSES a grant, which is why backgrounds are replaced", () => {
-    // The Thief: 7 PT1 skills, two of them collapsing pairs, so 5 expertises.
-    // There is no bonus to take a max of, so the second grant is simply gone.
-    const out = migrateBackgroundSystem({ skills: ["hide", "sneak", "sabotage", "sleightOfHand", "pickLock", "climb", "search"] });
-    assert.equal(out.expertises.length, 5);
+    // The SHIPPED Thief (crowsbgthief0001), verbatim from crows-backgrounds.
+    // 7 PT1 skills containing two collapsing pairs — hide+sneak -> stealth and
+    // sabotage+sleightOfHand -> thievery — so 5 expertises come out. On an
+    // actor a collapse takes the max of two bonuses; on a background there is
+    // no bonus to max, so the second grant is simply gone. No transform can
+    // recover it, which is why T3.1 re-transcribes rather than migrates.
+    const out = migrateBackgroundSystem({
+      skills: ["gymnastics", "hide", "pickLock", "sabotage", "search", "sleightOfHand", "sneak"]
+    });
+    assert.equal(out.expertises.length, 5, "7 skills -> 5 expertises");
     assert.deepEqual(out.expertises.map(e => e.key).sort(),
-      ["athletics", "pickLock", "search", "stealth", "thievery"]);
+      ["gymnastics", "pickLock", "search", "stealth", "thievery"]);
     assert.ok(!("skills" in out));
   });
 
