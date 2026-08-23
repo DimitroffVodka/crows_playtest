@@ -119,8 +119,38 @@ Scope notes made at dispatch, because both one-liners below understate their ite
 
 ## 5. Open decisions
 
-1. **Per-target expertise gating.** `canSpendExpertise` gates on the **base** `result.tier >= 3`, not per-target. Reachable: base tier 3 with a target at tier 1 (two banes) refuses a spend that would help. Frozen, so T1.1 implemented it literally. Wave 2 or MCDM.
-2. **F:714 crit X/Rest refund** does not say *which* feature when several have spent uses. T1.1 refunds the first in stored order — deterministic and identical on every client. If it is a player choice, the picker belongs on the card and `xRestRefundOnCrit(xRest, name)` already takes an explicit name.
+1. ~~**Per-target expertise gating.**~~ — **DECIDED by D1, 2026-08-23. Route: CODE NOW. No MCDM question.**
+
+   **Verdict (confidence 0.87):** add a roll-level `allowedExpertises: string[] | null` to `TestResult`; keep today's kind/category rules only as the `null` legacy fallback; and replace the base-tier no-op guard with *"at least one **actual target** tier is below 3, or the base tier for a targetless test."* One spend still raises every target by one tier, capped at 3.
+
+   `null` (absent) = legacy category path; `[]` = caller declares no expertise applies, commit immediately as `no-legal-spend`; non-empty = exact allowed set. **Absent and empty must stay distinct**, or an additive field becomes a breaking migration for existing flags.
+
+   §5.1 and T2.5's `handlePet` facet are **two semantic questions sharing one gate**: applicability (which keys match the task) vs efficacy (whether the one spend can improve any resolved outcome). Neither should be expressed in terms of the other.
+
+   Guard order: state → doom/terminal → any actual outcome improvable → already spent → broad category → declared allowlist → discipline defense → uses.
+
+   **This register's example was wrong.** It claimed "base tier 3 with a target at tier 1 (two banes)". **R:270**: two or more banes make a *double bane*, which subtracts nothing and drops the outcome **one** tier, to a minimum of tier 1 — so two banes give tier 2, not tier 1. The real case is simpler and worse: **a single bane suffices**, since tier 3 starts at 17 and −2 turns an ordinary 17 into 15 (tier 2). A numeric range penalty can drop a target further (17 with three squares beyond range = −6 → tier 1).
+
+   Rules basis, all re-derived by content: **R:292** ("one applicable expertise… one expertise and one use per test", max tier 3) makes the spend roll-level, so do **not** add a per-target picker. **R:913** opens the weapon/spellcasting category on an attack but says *the appropriate* expertise. **R:1459** — *not* R:1451, which is "The spell contained in the pages of a book has the following statistics" — is the discipline precedent. **R:961** makes a multi-target effect one attack whose per-target results may differ.
+
+   **Frequency: reachable, currently uncommon, and about to become common.** `combat.mjs:241-313` promotes per-target modifiers on single-target rolls and only warns on multi-target, so single-target cover lowers base and target together and never triggers this. Only three shipped attacks are multi-target (Spark, Bear/Claws, Ring Collector/Punches). **It becomes ordinary the moment §5.3's plumbing gap is fixed** — which is why D1 explicitly refused to fold §5.3 into this patch.
+
+   Per-target modifiers that can diverge a target from base: cover (R:757), light concealment (R:769), heavy concealment/invisibility (R:773/777), ranged-adjacent (R:947), beyond-range −2/square (R:941), prone vs ranged (R:542); and *upward* — flanking (R:965), high ground (R:973), grabbed (R:536), prone vs melee (R:542), which expose the **inverse** no-op where base tier 2 offers a useless spend though every target is already tier 3. **Vulnerable is not one** (R:546 adds 1d6 damage only) and **Weakened is not one** (R:558 banes the roller's every test, so it hits base and all targets equally).
+2. ~~**F:714 crit X/Rest refund**~~ — **DECIDED by D2, 2026-08-23. Route: CODE LATER. No Wave 2 change, no MCDM question.**
+
+   **Verdict (confidence 0.90):** keep T1.1's deterministic first-spent fallback. Add no crit-time picker. Route Ring Collector's missing `xRest` transcription to Wave 3. Reopen only if official content ever ships a creature with two X/Rest features.
+
+   **The decision dissolves on real data, and I verified this independently.** The entire shipped source contains **exactly one** X/Rest ability — `src/packs/crows-monsters/ring-collector.yaml:53`, Vanish, `uses: "1/Rest"` — and **zero files ship `system.xRest` at all**. So the monster model supplies `system.xRest: []` at runtime and **no shipped actor has even one mechanically tracked X/Rest feature**, let alone two spent at once. The multi-feature examples (`Roar`, `Shatter`) exist only in tests. There is no published ambiguous state for MCDM to adjudicate.
+
+   **The premise checked out but `applyCritXRestRefund` is NOT dead** — `roll.mjs:382` calls it after `toMessage()` on every crit, and `rollTest` has monster-sheet, crow-sheet, attack, casting and miasma callers. It is a no-op on shipped content, not unreachable code.
+
+   Rules basis, re-derived by content rather than trusting F:714: *"If a creature who has expended 1 or more uses of an X/Rest feature rolls a crit, they can regain 1 use of that feature as the crit's benefit."* Permissive (`can`) and feature-relative (`that feature`), but it never says "choose", gives no ordering rule and no multi-feature procedure — the authors appear to assume one such feature per creature.
+
+   Cost of the alternative: a picker adds a prompt mid-roll-resolution, card lifecycle state, ownership/permission handling, cross-client race and dedupe, dismissal semantics and stale-card revalidation — all for an unpublished state, and landing on top of T2.2's live card work.
+
+   **If it is ever needed:** keep the 0/1 behaviour untouched and change only the `>1` branch — non-blocking inline choices on the crit card for owner and GM, a Ref fallback for an unattended token, dismissal meaning *no refund* (because the book says `can`), one-shot claims, and revalidation against an at-crit snapshot so an old card cannot refund a later expenditure. `xRestRefundOnCrit(xRest, name)` already takes the explicit name, so the seam is cheap to keep.
+
+   **Wave 3 content item:** transcribe Vanish explicitly as `{name: "Vanish", max: 1, used: 0}`. Do **not** add runtime parsing or name-matching between `traits[].uses` and `xRest` — that would create two mutable authorities, the exact defect shape T2.4 just removed from the crypt and the purse fix removed from creation. Found independently by **T2.2** as well, from a different direction.
 3. **Per-target modifiers have no input channel.** `rollTest` takes edges/banes/mods at roll level only, but flanking, high ground, cover, concealment and the range penalty are all per-target. T1.7 promotes on single-target (resolves identically) and warns on multi-target rather than applying one target's cover to everyone. The proper fix is `rollTest` accepting per-target modifiers — `TestResult.targets[]` already carries them, so only the input signature lags.
 4. **Backlash UD storage shape.** T1.5 proposed `effect.flags.crows.ud = {current, max}` and said plainly it was inventing a contract for T1.8. Dead code until something writes the flag; T1.8 may move it.
 
