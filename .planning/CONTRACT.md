@@ -222,6 +222,42 @@ Derived: `hasSlots` (`slots > 0` — deliberately **no** separate boolean to dri
 
 > F:700 — a creature that gains another creature's stats **keeps its original slot count**. Migration and polymorph must not overwrite `slots` from a stat block.
 
+### Pet bonding rest lifecycle
+
+`bondPet` is a registered completion activity. Its durable input is
+`activityData.petUuid`, always a full Foundry UUID; an Actor id is never a
+fallback. World Actors resolve directly. A TokenDocument UUID resolves through
+its `.actor`; a synthetic Actor UUID may retry only its exact parent Token UUID.
+Raw ids and compendium Actor UUIDs are rejected before resolution, so this path
+cannot mutate a source-pack document.
+
+The rest engine reads a finite, nonnegative `game.time.worldTime` at the
+activity-completion boundary and delegates eligibility to
+`planBondingCompletion(animal, human, {now, restCompleted})`. That helper's
+guard order and `petOwnerUpdate()` are authoritative. Only an `owned` plan is
+persisted, exactly once, against the animal. The resting crow is the candidate
+owner; the pet is never resolved by raw id and the crow is never given the pet
+update.
+
+- An uninterrupted `takeRest()` passes `restCompleted:true`. An interrupted
+  rest passes `false`, so bonding remains `waiting-for-rest` with
+  no animal write even though the separate frozen rest/advancement policy still
+  grants ordinary benefits and returns `ok:true`.
+- `takeTownActivity()` passes `true`: its two-hour rest activity is the printed
+  town completion boundary.
+- Missing/unknown/non-animal/wrong-owner/already-owned/expired inputs are an
+  explicit nested activity failure. The enclosing rest/town activity keeps its
+  existing top-level success contract, and validation never writes the animal.
+- If `animal.update()` rejects, cross-document state is uncertain. The nested
+  result is `pet-update-failed`, `state:"unknown"`, `retryRest:false`; never
+  replay the completed rest. Later Miasma/window failures likewise do not roll
+  back an already committed bond.
+
+This is an engine/API slice. The CrowSheet picker remains with its deferred
+sheet owner. The current pet state cannot prove that bonding was literally the
+*next* activity after tier-2 taming, and Foundry provides no cross-document CAS;
+both are explicit residuals rather than invented state in this slice.
+
 ---
 
 ## 4. `BackgroundData` — `module/data/item/background.mjs`

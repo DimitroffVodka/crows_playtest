@@ -9,7 +9,7 @@ import {
   newRestSession, claimRestActivity, markTended, markRested, woundRemovalCount,
   sessionHasSecludeCamp, townActivityClaim, townActivitiesRemaining,
   preparedTaskMatches, PREPARE_FOR_TASK_BONUS, TOWN_ACTIVITY_LIMIT,
-  REST_ACTIVITIES
+  REST_ACTIVITIES, REST_ACTIVITY_KEYS
 } from "../module/helpers/rest.mjs";
 
 import {
@@ -302,6 +302,18 @@ describe("woundRemovalCount — tended is 2 INSTEAD of 1, not 2 on top of 1", ()
 /* -------------------------------------------------------------------------- */
 
 describe("claimRestActivity — Seclude Camp is one person per group", () => {
+  test("bonding is a registered completion activity and keeps its group claim", () => {
+    assert.equal(REST_ACTIVITIES.bondPet?.needsCompletion, true);
+    assert.equal(REST_ACTIVITY_KEYS.includes("bondPet"), true);
+
+    const result = claimRestActivity(newRestSession(), {
+      actorId: "Actor.crow1",
+      activity: "bondPet"
+    });
+    assert.equal(result.ok, true);
+    assert.equal(result.session.claims.bondPet, "Actor.crow1");
+  });
+
   test("the first claimant gets it", () => {
     const r = claimRestActivity(newRestSession(), { actorId: "a", activity: "secludeCamp" });
     assert.equal(r.ok, true);

@@ -80,6 +80,7 @@ export const TOWN_ACTIVITY_HOURS = 2;
  */
 export const REST_ACTIVITIES = {
   none:           { label: "No activity",      needsCompletion: false },
+  bondPet:        { label: "Bond with Pet",    needsCompletion: true },
   tendWounds:     { label: "Tend Wounds",      needsCompletion: true,  requiresTarget: true, townSleep: true, oncePerDayInTown: true },
   identifyItem:   { label: "Identify Item",    needsCompletion: true },
   prepareForTask: { label: "Prepare for Task", needsCompletion: true },
@@ -453,6 +454,120 @@ export function endRestSession() {
   return done;
 }
 
+function _currentWorldTime() {
+  const value = globalThis.game?.time?.worldTime;
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? value
+    : null;
+}
+
+function _syntheticTokenUuid(uuid) {
+  const value = String(uuid ?? "");
+  const actorMarker = value.lastIndexOf(".Actor.");
+  if (!value.startsWith("Scene.") || !value.includes(".Token.") || actorMarker < 0) return null;
+  return value.slice(0, actorMarker);
+}
+
+function _isLiveActorUuid(uuid) {
+  return /^Actor\.[^.]+$/.test(uuid)
+    || /^Scene\.[^.]+\.Token\.[^.]+(?:\.Actor\.[^.]+)?$/.test(uuid);
+}
+
+async function _resolveActorUuid(uuid) {
+  const utilsResolver = globalThis.foundry?.utils?.fromUuid;
+  const globalResolver = globalThis.fromUuid;
+  const resolver = typeof utilsResolver === "function"
+    ? { fn: utilsResolver, receiver: globalThis.foundry.utils }
+    : typeof globalResolver === "function"
+      ? { fn: globalResolver, receiver: globalThis }
+      : null;
+  if (!resolver) throw new Error("Foundry UUID resolver unavailable");
+
+  const tokenUuid = _syntheticTokenUuid(uuid);
+  let document = null;
+  try {
+    document = await resolver.fn.call(resolver.receiver, uuid);
+  } catch (error) {
+    // Foundry's generic UUID walker may reject a synthetic Actor suffix because
+    // Actor is provided by a Token's ActorDelta rather than declared as a Token
+    // embedded collection. Only that exact shape has a supported parent retry.
+    if (!tokenUuid) throw error;
+  }
+  if (!document && tokenUuid) {
+    document = await resolver.fn.call(resolver.receiver, tokenUuid);
+  }
+  return document?.actor ?? document ?? null;
+}
+
+function _bondPetFailure(error, petUuid, extra = {}) {
+  return { ok: false, activity: "bondPet", petUuid, error, ...extra };
+}
+
+/**
+ * Foundry boundary for the tier-2 taming follow-up. The pure pet module owns
+ * every eligibility rule; this adapter owns only exact UUID/clock resolution
+ * and the one Actor update that turns a completed bonding activity into
+ * ownership.
+ */
+export async function resolveBondPetActivity(human, data = null, {
+  restCompleted = false,
+  now = _currentWorldTime(),
+  resolveUuid = _resolveActorUuid
+} = {}) {
+  const petUuid = String(data?.petUuid ?? "").trim();
+  if (!petUuid) return _bondPetFailure("missing-pet-uuid", petUuid);
+  if (!_isLiveActorUuid(petUuid)) return _bondPetFailure("invalid-pet-uuid", petUuid);
+  if (typeof now !== "number" || !Number.isFinite(now) || now < 0) {
+    return _bondPetFailure("world-time-unavailable", petUuid);
+  }
+
+  let animal;
+  try {
+    animal = await resolveUuid(petUuid);
+  } catch {
+    return _bondPetFailure("pet-resolution-failed", petUuid);
+  }
+  if (!animal) return _bondPetFailure("pet-not-found", petUuid);
+
+  const { applyPetPlan, planBondingCompletion } = await import("./pets.mjs");
+  const plan = planBondingCompletion(animal, human, { now, restCompleted });
+  if (!plan.ok) {
+    return _bondPetFailure(plan.reason ?? "bonding-refused", petUuid);
+  }
+  if (plan.outcome !== "owned") {
+    return {
+      ok: true,
+      activity: "bondPet",
+      petUuid,
+      outcome: plan.outcome,
+      completed: false
+    };
+  }
+
+  try {
+    const applied = await applyPetPlan(animal, plan);
+    if (!applied.ok) {
+      return _bondPetFailure(applied.reason ?? "pet-update-refused", petUuid);
+    }
+  } catch {
+    // Foundry document writes are not transactional. A rejected update can be
+    // locally or remotely uncertain, so this result forbids replaying the rest
+    // and makes no claim that the animal stayed unchanged.
+    return _bondPetFailure("pet-update-failed", petUuid, {
+      state: "unknown",
+      retryRest: false
+    });
+  }
+
+  return {
+    ok: true,
+    activity: "bondPet",
+    petUuid,
+    outcome: "owned",
+    completed: true
+  };
+}
+
 /**
  * Restore every "rest"-expiry usage die on an actor's items — spellbooks above
  * all (R:1543 rolls a spellbook's UD on every cast, so the rest restore is what
@@ -577,6 +692,7 @@ export async function takeRest(actor, {
     if (ec.triggered) break;
   }
   if (!halfwayEffects && !inTown) halfwayEffects = await runEndOfDtEffects();
+  const interrupted = ecResults.some(result => result.triggered);
 
   // --- benefits ------------------------------------------------------------
   const stamBefore = sys.stamina?.value ?? 0;
@@ -619,7 +735,9 @@ export async function takeRest(actor, {
   // --- the activity --------------------------------------------------------
   let activityResult = tendResult;
   if (activity !== "none" && activity !== "tendWounds") {
-    activityResult = await _resolveActivity(actor, activity, activityData);
+    activityResult = await _resolveActivity(actor, activity, activityData, {
+      restCompleted: !interrupted
+    });
   }
 
   await _postRestCard(actor, {
@@ -641,7 +759,7 @@ export async function takeRest(actor, {
     traitPoolsReset: poolUpdates.length, overusedPools: overused,
     restoredUds: restored.restored,
     encounters: ecResults,
-    interrupted: ecResults.some(r => r.triggered),
+    interrupted,
     halfway: halfwayEffects,
     activityResult, miasmaResult,
     session: sess
@@ -749,7 +867,7 @@ export async function takeTownActivity(actor, {
     }
     result = tend;
   } else {
-    result = await _resolveActivity(actor, key, activityData);
+    result = await _resolveActivity(actor, key, activityData, { restCompleted: true });
   }
 
   await ChatMessage.create({
@@ -850,8 +968,13 @@ async function _applyTendWounds(actor, target, session, woundChoices = null) {
   return { ok: true, activity: "tendWounds", target: target.name, appliedNow: removed, session: next };
 }
 
-async function _resolveActivity(actor, activity, data = null) {
+async function _resolveActivity(actor, activity, data = null, { restCompleted = false } = {}) {
   data = data ?? {};
+
+  if (activity === "bondPet") {
+    return resolveBondPetActivity(actor, data, { restCompleted });
+  }
+
   const speaker = ChatMessage.getSpeaker({ actor });
   const dt = (() => { try { return getDT(); } catch { return 0; } })();
 

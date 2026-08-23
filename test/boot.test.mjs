@@ -397,7 +397,7 @@ describe("module/crows.mjs imports resolve", () => {
     assert.ok(registeredSettings.some(({ key }) => key === "systemMigrationVersion"));
     assert.ok(registeredSettings.some(({ key }) => key === "migrationExpertiseBudget"));
     for (const api of [
-      "resolveTier", "applyExpertise", "takeTownActivity", "beginRestSession",
+      "resolveTier", "applyExpertise", "takeRest", "takeTownActivity", "beginRestSession",
       "enterDungeon", "resolvePendingEncounter", "setCondition", "spendExpertiseBonus"
     ]) {
       assert.equal(typeof game.crows[api], "function", `${api} was not wired onto game.crows`);
