@@ -788,7 +788,13 @@
 .cc-adv-grant:hover { background: var(--crows-link-deep); }
 .cc-adv-pending { display:block; font-size: var(--crows-text-micro); color: var(--crows-gold); font-weight: bold; }
 .cc-adv-spend-btn { background: var(--crows-gold); color: var(--crows-white); border: 0; padding: 4px 8px; font-size: var(--crows-text-tiny); cursor: pointer; border-radius: var(--crows-radius); font-weight: bold; }
-.cc-adv-spend-btn:hover { background: var(--crows-gold-mid); }
+.cc-adv-spend-btn:hover:not(:disabled) { background: var(--crows-gold-mid); }
+.cc-adv-spend-btn:disabled {
+  background: var(--crows-paper-grey);
+  color: var(--crows-ink-fade);
+  opacity: .62;
+  cursor: not-allowed;
+}
 .adv-spend-form { padding: 4px; }
 .adv-spend-form .adv-opt { padding: 4px 0; border-bottom: 1px dotted var(--crows-rule); }
 .adv-spend-form .adv-skill-pair { padding-left: 24px; display: flex; gap: 8px; }
