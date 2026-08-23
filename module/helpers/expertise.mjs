@@ -357,6 +357,28 @@ export function bindTestCardActions(message, html) {
   }
 }
 
+/**
+ * The expertise/commit half of T1.1's public surface. Folded into `ROLL_API` in
+ * roll.mjs so the entry point (T2.3 owns module/crows.mjs) needs exactly one
+ * line, plus one hook registration:
+ *
+ *   Object.assign(game.crows, ROLL_API);
+ *   Hooks.on("renderChatMessageHTML", (message, html) => bindTestCardActions(message, html));
+ */
+export const EXPERTISE_API = Object.freeze({
+  canSpendExpertise,
+  categoryAllows,
+  legalExpertiseSpends,
+  hasLegalSpend,
+  readExpertiseUses,
+  applyExpertise,
+  declineExpertise,
+  bindTestCardActions,
+  emitTestCommitted,
+  xRestRefundOnCrit,
+  applyCritXRestRefund
+});
+
 /** F:714. Write the crit's X/Rest refund back to the actor. No-op when nothing is spent. */
 export async function applyCritXRestRefund(actor, name = null) {
   const current = actor?.system?.xRest;

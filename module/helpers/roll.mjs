@@ -3,7 +3,8 @@ import { resolveEdgesBanes } from "./edges.mjs";
 import {
   applyCritXRestRefund,
   emitTestCommitted,
-  hasLegalSpend
+  hasLegalSpend,
+  EXPERTISE_API
 } from "./expertise.mjs";
 
 /**
@@ -379,10 +380,17 @@ export function testCardData(result, { flavor = "Test", attack = null, casting =
 }
 
 /**
- * Everything T2.3 must hang off `game.crows` for the probes and the console.
- * One line at the entry point: `Object.assign(game.crows, ROLL_API)`.
+ * The whole T1.1 surface — roll pipeline AND expertise/commit — for `game.crows`.
+ *
+ * Deliverable 5 asked T1.1 to "export everything through game.crows", but
+ * module/crows.mjs is T2.3's file and Wave 1 agents touch only their own. So the
+ * surface is assembled here and T2.3 wires it in one line:
+ *
+ *   Object.assign(game.crows, ROLL_API);
+ *   Hooks.on("renderChatMessageHTML", (message, html) => bindTestCardActions(message, html));
  */
 export const ROLL_API = Object.freeze({
+  ...EXPERTISE_API,
   classifyTier,
   classifyDoomCrit,
   resolveTier,
