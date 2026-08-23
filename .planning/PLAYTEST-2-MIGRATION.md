@@ -15,6 +15,23 @@ Citations below use a book prefix:
 
 Also referenced: `Crows Playtest Changelog.md` (MCDM's own PT1→PT2 delta), cited as "changelog".
 
+> ## ⚠️ THERE ARE TWO COPIES OF THESE BOOKS. Only the path above is authoritative.
+>
+> A second, **stale** copy sits at `~/FoundryVTT-Projects/obsidian-memory/obsidian-memory/10-Active-Projects/Crows/`. It looks identical — same five filenames — and it is not.
+>
+> | Book | TTRPG Hub *(authoritative)* | obsidian *(stale)* | |
+> |---|---|---|---|
+> | 01 Rules | **1,736** | 1,603 | **differs — 776 chars** |
+> | 02 Characters | 3,179 | 3,179 | byte-identical |
+> | 03 Ref | 2,123 | 2,123 | byte-identical |
+> | 04 Dungeons | 1,168 | 1,168 | byte-identical |
+>
+> Every `R:` citation in these plans is against the **Hub** copy. In the stale copy `R:524` is a blank line and `R:983` is a forced-movement sentence — so a reader of the wrong copy concludes the citations are broken and "fixes" working numbers into broken ones. That nearly happened: T1.6 read the stale copy, reported a "~133-line drift", and warned that T1.8's backlash range ran past the end of the file. It did not; T1.8 had already transcribed all 105 rows from the Hub copy.
+>
+> **The drift is NOT a constant, so never bulk-fix by adding an offset.** Rest activities shift by 66 (`R:580-590` → `R:646-654`) while the crafting chapter shifts by 133 (`R:1532-1580` → `R:1665-1713`). An offset that fixes one lands in the wrong section for the other. Re-derive each citation by content.
+>
+> `C:`, `F:` and `D:` citations are safe in either copy — those three books are byte-identical.
+
 > **Why this changed.** The first draft cited a single `Crows Playtest 2 - Master.md` (8,379 lines), a concatenation of the four books behind a 14-line preamble. That file no longer exists and cannot be reproduced exactly. Every original citation was nevertheless *correct* — they resolve under a constant per-book offset (Rules −14, Characters −1752, Ref −4933), and all 76 were verified against the real text before conversion. If you meet an old `L####` ref in a sibling doc, subtract the offset for its book.
 
 ## Decisions
