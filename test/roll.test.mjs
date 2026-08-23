@@ -8,7 +8,8 @@ import {
   selfEdgesBanes,
   targetEdgesBanes,
   autoDoomApplies,
-  classifyTier
+  classifyTier,
+  testCardData
 } from "../module/helpers/roll.mjs";
 import {
   canSpendExpertise,
@@ -330,6 +331,50 @@ describe("buildTestResult — multi-target (R:961)", () => {
   test("a test with no targets has an empty targets array, never undefined", () => {
     const r = buildTestResult({ rawSum: 10, actor: null });
     assert.deepEqual(r.targets, []);
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe("the roll payload survives to commit — the card is a pure function of the flag", () => {
+  // API-NOTES §4: updating the flag re-renders the message, and a late-joining
+  // client renders from the flag ALONE. So anything the card needs has to be in
+  // the TestResult. Both downstream consumers depend on this: spellcasting.mjs
+  // resolves its cast context from `result.casting.castId`, and combat.mjs
+  // computes damage from an `attack`.
+  const attack = { weaponName: "Shortbow", isMelee: false, t2: 4, t3: 7, piercing: true };
+  const casting = { castId: "cast-abc", rank: 2, discipline: "elemental", spellbookName: "Cinders" };
+
+  test("an attack's damage payload is on the result", () => {
+    const r = buildTestResult({ kind: "attack", rawSum: 12, attack, actor: null });
+    assert.deepEqual(r.attack, attack);
+    assert.equal(r.casting, null);
+  });
+
+  test("a casting's context is on the result, so castId survives the pending window", () => {
+    const r = buildTestResult({ kind: "casting", rawSum: 12, casting, actor: null });
+    assert.equal(r.casting.castId, "cast-abc");
+    assert.equal(r.attack, null);
+  });
+
+  test("the payload is still there after a spend commits", async () => {
+    const actor = fakeCrow({ expertises: { bow: { value: 1, max: 1 } } });
+    const msg = fakeMessage(buildTestResult({ actorId: actor.id, kind: "attack", rawSum: 12, attack, actor }));
+    const out = await applyExpertise(msg, "bow", { getActor: () => actor });
+    assert.deepEqual(out.attack, attack, "T1.7 reads damage off the COMMITTED result");
+    assert.deepEqual(commits()[0].args[0].attack, attack, "and the event carries it");
+  });
+
+  test("the payload is still there after a decline commits", async () => {
+    const actor = fakeCrow({ expertises: { elemental: { value: 1, max: 1 } } });
+    const msg = fakeMessage(buildTestResult({ actorId: actor.id, kind: "casting", rawSum: 12, casting, actor }));
+    const out = await declineExpertise(msg, { getActor: () => actor });
+    assert.equal(out.casting.castId, "cast-abc");
+  });
+
+  test("testCardData reads the payload off the result, not off the caller", () => {
+    const r = buildTestResult({ kind: "attack", rawSum: 12, attack, actor: null });
+    const data = testCardData(r, { flavor: "Shoot" });
+    assert.deepEqual(data.attack, attack, "a re-render with no caller context still shows Apply Damage");
   });
 });
 

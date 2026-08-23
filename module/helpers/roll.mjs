@@ -191,6 +191,7 @@ export function buildTestResult({
   banes = [],
   targets = [],
   attack = null,
+  casting = null,
   autoDoom = false,
   actor = null
 } = {}) {
@@ -219,6 +220,20 @@ export function buildTestResult({
     kind,
     targets: targetEntries,
     expertiseSpent: null,
+
+    // The roll's PAYLOAD, carried through to commit.
+    //
+    // The frozen TestResult type block did not list these, but its own stated
+    // invariant requires them: the card must be a PURE FUNCTION of
+    // `message.flags.crows.test` (API-NOTES §4), and a late-joining client
+    // cannot render the Apply-Damage buttons — or say which spell was cast —
+    // from a flag that dropped them. Both downstream consumers already assume
+    // they survive: spellcasting.mjs resolves its cast context from
+    // `result.casting.castId`, and combat.mjs computes damage from an `attack`.
+    // Dropping them left each of them on a lossy fallback path.
+    attack: attack ?? null,
+    casting: casting ?? null,
+
     state: "pending",
     commitReason: null
   };
@@ -298,12 +313,12 @@ export async function rollTest({
     actorId: actor?.id ?? null,
     characteristic, kind, rawSum, charVal,
     mods, edges: allEdges, banes: allBanes,
-    targets: refs, attack, autoDoom, actor
+    targets: refs, attack, casting, autoDoom, actor
   });
 
   const content = await foundry.applications.handlebars.renderTemplate(
     "systems/crows/templates/chat/test-card.hbs",
-    testCardData(result, { flavor, attack, casting })
+    testCardData(result, { flavor })
   );
   const message = await roll.toMessage(
     {
@@ -336,6 +351,9 @@ export async function rollTest({
  * T2.2 owns templates/chat/test-card.hbs and rewrites it against the TestResult
  * directly; until then this keeps the existing card renderable. `total` is null
  * on every terminal path, which the old template simply leaves blank.
+ *
+ * `attack` and `casting` come off the RESULT, not from the caller: the card has
+ * to re-render identically for a client that only ever saw the flag.
  */
 export function testCardData(result, { flavor = "Test", attack = null, casting = null } = {}) {
   const bandLabel = result.tier === 1 ? "≤11 (Tier 1)"
@@ -354,8 +372,8 @@ export function testCardData(result, { flavor = "Test", attack = null, casting =
     skillBonus: 0,
     mods: result.mods,
     tierForcedNote: result.terminal === "unconscious" ? "target unconscious" : null,
-    attack,
-    casting,
+    attack: attack ?? result.attack ?? null,
+    casting: casting ?? result.casting ?? null,
     bandLabel
   };
 }
