@@ -3,6 +3,7 @@ const fields = foundry.data.fields;
 import {
   CROWS, ALL_EXPERTISES, expertiseMaxForTxp, bonusesEarnedAtTxp, effectiveCapacities
 } from "../../config.mjs";
+import { migrateCrowSystem, expertiseOverBudget } from "../../helpers/migration.mjs";
 
 /**
  * Crow (PC) data model — Playtest 2.
@@ -23,6 +24,23 @@ const charField = () => new fields.SchemaField({
 });
 
 export class CrowData extends TypeDataModel {
+  /**
+   * LAYER (a) of the PT1 -> PT2 migration. Wired here because `migrateData` can
+   * only live on the model, and T1.3 correctly would not edit a T0.2 file.
+   * Without this the entire layer (a) transform is dead code.
+   *
+   * NOTE THE RETURN, and do not "tidy" it into a merge. Several transforms in
+   * `migrateCrowSystem` work by DELETING a key — `skills`, `wounds`, `boned` —
+   * so the returned object must REPLACE source. Merging it onto the original
+   * resurrects every field the migration just removed, silently.
+   *
+   * Runs on every load AND on partial update deltas, so it must never assume a
+   * sibling field is present. That is `migrateCrowSystem`'s contract, tested.
+   */
+  static migrateData(source) {
+    return super.migrateData(migrateCrowSystem(source));
+  }
+
   static defineSchema() {
     // REPLACES `skills`. THREE distinct quantities, and conflating any two of
     // them corrupts characters (review finding 1):
@@ -267,5 +285,24 @@ export class CrowData extends TypeDataModel {
 
     // Advancement bookkeeping, useful to the sheet and the migration report.
     this.bonusesEarned = bonusesEarnedAtTxp(this.xp?.txp ?? 0);
+
+    // --- Over-budget surfacing (H5) ----------------------------------------
+    // CONTRACT CORRECTION, found by T1.3. The contract specified this as plain
+    // derived data, but its input `backgroundUses` needs an ASYNC compendium
+    // lookup and `prepareDerivedData` is synchronous — there is no embedded
+    // Background Item to read (see `background` above). So layer (b) caches the
+    // resolved figure on `flags.crows.backgroundUses` at reconcile time and this
+    // reads the cache.
+    //
+    // It returns NULL, not 0, when the cache is absent. That distinction is the
+    // whole point: 0 reads as "this crow is fine", which is the same failure as
+    // treating an unresolved background as a zero budget — it would report a
+    // migrated character as maximally over-allocated exactly when we know least
+    // about them. Null means "not yet computed"; the sheet shows nothing.
+    //
+    // Required because the budget defaults to REPORT-ONLY, so the over-budget
+    // state is permanent until a GM acts and a migration-time journal entry
+    // scrolls away. T2.1 renders a badge when this is a positive number.
+    this.expertiseOverBudget = expertiseOverBudget(this.parent);
   }
 }

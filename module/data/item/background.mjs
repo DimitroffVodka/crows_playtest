@@ -1,8 +1,22 @@
 const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
 import { CROWS, ALL_EXPERTISES } from "../../config.mjs";
+import { migrateBackgroundSystem } from "../../helpers/migration.mjs";
 
 export class BackgroundData extends TypeDataModel {
+  /**
+   * LAYER (a) of the PT1 -> PT2 migration. See the note on CrowData.migrateData:
+   * the returned object REPLACES source, it is not merged onto it, because
+   * several transforms work by deleting a key.
+   *
+   * Best-effort SHAPE conversion only. A PT1 background carries no per-key uses
+   * at all, and 8 of 36 lose a grant to collapsing pairs (Thief 7 -> 5), so the
+   * authoritative content comes from T3.1 re-transcription and overwrites this.
+   */
+  static migrateData(source) {
+    return super.migrateData(migrateBackgroundSystem(source));
+  }
+
   static defineSchema() {
     return {
       description: new fields.HTMLField(),

@@ -315,6 +315,20 @@ casting: object | null,    // the casting context, if this test was one
 
 `resolveTier` also gained an optional `autoDoom` flag for R:552 (an unconscious creature auto-dooms Agility and Strength tests). It **suppresses `crit`**, so a rule-mandated doom on a raw 19 does not also grant a crit's extra action.
 
+### The discipline gate changes card LIFECYCLE, not just which button is refused
+
+`canSpendExpertise` gated by **category** only, so on a casting all six spellcasting expertises passed — a caster of an *alteration* spell could improve their result by spending *necromancy*. `R:1451` is singular: the discipline names **the** expertise. Found by T1.8, fixed by T1.1 in `2f2ce7e`. Guard order is now:
+
+```
+state -> doom -> tier>=3 -> expertiseSpent -> category -> DISCIPLINE -> uses
+```
+
+**The consequence Wave 2 must know about.** The gate feeds `hasLegalSpend`, and `hasLegalSpend` decides the A1 commit state. So a caster holding only necromancy and illusion who casts *alteration* now commits **`"no-legal-spend"` on the first render** instead of sitting `pending`. That is correct — the old path stranded T1.8's chaos roll and T1.7's Counter window behind a spend the player could never legally make — but it means the rule affects the card's lifecycle, not merely its buttons.
+
+> **T2.2:** read `legalExpertiseSpends(result, actor)` (exported from `expertise.mjs:109`). Do **not** filter by category yourself, or you will render six spend buttons where one is legal.
+
+**A hazard class worth generalising**, from T1.8's `state` bug: a destructured **default** upstream of a correct guard — `state = "committed"` — turned `undefined` into a committed test before the guard ever saw it. The guard reads correctly in review and the defect is invisible at the assertion site. Audit defaults on any parameter that *gates* behaviour. T1.1 notes `buildTestResult` defaults `actor = null` with the same shape; that one is deliberate and tested (a null actor genuinely has no spend), but it is the same trap if ever called while intending to pass an actor.
+
 ---
 
 ## 5b. Conditions — authority AND command flow
