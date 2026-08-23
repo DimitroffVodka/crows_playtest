@@ -68,11 +68,21 @@ export class TraitData extends TypeDataModel {
       //                         rest before" — same shape, different stat
       //
       // FROZEN SEMANTICS, because a characteristic is not a constant:
-      //   max        = sizedBy ? max(0, actor.characteristics[sizedBy].value)
+      //   max        = sizedBy ? Math.max(1, actor.characteristics[sizedBy].value)
       //                        : fixedMax
-      //                A characteristic can be NEGATIVE (R:174 allows -5), and a
-      //                negative pool is meaningless — it floors at 0, which
-      //                means the trait simply cannot be used. It is not an error.
+      //
+      // CORRECTED (found by T1.4). This said `max(0, …)` and argued at length
+      // that a floor of 0 "is not an error state" — reasoning from first
+      // principles about a rule that exists and says the opposite. C:669 is a
+      // titled rule, "Minimum Modifier":
+      //
+      //   "Whenever a trait increases or decreases a number equal to one of
+      //    your characteristics, the minimum number of that increase or
+      //    decrease is 1, even if your characteristic is lower."  — C:671
+      //
+      // So a Mind -1 crow gets ONE use, not zero. The floor is 1, and the rule
+      // is general: it governs every trait scaling off a characteristic, not
+      // just these pools.
       //   remaining  = max(0, max - used)
       //   rest       = used -> 0 (R:628). Nothing else resets it.
       //   overused   = max(0, used - max). Reachable WITHOUT cheating: spend at

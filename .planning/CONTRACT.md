@@ -257,13 +257,19 @@ usePool: { sizedBy: ""|agility|mind|strength, fixedMax: Number, used: Number }
 **Frozen semantics**, because a characteristic is not a constant:
 
 ```
-max       = sizedBy ? max(0, actor.characteristics[sizedBy].value) : fixedMax
+max       = sizedBy ? Math.max(1, actor.characteristics[sizedBy].value) : fixedMax
 remaining = max(0, max - used)
 rest      = used -> 0   (R:628)
 overused  = max(0, used - max)
 ```
 
-`max(0, …)` matters: a characteristic can be **negative** (`R:174` allows −5), and a negative pool is meaningless — it floors at 0, meaning the trait simply cannot be used. That is not an error state.
+> **CORRECTED — the floor is 1, not 0.** This said `max(0, …)` and argued at length that a floor of zero "is not an error state." That was reasoning from first principles about a rule that exists and says the opposite. `C:669` is a titled rule, **"Minimum Modifier"**:
+>
+> *"Whenever a trait increases or decreases a number equal to one of your characteristics, the minimum number of that increase or decrease is 1, even if your characteristic is lower."* — `C:671`
+>
+> A Mind −1 crow gets **one** use, not zero. Found by T1.4, which implemented `max(1, …)` in `advancement.mjs` and correctly declined to edit a frozen T0.2 file to match.
+>
+> **The rule is general.** It governs *every* trait that scales off a characteristic, not just these pools — anywhere a trait increases or decreases by a characteristic, the magnitude floors at 1.
 
 `overused` is reachable without cheating — spend at Mind 3, then take a Mind drain to 1. **Report it; never refund, and never clamp `used` downward**, which would silently hand back a spent use. `used` is stored rather than `remaining` for the same reason expertises store `{value, max}`: the pool size is derived and can move underneath you, so the durable fact is what was *spent*.
 

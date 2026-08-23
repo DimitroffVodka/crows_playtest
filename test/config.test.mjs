@@ -87,15 +87,26 @@ describe("bonusesEarnedAtTxp — the H5 budget input", () => {
   });
 
   test("the pathological migration fixture is genuinely over budget", () => {
-    // test/fixtures/actors/pt1-crow.json: 12 skills at bonus 2 = 24 uses,
-    // at 3,500 TXP. This is the case H5 exists for — if this ever stops being
-    // over budget the fixture has lost its teeth.
+    // test/fixtures/actors/pt1-crow.json at 3,500 TXP. This is the case H5
+    // exists for — if it ever stops being over budget the fixture has lost
+    // its teeth.
+    //
+    // CORRECTED (found by T1.4, numbers from T1.3). This block said "12 skills
+    // at bonus 2 = 24 uses" with backgroundUses 7 and budget 22, and asserted
+    // `24 > budget`. Every one of those was wrong, and it PASSED ANYWAY —
+    // 24 > 22 is true for the wrong reason, which is why nothing caught it.
+    //   * the fixture converts to 25, not 24: twelve at bonus 2 PLUS
+    //     historicalLore at 1
+    //   * the shipped Thief grants 4, not a "typical" 7
+    //   * so the budget is 19 and the overage is 6
     const bonuses = bonusesEarnedAtTxp(3500);
-    const backgroundUses = 7;                       // a typical background grant
+    const backgroundUses = 4;                       // the SHIPPED Thief (T1.3)
     const budget = backgroundUses + CROWS.expertiseUsesPerBonus * bonuses;
+    const converted = 25;
     assert.equal(bonuses, 5);
-    assert.equal(budget, 22);
-    assert.ok(24 > budget, "24 converted uses must exceed the budget");
+    assert.equal(budget, 19);
+    assert.equal(converted - budget, 6, "six uses must be trimmed");
+    assert.ok(converted > budget, "converted uses must exceed the budget");
   });
 });
 
