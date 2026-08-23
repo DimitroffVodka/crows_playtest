@@ -229,17 +229,105 @@ describe("taming and bonding", () => {
     assert.equal(seen.actor.uuid, "Actor.crow1");
     assert.equal(seen.characteristic, "mind");
     assert.deepEqual(seen.allowedExpertises, ["handlePet"]);
+    assert.deepEqual(seen.petContext, {
+      kind: "taming",
+      animalUuid: "Actor.pet1",
+      humanUuid: "Actor.crow1",
+      friendly: true,
+      startedAt: 500
+    });
     assert.deepEqual(seen.edges, [{ key: "buddy" }]);
-    assert.equal(result.resolution.outcome, "owned");
+    assert.equal(result.pending, false);
+    assert.equal(result.resolution, null, "the committed subscriber is the sole outcome authority");
   });
 
   test("the roll wrapper leaves an expertise-pending result unresolved", async () => {
     const result = await rollTamingTest(animal(), crow(), {
       friendly: true,
+      now: 500,
       roll: async () => ({ state: "pending", tier: 2 })
     });
     assert.equal(result.pending, true);
     assert.equal(result.resolution, null);
+  });
+
+  test("the taming context captures the live world clock when the caller omits now", async () => {
+    const previousGame = globalThis.game;
+    let seen = null;
+    globalThis.game = { time: { worldTime: 4_321 } };
+    try {
+      await rollTamingTest(animal(), crow(), {
+        friendly: true,
+        roll: async (options) => {
+          seen = options.petContext;
+          return { state: "pending", tier: 2 };
+        }
+      });
+      assert.equal(seen.startedAt, 4_321);
+    } finally {
+      if (previousGame === undefined) delete globalThis.game;
+      else globalThis.game = previousGame;
+    }
+  });
+
+  test("taming refuses an unavailable world clock before posting a test", async () => {
+    const previousGame = globalThis.game;
+    let rolls = 0;
+    globalThis.game = { time: {} };
+    try {
+      const result = await rollTamingTest(animal(), crow(), {
+        friendly: true,
+        roll: async () => {
+          rolls += 1;
+          return committed(2);
+        }
+      });
+      assert.equal(result.ok, false);
+      assert.equal(result.reason, "world-time-unavailable");
+      assert.equal(rolls, 0);
+    } finally {
+      if (previousGame === undefined) delete globalThis.game;
+      else globalThis.game = previousGame;
+    }
+  });
+
+  test("taming refuses an animal without a durable UUID before posting a test", async () => {
+    let rolls = 0;
+    const result = await rollTamingTest(animal({ uuid: "" }), crow(), {
+      friendly: true,
+      now: 500,
+      roll: async () => {
+        rolls += 1;
+        return committed(2);
+      }
+    });
+
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "animal-missing-uuid");
+    assert.equal(rolls, 0);
+  });
+
+  test("taming refuses raw actor ids before they can enter a persisted context", async () => {
+    let rolls = 0;
+    const roll = async () => {
+      rolls += 1;
+      return committed(2);
+    };
+
+    const badAnimal = await rollTamingTest(animal({ uuid: "pet1" }), crow(), {
+      friendly: true,
+      now: 500,
+      roll
+    });
+    const badHuman = await rollTamingTest(animal(), crow("crow1"), {
+      friendly: true,
+      now: 500,
+      roll
+    });
+
+    assert.equal(badAnimal.reason, "invalid-animal-uuid");
+    assert.equal(badHuman.reason, "invalid-human-uuid");
+    assert.equal(rolls, 0);
   });
 
   test("bonding lands only when the rest finishes and before following expires", () => {
@@ -399,6 +487,59 @@ describe("pets and summoned creatures in combat", () => {
     assert.equal(rolls, 0);
   });
 
+  test("an ordinary owned-pet command still requires the current human owner", async () => {
+    let rolls = 0;
+    const result = await rollPetCommandTest(
+      animal({ ownerUuid: "Actor.crow1" }),
+      crow("Actor.other"),
+      {
+        needsTest: false,
+        roll: async () => {
+          rolls += 1;
+          return committed(3);
+        }
+      }
+    );
+
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "commander-not-owner");
+    assert.equal(rolls, 0);
+  });
+
+  test("a non-human cannot command an owned pet even with a matching UUID", async () => {
+    const commander = {
+      uuid: "Actor.blood1",
+      type: "monster",
+      system: { creatureType: "blood" }
+    };
+    const result = await rollPetCommandTest(
+      animal({ ownerUuid: commander.uuid }),
+      commander,
+      { needsTest: false }
+    );
+
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "commander-not-human");
+  });
+
+  test("a tested command refuses raw actor ids before posting a test", async () => {
+    let rolls = 0;
+    const result = await rollPetCommandTest(
+      animal({ uuid: "pet1", ownerUuid: "crow1" }),
+      crow("crow1"),
+      {
+        roll: async () => {
+          rolls += 1;
+          return committed(2);
+        }
+      }
+    );
+
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "invalid-animal-uuid");
+    assert.equal(rolls, 0);
+  });
+
   test("a complex command routes through the same injected 2d10+Mind pipeline", async () => {
     let seen = null;
     const result = await rollPetCommandTest(animal({ ownerUuid: "Actor.crow1" }), crow(), {
@@ -410,6 +551,13 @@ describe("pets and summoned creatures in combat", () => {
     assert.equal(seen.characteristic, "mind");
     assert.equal(seen.actor.uuid, "Actor.crow1");
     assert.deepEqual(seen.allowedExpertises, ["handlePet"]);
-    assert.equal(result.resolution.weakened, true);
+    assert.deepEqual(seen.petContext, {
+      kind: "command",
+      animalUuid: "Actor.pet1",
+      humanUuid: "Actor.crow1",
+      needsTest: true
+    });
+    assert.equal(result.pending, false);
+    assert.equal(result.resolution, null, "the committed subscriber is the sole outcome authority");
   });
 });

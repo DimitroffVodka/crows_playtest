@@ -367,12 +367,13 @@ Part 1.1 freezes `Layout.coin.purses[]` as `{id, held, cap}`, but **nothing owne
 
 ## 4b. `TestResult` — amended during Wave 1 and D1
 
-Four fields were **added** after the freeze. Additive only: no existing field changed meaning.
+Five fields were **added** after the freeze. Additive only: no existing field changed meaning.
 
 ```js
 attack:             object | null,    // the attack context, if this test was one
 casting:            object | null,    // the casting context, if this test was one
 miasma:             object | null,    // {kind:"resist"} for a Miasma resist test
+petContext:         object | null,    // exact taming/command purpose and actor UUIDs
 allowedExpertises: string[] | null,   // exact applicability, or legacy fallback
 ```
 
@@ -390,6 +391,10 @@ allowedExpertises: string[] | null,   // exact applicability, or legacy fallback
 For a targetful result, efficacy reads the actual `targets[].tier` values and a spend is legal when **any** target is below tier 3. The base `tier` is used only for a targetless test. One spend raises the base and every target once, capped at 3.
 
 **Miasma is also commit-bound once Endurance is legal.** A resist test persists `miasma: {kind:"resist"}`; the initiator posts the roll and applies nothing. The Miasma subscriber recognizes that marker on `crowsTestCommitted` and only then stamps the test, adds boned and rolls any tier-1 effect. Matching on the exact Endurance list would be lossy — an ordinary Endurance test is not a Miasma resist — and reading the tier in `rollMiasmaResist` would apply a pre-expertise result.
+
+**Pet tests use the same durable purpose-marker pattern.** Fresh results own `petContext: null`; absent/null legacy and ordinary flags are harmless. Taming persists `{kind:"taming", animalUuid, humanUuid, friendly:true, startedAt}` and a tested dangerous command persists `{kind:"command", animalUuid, humanUuid, needsTest:true}`. `startedAt` is the finite world clock captured when the taming test begins, so a pending expertise choice cannot move the 24-hour follow window. Ordinary commands and summoned creatures that require no test create no context or commit event.
+
+The pet subscriber accepts only a committed, targetless ordinary test whose exact applicability is `['handlePet']`, with no attack/casting/Miasma payload. It resolves the full live Actor UUIDs from the flag, verifies they are the documents returned, verifies the human is the actor who rolled, and rechecks animal/human/owner state after any pending window. Taming tiers then resolve to refusal, prospective following, or ownership. Command tiers resolve to their pure command plan; the tier-2 `weakened: true` condition write remains the separate Wave 1 item 3. No actor-id pending map or transient card option is authoritative.
 
 **The emit signature is `(result, message)`.** T1.8 matched it; T1.7 subscribed as `(result, ctx = {})`, so a ChatMessage lands in its `ctx` and `ctx.attack` never arrives. Fix relayed.
 

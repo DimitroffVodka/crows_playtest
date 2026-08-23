@@ -205,6 +205,7 @@ export function autoDoomApplies({ conditions = {}, characteristic = null } = {})
  * @param {object|null} o.actor  read ONLY to decide whether a legal spend exists
  * @param {string[]|null} o.allowedExpertises exact keys, [] for none, null for legacy
  * @param {object|null} o.miasma persisted Miasma-test purpose, when applicable
+ * @param {object|null} o.petContext persisted pet-test purpose, when applicable
  */
 export function buildTestResult({
   actorId = null,
@@ -219,6 +220,7 @@ export function buildTestResult({
   attack = null,
   casting = null,
   miasma = null,
+  petContext = null,
   allowedExpertises = null,
   autoDoom = false,
   actor = null
@@ -262,6 +264,7 @@ export function buildTestResult({
     attack: attack ?? null,
     casting: casting ?? null,
     miasma: miasma ? structuredClone(miasma) : null,
+    petContext: petContext ? structuredClone(petContext) : null,
 
     state: "pending",
     commitReason: null
@@ -316,6 +319,7 @@ export function snapshotUserTargets() {
  * @param {string[]|null} [o.allowedExpertises] exact applicability declaration;
  *        null/absent preserves the legacy kind/category gate
  * @param {object|null} [o.miasma] persisted Miasma-test purpose marker
+ * @param {object|null} [o.petContext] persisted pet-test purpose marker
  * @returns {Promise<object>} the TestResult (also on the message's flags)
  */
 export async function rollTest({
@@ -328,6 +332,7 @@ export async function rollTest({
   attack = null,
   casting = null,
   miasma = null,
+  petContext = null,
   targets = null,
   task = null,
   allowedExpertises = null
@@ -367,7 +372,7 @@ export async function rollTest({
     actorId: actor?.id ?? null,
     characteristic, kind, rawSum, charVal,
     mods: allMods, edges: allEdges, banes: allBanes,
-    targets: refs, attack, casting, miasma, allowedExpertises, autoDoom, actor
+    targets: refs, attack, casting, miasma, petContext, allowedExpertises, autoDoom, actor
   });
 
   const content = await foundry.applications.handlebars.renderTemplate(

@@ -76,6 +76,21 @@ const time = (value) => {
   return Number.isFinite(n) && n >= 0 ? n : 0;
 };
 
+const currentWorldTime = () => {
+  const value = globalThis.game?.time?.worldTime;
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+};
+
+async function defaultResolveUuid(uuid) {
+  const { resolveActorUuid } = await import("./rest.mjs");
+  return resolveActorUuid(uuid);
+}
+
+async function hasLiveActorUuid(actor) {
+  const { isLiveActorUuid } = await import("./rest.mjs");
+  return isLiveActorUuid(uuidOf(actor));
+}
+
 const failure = (reason, extra = {}) => ({ ok: false, reason, update: null, ...extra });
 
 /** A PC crow or a creature stat block explicitly typed Human. */
@@ -215,24 +230,37 @@ export function planTamingResult(testResult, {
 /**
  * Roll the required 2d10 + Mind test through the existing pipeline.
  *
- * `roll` is injected in tests instead of mocking global Roll. The returned
- * result may still be pending; in that case the caller must wait for the normal
- * expertise commit and call `planTamingResult` with that committed result.
+ * `roll` is injected in tests instead of mocking global Roll. Tested commands
+ * and taming attempts return an initiation envelope only; the persisted
+ * `petContext` and committed-test subscriber are the sole outcome authority.
  */
 export async function rollTamingTest(animal, human, {
   friendly = false,
-  now = 0,
+  now = currentWorldTime(),
   roll = rollTest,
   ...rollOptions
 } = {}) {
   const gate = canAttemptTaming(animal, human, { friendly });
   if (!gate.ok) return gate;
+  if (!uuidOf(animal)) return failure("animal-missing-uuid");
+  if (!(await hasLiveActorUuid(animal))) return failure("invalid-animal-uuid");
+  if (!(await hasLiveActorUuid(human))) return failure("invalid-human-uuid");
+  if (typeof now !== "number" || !Number.isFinite(now) || now < 0) {
+    return failure("world-time-unavailable");
+  }
   const result = await roll({
     ...rollOptions,
     actor: human,
     characteristic: "mind",
     flavor: rollOptions.flavor ?? `Tame ${animal?.name ?? "Animal"}`,
-    allowedExpertises: ["handlePet"]
+    allowedExpertises: ["handlePet"],
+    petContext: {
+      kind: "taming",
+      animalUuid: uuidOf(animal),
+      humanUuid: uuidOf(human),
+      friendly: !!friendly,
+      startedAt: time(now)
+    }
   });
   if (result?.state !== "committed") {
     return { ok: true, pending: true, test: result, resolution: null };
@@ -241,8 +269,121 @@ export async function rollTamingTest(animal, human, {
     ok: true,
     pending: false,
     test: result,
-    resolution: planTamingResult(result, { animal, human, friendly, now })
+    resolution: null
   };
+}
+
+const PET_RESOLUTION_LEDGER_CAP = 512;
+const _petResolutions = new Map();
+
+/** Resolve a persisted pet-purpose test only after the shared test commits. */
+export function onPetTestCommitted(result, message = null, options = {}) {
+  if (result?.state !== "committed") return Promise.resolve(null);
+  if (result?.kind !== "test") return Promise.resolve(null);
+  if (!Array.isArray(result?.allowedExpertises)
+      || result.allowedExpertises.length !== 1
+      || result.allowedExpertises[0] !== "handlePet") {
+    return Promise.resolve(null);
+  }
+  if (!Array.isArray(result?.targets)
+      || result.targets.length > 0
+      || result?.attack != null
+      || result?.casting != null
+      || result?.miasma != null) {
+    return Promise.resolve(null);
+  }
+  const context = result?.petContext;
+  if (context?.kind !== "taming" && context?.kind !== "command") return Promise.resolve(null);
+  if (context.kind === "command" && context.needsTest !== true) return Promise.resolve(null);
+
+  const messageId = message?.id ?? null;
+  if (messageId && _petResolutions.has(messageId)) return _petResolutions.get(messageId);
+  const resolution = _resolvePetTestCommitted(result, options);
+  if (messageId) {
+    if (_petResolutions.size >= PET_RESOLUTION_LEDGER_CAP) {
+      _petResolutions.delete(_petResolutions.keys().next().value);
+    }
+    _petResolutions.set(messageId, resolution);
+  }
+  return resolution;
+}
+
+/** Register the persisted pet-purpose subscriber once per client. */
+export function registerPetHooks() {
+  if (registerPetHooks._bound) return;
+  registerPetHooks._bound = true;
+  globalThis.Hooks?.on?.("crowsTestCommitted", (result, message) => {
+    void onPetTestCommitted(result, message).catch((error) =>
+      console.warn("crows | committed pet test could not be resolved", error));
+  });
+}
+
+async function _resolvePetTestCommitted(result, {
+  resolveUuid = defaultResolveUuid
+} = {}) {
+  const context = result?.petContext;
+
+  const animalUuid = String(context.animalUuid ?? "").trim();
+  const humanUuid = String(context.humanUuid ?? "").trim();
+  if (!animalUuid || !humanUuid) return failure("invalid-pet-context");
+  const { isLiveActorUuid } = await import("./rest.mjs");
+  if (!isLiveActorUuid(animalUuid) || !isLiveActorUuid(humanUuid)) {
+    return failure("invalid-pet-context");
+  }
+  if (typeof resolveUuid !== "function") return failure("actor-resolver-unavailable");
+
+  let animal;
+  let human;
+  try {
+    [animal, human] = await Promise.all([
+      resolveUuid(animalUuid),
+      resolveUuid(humanUuid)
+    ]);
+  } catch {
+    return failure("actor-resolution-failed");
+  }
+  if (!animal) return failure("animal-unavailable");
+  if (!human) return failure("human-unavailable");
+  if (uuidOf(animal) !== animalUuid || uuidOf(human) !== humanUuid) {
+    return failure("actor-identity-mismatch");
+  }
+  if (!result?.actorId || String(human?.id ?? "") !== String(result.actorId)) {
+    return failure("test-actor-mismatch");
+  }
+
+  if (context.kind === "taming") {
+    if (typeof context.startedAt !== "number"
+        || !Number.isFinite(context.startedAt)
+        || context.startedAt < 0) {
+      return failure("invalid-pet-context");
+    }
+    const plan = planTamingResult(result, {
+      animal,
+      human,
+      friendly: context.friendly === true,
+      now: context.startedAt
+    });
+    if (!plan.ok) return plan;
+    try {
+      return await applyPetPlan(animal, plan);
+    } catch {
+      // Foundry writes have no cross-document transaction or commit receipt.
+      // A rejection can mean the write did or did not land remotely, so the
+      // already-committed test must never be replayed as recovery.
+      return failure("pet-update-failed", {
+        state: "unknown",
+        retryTest: false
+      });
+    }
+  }
+
+  if (context.needsTest !== true) return failure("command-test-not-required");
+  if (!isHumanOwner(human)) return failure("commander-not-human");
+  if (!isAnimal(animal)) return failure("not-an-animal");
+  if (String(petDataOf(animal).ownerUuid ?? "").trim() !== uuidOf(human)) {
+    return failure("commander-not-owner");
+  }
+  return planPetCommandResult(result, petCombatProfile({ animal }));
 }
 
 /**
@@ -494,6 +635,14 @@ export async function rollPetCommandTest(animal, human, {
 } = {}) {
   const profile = petCombatProfile({ animal, spellbookSystem });
   if (!profile.actsAsPet) return failure("not-pet-behaviour");
+  if (profile.ownedPet) {
+    if (!isHumanOwner(human)) return failure("commander-not-human");
+    if (!uuidOf(human)) return failure("commander-missing-uuid");
+    if (!uuidOf(animal)) return failure("animal-missing-uuid");
+    if (!(await hasLiveActorUuid(animal))) return failure("invalid-animal-uuid");
+    if (!(await hasLiveActorUuid(human))) return failure("invalid-human-uuid");
+    if (petDataOf(animal).ownerUuid !== uuidOf(human)) return failure("commander-not-owner");
+  }
   if (!profile.requiresCommandTest || !needsTest) {
     return {
       ok: true,
@@ -502,13 +651,18 @@ export async function rollPetCommandTest(animal, human, {
       resolution: planPetCommandResult(null, { ...profile, requiresCommandTest: false })
     };
   }
-  if (petDataOf(animal).ownerUuid !== uuidOf(human)) return failure("commander-not-owner");
   const result = await roll({
     ...rollOptions,
     actor: human,
     characteristic: "mind",
     flavor: rollOptions.flavor ?? `Command ${animal?.name ?? "Pet"}`,
-    allowedExpertises: ["handlePet"]
+    allowedExpertises: ["handlePet"],
+    petContext: {
+      kind: "command",
+      animalUuid: uuidOf(animal),
+      humanUuid: uuidOf(human),
+      needsTest: true
+    }
   });
   if (result?.state !== "committed") {
     return { ok: true, pending: true, test: result, resolution: null };
@@ -517,7 +671,7 @@ export async function rollPetCommandTest(animal, human, {
     ok: true,
     pending: false,
     test: result,
-    resolution: planPetCommandResult(result, profile)
+    resolution: null
   };
 }
 

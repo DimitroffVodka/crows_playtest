@@ -382,6 +382,8 @@ describe("buildTestResult — multi-target (R:961)", () => {
   test("a test with no targets has an empty targets array, never undefined", () => {
     const r = buildTestResult({ rawSum: 10, actor: null });
     assert.deepEqual(r.targets, []);
+    assert.equal(Object.hasOwn(r, "petContext"), true);
+    assert.equal(r.petContext, null, "fresh ordinary results own the additive null marker");
   });
 });
 
@@ -496,6 +498,72 @@ describe("rollTest — persisted expertise declaration", () => {
       });
       assert.deepEqual(result.allowedExpertises, ["bow"]);
       assert.deepEqual(messageData.flags.crows.test.allowedExpertises, ["bow"]);
+    } finally {
+      if (previousRoll === undefined) delete globalThis.Roll;
+      else globalThis.Roll = previousRoll;
+      if (previousGame === undefined) delete globalThis.game;
+      else globalThis.game = previousGame;
+      if (previousChatMessage === undefined) delete globalThis.ChatMessage;
+      else globalThis.ChatMessage = previousChatMessage;
+      if (previousApplications === undefined) delete globalThis.foundry.applications;
+      else globalThis.foundry.applications = previousApplications;
+    }
+  });
+
+  test("the public roll boundary persists an independent pet purpose in the chat flag", async () => {
+    const previousRoll = globalThis.Roll;
+    const previousGame = globalThis.game;
+    const previousChatMessage = globalThis.ChatMessage;
+    const previousApplications = globalThis.foundry.applications;
+    let messageData = null;
+
+    globalThis.Roll = class DeterministicPetTestRoll {
+      constructor() {
+        this.total = 12;
+        this.dice = [{ faces: 10, results: [{ result: 6 }, { result: 6 }] }];
+      }
+      async evaluate() { return this; }
+      async toMessage(data) {
+        messageData = data;
+        return { id: "Message.petContext" };
+      }
+    };
+    globalThis.game = {
+      i18n: { localize: key => key },
+      settings: { get: () => "publicroll" },
+      user: { targets: new Set() }
+    };
+    globalThis.ChatMessage = { getSpeaker: () => ({ actor: "Actor.crow" }) };
+    globalThis.foundry.applications = {
+      handlebars: { renderTemplate: async () => "<div>test</div>" }
+    };
+
+    try {
+      const actor = fakeCrow();
+      const petContext = {
+        kind: "taming",
+        animalUuid: "Actor.pet",
+        humanUuid: "Actor.crow",
+        friendly: true,
+        startedAt: 1_234
+      };
+      const result = await rollTest({
+        actor,
+        characteristic: "mind",
+        allowedExpertises: [],
+        petContext
+      });
+      petContext.friendly = false;
+
+      const expected = {
+        kind: "taming",
+        animalUuid: "Actor.pet",
+        humanUuid: "Actor.crow",
+        friendly: true,
+        startedAt: 1_234
+      };
+      assert.deepEqual(result.petContext, expected);
+      assert.deepEqual(messageData.flags.crows.test.petContext, expected);
     } finally {
       if (previousRoll === undefined) delete globalThis.Roll;
       else globalThis.Roll = previousRoll;

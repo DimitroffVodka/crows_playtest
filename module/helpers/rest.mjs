@@ -468,12 +468,12 @@ function _syntheticTokenUuid(uuid) {
   return value.slice(0, actorMarker);
 }
 
-function _isLiveActorUuid(uuid) {
+export function isLiveActorUuid(uuid) {
   return /^Actor\.[^.]+$/.test(uuid)
     || /^Scene\.[^.]+\.Token\.[^.]+(?:\.Actor\.[^.]+)?$/.test(uuid);
 }
 
-async function _resolveActorUuid(uuid) {
+export async function resolveActorUuid(uuid) {
   const utilsResolver = globalThis.foundry?.utils?.fromUuid;
   const globalResolver = globalThis.fromUuid;
   const resolver = typeof utilsResolver === "function"
@@ -512,11 +512,11 @@ function _bondPetFailure(error, petUuid, extra = {}) {
 export async function resolveBondPetActivity(human, data = null, {
   restCompleted = false,
   now = _currentWorldTime(),
-  resolveUuid = _resolveActorUuid
+  resolveUuid = resolveActorUuid
 } = {}) {
   const petUuid = String(data?.petUuid ?? "").trim();
   if (!petUuid) return _bondPetFailure("missing-pet-uuid", petUuid);
-  if (!_isLiveActorUuid(petUuid)) return _bondPetFailure("invalid-pet-uuid", petUuid);
+  if (!isLiveActorUuid(petUuid)) return _bondPetFailure("invalid-pet-uuid", petUuid);
   if (typeof now !== "number" || !Number.isFinite(now) || now < 0) {
     return _bondPetFailure("world-time-unavailable", petUuid);
   }

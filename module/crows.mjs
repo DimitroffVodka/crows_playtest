@@ -58,6 +58,7 @@ import {
   spendingWindow, openSpendingWindow, closeSpendingWindow
 } from "./helpers/advancement.mjs";
 import { attackWithWeapon } from "./helpers/attack.mjs";
+import { registerPetHooks } from "./helpers/pets.mjs";
 import { registerConditions } from "./conditions.mjs";
 import {
   STATUS_TO_CONDITION, expireDungeonTurnConditions, handleStatusToggleIntent,
@@ -232,6 +233,7 @@ Hooks.once("ready", async () => {
   registerSpellcastingHooks();
   registerCombatHooks({ autoApply: false });
   registerMiasmaHooks();
+  registerPetHooks();
   await runWorldMigration();
 });
 
