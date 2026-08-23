@@ -9,7 +9,8 @@ import {
   targetEdgesBanes,
   autoDoomApplies,
   classifyTier,
-  testCardData
+  testCardData,
+  preparedTaskMod
 } from "../module/helpers/roll.mjs";
 import {
   canSpendExpertise,
@@ -283,6 +284,55 @@ describe("conditions feed the edge/bane channel — conditionNet is gone", () =>
   test("target edges carry their tokenId as `source`, so the card can say whose they are", () => {
     const t = { tokenId: "Token.9", conditions: { grabbed: true } };
     assert.equal(targetEdgesBanes(t, { kind: "attack" }).edges[0].source, "Token.9");
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe("Prepare for Task (R:658) — the SUMMED channel, never an edge", () => {
+  const TASK = "picking the lock on the abbot's study";
+
+  test("a matched task becomes a Mod with the +2 on it", () => {
+    assert.deepEqual(preparedTaskMod(TASK, 2), {
+      key: "preparedTask", label: `Prepared: ${TASK}`, value: 2
+    });
+  });
+
+  test("no match leaves no phantom \"+0\" row on the card", () => {
+    assert.equal(preparedTaskMod(TASK, 0), null);
+    assert.equal(preparedTaskMod(TASK, undefined), null);
+    assert.equal(preparedTaskMod(TASK, null), null);
+  });
+
+  test("it lands in mods[] and NOT in the edge/bane channel", () => {
+    const r = buildTestResult({
+      rawSum: 10, charVal: 0, mods: [preparedTaskMod(TASK, 2)], actor: null
+    });
+    assert.deepEqual(r.mods.map(m => m.key), ["preparedTask"]);
+    assert.deepEqual(r.eb.edges, [], "R:286 — a bonus is not an edge");
+    assert.deepEqual(r.eb.banes, []);
+    assert.equal(r.eb.numeric, 0, "the edge channel contributed nothing");
+    assert.equal(r.eb.tierShift, 0);
+    assert.equal(r.total, 12, "the +2 reached the total by being SUMMED");
+  });
+
+  test("two +2 bonuses sum to +4 and still cannot shift a tier", () => {
+    // The failure this guards: routed as edges, two of these would tally to a
+    // DOUBLE edge and move the tier outright instead of adding 4.
+    const r = buildTestResult({
+      rawSum: 10, charVal: 0,
+      mods: [preparedTaskMod(TASK, 2), { key: "tool", label: "Masterwork", value: 2 }],
+      actor: null
+    });
+    assert.equal(r.total, 14);
+    assert.equal(r.eb.tierShift, 0);
+    assert.equal(r.tier, classifyTier(14));
+  });
+
+  test("the bonus cannot rescue a doom — mods are still ignored on a terminal path", () => {
+    const r = buildTestResult({ rawSum: 2, mods: [preparedTaskMod(TASK, 2)], actor: null });
+    assert.equal(r.terminal, "doom");
+    assert.equal(r.tier, 1);
+    assert.equal(r.total, null);
   });
 });
 

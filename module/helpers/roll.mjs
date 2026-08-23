@@ -157,6 +157,25 @@ export function targetEdgesBanes(target, { kind = "test", attack = null } = {}) 
   return { edges, banes };
 }
 
+/**
+ * PURE. Prepare for Task's bonus as a `Mod` — the SUMMED channel, never an edge.
+ *
+ * R:286 keeps bonuses/penalties and edges/banes strictly separate. A +2 from a
+ * prepared task is the same kind of thing as a masterwork tool's +2 and none of
+ * them is an edge; routing it into the counted channel would let two such
+ * bonuses tally into a double edge and shift the tier outright.
+ *
+ * @param {string} task    the matched task string, for the card's explanation
+ * @param {number} bonus   whatever `consumePreparedTask` returned; 0 means no match
+ * @returns {{key: string, label: string, value: number}|null} null when nothing applied,
+ *          so a declined match leaves no phantom "+0" row on the card
+ */
+export function preparedTaskMod(task, bonus) {
+  const value = Number(bonus) || 0;
+  if (!value) return null;
+  return { key: "preparedTask", label: `Prepared: ${task}`, value };
+}
+
 /** R:552 — an unconscious creature auto-dooms Agility and Strength tests. */
 export function autoDoomApplies({ conditions = {}, characteristic = null } = {}) {
   return !!conditions.unconscious && (characteristic === "agility" || characteristic === "strength");
@@ -277,10 +296,14 @@ export function snapshotUserTargets() {
  * a PURE FUNCTION of that flag — updating the flag re-renders the message
  * (API-NOTES §4), and a late-joining client renders from flags alone.
  *
- * NOTE — the Prepare-for-Task bonus (R:658) is NOT applied here. It matches on a
- * free-text task, which this signature has no way to name; the caller passes it
- * as a Mod. See the T1.1 report.
+ * PREPARE FOR TASK (R:658) — pass `task`, the free-text string the player wrote
+ * at the campfire. T1.5's `consumePreparedTask(actor, task)` decides whether it
+ * matches (trimmed, case-insensitive), consumes the one-shot, and returns the
+ * bonus. `task` is an additive optional field on the frozen options object: the
+ * bonus binds to "a specific task in a specific location", so it cannot be
+ * derived from `characteristic` and nothing else in the signature can name it.
  *
+ * @param {string|null} [o.task] free text, matched against `system.preparedTask.task`
  * @returns {Promise<object>} the TestResult (also on the message's flags)
  */
 export async function rollTest({
@@ -292,7 +315,8 @@ export async function rollTest({
   flavor = "Test",
   attack = null,
   casting = null,
-  targets = null
+  targets = null,
+  task = null
 } = {}) {
   const kind = casting ? "casting" : attack ? "attack" : "test";
   const conditions = actor?.system?.conditions ?? {};
@@ -306,6 +330,16 @@ export async function rollTest({
   const autoDoom = autoDoomApplies({ conditions, characteristic });
   const refs = targets ?? (kind === "attack" ? snapshotUserTargets() : []);
 
+  // R:658. Imported lazily so the pure half of this module stays loadable
+  // without a Foundry runtime — rest.mjs is Foundry-touching, this is the only
+  // caller, and it is already past every pure path.
+  const allMods = [...mods];
+  if (task && actor?.type === "crow") {
+    const { consumePreparedTask } = await import("./rest.mjs");
+    const prepared = preparedTaskMod(task, await consumePreparedTask(actor, task));
+    if (prepared) allMods.push(prepared);
+  }
+
   const roll = await new Roll("2d10").evaluate();
   const d10s = roll.dice.find(d => d.faces === 10);
   const rawSum = d10s ? d10s.results.reduce((a, r) => a + r.result, 0) : roll.total;
@@ -313,7 +347,7 @@ export async function rollTest({
   const result = buildTestResult({
     actorId: actor?.id ?? null,
     characteristic, kind, rawSum, charVal,
-    mods, edges: allEdges, banes: allBanes,
+    mods: allMods, edges: allEdges, banes: allBanes,
     targets: refs, attack, casting, autoDoom, actor
   });
 
@@ -398,6 +432,7 @@ export const ROLL_API = Object.freeze({
   selfEdgesBanes,
   targetEdgesBanes,
   autoDoomApplies,
+  preparedTaskMod,
   buildTestResult,
   snapshotUserTargets,
   testCardData,
