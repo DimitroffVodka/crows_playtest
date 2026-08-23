@@ -767,16 +767,40 @@ describe("slot re-layout — collect and report, never relocate", () => {
     const actor = { _id: "a", name: "Illegal", type: "crow", flags: {}, system: { woundSlots: [], expertises: {}, xp: { txp: 0 } }, items: [gear("bedroll", "backpack", 9, 2)] };
     const r = migrateActorSlots(actor);
     assert.equal(r.illegal.length, 1);
-    assert.equal(r.illegal[0].reason, "beyond-capacity");
+    // T1.2's vocabulary, not a second one invented here — the migration flags
+    // what the inventory would refuse, in the words the inventory uses.
+    assert.equal(r.illegal[0].reason, "out-of-bounds");
     assert.equal(r.illegal[0].id, "bedroll");
     assert.deepEqual(r.updates, {}, "a migration that repacks the bag makes the Ref debug a layout nobody chose");
   });
 
-  test("two items claiming the same slot are reported as an overlap", () => {
+  test("two non-stacking items in one slot are reported as occupied", () => {
     const actor = { _id: "a", name: "Overlap", type: "crow", flags: {}, system: { woundSlots: [], expertises: {}, xp: { txp: 0 } }, items: [gear("rope", "backpack", 2), gear("lantern", "backpack", 2)] };
     const r = migrateActorSlots(actor);
     assert.equal(r.illegal.length, 1);
-    assert.equal(r.illegal[0].reason, "overlap");
+    assert.equal(r.illegal[0].reason, "occupied");
+    assert.equal(r.illegal[0].id, "lantern", "the second item in is the one that could not be seated");
+  });
+
+  test("a LEGAL stack in one slot is not flagged (R:432)", () => {
+    // The regression this pins: a hand-rolled span map sees two items at one
+    // index and calls it an overlap, telling the GM their legal inventory is
+    // broken. `stackLimits.potion` is 5, so two potions of a kind are fine.
+    const potion = (id) => ({
+      _id: id, name: "Potion of Healing", type: "consumable",
+      system: { slots: 1, stackKind: "potion", quantity: 1, location: { container: "backpack", index: 0, length: 1 } }
+    });
+    const actor = { _id: "a", name: "Stacked", type: "crow", flags: {}, system: { woundSlots: [], expertises: {}, xp: { txp: 0 } }, items: [potion("p1"), potion("p2")] };
+    assert.deepEqual(migrateActorSlots(actor).illegal, []);
+  });
+
+  test("a hand slot never stacks, however stackable the kind", () => {
+    const potion = (id) => ({
+      _id: id, name: "Potion", type: "consumable",
+      system: { slots: 1, stackKind: "potion", quantity: 1, location: { container: "hand", index: 0, length: 1 } }
+    });
+    const actor = { _id: "a", name: "Hands", type: "crow", flags: {}, system: { woundSlots: [], expertises: {}, xp: { txp: 0 } }, items: [potion("p1"), potion("p2")] };
+    assert.equal(migrateActorSlots(actor).illegal[0].reason, "hand-no-stack");
   });
 
   test("a container that no longer exists is reported, not silently emptied", () => {
@@ -813,11 +837,29 @@ describe("slot re-layout — collect and report, never relocate", () => {
     assert.equal(r.illegal[0].reason, "equip-slot-mismatch");
   });
 
-  test("the actor-level PT1 containers map is read when item locations are absent", () => {
-    // The fixture's shape: no per-item `location`, an actor-level map instead.
-    const actor = { _id: "a", name: "Mapped", type: "crow", flags: {}, system: { containers: clone(FIXTURE.system.containers), woundSlots: [0, 1, 2], expertises: {}, xp: { txp: 0 } }, items: clone(FIXTURE.items) };
+  test("occupancy comes from per-item `location` — the ONLY shape any schema has had", () => {
+    // The bug this replaces. The fixture that seeded this task carries an
+    // actor-level `system.containers` map, and layer (b) used to read it. That
+    // key has never existed in any schema in any commit, so against a real
+    // Playtest 1 world layer (b) saw NO occupancy, "re-place only when strictly
+    // improving" improved nothing, and it no-opped forever — silently, with
+    // every test passing, because the fixture fed it the shape it expected.
+    //
+    // So: the real shape, and no map anywhere near it.
+    const actor = {
+      _id: "a", name: "Real PT1", type: "crow", flags: {},
+      system: { woundSlots: [0, 1, 2], expertises: {}, xp: { txp: 0 } },
+      items: clone(FIXTURE.items).slice(4).map((it, i) => ({
+        ...it, system: { ...it.system, location: { container: "backpack", index: i, length: 1 } }
+      }))
+    };
+    assert.equal(actor.system.containers, undefined, "no actor-level map may be involved");
+    assert.equal(actor.items.length, 3);
+
     const r = migrateActorSlots(actor);
-    assert.deepEqual(r.updates["system.woundSlots"], [3, 4, 5]);
+    assert.deepEqual(r.updates["system.woundSlots"], [3, 4, 5], "the re-placement must actually fire");
+    assert.equal(r.wounds.moved, true);
+    assert.deepEqual(r.wounds.forcedOntoOccupied, []);
   });
 });
 

@@ -1,8 +1,13 @@
 import {
   CROWS, ALL_EXPERTISES, EXPERTISES_ALPHABETICAL,
-  expertiseMaxForTxp, bonusesEarnedAtTxp, effectiveCapacities
+  expertiseMaxForTxp, bonusesEarnedAtTxp
 } from "../config.mjs";
 import { REMOVED_STATUS_IDS } from "../conditions.mjs";
+// T1.2 owns placement. The migration READS through it and never re-derives it:
+// the fixture that seeded this task carried an actor-level `containers` map
+// that has never existed in any schema, and a second local reader is exactly
+// how a migration ends up auditing a layout the game does not have.
+import { layoutFor, magicOverloadFor, emptyLayout, placeAt, slotsNeeded } from "./slots.mjs";
 
 /**
  * Playtest 1 -> Playtest 2 data migration. PURE FUNCTIONS ONLY — nothing here
@@ -199,10 +204,20 @@ export function placeWoundSlots(count, { occupied = [], capacity = CROWS.carryCo
 }
 
 /**
- * Which backpack indices the PT1 actor-level `containers` map shows as full.
- * Real PT1 data stores placement per ITEM (`system.location`), which layer (a)
- * cannot see; some captured/fixture data carries this map instead. Both are
- * handled — this one here, item locations in `readPlacements()`.
+ * Which backpack indices an actor-level `containers` map shows as full.
+ *
+ * READ THE CAVEAT. Placement has ALWAYS lived on the item as
+ * `system.location = {container, index, length}`; T1.2 confirmed by archaeology
+ * that `system.containers` has never existed in any schema in any commit. It is
+ * a shape the migration fixture invented, so this path fires for that fixture
+ * and for nothing in a real world.
+ *
+ * It is kept because it costs nothing and the fixture is committed — but it is
+ * NOT how wounds get placed correctly for real data. Layer (a) cannot see items
+ * at all, so against a real Playtest 1 crow it has no occupancy information and
+ * places wounds from index 0 up. `migrateActorSlots` (layer b) is what then
+ * reads the true placement through T1.2's `layoutFor` and moves them onto empty
+ * slots. Do not "simplify" by leaning on this map.
  */
 function occupiedFromContainers(containers, container = "backpack") {
   const list = containers?.[container];
@@ -736,73 +751,6 @@ export function expertiseOverBudget(actor, backgroundUses = actor?.flags?.crows?
 /* -------------------------------------------------------------------------- */
 
 /**
- * Every container capacity for this actor. Prefers the actor's own derived
- * `capacities` (which already summed trait grants through the one shared pure
- * function) and falls back to summing the grants here, so a plain test object
- * behaves the same as a live Actor.
- */
-function capacitiesFor(actor) {
-  if (isObject(actor?.system?.capacities)) return actor.system.capacities;
-  const grants = [];
-  for (const item of actor?.items ?? []) {
-    if (item?.type !== "trait") continue;
-    for (const g of item?.system?.slotGrants ?? []) grants.push(g);
-  }
-  return effectiveCapacities(grants);
-}
-
-/**
- * Where every item sits, from whichever shape this actor carries.
- *
- * Real PT1 data is per-item (`system.location = {container, index, length}`).
- * Captured/fixture data may instead carry an actor-level `containers` map.
- * Item locations win; the map fills in anything they did not place.
- */
-function readPlacements(actor) {
-  const placed = [];
-  const seen = new Set();
-
-  for (const item of actor?.items ?? []) {
-    const loc = item?.system?.location;
-    if (!isObject(loc) || !loc.container) continue;
-    const id = item.id ?? item._id ?? null;
-    seen.add(id);
-    placed.push({
-      id,
-      name: item.name ?? "",
-      container: loc.container,
-      index: toCount(loc.index),
-      length: Math.max(1, toCount(loc.length ?? item.system?.slots ?? 1)),
-      equipSlotType: item.system?.equipSlotType ?? ""
-    });
-  }
-
-  const containers = actor?.system?.containers ?? actor?._source?.system?.containers;
-  if (isObject(containers)) {
-    const byId = new Map();
-    for (const item of actor?.items ?? []) byId.set(item.id ?? item._id, item);
-    for (const [container, list] of Object.entries(containers)) {
-      if (!Array.isArray(list)) continue;
-      list.forEach((entry, index) => {
-        if (!entry || seen.has(entry)) return;
-        const item = byId.get(entry);
-        placed.push({
-          id: entry,
-          name: item?.name ?? entry,
-          container,
-          index,
-          length: Math.max(1, toCount(item?.system?.slots ?? 1)),
-          equipSlotType: item?.system?.equipSlotType ?? ""
-        });
-      });
-    }
-  }
-
-  return placed.sort((a, b) => (a.container < b.container ? -1 : a.container > b.container ? 1
-    : a.index - b.index));
-}
-
-/**
  * LAYER (b). Audit an actor's slot placements against the Playtest 2 axes and
  * re-check its wound placement.
  *
@@ -820,7 +768,17 @@ function readPlacements(actor) {
  * shared slots, so it converges and cannot churn. That is not a relocation of
  * anyone's gear; it is deliverable 4's "prefer empty slots" rule applied where
  * the occupancy data actually lives. Layer (a) placed wounds from whatever the
- * `system` object showed, which for real PT1 data is nothing at all.
+ * `system` object showed, which for a real Playtest 1 world is nothing at all
+ * — placement has always lived on the ITEM.
+ *
+ * PLACEMENT IS READ THROUGH T1.2's `layoutFor()`, NOT LOCALLY. This file used
+ * to walk the items itself, and two independent readers of the same data is
+ * how a migration drifts from the sheet it is migrating for. Delegating also
+ * fixed a false positive the local reader had: two potions legally stacked in
+ * one slot (R:432, `stackLimits.potion: 5`) were reported to the GM as an
+ * illegal overlap. `layoutFor` knows about stacking, weightless items, spans
+ * and trait-granted capacity, and is pinned by a test asserting it agrees with
+ * `CrowData.prepareDerivedData` — so this audit inherits all of that.
  */
 export function migrateActorSlots(actor) {
   const result = {
@@ -833,45 +791,71 @@ export function migrateActorSlots(actor) {
   };
   if (!actor || !isObject(actor.system)) return result;
 
-  const caps = capacitiesFor(actor);
-  const placements = readPlacements(actor);
+  const layout = layoutFor(actor);
+  const byId = new Map();
+  for (const item of actor.items ?? []) byId.set(item.id ?? item._id, item);
 
   // --- placement audit ------------------------------------------------------
-  const spans = new Map();          // container -> Map<index, placement>
-  const perMagic = new Map();       // magic container -> count
-  for (const p of placements) {
-    const cap = caps[p.container];
-    if (cap === undefined) { result.illegal.push({ ...p, reason: "unknown-container" }); continue; }
-    if (p.index + p.length > cap) { result.illegal.push({ ...p, reason: "beyond-capacity", capacity: cap }); continue; }
+  // `layoutFor` is deliberately TOLERANT — it calls placeAt with
+  // `enforce: false`, because a snapshot of stored state must show you an item
+  // that is sitting somewhere illegal rather than hide it. So it is the right
+  // source for OCCUPANCY but not for legality.
+  //
+  // To find what is actually illegal, replay every stored placement into a
+  // fresh layout of the same capacities with `enforce: true`. Every rule comes
+  // from T1.2 — out-of-bounds, cross-container, non-contiguous, occupied,
+  // hand-no-stack, stack-kind, stack-full — so the migration flags exactly what
+  // the inventory would refuse, in the same words, and a LEGAL stack (R:432)
+  // is not flagged at all.
+  const strict = emptyLayout(result.actorId ?? "", layout.capacities);
+  for (const item of actor.items ?? []) {
+    const loc = item?.system?.location;
+    if (!loc?.container) continue;                 // traits, backgrounds, spellbooks…
+    const index = Math.floor(Number(loc.index) || 0);
+    const refs = [];
+    for (let k = 0; k < slotsNeeded(item); k++) refs.push({ container: loc.container, index: index + k });
+    const res = placeAt(strict, item, refs, { enforce: true });
+    if (res.ok) continue;
+    result.illegal.push({
+      id: item.id ?? item._id ?? null,
+      name: item.name ?? "",
+      container: loc.container,
+      index,
+      reason: res.reason
+    });
+  }
 
-    const used = spans.get(p.container) ?? new Map();
-    let overlaps = false;
-    for (let i = p.index; i < p.index + p.length; i++) if (used.has(i)) overlaps = true;
-    if (overlaps) {
-      result.illegal.push({ ...p, reason: "overlap" });
-      continue;
-    }
-    for (let i = p.index; i < p.index + p.length; i++) used.set(i, p);
-    spans.set(p.container, used);
-
-    if (CROWS.magicSlots.includes(p.container)) {
-      perMagic.set(p.container, (perMagic.get(p.container) ?? 0) + 1);
-      // The item declares which magic slot it belongs in; a mismatch is a
-      // content/data error the Ref should see, not something to auto-correct.
-      if (p.equipSlotType && p.equipSlotType !== p.container) {
-        result.illegal.push({ ...p, reason: "equip-slot-mismatch" });
+  // The item declares which magic slot it belongs in; a mismatch is a content
+  // error the Ref should see, not something to auto-correct.
+  for (const slot of layout.slots ?? []) {
+    if (!CROWS.magicSlots.includes(slot.container)) continue;
+    for (const entry of slot.items) {
+      const item = byId.get(entry.id);
+      const declared = item?.system?.equipSlotType ?? "";
+      if (declared && declared !== slot.container) {
+        result.illegal.push({
+          id: entry.id, name: item?.name ?? entry.id,
+          container: slot.container, index: slot.index, reason: "equip-slot-mismatch"
+        });
       }
     }
   }
-  for (const [container, n] of perMagic) {
-    // R:438 / CROWS.Warn.magicSlotOverload — one item per magic slot.
-    if (n > 1) result.magicOverload.push({ container, count: n });
+
+  // R:438 / CROWS.Warn.magicSlotOverload — one item per magic slot.
+  const overload = magicOverloadFor(layout);
+  for (const slot of overload.slots) {
+    result.magicOverload.push({ container: slot.container, count: slot.itemIds.length });
   }
 
   // --- wounds ---------------------------------------------------------------
-  const backpackCap = toCount(caps.backpack);
-  const occupied = new Set();
-  for (const [index] of (spans.get("backpack") ?? new Map())) occupied.add(index);
+  const backpackCap = toCount(layout.capacities?.backpack);
+  // Occupied means "holds an ITEM". A slot already holding a wound is not
+  // occupied for this purpose — that is the thing being re-placed.
+  const occupied = new Set(
+    (layout.slots ?? [])
+      .filter((s) => s.container === "backpack" && s.items.length > 0)
+      .map((s) => s.index)
+  );
 
   const current = [...(actor.system.woundSlots ?? [])].map(toCount).sort((a, b) => a - b);
   const currentForced = current.filter((i) => i < backpackCap && occupied.has(i));
