@@ -547,7 +547,7 @@ const crow = (expertises = {}, items = []) => ({
   system: { characteristics: { mind: { value: 2 } }, expertises }
 });
 
-describe("crafting prerequisites (R:1536-1554)", () => {
+describe("crafting prerequisites (R:1669-1687)", () => {
   test("the gate reads uses OWNED (`max`), never uses REMAINING (`value`)", () => {
     // A crow who spent both blacksmithing uses on tests this morning still owns
     // two and is still qualified to begin the project. Reading `value` would
@@ -561,7 +561,7 @@ describe("crafting prerequisites (R:1536-1554)", () => {
     assert.equal(meetsCraftingPrerequisites(underqualified, { expertise: "blacksmithing", uses: 2 }).ok, false);
   });
 
-  test("tools are required and matched by name (R:1548-1554)", () => {
+  test("tools are required and matched by name (R:1681-1687)", () => {
     assert.deepEqual(TOOL_FOR_EXPERTISE, {
       alchemy: "alchemist's tools",
       blacksmithing: "blacksmith's tools",
@@ -585,7 +585,7 @@ describe("crafting prerequisites (R:1536-1554)", () => {
     assert.match(r.reasons.join(" "), /unknown expertise/);
   });
 
-  test("an assistant is gated on the same prerequisites (R:1580)", () => {
+  test("an assistant is gated on the same prerequisites (R:1713)", () => {
     const project = { expertise: "enchanting", uses: 2 };
     const helper = crow({ enchanting: { value: 0, max: 2 } }, [{ name: "Enchanter's Tools" }]);
     assert.equal(canAssistCrafting(helper, project).ok, true);
@@ -594,8 +594,8 @@ describe("crafting prerequisites (R:1536-1554)", () => {
   });
 });
 
-describe("crafting rolls (R:1564-1576)", () => {
-  test("an expertise is a flat +4 and you may apply two (R:1570)", () => {
+describe("crafting rolls (R:1697-1709)", () => {
+  test("an expertise is a flat +4 and you may apply two (R:1703)", () => {
     assert.equal(CRAFTING_EXPERTISE_BONUS, 4);
     assert.equal(MAX_EXPERTISES_PER_CRAFTING_ROLL, 2);
     assert.equal(craftingRollBonus({ mind: 2, expertisesApplied: 1 }).total, 6);
@@ -620,14 +620,14 @@ describe("crafting rolls (R:1564-1576)", () => {
     assert.equal(craftingRollBonus({ mind: 2, institutionBonus: 3 }).total, 5);
   });
 
-  test("the minimum is 1 point unless it's a doom (R:1568)", () => {
+  test("the minimum is 1 point unless it's a doom (R:1701)", () => {
     assert.equal(craftingPointsFrom({ total: 14 }), 14);
     assert.equal(craftingPointsFrom({ total: 0 }), 1);
     assert.equal(craftingPointsFrom({ total: -6 }), 1, "even through a double bane");
     assert.equal(craftingPointsFrom({ total: 14, doom: true }), 0, "a doom accrues nothing");
   });
 
-  test("surplus rolls into another copy, but only with materials for it (R:1576)", () => {
+  test("surplus rolls into another copy, but only with materials for it (R:1709)", () => {
     // 250 points against a goal of 100 is two finished items and 50 banked...
     const withMaterials = accrueCraftingPoints({ points: 0, goal: 100 }, 250, { materialSets: 3 });
     assert.equal(withMaterials.completedThisRoll, 2);
@@ -667,7 +667,7 @@ describe("crafting rolls (R:1564-1576)", () => {
   });
 });
 
-describe("IDing magic items (R:1586-1600)", () => {
+describe("IDing magic items (R:1719-1733)", () => {
   test("tiers use the shared boundaries, not hardcoded numbers", () => {
     assert.equal(identifyTier(11), 1);
     assert.equal(identifyTier(12), 2);

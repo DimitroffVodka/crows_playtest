@@ -2,16 +2,16 @@
  * Crafting and IDing magic items — Playtest 2.
  *
  * Citations are `R:<line>` into the Rules book
- * (`01 Crows The Rules Book for Playtest 2.md`): crafting R:1532-1580,
- * IDing magic items R:1586-1600, the Craft Equipment and Identify Item rest
- * activities R:580-590.
+ * (`01 Crows The Rules Book for Playtest 2.md`): crafting R:1665-1713,
+ * IDing magic items R:1719-1733, the Craft Equipment and Identify Item rest
+ * activities R:646-654.
  *
  * ## What Playtest 2 changed here
  *
  * - **Skills are gone.** A project names an *expertise*
  *   (`crafting.projects[].expertise`, renamed from `.skill`), and `CROWS.skills`
  *   no longer exists.
- * - **The prerequisite is USES OWNED, not a bonus.** R:1540: *"Every craftable
+ * - **The prerequisite is USES OWNED, not a bonus.** R:1673: *"Every craftable
  *   item has an expertise and number of uses associated with it. You must have
  *   the appropriate expertise and number of uses to craft it."* That reads
  *   `expertises[key].max`, never `.value` — spending your alchemy uses on tests
@@ -20,14 +20,14 @@
  *   has no counterpart in the PT2 text. `hasRecipe` / `prereqBonus` are no
  *   longer written.
  * - **An expertise applied to a crafting roll is a flat +4, and you may apply
- *   TWO** (R:1570) — not the usual one-per-test tier improvement. This is why
+ *   TWO** (R:1703) — not the usual one-per-test tier improvement. This is why
  *   crafting does not route through `expertise.mjs`'s `canSpendExpertise`,
  *   which enforces the test rule it is not subject to. A spend still decrements
  *   `value` and never touches `max`.
  * - **Materials are generic monster parts**, not named organs (changelog;
- *   R:1558 still calls them organs and vials of blood in flavour text, but the
+ *   R:1691 still calls them organs and vials of blood in flavour text, but the
  *   crafting requirement is a count).
- * - **Surplus points roll into another copy** of the same item (R:1576).
+ * - **Surplus points roll into another copy** of the same item (R:1709).
  *
  * The pure half — prerequisites, point arithmetic, tier lookup — is what
  * `test/village.test.mjs` exercises; the `Roll` / `ChatMessage` half is below it.
@@ -36,18 +36,18 @@
 import { CROWS } from "../config.mjs";
 import { readExpertiseUses } from "./expertise.mjs";
 
-/** R:1548-1554 — the tools each crafting expertise needs. */
+/** R:1681-1687 — the tools each crafting expertise needs. */
 export const TOOL_FOR_EXPERTISE = Object.freeze({
   alchemy: "alchemist's tools",
   blacksmithing: "blacksmith's tools",
   enchanting: "enchanter's tools"
 });
 
-/** The three expertises anything is crafted with (R:1550-1554). */
+/** The three expertises anything is crafted with (R:1683-1687). */
 export const CRAFTING_EXPERTISES = Object.freeze(Object.keys(TOOL_FOR_EXPERTISE));
 
 /**
- * R:1570 — "When you apply a double edge or an expertise to a crafting roll,
+ * R:1703 — "When you apply a double edge or an expertise to a crafting roll,
  * the roll gains a +4 bonus instead of the normal benefits. You can only apply
  * up to two expertises per crafting roll. When a double bane applies to a
  * crafting roll, the roll gains a -4 penalty."
@@ -57,11 +57,11 @@ export const CRAFTING_DOUBLE_EDGE_BONUS = 4;
 export const CRAFTING_DOUBLE_BANE_PENALTY = -4;
 export const MAX_EXPERTISES_PER_CRAFTING_ROLL = 2;
 
-/** R:1568 — the floor on a crafting roll, unless it is a doom. */
+/** R:1701 — the floor on a crafting roll, unless it is a doom. */
 export const CRAFTING_MIN_POINTS = 1;
 
 /* -------------------------------------------------------------------------- */
-/*  Prerequisites (R:1536-1554)                                                */
+/*  Prerequisites (R:1669-1687)                                                */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -109,13 +109,13 @@ export function actorHasTool(actor, toolName) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Roll arithmetic (R:1564-1576)                                              */
+/*  Roll arithmetic (R:1697-1709)                                              */
 /* -------------------------------------------------------------------------- */
 
 /**
  * The bonus a crafting roll carries, from every source that stacks onto it.
  *
- * Expertises are capped at two (R:1570). A double edge is a further flat +4 in
+ * Expertises are capped at two (R:1703). A double edge is a further flat +4 in
  * its own right, and a double bane a flat -4 — these replace the normal edge
  * mechanics rather than adding to them, so no numeric edge value is consulted.
  *
@@ -138,7 +138,7 @@ export function craftingRollBonus({
 }
 
 /**
- * R:1568 — the total becomes crafting points. Minimum 1 even through a bane or
+ * R:1701 — the total becomes crafting points. Minimum 1 even through a bane or
  * penalty; a doom accrues nothing at all.
  */
 export function craftingPointsFrom({ total = 0, doom = false } = {}) {
@@ -149,8 +149,8 @@ export function craftingPointsFrom({ total = 0, doom = false } = {}) {
 /**
  * Add points to a project and settle completions.
  *
- * R:1572 — at or past the goal the item is done and its materials are expended.
- * R:1576 — surplus begins another copy of the SAME item, *provided you have the
+ * R:1705 — at or past the goal the item is done and its materials are expended.
+ * R:1709 — surplus begins another copy of the SAME item, *provided you have the
  * materials*, and that repeats. So the number finished this roll is bounded by
  * material sets on hand, not just by arithmetic: without the second set the
  * surplus stays banked on the project rather than minting a free item.
@@ -176,7 +176,7 @@ export function accrueCraftingPoints({ points = 0, goal = 1, completed = 0 } = {
 }
 
 /**
- * R:1580 — another creature resting with you who meets the tool and expertise
+ * R:1713 — another creature resting with you who meets the tool and expertise
  * prerequisites may spend their own rest activity on your project; their rolls
  * accrue to the same item.
  */
@@ -185,7 +185,7 @@ export function canAssistCrafting(helper, project) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  IDing magic items (R:1586-1600)                                            */
+/*  IDing magic items (R:1719-1733)                                            */
 /* -------------------------------------------------------------------------- */
 
 /** Tier of a 2d10 + M identify test, using the shared tier boundaries. */
@@ -196,13 +196,13 @@ export function identifyTier(total) {
   return 3;
 }
 
-/** R:1594-1598 — what each tier tells you. */
+/** R:1727-1731 — what each tier tells you. */
 export const IDENTIFY_OUTCOMES = Object.freeze({
-  1: Object.freeze({ id: "activate", source: "R:1594",
+  1: Object.freeze({ id: "activate", source: "R:1727",
     text: "You accidentally activate the item in a harmful way determined by the Ref." }),
-  2: Object.freeze({ id: "blank", source: "R:1596",
+  2: Object.freeze({ id: "blank", source: "R:1729",
     text: "You learn nothing about the item." }),
-  3: Object.freeze({ id: "full", source: "R:1598",
+  3: Object.freeze({ id: "full", source: "R:1731",
     text: "You learn all of the item's properties." })
 });
 
@@ -255,7 +255,7 @@ export async function startCraftingProject(actor, {
   return { ok: true, id: project.id, project };
 }
 
-/** Cancel a project. Materials are not expended (R:1572 only spends on completion). */
+/** Cancel a project. Materials are not expended (R:1705 only spends on completion). */
 export async function cancelProject(actor, id) {
   if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
   const projects = actor.system?.crafting?.projects ?? [];
@@ -270,14 +270,14 @@ export async function cancelProject(actor, id) {
 }
 
 /**
- * One crafting roll: a special Mind test with no tiered outcome (R:1568).
+ * One crafting roll: a special Mind test with no tiered outcome (R:1701).
  *
- * `expertises` are the keys applied to THIS roll — up to two (R:1570), each a
+ * `expertises` are the keys applied to THIS roll — up to two (R:1703), each a
  * flat +4, each costing one remaining use. Uses are deducted from `value`;
  * `max` is never touched, so a rest restores them (R:628).
  *
  * A crit lets you roll again for the same item within the same rest activity
- * (R:1568); that loop is the caller's — `rest.mjs` already runs it — so this
+ * (R:1701); that loop is the caller's — `rest.mjs` already runs it — so this
  * returns `crit` rather than recursing.
  */
 export async function makeCraftingRoll(actor, projectId, {
@@ -289,7 +289,7 @@ export async function makeCraftingRoll(actor, projectId, {
   if (idx < 0) return { ok: false, error: "project not found" };
   const project = { ...projects[idx] };
 
-  // Which requested spends are actually payable right now (R:1570 caps at two).
+  // Which requested spends are actually payable right now (R:1703 caps at two).
   const spends = [];
   for (const key of expertises) {
     if (spends.length >= MAX_EXPERTISES_PER_CRAFTING_ROLL) break;
@@ -315,7 +315,7 @@ export async function makeCraftingRoll(actor, projectId, {
 
   projects[idx] = project;
   const update = { "system.crafting.projects": projects };
-  // R:1570 spends: decrement `value`, never `max`.
+  // R:1703 spends: decrement `value`, never `max`.
   for (const key of spends) {
     const { value } = readExpertiseUses(actor, key);
     update[`system.expertises.${key}.value`] = Math.max(0, value - 1);
@@ -327,7 +327,7 @@ export async function makeCraftingRoll(actor, projectId, {
     `<div>2d10(${d10s?.results?.map(x => x.result).join(",") ?? rawSum}) + M ${mind}${spendNote}${doubleEdge ? ` + double edge +${CRAFTING_DOUBLE_EDGE_BONUS}` : ""}${doubleBane ? ` ${CRAFTING_DOUBLE_BANE_PENALTY}` : ""}${institutionBonus ? ` + ${institutionBonus}` : ""} = <strong>${roll.total}</strong>${doom ? " <em>(DOOM — no points)</em>" : crit ? " <em>(CRIT)</em>" : ""}</div>`,
     `<div>Points: +<strong>${gained}</strong> &rarr; ${project.points}/${project.goal}${accrued.completedThisRoll ? ` &middot; <strong>${accrued.completedThisRoll} completed</strong>` : ""}</div>`
   ];
-  if (accrued.blockedOnMaterials) lines.push(`<div><em>Surplus banked — another copy needs another set of materials (R:1576).</em></div>`);
+  if (accrued.blockedOnMaterials) lines.push(`<div><em>Surplus banked — another copy needs another set of materials (R:1709).</em></div>`);
   if (crit && !accrued.completedThisRoll) lines.push(`<div><em>Crit — make another crafting roll for this item, free, in the same rest activity.</em></div>`);
 
   await roll.toMessage({
@@ -375,7 +375,7 @@ export async function completeProject(actor, projectId) {
 }
 
 /**
- * Identify Item (R:1586-1600). 2d10 + M, one attempt per item ever (R:1600) —
+ * Identify Item (R:1719-1733). 2d10 + M, one attempt per item ever (R:1733) —
  * enforced by a flag on the item so the gate survives a reload, which the PT1
  * "the Ref should remember" comment did not.
  */
@@ -385,7 +385,7 @@ export async function identifyMagicItem(actor, { itemId = null, itemName = null 
   const label = item?.name ?? itemName ?? "(unnamed item)";
 
   if (item?.getFlag?.(CROWS.id, "identifyAttempted")) {
-    return { ok: false, error: "you can only make this test once with an item (R:1600)" };
+    return { ok: false, error: "you can only make this test once with an item (R:1733)" };
   }
 
   const mind = actor.system?.characteristics?.mind?.value ?? 0;
