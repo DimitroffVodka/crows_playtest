@@ -116,16 +116,22 @@ export function effectiveBacklashRank(rank, { discipline, masteredDisciplines = 
  * expertise improves "the test's result" (R:292). Callers must therefore hang
  * this off `crowsTestCommitted` and never off the roll itself.
  *
+ * `state` has NO DEFAULT, deliberately. Defaulting it to "committed" would
+ * make a caller who simply forgot to pass it roll chaos on a test that may
+ * still be pending — the one failure this whole path exists to prevent, and
+ * one that produces a wrong game silently. Anything that is not the literal
+ * string "committed" declines.
+ *
  * @param {object} p
  * @param {1|2|3} p.tier
  * @param {boolean} p.doom
- * @param {"pending"|"committed"} [p.state]
+ * @param {"pending"|"committed"} p.state   Required; anything else declines.
  * @param {string} p.discipline
  * @param {number} p.rank
  * @param {string[]} [p.masteredDisciplines]
  * @returns {{roll: boolean, reason: string}}
  */
-export function chaosRollDecision({ tier, doom, state = "committed", discipline, rank,
+export function chaosRollDecision({ tier, doom, state, discipline, rank,
                                     masteredDisciplines = [] } = {}) {
   if (state !== "committed") return { roll: false, reason: "test not committed" };
   // R:1563 — a doom is the OTHER route to a backlash. It does not route

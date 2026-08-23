@@ -53,7 +53,10 @@ const _pendingCasts = new Map();
  * @param {1|2|3} p.tier                    The COMMITTED tier.
  * @param {boolean} [p.doom]
  * @param {boolean} [p.crit]
- * @param {"pending"|"committed"} [p.state]
+ * @param {"pending"|"committed"} p.state    Required, and NOT defaulted — see
+ *                                           `chaosRollDecision`. A caller who
+ *                                           forgets it gets an idle plan, not a
+ *                                           chaos roll on a pending test.
  * @param {number} p.rank                   The spell's printed rank.
  * @param {string} p.discipline
  * @param {string[]} [p.masteredDisciplines]
@@ -62,7 +65,7 @@ const _pendingCasts = new Map();
  *            backlash: null | {trigger: boolean, cause: string, rank: number},
  *            effectBand: "t1"|"t2"|"t3"|null}}
  */
-export function planCastingOutcome({ tier, doom = false, crit = false, state = "committed",
+export function planCastingOutcome({ tier, doom = false, crit = false, state,
                                      rank = 0, discipline = "", masteredDisciplines = [] } = {}) {
   const idle = {
     ok: false, udRoll: false, backlash: null, effectBand: null,

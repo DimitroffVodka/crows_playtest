@@ -291,15 +291,26 @@ describe("backlash table", () => {
 
 describe("backlash duration handling (R:1561)", () => {
   test("a duplicate durational backlash re-rolls", () => {
-    const goo = BACKLASH_TABLE.find(r => r.sourceRange === "37-38");
-    assert.equal(shouldRerollBacklash(goo, []).reroll, false);
-    assert.equal(shouldRerollBacklash(goo, ["37-38"]).reroll, true);
+    // The donkey head: 1 UD, and its text says nothing about getting worse if
+    // you already have it — so R:1561's re-roll applies.
+    const donkey = BACKLASH_TABLE.find(r => r.sourceRange === "01-02");
+    assert.equal(hasDuration(donkey), true);
+    assert.equal(backlashStacks(donkey), false);
+    assert.equal(shouldRerollBacklash(donkey, []).reroll, false, "not already active — no re-roll");
+    assert.equal(shouldRerollBacklash(donkey, ["01-02"]).reroll, true);
   });
 
   test("...unless its effects stack", () => {
-    const cold = BACKLASH_TABLE.find(r => r.sourceRange === "11-12");
-    assert.equal(backlashStacks(cold), true, "the row says the effect worsens if already suffered");
-    assert.equal(shouldRerollBacklash(cold, ["11-12"]).reroll, false);
+    // Both of these say what happens "if you are already suffering this
+    // backlash", which is the rule's own definition of stacking. The sticky
+    // goo reads like a plain durational effect until that last sentence.
+    for (const range of ["11-12", "37-38"]) {
+      const row = BACKLASH_TABLE.find(r => r.sourceRange === range);
+      assert.equal(hasDuration(row), true, `${range} lasts`);
+      assert.equal(backlashStacks(row), true, `${range} says the effect worsens if already suffered`);
+      assert.equal(shouldRerollBacklash(row, [range]).reroll, false, range);
+      assert.equal(shouldRerollBacklash(row, [range]).reason, "effects stack");
+    }
   });
 
   test("...and conditions are excluded by the rule itself", () => {
