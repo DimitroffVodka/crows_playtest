@@ -86,6 +86,34 @@ Exports:
 
 `expertiseMaxAtCreation: 2` · `expertiseUsesPerBonus: 3` (C:615) · `charAdvancement [5000,15000,30000]` · `retirementTXP 60000`
 
+**End-of-rest advancement lifecycle.** The book defines when advancement is
+available but not how long that interaction lasts, so Wave 1 adopts this
+explicit product policy: a `takeRest()` call that reaches its `{ok:true}`
+completion opens `flags.crows.advancementWindow`; the next `rollTest()` closes
+it, awaited before prepared-task consumption, dice, chat, or commit hooks.
+Current rest semantics deliberately grant benefits and return `ok:true` even
+with `interrupted:true`, so that path opens too. The opener runs after the
+automatic Miasma resistance test, otherwise that test would close the phase it
+just created. Multiple legal bonus claims and distinct trait purchases remain
+allowed while open; advancement writes never close it.
+
+The flag is additive authority, not a `CrowData` field. `true` is open and
+`false` is closed. Absent/null remains permissive as a migration compatibility
+state until the first real lifecycle write; no migration bulk-stamps it false.
+"Next test" is intentionally narrower than "next action": direct non-test
+crafting, crypt, inventory, condition, and sheet mutations do not close the
+window in this slice.
+
+Rest benefits, its summary card, and any rest activity are already committed
+before the final lifecycle transition. If the automatic Miasma test or the
+window-open write then fails, `takeRest()` returns the explicit non-retryable
+partial result `{ok:false, completed:true, partial:true, retryRest:false}` and
+shows a visible "do not repeat the rest" error. It does not roll benefits back.
+A Miasma-test failure never opens advancement and best-effort restores the
+closed gate. The Ref can retry only the gate transition through
+`game.crows.advancementWindow.open(actor)`; `get` and `close` expose the same
+persisted authority for diagnosis and recovery.
+
 **Exported helpers** (verified by `test/config.test.mjs`):
 
 ```js

@@ -402,6 +402,12 @@ describe("module/crows.mjs imports resolve", () => {
     ]) {
       assert.equal(typeof game.crows[api], "function", `${api} was not wired onto game.crows`);
     }
+    for (const api of ["get", "open", "close"]) {
+      assert.equal(
+        typeof game.crows.advancementWindow?.[api], "function",
+        `advancementWindow.${api} was not wired onto game.crows`
+      );
+    }
     assert.equal(
       Object.hasOwn(game.crows, "spendSkillBonus"), false,
       "the removed Playtest 1 advancement API leaked back onto game.crows"

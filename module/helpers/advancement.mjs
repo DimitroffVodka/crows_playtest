@@ -52,7 +52,8 @@ export const TRAIT_MIN_MODIFIER = 1;
 
 /** Flag that records whether the end-of-rest spending window is open (C:609).
  *  A flag rather than a schema field: the contract froze `CrowData` without one,
- *  and rest (T1.5) is the only thing that should be opening and closing it. */
+ *  `takeRest` opens it after completion and `rollTest` closes it before the next
+ *  test's side effects. */
 export const ADVANCEMENT_WINDOW_SCOPE = "crows";
 export const ADVANCEMENT_WINDOW_KEY = "advancementWindow";
 
@@ -233,8 +234,10 @@ export function spendingWindow(crow) {
   return { open: !!raw, state: raw ? "open" : "closed" };
 }
 
-/** For rest (T1.5): open the window when a rest finishes, close it when the
- *  crow acts again. Both are no-ops on anything that is not a crow. */
+/** Lifecycle policy: takeRest opens the window after all completion work;
+ *  rollTest closes it before any test side effect. "The next test" is the
+ *  chosen product boundary — the book defines only "at the end of a rest",
+ *  not a duration. Both helpers are no-ops on anything that is not a crow. */
 export async function setSpendingWindow(actor, open) {
   if (actor?.type !== "crow") return { ok: false, error: "not a crow" };
   await actor.setFlag?.(ADVANCEMENT_WINDOW_SCOPE, ADVANCEMENT_WINDOW_KEY, !!open);

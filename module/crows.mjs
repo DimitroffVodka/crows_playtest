@@ -54,7 +54,8 @@ import {
 } from "./helpers/character-creator.mjs";
 import {
   gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait,
-  bonusesAvailable, spendExpertiseBonus, spendCharBonus, advancementOptions
+  bonusesAvailable, spendExpertiseBonus, spendCharBonus, advancementOptions,
+  spendingWindow, openSpendingWindow, closeSpendingWindow
 } from "./helpers/advancement.mjs";
 import { attackWithWeapon } from "./helpers/attack.mjs";
 import { registerConditions } from "./conditions.mjs";
@@ -174,6 +175,11 @@ Hooks.once("init", () => {
     setCondition, mirrorConditions, expireDungeonTurnConditions,
     gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait,
     bonusesAvailable, spendExpertiseBonus, spendCharBonus, advancementOptions,
+    advancementWindow: {
+      get: spendingWindow,
+      open: openSpendingWindow,
+      close: closeSpendingWindow
+    },
     attackWithWeapon,
     dt: { get: getDT, set: setDT, bump: bumpDT, end: endDungeonTurn, encounterCheck: rollEncounterCheck, getDungeonEN },
     miasma: { get: getInMiasma, set: setInMiasma, resist: rollMiasmaResist, effect: rollMiasmaEffect, clear: clearMiasma, onBonedCleared, EFFECTS: MIASMA_EFFECTS },

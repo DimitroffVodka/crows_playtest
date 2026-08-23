@@ -68,17 +68,39 @@ T2.1 obligation remains open. After a hard reload on Foundry 14.367, both the mo
 `game.crows` exposed `spendExpertiseBonus` and neither exposed `spendSkillBonus`; the world booted
 ready with no new system error. Suite: **854 tests / 159 suites / 0 fail**, both verify modes 0.
 
-### Open cross-owner follow-up — advancement-window lifecycle
+### ~~Open cross-owner follow-up — advancement-window lifecycle~~ — **CLOSED**
 
-This close-out found the same failure shape that created this register: `setSpendingWindow`,
-`openSpendingWindow`, and `closeSpendingWindow` exist, but **no production caller**. The tested
-`spendingWindow()` reader and spend gates deliberately treat an absent flag as permissive, so a
-world that never writes `flags.crows.advancementWindow` can claim advancements outside the end of
-a rest forever. The sheet correctly renders and enforces an explicit closed state; it cannot create
-that state itself. The rest/action lifecycle must open the window only after a successful rest and
-close it at the agreed post-rest boundary. Do not "fix" this by making absent mean closed: that
-would turn the missing integration into a migration-breaking lockout and hide the unwired caller
-again.
+`takeRest()` now opens `flags.crows.advancementWindow` only after the call reaches its existing
+`{ok:true}` completion boundary, including the deliberately benefit-granting `interrupted:true`
+path. The write is after the rest card and automatic Miasma resistance test. `rollTest()` is the
+agreed close boundary and awaits the persisted `false` before prepared-task consumption, dice,
+chat, or commit hooks; failure to close refuses the test. Repeated bonus claims and distinct trait
+purchases remain legal during the phase. Failed rests never open it, and absent/null remains the
+permissive migration state rather than being bulk-stamped closed.
+
+The final transition is after rest benefits/activity/card have committed, so it is not safe to
+retry the whole rest if that transition fails. An automatic Miasma-test or final open failure now
+returns `{ok:false, completed:true, partial:true, retryRest:false}`, emits one visible "do not
+repeat the rest" error, and retains the applied benefits. The Miasma failure path never opens and
+best-effort restores an explicit closed gate. `game.crows.advancementWindow.{get,open,close}` is
+the Ref-facing diagnosis/recovery seam; retry only `open(actor)` after resolving the underlying
+failure.
+
+This is an explicit product policy: the printed rule says only "at the end of a rest" and defines
+no duration. The boundary is intentionally **the next test**, not the old over-broad comment's
+"when the crow acts again." Direct non-test crafting, crypt, inventory, condition, and sheet
+mutations therefore remain outside this slice. The focused public-seam regression lives in
+`test/advancement-window.test.mjs`; live acceptance must use temporary world actors only.
+
+Acceptance on Foundry 14.367 hard-reloaded the checked-out tree and used one temporary crow. It
+proved closed -> completed rest/open -> advancement claim/still open -> `rollTest` closed before
+the Roll constructor -> later claim refused with no system mutation. An injected final-open
+failure returned the non-retryable partial envelope, stayed closed, emitted the visible warning,
+and recovered through the public `open(actor)` seam. The actor and all in-memory stubs were removed;
+no messages or packs were written and no probe actor remained. Suite: **864 tests / 159 suites /
+0 fail**, both verify modes 0. The only longer-window console warning was caused by the acceptance
+probe itself calling deprecated `foundry.utils.objectsEqual`; the post-cleanup five-second window
+contained no entries.
 
 ## 3. ~~Open handoffs — T2.2 (chat cards)~~ — **CLOSED**
 

@@ -1,5 +1,6 @@
 import { CROWS } from "../config.mjs";
 import { resolveEdgesBanes } from "./edges.mjs";
+import { closeSpendingWindow } from "./advancement.mjs";
 import {
   applyCritXRestRefund,
   emitTestCommitted,
@@ -331,6 +332,11 @@ export async function rollTest({
   task = null,
   allowedExpertises = null
 } = {}) {
+  // C:609 product policy: a completed rest leaves advancement available until
+  // the crow's next test begins. Await the persisted close before prepared-task
+  // consumption, dice, chat, or commit hooks; a failed close refuses the test.
+  await closeSpendingWindow(actor);
+
   const kind = casting ? "casting" : attack ? "attack" : "test";
   const conditions = actor?.system?.conditions ?? {};
   const charVal = characteristic

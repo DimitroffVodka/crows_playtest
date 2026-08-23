@@ -50,6 +50,9 @@ import { CROWS } from "../config.mjs";
 import {
   endDungeonTurnForRest, runEndOfDtEffects, rollEncounterCheck, getDT
 } from "./dungeon-turn.mjs";
+import {
+  closeSpendingWindow, openSpendingWindow, spendingWindow
+} from "./advancement.mjs";
 
 // --- shape -----------------------------------------------------------------
 
@@ -629,8 +632,8 @@ export async function takeRest(actor, {
 
   const miasmaResult = inMiasma ? await _rollMiasma(actor) : null;
 
-  return {
-    ok: true, activity, inTown, inMiasma, secludeCamp,
+  const completion = {
+    activity, inTown, inMiasma, secludeCamp,
     stamina: { before: stamBefore, after: stamMax },
     expertisesRefreshed: Object.keys(expertiseUpdates).length,
     expertiseRefreshSuppressed: inMiasma,
@@ -642,6 +645,72 @@ export async function takeRest(actor, {
     halfway: halfwayEffects,
     activityResult, miasmaResult,
     session: sess
+  };
+
+  // Rest benefits and the summary card are already committed at this point.
+  // If the mandatory Miasma test failed, do NOT throw (a retry would repeat
+  // wounds/activity); surface a non-retryable partial completion and recover
+  // the closed gate when possible. Advancement opens only after the Ref has
+  // resolved the missing test and explicitly retried the window transition.
+  if (miasmaResult?.ok === false) {
+    let recovery = spendingWindow(actor).state === "closed" ? "closed" : "failed";
+    if (recovery !== "closed") {
+      try {
+        const closed = await closeSpendingWindow(actor);
+        if (closed.ok && spendingWindow(actor).state === "closed") recovery = "closed";
+      } catch { /* the visible partial result below remains authoritative */ }
+    }
+    const gate = spendingWindow(actor);
+    _reportRestLifecycleFailure(
+      "Rest benefits were applied, but the automatic Miasma resistance test failed and advancement did not open. Do not repeat the rest; resolve the test, then ask the Ref to retry the advancement window."
+    );
+    return {
+      ok: false,
+      error: "miasma-resist-failed",
+      completed: true,
+      partial: true,
+      retryRest: false,
+      ...completion,
+      advancementWindow: {
+        ok: false,
+        open: gate.open,
+        error: "miasma-resist-failed",
+        recovery
+      }
+    };
+  }
+
+  // C:609. This is deliberately last: an automatic Miasma resist routes
+  // through rollTest (the close boundary), so opening any earlier would make a
+  // completed Miasma rest close its brand-new advancement phase immediately.
+  let advancementWindow;
+  try {
+    advancementWindow = await openSpendingWindow(actor);
+    if (!advancementWindow.ok) throw new Error(advancementWindow.error ?? "window open refused");
+  } catch {
+    const gate = spendingWindow(actor);
+    _reportRestLifecycleFailure(
+      "Rest benefits were applied, but advancement could not be opened. Do not repeat the rest; ask the Ref to retry the advancement window."
+    );
+    return {
+      ok: false,
+      error: "advancement-window-open-failed",
+      completed: true,
+      partial: true,
+      retryRest: false,
+      ...completion,
+      advancementWindow: {
+        ok: false,
+        open: gate.open,
+        error: "advancement-window-open-failed"
+      }
+    };
+  }
+
+  return {
+    ok: true,
+    ...completion,
+    advancementWindow
   };
 }
 
@@ -712,8 +781,14 @@ async function _rollMiasma(actor) {
     if (actor.system?.miasma?.permanentNPC) return null;
     return await rollMiasmaResist(actor);
   } catch {
-    return null;
+    return { ok: false, error: "miasma-resist-failed" };
   }
+}
+
+function _reportRestLifecycleFailure(message) {
+  const notifications = globalThis.ui?.notifications;
+  if (typeof notifications?.error === "function") notifications.error(message);
+  else notifications?.warn?.(message);
 }
 
 /** Traits whose `used` outran their characteristic-sized pool. Reported only. */
