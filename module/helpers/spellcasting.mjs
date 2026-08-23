@@ -451,8 +451,7 @@ export async function onTestCommitted(result, message = null) {
     backlash = await rollBacklash({
       rank: plan.backlash.rank,
       cause: plan.backlash.cause,
-      actor,
-      activeRanges: activeBacklashRanges(actor)
+      actor
     });
   }
 
@@ -515,16 +514,6 @@ export function resolveCastContext(result, message = null) {
                  + "declining to resolve rather than roll a backlash at a guessed rank", result);
   }
   return null;
-}
-
-/** `sourceRange` values of durational backlashes already on the caster (R:1561). */
-function activeBacklashRanges(actor) {
-  const ranges = [];
-  for (const effect of actor?.effects ?? []) {
-    const range = effect?.flags?.crows?.backlashRange;
-    if (range) ranges.push(range);
-  }
-  return ranges;
 }
 
 /** Test seam: drop any parked casts. */

@@ -351,6 +351,32 @@ state -> doom/terminal -> actual outcome improvable -> expertiseSpent
 
 ---
 
+## 4c. Backlash UD ActiveEffect lifecycle — D4
+
+D4 covers exactly the 12 backlash rows whose canonical table text declares UD: nine at 1 UD (`01-02`, `03-04`, `39-40`, `43-44`, `45-46`, `47-48`, `59-60`, `73-74`, `77-78`) and three at 2 UD (`83-84`, `97-98`, `99-100`). The other 14 durational rows have no frozen expiry kind and remain outside this lifecycle; the system must not invent one.
+
+`rollBacklash()` owns duplicate detection and creation. After the final row is selected (including the one allowed duplicate reroll), a UD row creates one embedded ActiveEffect on the caster with this sole persisted authority:
+
+```js
+flags.crows.backlash = {
+  sourceRange,
+  duration: { kind: "ud", current }
+}
+```
+
+There is no `max`, no core ActiveEffect `duration`, and no parallel actor-model array. The effect carries a stable name and the row text as its description, but no `system.changes`: D4 is the complete UD identity/clock/deletion lifecycle, not a claim that arbitrary prose mechanics have been structured. Any future authored v14 change uses string `type: "add"`, never numeric `mode` or the priority constant.
+
+A UD result without a caster Actor refuses before posting its backlash card. Posting a plausible chat result while silently omitting the only persisted lifecycle would recreate the half-seam D4 removed. Non-UD rows retain the existing narration-only path.
+
+`tickBacklashUsageDice(actors, {rollD6})` is the focused clock seam; `runEndOfDtEffects()` delegates all world Actors to it while keeping item UD and condition expiry crow-specific. The clock rolls exactly one d6 per current die and passes the faces to the single R:562 owner, `resolveUsageDicePool()`.
+
+- A partial decay updates `flags.crows.backlash.duration.current` on the re-resolved embedded effect.
+- At zero, including an already-persisted `current: 0`, delete the entire ActiveEffect.
+- Re-resolve by effect id before every update/delete. If it disappeared, skip the write; a delete error after the document is demonstrably gone is idempotent success. Never recreate it.
+- This is a **single-GM clock** contract. Foundry document updates provide no compare-and-swap token, so simultaneous independent clients are outside D4; the re-resolution and deletion-wins rules are best-effort guards, not cross-client serialization.
+
+---
+
 ## 5b. Conditions — authority AND command flow
 
 `system.conditions` is **authoritative**; Foundry status effects mirror it for the token HUD. But "driven from the boolean, never the reverse" was too blunt and contradicted T1.7's brief, which says *bidirectional sync*. Taken literally, a Ref toggling a condition on the Token HUD would create a status effect the roll engine never sees. What is one-way is **authority**, not user intent:

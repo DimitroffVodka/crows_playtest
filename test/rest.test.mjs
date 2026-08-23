@@ -608,13 +608,25 @@ describe("resolveUsageDicePool — the DT clock rolls ALL the dice", () => {
 
 describe("effectUsageDice — the backlash UD seam", () => {
   test("reads the pool off the effect flag", () => {
-    assert.equal(effectUsageDice({ flags: { crows: { ud: { current: 2, max: 2 } } } }), 2);
+    assert.equal(effectUsageDice({ flags: { crows: { backlash: {
+      sourceRange: "83-84",
+      duration: { kind: "ud", current: 2 }
+    } } } }), 2);
   });
 
   test("an effect with no pool is skipped, not treated as a 1-die pool", () => {
     assert.equal(effectUsageDice({ flags: {} }), 0);
     assert.equal(effectUsageDice(undefined), 0);
-    assert.equal(effectUsageDice({ flags: { crows: { ud: { current: 0 } } } }), 0);
+    assert.equal(effectUsageDice({ flags: { crows: { backlash: {
+      sourceRange: "83-84",
+      duration: { kind: "ud", current: 0 }
+    } } } }), 0);
+    assert.equal(effectUsageDice({ flags: { crows: { ud: { current: 2, max: 2 } } } }), 0,
+      "the deleted prototype flag must not remain a second authority");
+    assert.equal(effectUsageDice({ flags: { crows: { backlash: {
+      sourceRange: "05-06",
+      duration: { kind: "dt", current: 2 }
+    } } } }), 0, "D4 handles UD durations only");
   });
 });
 

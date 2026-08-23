@@ -240,6 +240,33 @@ export function backlashUsageDice(row) {
   return m ? Number(m[1]) : 0;
 }
 
+/** Build the persisted bookkeeping effect for a UD-backed backlash. */
+function backlashEffectSource(row, current) {
+  return {
+    name: `Backlash ${row.sourceRange}`,
+    description: row.text,
+    transfer: false,
+    flags: {
+      crows: {
+        backlash: {
+          sourceRange: row.sourceRange,
+          duration: { kind: "ud", current }
+        }
+      }
+    }
+  };
+}
+
+/** Canonical duplicate markers already persisted on an Actor. */
+function actorBacklashRanges(actor) {
+  const ranges = [];
+  for (const effect of actor?.effects ?? []) {
+    const range = effect?.flags?.crows?.backlash?.sourceRange;
+    if (range) ranges.push(range);
+  }
+  return ranges;
+}
+
 /**
  * Roll a backlash and post the Ref-facing card. Foundry-touching.
  *
@@ -247,9 +274,10 @@ export function backlashUsageDice(row) {
  * @param {number} p.rank             The EFFECTIVE rank (Mastery reduction already applied).
  * @param {string} [p.cause]          "doom" or "chaos roll" — R:1563's two routes.
  * @param {Actor}  [p.actor]          The caster, for the speaker.
- * @param {string[]} [p.activeRanges] `sourceRange` values already active on the caster.
+ * @param {string[]} [p.activeRanges] Legacy/testing supplement; caster effects are always authoritative.
  * @param {() => Promise<number>} [p.d100]  Injectable die source, for probes/tests.
  * @returns {Promise<{total, rank, row, rerolled, sourceRange, text}>}
+ * @throws {Error} A UD row cannot resolve without an Actor that can persist its effect.
  */
 export async function rollBacklash({ rank = 0, cause = "", actor = null, activeRanges = [],
                                      d100 = null } = {}) {
@@ -260,12 +288,22 @@ export async function rollBacklash({ rank = 0, cause = "", actor = null, activeR
 
   // R:1561 — one re-roll for a duplicate durational backlash.
   let rerolled = false;
-  const dup = shouldRerollBacklash(row, activeRanges);
+  const persistedRanges = actorBacklashRanges(actor);
+  const duplicateRanges = [...new Set([...activeRanges, ...persistedRanges])];
+  const dup = shouldRerollBacklash(row, duplicateRanges);
   if (dup.reroll) {
     const second = d100 ? { total: (await d100()) + effRank } : await new Roll(`1d100 + ${effRank}`).evaluate();
     total = second.total;
     ({ row, clamped } = lookupBacklash(total));
     rerolled = true;
+  }
+
+  const usageDice = backlashUsageDice(row);
+  if (usageDice > 0) {
+    if (typeof actor?.createEmbeddedDocuments !== "function") {
+      throw new Error(`Cannot persist UD backlash ${row.sourceRange} without a caster Actor`);
+    }
+    await actor.createEmbeddedDocuments("ActiveEffect", [backlashEffectSource(row, usageDice)]);
   }
 
   const causeNote = cause ? ` <em>(${cause})</em>` : "";

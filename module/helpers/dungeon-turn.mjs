@@ -118,21 +118,98 @@ export { resolveUsageDicePool };
  * the end of a dungeon turn is the DT clock's job rather than the backlash
  * table's — which is why this lives here and not in backlash.mjs.
  *
- * PROPOSED SEAM, not yet written by anything: `backlashUsageDice(row)` (T1.8)
- * parses the die count out of the row text, but nothing creates the effect that
- * would hold it. When something does, it should carry:
+ * `backlash.mjs` creates the effect with the canonical D4 flag:
  *
- *     effect.flags.crows.ud = { current: <n>, max: <n> }
+ *     flags.crows.backlash = {
+ *       sourceRange,
+ *       duration: { kind: "ud", current: <n> }
+ *     }
  *
- * and this pass will decay and delete it. Documented here so T1.8 has a target
- * to hit instead of inventing a second one.
+ * There is deliberately no `max` and no core ActiveEffect duration. When the
+ * pool reaches zero the entire embedded ActiveEffect is deleted.
  */
-export const BACKLASH_UD_FLAG = "ud";
-
 /** The pool size on an effect, or 0 when it carries none. */
 export function effectUsageDice(effect) {
-  const ud = effect?.flags?.crows?.[BACKLASH_UD_FLAG];
-  return Math.max(0, Math.floor(Number(ud?.current) || 0));
+  return backlashEffectUsageDice(effect);
+}
+
+/** The canonical UD pool on a D4 backlash effect. */
+function backlashEffectDuration(effect) {
+  const duration = effect?.flags?.crows?.backlash?.duration;
+  return duration?.kind === "ud" ? duration : null;
+}
+
+function backlashEffectUsageDice(effect) {
+  const duration = backlashEffectDuration(effect);
+  return Math.max(0, Math.floor(Number(duration?.current) || 0));
+}
+
+/** Resolve an embedded effect again before mutating it. */
+function actorEffectById(actor, id) {
+  const effects = actor?.effects;
+  if (typeof effects?.get === "function") return effects.get(id) ?? null;
+  return [...(effects ?? [])].find(effect => effect?.id === id) ?? null;
+}
+
+/** Delete one embedded effect, treating an already-completed delete as success. */
+async function deleteActorEffect(actor, id) {
+  const live = actorEffectById(actor, id);
+  if (!live) return;
+  try {
+    await actor.deleteEmbeddedDocuments("ActiveEffect", [id]);
+  } catch (error) {
+    // Another single-GM clock may have completed the same deletion between
+    // re-resolution and the document call. Missing is the desired terminal
+    // state; any error while it still exists is real.
+    if (actorEffectById(actor, id)) throw error;
+  }
+}
+
+/**
+ * Tick the UD clock for canonical backlash ActiveEffects on any Actor.
+ *
+ * `rollD6` is the deterministic public test/probe seam. The normal DT
+ * orchestrator omits it and rolls Foundry dice. This is intentionally a
+ * single-GM clock: re-resolution prevents resurrection after deletion, but
+ * Foundry exposes no compare-and-swap primitive for independent clients.
+ */
+export async function tickBacklashUsageDice(actors, { rollD6 = null } = {}) {
+  const die = rollD6 ?? (async () => (await new Roll("1d6").evaluate()).total);
+  const out = [];
+
+  for (const actor of actors ?? []) {
+    for (const snapshot of [...(actor?.effects ?? [])]) {
+      if (!backlashEffectDuration(snapshot)) continue;
+      const pool = backlashEffectUsageDice(snapshot);
+      if (pool <= 0) {
+        await deleteActorEffect(actor, snapshot.id);
+        out.push({
+          actor: actor.name, effect: snapshot.name,
+          removed: 0, remaining: 0, depleted: true, faces: []
+        });
+        continue;
+      }
+
+      const faces = [];
+      for (let index = 0; index < pool; index++) {
+        faces.push(await die({ actor, effect: snapshot, index }));
+      }
+      const result = resolveUsageDicePool(faces);
+      if (result.depleted) {
+        await deleteActorEffect(actor, snapshot.id);
+      } else if (result.removed) {
+        const live = actorEffectById(actor, snapshot.id);
+        if (live) {
+          await live.update({
+            "flags.crows.backlash.duration.current": result.remaining
+          });
+        }
+      }
+      out.push({ actor: actor.name, effect: snapshot.name, ...result });
+    }
+  }
+
+  return out;
 }
 
 /**
@@ -281,7 +358,8 @@ export async function rollEncounterCheck({ en = null, label = "Dungeon", seclude
  * it would have forced rest.mjs to duplicate the loop and the two would drift.
  */
 export async function runEndOfDtEffects() {
-  const crows = game.actors.filter(a => a.type === "crow");
+  const actors = [...(game.actors ?? [])];
+  const crows = actors.filter(a => a.type === "crow");
 
   const udRolls = [];
   for (const crow of crows) {
@@ -309,7 +387,7 @@ export async function runEndOfDtEffects() {
     });
   }
 
-  const backlash = await _rollEffectUsageDice(crows);
+  const backlash = await tickBacklashUsageDice(actors);
 
   try {
     const { clearPerDtBoonFlags } = await import("./crypt.mjs");
@@ -317,30 +395,6 @@ export async function runEndOfDtEffects() {
   } catch { /* crypt module not loaded */ }
 
   return { udRolls, expired, backlash };
-}
-
-/**
- * Decay every durational effect carrying a usage-die pool, and delete the ones
- * that run out. See BACKLASH_UD_FLAG for the shape.
- */
-async function _rollEffectUsageDice(actors) {
-  const out = [];
-  for (const actor of actors) {
-    const doomed = [];
-    for (const effect of actor.effects ?? []) {
-      const pool = effectUsageDice(effect);
-      if (!pool) continue;
-      const faces = [];
-      for (let i = 0; i < pool; i++) faces.push((await new Roll("1d6").evaluate()).total);
-      const res = resolveUsageDicePool(faces);
-      if (!res.removed) continue;
-      if (res.depleted) doomed.push(effect.id);
-      else await effect.update({ [`flags.crows.${BACKLASH_UD_FLAG}.current`]: res.remaining });
-      out.push({ actor: actor.name, effect: effect.name, ...res });
-    }
-    if (doomed.length) await actor.deleteEmbeddedDocuments("ActiveEffect", doomed);
-  }
-  return out;
 }
 
 /**
