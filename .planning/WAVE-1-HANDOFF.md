@@ -90,7 +90,18 @@ Two things that still hold from the original: the mirror's own write **must** pa
 |---|---|---|
 | `helpers/usage-die.mjs` | orchestrator | **CLOSED `03049bd`** |
 | Pets (C:2429) | **T2.5** (`4ef6e99b`) | dispatched — rules + data only, no sheet UI |
-| `helpers/crypt.mjs` | **T2.4** (`ac87edba`) | dispatched |
+| `helpers/crypt.mjs` | **T2.4** (`ac87edba`) | **CLOSED `16e0040`** |
+
+**T2.4 closed.** `getInstitutionLevel("crypt")` is now the boon-effect authority via an explicit `getCryptBoonLevel()`; all five runtime boon reads go through it, and the pure `resolveCryptBoonLevel({institutionLevel, readFallback})` makes a present institution value win **including 0**, so the legacy standalone value can only be read when there is no authority at all. Disappearance stays `applyTo: "narrative"` with the reason recorded in code. 786 tests / 150 suites / 0 fail, `verify.sh` and `--strict` both 0; commit touches only its three authorized paths. Mutation-verified — inverting the authority guard fails both divergence tests.
+
+Three T2.4 findings worth keeping:
+- **The real defect was subtler than this register said.** The old getter *already* hardcoded raw crypt 5 + Prosperity 10 → 6, so that happy path was not returning 5. The actual bug was **two authorities**: a separately settable legacy `cryptLevel` setting plus a duplicated getter that silently ignored pending upgrades and active institution modifiers which `getInstitutionLevel` already handles.
+- **PT2 still defines Invisibility** — R:775-777, "treated as if you are in heavy concealment". What was deleted is the *condition flag*; hiding is a test at R:408. That supports narrative adjudication rather than undermining it.
+- **No combat-round clock exists anywhere** in module, test or template code — only prose references (Disappearance, Flight, one backlash). T2.4 deliberately added no half-tracked Active Effect.
+
+**Citation correction, and the error was mine:** the capstone sentence is **C:2943**, as this register originally said. I changed it to C:2947 while recording the assignment; C:2947 is the advancement-table lead-in. Re-derived by content (`grep "considered 6th level"`).
+
+**The temple has the identical capstone and is NOT affected.** C:3120 "Higher Authority" is already modelled generically at `village.mjs:288` and resolved through the same `getInstitutionLevel`. The crypt was uniquely exposed because it alone carried a legacy standalone level setting.
 
 Scope notes made at dispatch, because both one-liners below understate their items:
 
