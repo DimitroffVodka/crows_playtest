@@ -139,6 +139,20 @@ Scope notes made at dispatch, because both one-liners below understate their ite
 - **`stackKind` has no home in `physicalItemFields()`** — T1.2 resolves it, then falls back to `type:subtype:stackMax`.
 - **`TraitData` cannot declare "grants purse capacity"** — T1.2 matches Bursting Purse by compendium id `ctthie42brstprs0` with a name fallback.
 
+Added 2026-08-23 from T2.2 and T2.5, both by counting the real corpus rather than inspecting a fixture:
+
+- **Bear, Rat and Wolf are `animal` with `slots: 0`.** Found independently by both agents. They cannot carry pet inventory or take pet wounds, and they trip the contract's `suspectMissingSlots`. **4 of 7 shipped animals are usable as pets.** Neither agent patched the stat blocks to go green — this is content work.
+- **All 11 source monster YAMLs omit `reactions`, `expertises` and `xRest`.** The sheet renders them; there is nothing to render.
+- **Ring Collector encodes Vanish as trait `uses: "1/Rest"`** instead of `system.xRest`, so the X/Rest machinery cannot see it.
+- **The pet trait tree is stale PT1 content** — Tricks / Extra Tricks still name removed PT1 skills (Climb, Hide, Jump, Sneak) while PT2's tree uses expertise vocabulary. Re-transcribe by book content.
+- **`Animal Feed` does exist** (`crows-consumables/animal-feed.yaml`, cost 1, stackMax 6), so pet feeding has real content to consume.
+
+### Pet integration obligations outside T2.5's ownership
+Recorded so they are not lost — T2.5 could not land these itself.
+1. **A real `bondPet` rest activity** in `REST_ACTIVITIES`/`_resolveActivity`, carrying `activityData.petUuid`, resolving ownership only on successful rest completion. **Unknown activities currently normalize to `none`**, so a sheet-only button would silently fail activity exclusivity — this project's signature failure shape.
+2. **`petContext` on `TestResult`** — `{kind: "taming"|"command", animalUuid, humanUuid, friendly?, startedAt?, needsTest?}` through `rollTest` → `message.flags.crows.test`, resolved by a `crowsTestCommitted` subscriber. Avoids an actor-id keyed pending map and keeps late-join card purity.
+3. **Command tier 2 returns `weakened: true`** — integration must call canonical `setCondition(pet, "weakened", true)`, never a raw status or Active Effect.
+
 ---
 
 ## 8. Live verification — world `crow-test` reloaded onto 0.2.0, 2026-08-23
