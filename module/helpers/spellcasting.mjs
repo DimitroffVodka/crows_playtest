@@ -113,6 +113,51 @@ export function applyChaosRoll(plan, face, { rank = 0, discipline = "", mastered
 }
 
 /**
+ * The ONE spellcasting expertise a given casting may spend (R:1451).
+ *
+ * "A spell's discipline describes the type of magic it harnesses and the
+ * spellcasting expertise th[at] can be used for the test made to cast the
+ * spell." Singular — the matching one. The six spellcasting expertise keys are
+ * exactly the six discipline keys (CONTRACT §1), so the mapping is identity;
+ * it is a named function anyway so the rule has somewhere to live and a caller
+ * cannot mistake the coincidence for a licence to accept any of the six.
+ *
+ * @param {string} discipline
+ * @returns {string|null} the expertise key, or null for an unknown discipline.
+ */
+export function matchingExpertiseFor(discipline) {
+  return CROWS.disciplines.includes(discipline) ? discipline : null;
+}
+
+/**
+ * May this expertise be spent on this test, as far as the DISCIPLINE rule is
+ * concerned? Category legality is a separate, earlier question that T1.1's
+ * `canSpendExpertise` owns; this answers only "is it the right one of the six".
+ *
+ * Returns true for anything that is not a spellcasting spend, so it composes as
+ * an extra AND on top of the category gate rather than replacing it.
+ *
+ * NOTE — this rule is currently NOT enforced anywhere in the spend path.
+ * `helpers/expertise.mjs` gates by CATEGORY only, so a caster of an alteration
+ * spell can improve the result by spending necromancy. That file is T1.1's and
+ * this one is T1.8's; the rule lives here, the gate lives there. Wiring it is a
+ * one-line addition to `canSpendExpertise`, and the information it needs is
+ * already on the result now that T1.1 carries the `casting` payload:
+ *
+ *     if (!castingExpertiseAllows(result, key)) return "wrong discipline";
+ *
+ * @param {object} result  A TestResult; `result.casting.discipline` is read.
+ * @param {string} key     The expertise key being spent.
+ * @returns {boolean}
+ */
+export function castingExpertiseAllows(result, key) {
+  const discipline = result?.casting?.discipline;
+  if (!discipline) return true;                       // not a spell — not this rule's business
+  if (!CROWS.expertises.spellcasting.includes(key)) return true;   // a weapon/general spend
+  return key === matchingExpertiseFor(discipline);
+}
+
+/**
  * R:1553 — summoned creatures "function like pets in combat except that you
  * don't need to make a test to convince them to undertake dangerous actions."
  * The pet machinery is T1.6's; this states the one difference so nobody has to

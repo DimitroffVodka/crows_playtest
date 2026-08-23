@@ -14,7 +14,8 @@ import {
 } from "../module/helpers/backlash.mjs";
 import {
   planCastingOutcome, applyChaosRoll, summonBehaviour, migrateSpellbookSystem,
-  parseDuration, resolveCastContext, _parkCast, _clearPendingCasts
+  parseDuration, resolveCastContext, _parkCast, _clearPendingCasts,
+  matchingExpertiseFor, castingExpertiseAllows
 } from "../module/helpers/spellcasting.mjs";
 import { CROWS } from "../module/config.mjs";
 
@@ -347,6 +348,54 @@ describe("backlash targeting (R:1561)", () => {
 
   test("a spell with no target at all falls back to the caster", () => {
     assert.deepEqual(backlashTargets({ spellTargetKind: "creature", casterId: "c1" }).targetIds, ["c1"]);
+  });
+});
+
+/* ========================================================================== */
+/*  R:1451 — only the MATCHING spellcasting expertise applies                  */
+/* ========================================================================== */
+
+describe("casting expertise must match the spell's discipline (R:1451)", () => {
+  const casting = (discipline) => ({ kind: "casting", casting: { discipline, rank: 2 } });
+
+  test("each discipline names exactly one expertise, and it is its own key", () => {
+    for (const d of CROWS.disciplines) {
+      assert.equal(matchingExpertiseFor(d), d);
+      assert.ok(CROWS.expertises.spellcasting.includes(matchingExpertiseFor(d)));
+    }
+  });
+
+  test("an unknown discipline names no expertise", () => {
+    assert.equal(matchingExpertiseFor("evocation"), null);
+    assert.equal(matchingExpertiseFor(undefined), null);
+  });
+
+  test("the matching expertise is allowed", () => {
+    assert.equal(castingExpertiseAllows(casting("alteration"), "alteration"), true);
+  });
+
+  test("the other five spellcasting expertises are NOT", () => {
+    const others = CROWS.disciplines.filter(d => d !== "alteration");
+    assert.equal(others.length, 5);
+    for (const key of others) {
+      assert.equal(castingExpertiseAllows(casting("alteration"), key), false, key);
+    }
+  });
+
+  test("a spell ATTACK is bound to its discipline too — R:913 opens the category, not the choice", () => {
+    const spellAttack = { kind: "attack", casting: { discipline: "elemental", rank: 1 } };
+    assert.equal(castingExpertiseAllows(spellAttack, "elemental"), true);
+    assert.equal(castingExpertiseAllows(spellAttack, "illusion"), false);
+  });
+
+  test("a weapon or general spend is not this rule's business", () => {
+    assert.equal(castingExpertiseAllows(casting("alteration"), "bashing"), true);
+    assert.equal(castingExpertiseAllows(casting("alteration"), "athletics"), true);
+  });
+
+  test("a test with no casting payload is unaffected", () => {
+    assert.equal(castingExpertiseAllows({ kind: "test" }, "alteration"), true);
+    assert.equal(castingExpertiseAllows(undefined, "alteration"), true);
   });
 });
 
