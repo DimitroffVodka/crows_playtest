@@ -58,5 +58,11 @@ export const CROWS_STATUS = [
 export const REMOVED_STATUS_IDS = ["boned", "hidden", "invisible"];
 
 export function registerConditions() {
-  CONFIG.statusEffects = CROWS_STATUS.map(s => ({ ...s }));
+  // v14's CONFIG.statusEffects is a Proxy-backed array. Pushing through that
+  // proxy creates both the numeric entries used by the HUD and the id-keyed
+  // entries used by Actor#toggleStatusEffect. Replacing it with a plain array
+  // renders `CONFIG.statusEffects["blessed"]` undefined, so every programmatic
+  // toggle throws despite the HUD looking correctly populated.
+  CONFIG.statusEffects.length = 0;
+  CONFIG.statusEffects.push(...CROWS_STATUS.map((status) => ({ ...status })));
 }

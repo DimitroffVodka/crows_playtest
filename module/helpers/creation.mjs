@@ -1,9 +1,8 @@
 /**
  * Character creation helper — stamps a Background onto a crow.
  *
- * Sets stamina/background, increments listed skills (capped at +2), creates
- * inventory items for equipment + spellbooks, and (NEW) auto-embeds the
- * starting trait by looking it up in the trait compendium.
+ * Sets stamina/background, grants the background's expertise uses, creates its
+ * equipment + spellbooks, and embeds the starting trait.
  *
  * Background's `startingTrait` is stored as "Tree: TraitName" (e.g.
  * "Archery: Point Blank"). We parse out the trait name and find the
@@ -33,15 +32,30 @@ function _parseStartingTrait(s) {
 
 export async function applyBackground(actor, bg) {
   if (!actor || !bg) return { ok: false, error: "missing args" };
+  if (actor.type && actor.type !== "crow") return { ok: false, error: "not a crow" };
   const sys = bg.system ?? {};
   const updates = {
     "system.background": bg.name,
-    "system.stamina.max": sys.stamina,
-    "system.stamina.value": sys.stamina
+    "system.backgroundId": bg.id ?? bg._id ?? "",
+    "system.stamina.max": sys.stamina ?? 5,
+    "system.stamina.value": sys.stamina ?? 5
   };
-  for (const s of sys.skills ?? []) {
-    const cur = actor.system.skills?.[s]?.bonus ?? 0;
-    updates[`system.skills.${s}.bonus`] = Math.min(2, cur + 1);
+
+  // Background grants are USES, not PT1's always-on skill bonuses. Both stored
+  // quantities rise together: `max` is permanently owned and `value` is the
+  // same newly-granted uses available now. Duplicate rows are summed so a bad
+  // transcription cannot silently discard one grant.
+  const grants = new Map();
+  for (const expertise of sys.expertises ?? []) {
+    const key = expertise?.key;
+    const uses = Math.max(0, Math.floor(Number(expertise?.uses) || 0));
+    if (!key || !uses) continue;
+    grants.set(key, (grants.get(key) ?? 0) + uses);
+  }
+  for (const [key, uses] of grants) {
+    const current = actor.system?.expertises?.[key] ?? {};
+    updates[`system.expertises.${key}.max`] = (Number(current.max) || 0) + uses;
+    updates[`system.expertises.${key}.value`] = (Number(current.value) || 0) + uses;
   }
   await actor.update(updates);
 
@@ -96,6 +110,8 @@ export async function applyBackground(actor, bg) {
   return {
     ok: true,
     applied: bg.name,
+    backgroundId: bg.id ?? bg._id ?? "",
+    expertiseUses: Object.fromEntries(grants),
     startingTrait: parsed?.name ?? null,
     startingTraitEmbedded,
     itemsCreated: toCreate.length

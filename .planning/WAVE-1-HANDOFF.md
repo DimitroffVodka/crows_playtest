@@ -30,7 +30,7 @@ T2.3 is the critical Wave 2 task: it owns `module/crows.mjs`, which **currently 
 
 ### Wiring nothing else can do
 
-- `Object.assign(game.crows, ROLL_API)` — T1.1's 22-key surface. `dev/probes/p05-roll.mjs` reports `not wired onto game.crows` until this lands.
+- `Object.assign(game.crows, ROLL_API)` — T1.1's surface, **23 keys** (T1.1 reported 22; `preparedTaskMod` was added later with the Prepare for Task correction, verified by T2.3). `dev/probes/p05-roll.mjs` reports `not wired onto game.crows` until this lands.
 - `Hooks.on("renderChatMessageHTML", (m, html) => bindTestCardActions(m, html))` — T1.1.
 - `registerSlotSettings()` from `init` — T1.2. Until then `crows.woundSpeedRule` silently defaults forever (degraded, not broken).
 - `registerSpellcastingHooks()` — T1.8. Nothing else subscribes to `crowsTestCommitted` for castings.

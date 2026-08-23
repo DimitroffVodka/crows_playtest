@@ -274,13 +274,7 @@ function staticImportsOf(source) {
  *   village.mjs `rollAvailability` no longer exists; availability is now
  *               `itemAvailability` / `AVAILABILITY_IS_A_ROLL`. T1.6's blocker.
  */
-const KNOWN_UNWIRED = {
-  "./helpers/chaos.mjs": [
-    "registerChaosSetting", "getChaos", "setChaos",
-    "addToChaos", "resetChaos", "showChaosDialog"
-  ],
-  "./helpers/village.mjs": ["rollAvailability"]
-};
+const KNOWN_UNWIRED = {};
 
 const ENTRY_POINT = new URL("crows.mjs", MODULE_DIR);
 const ENTRY_IMPORTS = staticImportsOf(readFileSync(ENTRY_POINT, "utf8"));
@@ -325,5 +319,124 @@ describe("module/crows.mjs imports resolve", () => {
       }
     }
     assert.deepEqual(stale, [], "these are wired again — remove them from KNOWN_UNWIRED");
+  });
+
+  test("the entry point itself evaluates and registers its lifecycle hooks", async () => {
+    const registrations = [];
+    globalThis.Hooks = {
+      once: (name, callback) => { registrations.push({ kind: "once", name, callback }); },
+      on: (name, callback) => { registrations.push({ kind: "on", name, callback }); }
+    };
+    await import(ENTRY_POINT.href);
+    const names = registrations.map(({ name }) => name);
+    for (const required of [
+      "init", "ready", "preCreateActiveEffect", "preDeleteActiveEffect",
+      "updateActor", "createActor", "renderChatMessageHTML"
+    ]) {
+      assert.ok(names.includes(required), `entry point did not register ${required}`);
+    }
+
+    // Do not stop at "the callback exists". Run init against a v14-shaped
+    // status proxy and prove the registrations actually land on their public
+    // surfaces. This catches a silent no-op such as replacing the proxy with a
+    // plain array: the HUD still renders, but Actor#toggleStatusEffect cannot
+    // resolve CONFIG.statusEffects[statusId].
+    const statusEffects = new Proxy([], {
+      set(target, property, value) {
+        if (property === "length") { target.length = value; return true; }
+        const index = Number(property);
+        if (Number.isInteger(index)) {
+          target[index] = value;
+          target[value.id] = value;
+          return true;
+        }
+        target[property] = value;
+        return true;
+      }
+    });
+    const registeredSettings = [];
+    const registeredSheets = [];
+    globalThis.CONFIG = {
+      statusEffects,
+      Item: { dataModels: {} },
+      Actor: { dataModels: {} }
+    };
+    globalThis.game = {
+      crows: {},
+      settings: { register: (namespace, key, data) => registeredSettings.push({ namespace, key, data }) }
+    };
+    globalThis.Handlebars = { registerHelper: () => {} };
+    globalThis.Item = class Item {};
+    globalThis.Actor = class Actor {};
+    globalThis.foundry.applications.apps = {
+      DocumentSheetConfig: {
+        registerSheet: (documentClass, scope, sheetClass, options) =>
+          registeredSheets.push({ documentClass, scope, sheetClass, options })
+      }
+    };
+    globalThis.foundry.applications.handlebars = { loadTemplates: async () => [] };
+
+    const init = registrations.find(({ kind, name }) => kind === "once" && name === "init");
+    assert.ok(init, "init callback was not captured");
+    init.callback();
+
+    const { ROLL_API } = await import(new URL("helpers/roll.mjs", MODULE_DIR).href);
+    // The handoff says 22, but T1.1's later Prepare for Task correction added
+    // `preparedTaskMod`; the exported surface is now 23 and is authoritative.
+    assert.equal(Object.keys(ROLL_API).length, 23, "ROLL_API drifted from its verified surface");
+    for (const [key, fn] of Object.entries(ROLL_API)) {
+      assert.equal(game.crows[key], fn, `ROLL_API.${key} was not wired onto game.crows`);
+    }
+    assert.equal(CONFIG.Actor.dataModels.crow.name, "CrowData");
+    assert.equal(CONFIG.Actor.dataModels.monster.name, "MonsterData");
+    assert.equal(CONFIG.Item.dataModels.background.name, "BackgroundData");
+    assert.equal(CONFIG.statusEffects.blessed.id, "blessed");
+    assert.equal(CONFIG.statusEffects.dead.id, "dead");
+    assert.equal(registeredSheets.length, 3);
+    assert.ok(registeredSettings.some(({ key }) => key === "woundSpeedRule"));
+    assert.ok(registeredSettings.some(({ key }) => key === "systemMigrationVersion"));
+    assert.ok(registeredSettings.some(({ key }) => key === "migrationExpertiseBudget"));
+    for (const api of [
+      "resolveTier", "applyExpertise", "takeTownActivity", "beginRestSession",
+      "enterDungeon", "resolvePendingEncounter", "setCondition", "spendExpertiseBonus"
+    ]) {
+      assert.equal(typeof game.crows[api], "function", `${api} was not wired onto game.crows`);
+    }
+
+    // A non-GM ready pass skips the world mutation but must still subscribe
+    // spellcasting and combat to the committed-test lifecycle.
+    game.user = { isGM: false };
+    const ready = registrations.find(({ kind, name }) => kind === "once" && name === "ready");
+    assert.ok(ready, "ready callback was not captured");
+    await ready.callback();
+    assert.equal(
+      registrations.filter(({ kind, name }) => kind === "on" && name === "crowsTestCommitted").length,
+      2,
+      "spellcasting and combat did not both subscribe to committed tests"
+    );
+
+    // Exercise the world-version gate itself. The first ready-equivalent call
+    // advances 0.1.3 to 0.2.0; the second is a strict no-op.
+    const settingStore = new Map([
+      ["systemMigrationVersion", "0.1.3"],
+      ["migrationExpertiseBudget", "report-only"]
+    ]);
+    game.user = { isGM: true };
+    game.system = { version: "0.2.0" };
+    game.actors = [];
+    game.packs = new Map([["crows.crows-backgrounds", { getDocuments: async () => [] }]]);
+    game.settings.get = (namespace, key) => settingStore.get(key);
+    game.settings.set = async (namespace, key, value) => { settingStore.set(key, value); return value; };
+    foundry.utils.isNewerVersion = (left, right) => {
+      const parts = (version) => String(version).split(".").map(Number);
+      const a = parts(left);
+      const b = parts(right);
+      return a.some((value, index) => value > (b[index] ?? 0)
+        && a.slice(0, index).every((prior, priorIndex) => prior === (b[priorIndex] ?? 0)));
+    };
+    const firstMigration = await game.crows.runWorldMigration();
+    const secondMigration = await game.crows.runWorldMigration();
+    assert.equal(firstMigration.ran, true);
+    assert.deepEqual(secondMigration, { ran: false, reason: "current", stored: "0.2.0" });
   });
 });

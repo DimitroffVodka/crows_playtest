@@ -129,6 +129,34 @@ If you ever need to force it explicitly:
 
 ---
 
+## 4b. `CONFIG.statusEffects` is proxy-backed — never REPLACE it
+
+**[live]** Found by T2.3 while mutation-testing init; the original `registerConditions()` I wrote in T0.2 had this bug.
+
+`CONFIG.statusEffects` looks like an ordinary array (`Array.isArray` is `true`, `constructor.name` is `"Array"`), but it carries **both** numeric entries — used by the Token HUD — and **id-keyed** entries, used by `Actor#toggleStatusEffect`. Verified on 14.367:
+
+| probe | result |
+|---|---|
+| `CONFIG.statusEffects["blessed"]` | **defined** |
+| a plain `.map(s => ({...s}))` copy, `copy["blessed"]` | **undefined** |
+| `push()` through the live object | creates **both** forms |
+
+```js
+// WRONG — replaces the proxy. The HUD looks perfectly populated, and every
+// programmatic toggle throws because CONFIG.statusEffects["blessed"] is gone.
+CONFIG.statusEffects = CROWS_STATUS.map(s => ({ ...s }));
+
+// RIGHT — mutate in place so the proxy builds both forms.
+CONFIG.statusEffects.length = 0;
+CONFIG.statusEffects.push(...CROWS_STATUS.map(s => ({ ...s })));
+```
+
+The failure mode is the reason this is worth a section: **the HUD renders correctly**, so a visual check passes. Only the programmatic path breaks — which is the path `setCondition` and the condition mirror both use, so conditions would appear toggleable and silently fail to drive `system.conditions`.
+
+Slightly better than this project's usual failure shape in that it *throws* rather than returning a wrong answer, but it throws in a code path nobody exercises by clicking around.
+
+---
+
 ## 5. `DocumentSheetConfig.registerSheet` namespace
 
 **[live]** `DocumentSheetConfig.registerSheet` is a function reachable at **both**:

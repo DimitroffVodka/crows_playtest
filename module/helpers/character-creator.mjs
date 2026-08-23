@@ -1,21 +1,21 @@
 /**
- * Character creator wizard (Rules pp.1491–1539).
+ * Playtest 2 character creator (C:14-42).
  *
- * Flow (single-dialog wizard with all sections visible):
- *   1. Background — Roll 2d6 on table or pick directly. Description preview.
- *   2. Characteristics — +1 to one (filtered by bg), with optional dual-stat
- *      spread (+1 to a second at the cost of -1 on the third).
- *   3. Name + distinguishing feature — free text inputs.
- *   4. Apply — calls applyBackground (skills/stamina/equipment/trait),
- *      applyCharacteristics, and applyUniversalStarterItems.
- *
- * "Fresh actor" guard: warns (but allows override) if TXP > 0 or items > 0.
+ * Backgrounds grant expertise uses and set one allowed characteristic to 2.
+ * The other two are assigned either {1, 0} or {2, -1}. Every crow also gets
+ * the universal kit, 3d6 gc, speed 5 and an NPC connection.
  */
 
 import { applyBackground } from "./creation.mjs";
 
-/** 2d6 → background name (Rules p.1542 table). */
-const BACKGROUND_2D6_TABLE = {
+export const CHARACTERISTICS = Object.freeze(["agility", "mind", "strength"]);
+export const CREATION_SPREADS = Object.freeze({
+  "1-0": Object.freeze([1, 0]),
+  "2--1": Object.freeze([2, -1])
+});
+
+/** 2d6 -> background name (C:18). */
+const BACKGROUND_2D6_TABLE = Object.freeze({
   "1,1": "Acolyte of the Gardner",
   "1,2": "Acolyte of the Healer",
   "1,3": "Acolyte of the Smith",
@@ -52,20 +52,39 @@ const BACKGROUND_2D6_TABLE = {
   "6,4": "Tinkerer",
   "6,5": "Transmuter",
   "6,6": "Village Watch"
-};
+});
+
+const esc = (value) => String(value ?? "")
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const label = (key) => key ? `${key[0].toUpperCase()}${key.slice(1)}` : "";
 
 /** Roll 2d6 and look up a background name. */
 export async function rollBackground() {
-  const a = await new Roll("1d6").evaluate();
-  const b = await new Roll("1d6").evaluate();
-  const key = `${a.total},${b.total}`;
-  const name = BACKGROUND_2D6_TABLE[key] ?? null;
-  return { rollA: a.total, rollB: b.total, key, name };
+  const roll = await new Roll("2d6").evaluate();
+  const dice = roll.dice?.[0]?.results?.map((result) => Number(result.result)) ?? [];
+  // A Roll stub or module may not expose individual dice. Preserve the table's
+  // ordered-pair shape by falling back to two independent rolls in that case.
+  let rollA = dice[0];
+  let rollB = dice[1];
+  if (!Number.isFinite(rollA) || !Number.isFinite(rollB)) {
+    const a = await new Roll("1d6").evaluate();
+    const b = await new Roll("1d6").evaluate();
+    rollA = Number(a.total);
+    rollB = Number(b.total);
+  }
+  const key = `${rollA},${rollB}`;
+  return { rollA, rollB, key, name: BACKGROUND_2D6_TABLE[key] ?? null, roll };
 }
 
-/** Fetch all backgrounds from the compendium, lazily cached on the function. */
+/** Roll the background's starting-gold formula (C:36, normally 3d6). */
+export async function rollStartingGold(formula = "3d6") {
+  const safeFormula = String(formula || "3d6");
+  const roll = await new Roll(safeFormula).evaluate();
+  return { formula: safeFormula, total: Math.max(0, Math.floor(Number(roll.total) || 0)), roll };
+}
+
 let _bgCache = null;
-async function _allBackgrounds() {
+async function allBackgrounds() {
   if (_bgCache) return _bgCache;
   const pack = game.packs?.get("crows.crows-backgrounds");
   if (!pack) return null;
@@ -73,215 +92,248 @@ async function _allBackgrounds() {
   return _bgCache;
 }
 
-/**
- * Apply a characteristic spread.
- *   primary   — characteristic to set +1.
- *   secondary — optional second to also set +1.
- *   dump      — required when secondary is set; the third stat goes to -1.
- * All three stats are clamped to [-1, 3] by the schema.
- */
-export async function applyCharacteristics(actor, { primary, secondary = null, dump = null }) {
-  if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
-  const all = ["agility", "mind", "strength"];
-  if (!all.includes(primary)) return { ok: false, error: "primary invalid" };
-  if (secondary && (!all.includes(secondary) || secondary === primary)) {
-    return { ok: false, error: "secondary invalid" };
-  }
-  if (secondary && (!all.includes(dump) || dump === primary || dump === secondary)) {
-    return { ok: false, error: "need a distinct dump stat when secondary is set" };
-  }
-  // Reset all to 0 first to give the creator a known baseline.
-  const updates = {
-    "system.characteristics.agility.value":  0,
-    "system.characteristics.mind.value":     0,
-    "system.characteristics.strength.value": 0
-  };
-  updates[`system.characteristics.${primary}.value`] = 1;
-  if (secondary) {
-    updates[`system.characteristics.${secondary}.value`] = 1;
-    updates[`system.characteristics.${dump}.value`] = -1;
-  }
-  await actor.update(updates);
-  return { ok: true, primary, secondary, dump };
+function backgroundCharacteristicOptions(background) {
+  const options = [...(background?.system?.characteristicOptionsAt2 ?? [])];
+  return options.filter((key, index) => CHARACTERISTICS.includes(key) && options.indexOf(key) === index);
 }
 
 /**
- * Universal starting items (Rules p.1533): bedroll, empty coin purse, knife,
- * rope, six rations. Looks up real compendium docs so the slot grid renders.
- * Skips duplicates if the actor already owns one (by name match).
+ * Resolve the complete Playtest 2 characteristic assignment without writing.
+ * `remainingHigh` receives the first value in the selected spread; the other
+ * non-background characteristic receives the second.
+ */
+export function characteristicSpread({ backgroundCharacteristic, remainingHigh, spread = "1-0" } = {}) {
+  if (!CHARACTERISTICS.includes(backgroundCharacteristic)) {
+    return { ok: false, error: "background characteristic invalid" };
+  }
+  const remaining = CHARACTERISTICS.filter((key) => key !== backgroundCharacteristic);
+  if (!remaining.includes(remainingHigh)) {
+    return { ok: false, error: "remaining characteristic invalid" };
+  }
+  const values = CREATION_SPREADS[spread];
+  if (!values) return { ok: false, error: "characteristic spread invalid" };
+  const remainingLow = remaining.find((key) => key !== remainingHigh);
+  return {
+    ok: true,
+    spread,
+    backgroundCharacteristic,
+    remainingHigh,
+    remainingLow,
+    values: {
+      [backgroundCharacteristic]: 2,
+      [remainingHigh]: values[0],
+      [remainingLow]: values[1]
+    }
+  };
+}
+
+/** Apply a validated Playtest 2 characteristic spread. */
+export async function applyCharacteristics(actor, options = {}) {
+  if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
+  const plan = characteristicSpread(options);
+  if (!plan.ok) return plan;
+  await actor.update(Object.fromEntries(
+    Object.entries(plan.values).map(([key, value]) => [`system.characteristics.${key}.value`, value])
+  ));
+  return plan;
+}
+
+async function compendiumItem(packKey, name) {
+  const pack = game.packs?.get(packKey);
+  if (!pack) return null;
+  if (!pack.index?.contents?.length) await pack.getIndex?.();
+  const entry = pack.index?.contents?.find((candidate) => candidate.name === name)
+    ?? pack.index?.contents?.find((candidate) => candidate.name?.toLowerCase() === name.toLowerCase());
+  return entry ? pack.getDocument(entry._id) : null;
+}
+
+function cloneEmbeddedItem(document, index) {
+  const data = document.toObject();
+  delete data._id;
+  delete data._key;
+  data.system = {
+    ...(data.system ?? {}),
+    location: {
+      container: "backpack",
+      index,
+      length: Math.max(1, Number(data.system?.slots) || 1)
+    }
+  };
+  return data;
+}
+
+/**
+ * Universal kit (C:36): empty coin purse, knife, rope and six rations.
+ * Bedroll was part of the PT1 creator and is deliberately not granted here.
  */
 export async function applyUniversalStarterItems(actor) {
   if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
-  const ownedNames = new Set(actor.items.map(i => i.name));
+  const owned = [...(actor.items ?? [])];
+  const ownedNames = new Set(owned.map((item) => item.name?.toLowerCase()));
   const wanted = [
-    { name: "Bedroll",    pack: "crows.crows-gear",        fallbackType: "gear" },
-    { name: "Coin Purse", pack: "crows.crows-gear",        fallbackType: "gear" },
-    { name: "Knife",      pack: "crows.crows-weapons",     fallbackType: "weapon" },
-    { name: "Rope",       pack: "crows.crows-gear",        fallbackType: "gear" }
+    { name: "Coin Purse", pack: "crows.crows-gear" },
+    { name: "Knife", pack: "crows.crows-weapons" },
+    { name: "Rope", pack: "crows.crows-gear" },
+    { name: "Ration", pack: "crows.crows-consumables", quantity: 6 }
   ];
   const toCreate = [];
-  for (const w of wanted) {
-    if (ownedNames.has(w.name)) continue;
-    const pack = game.packs?.get(w.pack);
-    if (!pack) continue;
-    const idx = pack.index?.contents?.find(c => c.name === w.name);
-    if (!idx) continue;
-    const doc = await pack.getDocument(idx._id);
-    const data = doc.toObject();
-    delete data._id; delete data._key;
-    data.system = { ...(data.system ?? {}), location: { container: "backpack", index: 0, length: data.system?.slots ?? 1 } };
+  const missing = [];
+
+  for (const wantedItem of wanted) {
+    if (ownedNames.has(wantedItem.name.toLowerCase())) continue;
+    const document = await compendiumItem(wantedItem.pack, wantedItem.name);
+    if (!document) {
+      missing.push(wantedItem.name);
+      continue;
+    }
+    const data = cloneEmbeddedItem(document, toCreate.length);
+    if (wantedItem.quantity) data.system.quantity = wantedItem.quantity;
+    if (wantedItem.name === "Coin Purse") {
+      // Wave 1 found the shipped YAML has not yet stamped this contract field.
+      // Creation must still produce the promised empty, functional purse.
+      data.system.purse = { isPurse: true, held: 0, baseCapacity: 500 };
+    }
     toCreate.push(data);
   }
-  // Six rations — single stack if possible.
-  const ratPack = game.packs?.get("crows.crows-consumables");
-  if (ratPack) {
-    const idx = ratPack.index?.contents?.find(c => c.name === "Ration");
-    if (idx) {
-      const ration = await ratPack.getDocument(idx._id);
-      const data = ration.toObject();
-      delete data._id; delete data._key;
-      data.system = { ...(data.system ?? {}), quantity: 6, location: { container: "backpack", index: 0, length: data.system?.slots ?? 1 } };
-      toCreate.push(data);
-    }
-  }
-  if (toCreate.length) await actor.createEmbeddedDocuments("Item", toCreate);
-  return { ok: true, added: toCreate.length };
+
+  const created = toCreate.length
+    ? await actor.createEmbeddedDocuments("Item", toCreate)
+    : [];
+  return {
+    ok: missing.length === 0,
+    added: created.length,
+    items: created.map((item) => item.name),
+    missing
+  };
 }
 
-/**
- * Orchestrate full character creation.
- * `opts` = { backgroundId, primary, secondary?, dump?, name?, feature? }.
- * Returns { ok, errors[], bg, characteristics, universal }.
- */
-export async function createCharacter(actor, opts) {
+/** Orchestrate the complete PT2 creation flow after validating every choice. */
+export async function createCharacter(actor, opts = {}) {
   if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
-  const bgs = await _allBackgrounds();
-  if (!bgs) return { ok: false, error: "background compendium not loaded" };
-  const bg = bgs.find(b => b.id === opts.backgroundId);
-  if (!bg) return { ok: false, error: "background not found" };
+  const backgrounds = await allBackgrounds();
+  if (!backgrounds) return { ok: false, error: "background compendium not loaded" };
+  const background = backgrounds.find((candidate) => candidate.id === opts.backgroundId);
+  if (!background) return { ok: false, error: "background not found" };
 
-  const errors = [];
-
-  // 1) Rename + feature.
-  const renameUpdates = {};
-  if (opts.name && opts.name !== actor.name) renameUpdates.name = opts.name;
-  if (opts.feature) renameUpdates["system.details.feature"] = opts.feature;
-  if (Object.keys(renameUpdates).length) await actor.update(renameUpdates);
-
-  // 2) Characteristics. Validate against bg's characteristicBonus rule.
-  const cb = (bg.system?.characteristicBonus ?? "any").toLowerCase();
-  const allowed = _allowedPrimary(cb);
-  if (!allowed.includes(opts.primary)) {
-    errors.push(`background allows ${allowed.join("/")} as primary; got ${opts.primary}`);
-  } else {
-    await applyCharacteristics(actor, { primary: opts.primary, secondary: opts.secondary, dump: opts.dump });
+  const allowed = backgroundCharacteristicOptions(background);
+  if (!allowed.includes(opts.backgroundCharacteristic)) {
+    return { ok: false, error: `background allows ${allowed.join("/") || "no configured characteristic"} at 2` };
   }
+  const characteristics = characteristicSpread(opts);
+  if (!characteristics.ok) return characteristics;
 
-  // 3) Apply background (skills, stamina, equipment, trait).
-  const bgRes = await applyBackground(actor, bg);
-  if (!bgRes.ok) errors.push(`applyBackground: ${bgRes.error}`);
+  const identity = {
+    "system.speed": 5,
+    "system.npcConnection.name": String(opts.connectionName ?? "").trim(),
+    "system.npcConnection.relationship": String(opts.connectionRelationship ?? "").trim(),
+    "system.npcConnection.notes": String(opts.connectionNotes ?? "").trim()
+  };
+  if (opts.name && opts.name !== actor.name) identity.name = String(opts.name).trim();
+  if (opts.feature) identity["system.details.feature"] = String(opts.feature).trim();
+  await actor.update(identity);
 
-  // 4) Universal starter items.
-  const uni = await applyUniversalStarterItems(actor);
+  const characteristicResult = await applyCharacteristics(actor, opts);
+  const backgroundResult = await applyBackground(actor, background);
+  if (!backgroundResult.ok) return backgroundResult;
 
-  // 5) Summary chat card.
+  const universal = await applyUniversalStarterItems(actor);
+  const gold = await rollStartingGold(background.system?.startingGold ?? "3d6");
+  await actor.update({ "system.currency": gold.total });
+
+  const errors = universal.missing.map((name) => `starter item not found: ${name}`);
   await ChatMessage.create({
     content: `<div class="crows char-create">
-      <header><strong>${actor.name}</strong> — character created!</header>
+      <header><strong>${esc(actor.name)}</strong> — character created</header>
       <ul>
-        <li>Background: <strong>${bg.name}</strong></li>
-        <li>Characteristics: +1 ${opts.primary}${opts.secondary ? `, +1 ${opts.secondary}, -1 ${opts.dump}` : ""}</li>
-        <li>Stamina: <strong>${bg.system?.stamina ?? 5}</strong></li>
-        ${bgRes.startingTraitEmbedded ? `<li>Starting trait: <strong>${bgRes.startingTrait}</strong></li>` : ""}
-        <li>Equipment + spellbooks: <strong>${bgRes.itemsCreated}</strong> item(s)</li>
-        <li>Universal starter items added: <strong>${uni.added}</strong></li>
+        <li>Background: <strong>${esc(background.name)}</strong></li>
+        <li>Characteristics: ${Object.entries(characteristics.values).map(([key, value]) => `${esc(label(key))} ${value}`).join(", ")}</li>
+        <li>Expertise uses granted: <strong>${Object.values(backgroundResult.expertiseUses).reduce((sum, uses) => sum + uses, 0)}</strong></li>
+        <li>Starting gold: <strong>${gold.total} gc</strong> (${esc(gold.formula)})</li>
+        <li>Universal kit items added: <strong>${universal.added}</strong></li>
+        <li>NPC connection: <strong>${esc(identity["system.npcConnection.name"] || "Not named")}</strong></li>
       </ul>
-      ${opts.feature ? `<div><em>"${opts.feature}"</em></div>` : ""}
     </div>`,
     speaker: ChatMessage.getSpeaker({ actor })
   });
-  return { ok: errors.length === 0, errors, bg: bg.name, characteristics: { primary: opts.primary, secondary: opts.secondary, dump: opts.dump }, universal: uni.added };
+
+  return {
+    ok: errors.length === 0,
+    errors,
+    background: background.name,
+    characteristics: characteristicResult,
+    expertises: backgroundResult.expertiseUses,
+    gold: { formula: gold.formula, total: gold.total },
+    universal,
+    connection: {
+      name: identity["system.npcConnection.name"],
+      relationship: identity["system.npcConnection.relationship"],
+      notes: identity["system.npcConnection.notes"]
+    }
+  };
 }
 
-/** Translate a background's characteristicBonus string to the allowed list. */
-function _allowedPrimary(cb) {
-  if (cb === "any") return ["agility", "mind", "strength"];
-  if (cb.includes(" or ")) return cb.split(" or ").map(s => s.trim().toLowerCase());
-  return [cb];
-}
-
-/**
- * Open the wizard dialog. Returns when the dialog resolves.
- */
+/** Open the single-dialog creator and apply its choices exactly once. */
 export async function openCharacterCreator(actor) {
   if (!actor || actor.type !== "crow") {
     ui.notifications?.warn("Character creator is for crow actors only.");
     return;
   }
   const DialogV2 = foundry.applications.api.DialogV2;
-  const bgs = await _allBackgrounds();
-  if (!bgs?.length) {
+  const backgrounds = await allBackgrounds();
+  if (!backgrounds?.length) {
     ui.notifications?.warn("Background compendium is not loaded.");
     return;
   }
 
-  // Fresh-actor warning.
   const txp = actor.system?.xp?.txp ?? 0;
-  const itemCount = actor.items.size;
+  const itemCount = actor.items?.size ?? actor.items?.length ?? 0;
   if (txp > 0 || itemCount > 0) {
-    const conf = await DialogV2.confirm({
-      window: { title: "Overwrite existing character?" },
-      content: `<p>${actor.name} already has ${itemCount} item(s) and ${txp} TXP. Continuing will apply a background on top (skills increment, items stack). Continue?</p>`
+    const confirmed = await DialogV2.confirm({
+      window: { title: "Apply creation to an existing crow?" },
+      content: `<p>${esc(actor.name)} already has ${itemCount} item(s) and ${txp} TXP. Continuing adds the background's expertise uses and items to the existing actor.</p>`
     });
-    if (!conf) return;
+    if (!confirmed) return;
   }
 
-  // Build the form.
-  const bgOpts = [...bgs].sort((a, b) => a.name.localeCompare(b.name))
-    .map(b => `<option value="${b.id}" data-cb="${b.system?.characteristicBonus ?? "any"}" data-stam="${b.system?.stamina ?? 5}" data-trait="${(b.system?.startingTrait ?? "").replace(/"/g, "&quot;")}">${b.name}</option>`)
+  const backgroundOptions = [...backgrounds]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((background) => `<option value="${esc(background.id)}">${esc(background.name)}</option>`)
     .join("");
-
+  const currentName = actor.name === "Crow" || actor.name === "New Actor" ? "" : actor.name;
   const content = `<div class="crows char-creator">
     <section class="cc-creator-bg">
       <header><strong>1. Background</strong></header>
-      <div class="row">
-        <button type="button" data-cc-roll="1">Roll 2d6</button>
-        <label>or pick: <select name="backgroundId">${bgOpts}</select></label>
-      </div>
-      <div class="bg-preview" data-cc-preview>
-        <div class="bp-row"><strong>Characteristic:</strong> <span data-cc-cb>—</span> · <strong>Stamina:</strong> <span data-cc-stam>—</span></div>
-        <div class="bp-row"><strong>Starting trait:</strong> <span data-cc-trait>—</span></div>
-        <div class="bp-row bp-desc" data-cc-desc></div>
+      <div class="row"><button type="button" data-cc-roll>Roll 2d6</button>
+        <label>or pick: <select name="backgroundId">${backgroundOptions}</select></label></div>
+      <div class="bg-preview">
+        <div><strong>Sets to 2:</strong> <span data-cc-options>—</span> · <strong>Stamina:</strong> <span data-cc-stamina>—</span></div>
+        <div><strong>Starting trait:</strong> <span data-cc-trait>—</span></div>
+        <div data-cc-description></div>
       </div>
     </section>
-
     <section class="cc-creator-stats">
       <header><strong>2. Characteristics</strong></header>
-      <p>All characteristics start at 0. Background sets your primary to +1. Optionally, raise a second to +1 — but you must drop the third to -1.</p>
-      <div class="row">
-        <label>Primary +1: <select name="primary"></select></label>
-      </div>
-      <div class="row">
-        <label><input type="checkbox" name="useSecondary"> Take a secondary +1 (with -1 dump)</label>
-      </div>
-      <div class="row cc-sec-row" hidden>
-        <label>Secondary +1: <select name="secondary"></select></label>
-        <label>Dump -1: <select name="dump"></select></label>
-      </div>
+      <label>Background characteristic (set to 2): <select name="backgroundCharacteristic"></select></label>
+      <label>Remaining spread: <select name="spread"><option value="1-0">1 and 0</option><option value="2--1">2 and -1</option></select></label>
+      <label><span data-cc-high-label>Characteristic receiving 1</span>: <select name="remainingHigh"></select></label>
+      <div>The other remaining characteristic receives <strong data-cc-low>0</strong>.</div>
     </section>
-
     <section class="cc-creator-bio">
-      <header><strong>3. Name & feature</strong></header>
-      <div class="row"><label>Name: <input type="text" name="charname" value="${actor.name === "Crow" || actor.name === "New Actor" ? "" : actor.name}" placeholder="Character name"></label></div>
-      <div class="row"><label>Distinguishing feature: <input type="text" name="feature" placeholder="e.g. 'scar across left eye'" style="width:100%"></label></div>
+      <header><strong>3. Name & distinguishing feature</strong></header>
+      <label>Name: <input type="text" name="charname" value="${esc(currentName)}"></label>
+      <label>Feature: <input type="text" name="feature"></label>
+    </section>
+    <section class="cc-creator-connection">
+      <header><strong>4. NPC connection</strong></header>
+      <label>Name: <input type="text" name="connectionName"></label>
+      <label>Relationship: <input type="text" name="connectionRelationship"></label>
+      <label>Notes: <textarea name="connectionNotes"></textarea></label>
     </section>
   </div>`;
 
-  // Build a single dialog whose Create button returns the form payload via
-  // its callback. We await the dialog promise once; no extra event listeners.
   let root = null;
-  const choicePromise = foundry.applications.api.DialogV2.wait({
-    window: { title: `${actor.name} — Character Creator`, resizable: true, width: 560 },
+  const choicePromise = DialogV2.wait({
+    window: { title: `${actor.name} — Character Creator`, resizable: true, width: 640 },
     content,
     buttons: [
       { action: "cancel", label: "Cancel", callback: () => null },
@@ -290,105 +342,78 @@ export async function openCharacterCreator(actor) {
         label: "Create",
         default: true,
         callback: (event, button, dialog) => {
-          const r = dialog.element ?? button?.form;
-          const backgroundId = r?.querySelector?.('select[name="backgroundId"]')?.value;
-          const primary = r?.querySelector?.('select[name="primary"]')?.value;
-          const useSec = !!r?.querySelector?.('input[name="useSecondary"]')?.checked;
-          const secondary = useSec ? r?.querySelector?.('select[name="secondary"]')?.value : null;
-          const dump = useSec ? r?.querySelector?.('select[name="dump"]')?.value : null;
-          const name = r?.querySelector?.('input[name="charname"]')?.value?.trim() || null;
-          const feature = r?.querySelector?.('input[name="feature"]')?.value?.trim() || null;
-          return { backgroundId, primary, secondary, dump, name, feature };
+          const form = dialog.element ?? button?.form;
+          const value = (name) => form?.querySelector?.(`[name="${name}"]`)?.value?.trim() ?? "";
+          return {
+            backgroundId: value("backgroundId"),
+            backgroundCharacteristic: value("backgroundCharacteristic"),
+            remainingHigh: value("remainingHigh"),
+            spread: value("spread"),
+            name: value("charname") || null,
+            feature: value("feature") || null,
+            connectionName: value("connectionName"),
+            connectionRelationship: value("connectionRelationship"),
+            connectionNotes: value("connectionNotes")
+          };
         }
       }
     ],
-    render: (event, dialog) => {
-      // Capture the rendered root for the after-render wiring below.
-      root = dialog.element;
-    }
+    render: (event, dialog) => { root = dialog.element; }
   });
 
-  // Wait one tick for the dialog to mount so `root` is populated.
-  await new Promise(r => setTimeout(r, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
   if (!root) {
-    // Fallback if render hook didn't fire (older DialogV2 build):
-    const fallback = [...document.querySelectorAll(".application")].find(el => el.querySelector(".crows.char-creator"));
-    if (fallback) root = fallback;
+    root = [...document.querySelectorAll(".application")]
+      .find((element) => element.querySelector(".crows.char-creator"));
   }
   if (!root) return;
-  const sel = root.querySelector('select[name="backgroundId"]');
-  const primarySel = root.querySelector('select[name="primary"]');
-  const secRow = root.querySelector('.cc-sec-row');
-  const useSec = root.querySelector('input[name="useSecondary"]');
-  const secondarySel = root.querySelector('select[name="secondary"]');
-  const dumpSel = root.querySelector('select[name="dump"]');
 
-  function _refreshFromBg() {
-    const opt = sel.selectedOptions[0];
-    if (!opt) return;
-    const cb = opt.dataset.cb;
-    const stam = opt.dataset.stam;
-    const trait = opt.dataset.trait;
-    root.querySelector("[data-cc-cb]").textContent = cb;
-    root.querySelector("[data-cc-stam]").textContent = stam;
-    root.querySelector("[data-cc-trait]").textContent = trait || "—";
-    // Lazy-load description from full document.
-    const bg = bgs.find(b => b.id === opt.value);
-    root.querySelector("[data-cc-desc]").innerHTML = bg?.system?.description ?? "";
+  const backgroundSelect = root.querySelector('[name="backgroundId"]');
+  const backgroundCharacteristicSelect = root.querySelector('[name="backgroundCharacteristic"]');
+  const remainingHighSelect = root.querySelector('[name="remainingHigh"]');
+  const spreadSelect = root.querySelector('[name="spread"]');
 
-    // Refresh primary options.
-    const allowed = _allowedPrimary(cb ?? "any");
-    primarySel.innerHTML = allowed.map(a => `<option value="${a}">${a}</option>`).join("");
-    _refreshSecondary();
+  function refreshRemaining() {
+    const remaining = CHARACTERISTICS.filter((key) => key !== backgroundCharacteristicSelect.value);
+    remainingHighSelect.innerHTML = remaining.map((key) => `<option value="${key}">${label(key)}</option>`).join("");
+    const [high, low] = CREATION_SPREADS[spreadSelect.value];
+    root.querySelector("[data-cc-high-label]").textContent = `Characteristic receiving ${high}`;
+    root.querySelector("[data-cc-low]").textContent = String(low);
   }
 
-  function _refreshSecondary() {
-    secRow.hidden = !useSec.checked;
-    const all = ["agility", "mind", "strength"];
-    const primary = primarySel.value;
-    const others = all.filter(a => a !== primary);
-    secondarySel.innerHTML = others.map(a => `<option value="${a}">${a}</option>`).join("");
-    _refreshDump();
+  function refreshBackground() {
+    const background = backgrounds.find((candidate) => candidate.id === backgroundSelect.value);
+    if (!background) return;
+    const options = backgroundCharacteristicOptions(background);
+    backgroundCharacteristicSelect.innerHTML = options
+      .map((key) => `<option value="${key}">${label(key)}</option>`).join("");
+    root.querySelector("[data-cc-options]").textContent = options.map(label).join(" or ") || "Not configured";
+    root.querySelector("[data-cc-stamina]").textContent = String(background.system?.stamina ?? 5);
+    root.querySelector("[data-cc-trait]").textContent = background.system?.startingTrait || "—";
+    root.querySelector("[data-cc-description]").innerHTML = background.system?.description ?? "";
+    refreshRemaining();
   }
 
-  function _refreshDump() {
-    const all = ["agility", "mind", "strength"];
-    const primary = primarySel.value;
-    const secondary = secondarySel.value;
-    const others = all.filter(a => a !== primary && a !== secondary);
-    dumpSel.innerHTML = others.map(a => `<option value="${a}">${a}</option>`).join("");
-  }
-
-  sel.addEventListener("change", _refreshFromBg);
-  primarySel.addEventListener("change", _refreshSecondary);
-  useSec.addEventListener("change", _refreshSecondary);
-  secondarySel.addEventListener("change", _refreshDump);
-
-  // Roll 2d6 button.
-  root.querySelector('[data-cc-roll="1"]')?.addEventListener("click", async () => {
-    const r = await rollBackground();
-    const found = bgs.find(b => b.name === r.name);
-    if (found) {
-      sel.value = found.id;
-      _refreshFromBg();
-      ui.notifications?.info(`Rolled ${r.rollA},${r.rollB} → ${r.name}.`);
-    } else {
-      ui.notifications?.warn(`Rolled ${r.rollA},${r.rollB} → ${r.name} (not found in compendium).`);
+  backgroundSelect.addEventListener("change", refreshBackground);
+  backgroundCharacteristicSelect.addEventListener("change", refreshRemaining);
+  spreadSelect.addEventListener("change", refreshRemaining);
+  root.querySelector("[data-cc-roll]")?.addEventListener("click", async () => {
+    const result = await rollBackground();
+    const background = backgrounds.find((candidate) => candidate.name === result.name);
+    if (!background) {
+      ui.notifications?.warn(`Rolled ${result.rollA},${result.rollB} -> ${result.name} (not found in compendium).`);
+      return;
     }
+    backgroundSelect.value = background.id;
+    refreshBackground();
+    ui.notifications?.info(`Rolled ${result.rollA},${result.rollB} -> ${result.name}.`);
   });
+  refreshBackground();
 
-  // Initial population.
-  _refreshFromBg();
-
-  // Await the dialog's resolution (Cancel returns null; Create returns the
-  // payload object). Single click → single createCharacter call.
   const choice = await choicePromise;
   if (!choice) return;
   const result = await createCharacter(actor, choice);
-  if (!result.ok && result.errors?.length) {
-    ui.notifications?.warn("Character creation had issues: " + result.errors.join("; "));
-  } else if (result.ok) {
-    ui.notifications?.info(`${actor.name} created!`);
-  }
+  if (!result.ok) ui.notifications?.warn(result.error ?? result.errors?.join("; ") ?? "Character creation failed.");
+  else ui.notifications?.info(`${actor.name} created!`);
   return result;
 }
