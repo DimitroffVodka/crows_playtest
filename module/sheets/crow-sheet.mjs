@@ -1,17 +1,24 @@
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
-import { CROWS, ALL_EXPERTISES } from "../config.mjs";
+
+import { CROWS, ALL_EXPERTISES, expertiseCategory } from "../config.mjs";
 import { rollTest } from "../helpers/roll.mjs";
 import { applyBackground } from "../helpers/creation.mjs";
 import {
-  bonusesEarned, nextBonusTXP, isTraitBuyable, bonusesAvailable,
+  advancementOptions, nextAdvancementTXP, traitPurchaseInfo, traitPoolState,
   purchaseTrait, gainXP, spendExpertiseBonus, spendCharBonus
 } from "../helpers/advancement.mjs";
-import { takeRest } from "../helpers/rest.mjs";
+import {
+  takeRest, woundCandidatesFromLayout
+} from "../helpers/rest.mjs";
 import { endDungeonTurn, rollEncounterCheck } from "../helpers/dungeon-turn.mjs";
 import { attackWithWeapon } from "../helpers/attack.mjs";
 import {
-  getInMiasma, setInMiasma, rollMiasmaResist, clearMiasma, onBonedCleared, MIASMA_EFFECTS
+  layoutFor, packItem, unpackItem, slotsNeeded, coinSummary,
+  applyWoundSpeedPenalty, CARRY_CONTAINERS, MAGIC_CONTAINERS
+} from "../helpers/slots.mjs";
+import {
+  getInMiasma, setInMiasma, rollMiasmaResist, clearMiasma, MIASMA_EFFECTS
 } from "../helpers/miasma.mjs";
 import {
   CRYPT_BOONS, getCryptLevel, listInterments, getCycleId,
@@ -23,113 +30,294 @@ import {
   setProsperity, endCycle, rollVillageEvent
 } from "../helpers/village.mjs";
 import {
-  startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
-  identifyMagicItem
+  CRAFTING_EXPERTISES, startCraftingProject, cancelProject, makeCraftingRoll,
+  completeProject, identifyMagicItem
 } from "../helpers/crafting.mjs";
 import { openCharacterCreator } from "../helpers/character-creator.mjs";
 
-const SPELL_SKILLS = new Set(["alteration","benefaction","conjuration","elemental","illusion","necromancy"]);
-const WEAPON_SKILLS = new Set(["bashing","bow","chopping","slashing","stabbing","unarmed"]);
+const PHYSICAL_ITEM_TYPES = new Set([
+  "weapon", "armor", "ammunition", "consumable", "gear", "spellbook"
+]);
+const CONDITION_KEYS = ["blessed", "grabbed", "prone", "vulnerable", "unconscious", "weakened"];
+const EXPERTISE_CATEGORIES = ["general", "spellcasting", "weapon"];
+const EXPERTISE_ICON = "icons/svg/d10-grey.svg";
 
-const SKILL_LABELS = {
-  alchemy: "Alchemy", blacksmithing: "Blacksmithing", climb: "Climb", enchanting: "Enchanting",
-  endurance: "Endurance", gymnastics: "Gymnastics", handleAnimal: "Handle Animals", hide: "Hide",
-  historicalLore: "Historical Lore", jump: "Jump", lift: "Lift", magicLore: "Magic Lore",
-  monsterLore: "Monster Lore", natureLore: "Nature Lore", navigate: "Navigate", pickLock: "Pick Lock",
-  religiousLore: "Religious Lore", sabotage: "Sabotage", search: "Search", sleightOfHand: "Sleight of Hand",
-  sneak: "Sneak", swim: "Swim",
-  alteration: "Alteration", benefaction: "Benefaction", conjuration: "Conjuration",
-  elemental: "Elemental", illusion: "Illusion", necromancy: "Necromancy",
-  bashing: "Bashing", bow: "Bow", chopping: "Chopping", slashing: "Slashing",
-  stabbing: "Stabbing", unarmed: "Unarmed"
-};
-
-const NAMED_SLOTS = [
-  { id: "leftHand", label: "Left Hand", container: "hand", index: 0, hint: "equipped" },
-  { id: "rightHand", label: "Right Hand", container: "hand", index: 1, hint: "equipped" },
-  { id: "head", label: "Head", container: "head", index: 0, hint: "circlets, crowns, & hats" },
-  { id: "neck", label: "Neck", container: "neck", index: 0, hint: "amulets, cloaks, & necklaces" },
-  { id: "waist", label: "Waist", container: "waist", index: 0, hint: "belts & girdles" },
-  { id: "beltLeft", label: "Belt Left", container: "belt", index: 0, hint: "belt slot" },
-  { id: "beltRight", label: "Belt Right", container: "belt", index: 1, hint: "belt slot" },
-  { id: "arms", label: "Arms", container: "arms", index: 0, hint: "bracers & gloves" },
-  { id: "finger", label: "Finger", container: "finger", index: 0, hint: "rings" },
-  { id: "feet", label: "Feet", container: "feet", index: 0, hint: "boots & shoes" }
-];
-
-function skillChar(key) {
-  if (WEAPON_SKILLS.has(key)) return "strength";
-  if (SPELL_SKILLS.has(key)) return "mind";
-  return "agility";
+function t(key, data = null) {
+  const i18n = globalThis.game?.i18n;
+  if (!i18n) return key;
+  return data ? i18n.format(key, data) : i18n.localize(key);
 }
 
-/** Compact one-line summary of an item for slot-card rendering. */
-function summarizeItem(it) {
-  const s = it.system ?? {};
-  switch (it.type) {
+function esc(value) {
+  return foundry.utils.escapeHTML(String(value ?? ""));
+}
+
+function notify(kind, key, data = null) {
+  globalThis.ui?.notifications?.[kind]?.(t(key, data));
+}
+
+function itemTypeLabel(type) {
+  return t(`TYPES.Item.${type}`);
+}
+
+function enumLabel(group, value) {
+  if (!value) return "—";
+  const key = `CROWS.Sheet.Crow.value.${group}.${value}`;
+  const label = t(key);
+  return label === key ? String(value) : label;
+}
+
+function spellDurationLabel(system) {
+  const duration = system.duration ?? {};
+  let label = duration.kind === "ud"
+    ? t("CROWS.Sheet.Crow.value.duration.ud", { count: duration.count ?? 0 })
+    : enumLabel("duration", duration.kind);
+  if (duration.note) label = t("CROWS.Sheet.Crow.value.duration.withNote", {
+    duration: label, note: duration.note
+  });
+  return label;
+}
+
+/** Compact, localized item information for the printed-card construction. */
+function summarizeItem(item) {
+  const s = item.system ?? {};
+  switch (item.type) {
     case "weapon": {
       const r = s.range ?? {};
-      const range = r.melee && r.ranged ? `Melee ${r.melee} / Ranged ${r.ranged}`
-        : r.ranged ? `Ranged ${r.ranged}` : `Melee ${r.melee ?? 1}`;
-      const dmg = `${s.damage?.t2 ?? "?"} / ${s.damage?.t3 ?? "?"}`;
-      const qual = (s.qualities ?? []).join(", ");
-      return { lines: [range, `2d10 + ${s.attackStat === "either" ? "A or S" : s.attackStat?.[0]?.toUpperCase() ?? "?"}`, `12-16: ${s.damage?.t2 ?? ""} · 17+: ${s.damage?.t3 ?? ""}`, qual].filter(Boolean) };
+      const range = r.melee && r.ranged
+        ? t("CROWS.Sheet.Crow.item.rangeBoth", { melee: r.melee, ranged: r.ranged })
+        : r.ranged
+          ? t("CROWS.Sheet.Crow.item.rangeRanged", { range: r.ranged })
+          : t("CROWS.Sheet.Crow.item.rangeMelee", { range: r.melee ?? 1 });
+      const attack = s.attackStat === "either"
+        ? t("CROWS.Sheet.Crow.item.attackEither")
+        : t("CROWS.Sheet.Crow.item.attackOne", {
+          characteristic: String(s.attackStat?.[0] ?? "?").toUpperCase()
+        });
+      const lines = [
+        range,
+        attack,
+        t("CROWS.Sheet.Crow.item.damageBands", {
+          tier2: s.damage?.t2 ?? "—",
+          tier3: s.damage?.t3 ?? "—"
+        })
+      ];
+      if (s.qualities?.length) lines.push(s.qualities.map(value => enumLabel("quality", value)).join(", "));
+      return { lines };
     }
     case "armor":
-      return { lines: [`Armor (${s.armorType})`, `AD ${s.ad}`] };
+      return { lines: [
+        t("CROWS.Sheet.Crow.item.armor", { type: enumLabel("armor", s.armorType) }),
+        t("CROWS.Sheet.Crow.item.ad", { current: s.adCurrent ?? s.ad ?? 0, max: s.ad ?? 0 })
+      ] };
     case "ammunition":
-      return { lines: [`Ammo for ${s.ammoFor || "weapons"}`, `${s.countPerUnit ?? 0}/unit`] };
+      return { lines: [
+        t("CROWS.Sheet.Crow.item.ammunitionFor", { weapon: s.ammoFor || "—" }),
+        t("CROWS.Sheet.Crow.item.perUnit", { count: s.countPerUnit ?? 0 })
+      ] };
     case "consumable": {
-      const lines = [`${s.useAction ?? "action"}`];
-      if (s.bands?.t2 || s.bands?.t3) lines.push(`12-16: ${s.bands?.t2 || "-"} · 17+: ${s.bands?.t3 || "-"}`);
-      if (s.duration) lines.push(`Duration: ${s.duration}`);
+      const lines = [t("CROWS.Sheet.Crow.item.activation", {
+        action: enumLabel("action", s.useAction)
+      })];
+      if (s.bands?.t2 || s.bands?.t3) {
+        lines.push(t("CROWS.Sheet.Crow.item.damageBands", {
+          tier2: s.bands?.t2 || "—", tier3: s.bands?.t3 || "—"
+        }));
+      }
+      if (s.duration) lines.push(t("CROWS.Sheet.Crow.item.duration", { duration: s.duration }));
       return { lines };
     }
     case "spellbook": {
-      const r = s.range ?? {};
-      const range = r.kind === "self" ? "Self" : r.kind === "melee" ? `Melee ${r.value}` : `Ranged ${r.value}`;
-      const lines = [`${s.discipline} R${s.rank}`, `${s.castType} · ${range}`];
-      if (s.effectBands?.t2 || s.effectBands?.t3) lines.push(`12-16: ${s.effectBands?.t2 || "-"} · 17+: ${s.effectBands?.t3 || "-"}`);
+      const target = s.target?.text || "—";
+      const lines = [
+        t("CROWS.Sheet.Crow.item.spell", {
+          discipline: s.discipline ? t(`CROWS.Expertise.${s.discipline}`) : "—",
+          rank: s.rank ?? 0
+        }),
+        t("CROWS.Sheet.Crow.item.spellUse", {
+          time: enumLabel("action", s.castingTime), target
+        })
+      ];
+      if (s.duration?.kind) {
+        lines.push(t("CROWS.Sheet.Crow.item.duration", { duration: spellDurationLabel(s) }));
+      }
+      if (s.effectBands?.t2 || s.effectBands?.t3) {
+        lines.push(t("CROWS.Sheet.Crow.item.damageBands", {
+          tier2: s.effectBands?.t2 || "—", tier3: s.effectBands?.t3 || "—"
+        }));
+      }
       return { lines };
     }
     case "gear": {
-      const lines = [s.subtype || "gear"];
-      if (s.light?.enabled) lines.push(`Light ${s.light.bright}/${s.light.dim}`);
-      if (s.usageDie?.enabled) lines.push(`UD ${s.usageDie.udCurrent}/${s.usageDie.udMax} (${s.usageDie.expiry})`);
+      const lines = [s.subtype ? enumLabel("gear", s.subtype) : itemTypeLabel(item.type)];
+      if (s.light?.enabled) {
+        lines.push(t("CROWS.Sheet.Crow.item.light", { bright: s.light.bright, dim: s.light.dim }));
+      }
+      if (s.usageDie?.enabled) {
+        lines.push(t("CROWS.Sheet.Crow.item.usageDie", {
+          current: s.usageDie.udCurrent,
+          max: s.usageDie.udMax,
+          expiry: enumLabel("expiry", s.usageDie.expiry)
+        }));
+      }
+      if (s.purse?.isPurse) {
+        lines.push(t("CROWS.Sheet.Crow.item.purse", {
+          held: s.purse.held ?? 0,
+          cap: s.purseBaseCap ?? s.purse.baseCapacity ?? CROWS.purseBaseCapacity
+        }));
+      }
       return { lines };
     }
     default:
-      return { lines: [it.type] };
+      return { lines: [itemTypeLabel(item.type)] };
   }
 }
 
-function slotCard(it) {
-  if (!it) return null;
-  const s = it.system ?? {};
+function slotCard(item) {
+  if (!item) return null;
+  const s = item.system ?? {};
   return {
-    id: it.id,
-    name: it.name,
-    img: it.img,
-    type: it.type,
+    id: item.id,
+    name: item.name,
+    img: item.img,
+    type: item.type,
+    typeLabel: itemTypeLabel(item.type),
     stack: s.stackMax > 1 ? `${s.quantity ?? 1}/${s.stackMax}` : null,
-    summary: summarizeItem(it),
-    cost: s.cost ?? null,
-    description: s.description ?? ""
+    summary: summarizeItem(item),
+    cost: s.cost ?? null
   };
+}
+
+function slotLabel(container, index) {
+  if (MAGIC_CONTAINERS.includes(container)) return t(`CROWS.Sheet.${container}`);
+  return t("CROWS.Sheet.Crow.slotNumber", {
+    container: t(`CROWS.Sheet.${container}`), number: index + 1
+  });
+}
+
+function slotView(slot, itemById) {
+  const spanItem = slot.spanId ? itemById.get(slot.spanId) : null;
+  const spanStart = Number(spanItem?.system?.location?.index ?? slot.index);
+  const isContinuation = Boolean(spanItem && slot.index > spanStart);
+  const seen = new Set();
+  const cards = [];
+  if (!isContinuation) {
+    for (const entry of slot.items) {
+      if (seen.has(entry.id)) continue;
+      seen.add(entry.id);
+      const card = slotCard(itemById.get(entry.id));
+      if (card) cards.push(card);
+    }
+  }
+  return {
+    container: slot.container,
+    index: slot.index,
+    number: slot.index + 1,
+    label: slotLabel(slot.container, slot.index),
+    wound: slot.wound,
+    cards,
+    filled: slot.items.length > 0,
+    isContinuation,
+    continuationName: isContinuation ? spanItem.name : null
+  };
+}
+
+/** Everything the template needs from T1.2's positional layout. */
+function inventoryView(actor) {
+  const layout = layoutFor(actor);
+  const itemById = new Map([...actor.items].map(item => [item.id, item]));
+  const slots = layout.slots.map(slot => slotView(slot, itemById));
+  const group = (container) => ({
+    key: container,
+    label: t(`CROWS.Sheet.${container}`),
+    capacity: layout.capacities[container] ?? 0,
+    slots: slots.filter(slot => slot.container === container)
+  });
+  return {
+    layout,
+    hand: group("hand"),
+    belt: group("belt"),
+    backpack: group("backpack"),
+    magic: MAGIC_CONTAINERS.map(group),
+    coin: coinSummary(layout),
+    unplaced: layout.unplaced.map(entry => {
+      const item = itemById.get(entry.id);
+      const location = item?.system?.location;
+      const storedSlot = location?.container
+        ? slotLabel(location.container, Number(location.index) || 0)
+        : t("CROWS.Sheet.Crow.inventory.unknownSlot");
+      return {
+        ...entry,
+        card: slotCard(item),
+        reasonLabel: t(`CROWS.Dialog.InventoryDrop.${entry.reason}`, {
+          item: item?.name ?? t("CROWS.Sheet.Crow.inventory.unknownItem"),
+          slot: storedSlot,
+          count: item ? slotsNeeded(item) : 0
+        })
+      };
+    }),
+    weightless: layout.weightless.map(entry => slotCard(itemById.get(entry.id))).filter(Boolean)
+  };
+}
+
+function expertiseGroups(system) {
+  const groups = Object.fromEntries(EXPERTISE_CATEGORIES.map(category => [category, []]));
+  for (const key of ALL_EXPERTISES) {
+    const state = system.expertises?.[key] ?? {};
+    const value = Math.max(0, Number(state.value) || 0);
+    const max = Math.max(0, Number(state.max) || 0);
+    const cap = Math.max(0, Number(system.expertiseCap) || 0);
+    groups[expertiseCategory(key)].push({
+      key,
+      label: t(`CROWS.Expertise.${key}`),
+      hint: t(`CROWS.Expertise.${key}Hint`),
+      icon: EXPERTISE_ICON,
+      value,
+      max,
+      cap,
+      canSpend: value > 0,
+      overCap: Math.max(0, max - cap),
+      overMax: Math.max(0, value - max)
+    });
+  }
+  return EXPERTISE_CATEGORIES.map(category => ({
+    key: category,
+    label: t(`CROWS.ExpertiseCategory.${category}`),
+    hint: t(`CROWS.ExpertiseCategory.${category}Hint`),
+    entries: groups[category]
+  }));
+}
+
+function dropRefusal(item, container) {
+  if (!PHYSICAL_ITEM_TYPES.has(item?.type)) return "not-physical";
+  if (MAGIC_CONTAINERS.includes(container) && item.system?.equipSlotType !== container) {
+    return "magic-slot-mismatch";
+  }
+  return null;
+}
+
+function advancementDisabledReason(view) {
+  if (!view.window.open) return t("CROWS.Dialog.Advancement.windowClosed");
+  if (view.available.expertise <= 0) return t("CROWS.Dialog.Advancement.noneAvailable");
+  return "";
+}
+
+function characteristicDisabledReason(view) {
+  if (!view.window.open) return t("CROWS.Dialog.Advancement.windowClosed");
+  if (view.available.char <= 0) return t("CROWS.Dialog.Advancement.noCharacteristicAvailable");
+  return "";
 }
 
 export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
-    classes: ["crows","sheet","crow"],
+    classes: ["crows", "sheet", "crow"],
     position: { width: 980, height: "auto" },
     actions: {
       switchTab: CrowSheet._onTab,
-      rollSkill: CrowSheet._onRollSkill,
       rollChar: CrowSheet._onRollChar,
-      adjBlessed: CrowSheet._onAdjBlessed,
-      adjBoned: CrowSheet._onAdjBoned,
-      adjWounds: CrowSheet._onAdjWounds,
-      toggleSkillBonus: CrowSheet._onToggleSkillBonus,
+      rollPreparedTask: CrowSheet._onRollPreparedTask,
+      spendExpertiseUse: CrowSheet._onSpendExpertiseUse,
+      toggleWound: CrowSheet._onToggleWound,
       openItem: CrowSheet._onOpenItem,
       takeRest: CrowSheet._onTakeRest,
       endDt: CrowSheet._onEndDT,
@@ -163,23 +351,20 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _activeTab = "main";
   _selectedTree = "alchemy";
+  _expertiseInFlight = new Set();
 
-  /**
-   * Compendium-backed trait tree map cache. Loaded once per session by the
-   * first sheet that opens the Advancement tab; keyed by class so all
-   * crow sheets share it.
-   */
   static _treeMap = null;
+
   static async getTreeMap() {
     if (CrowSheet._treeMap) return CrowSheet._treeMap;
     const pack = game.packs.get("crows.crows-traits");
     if (!pack) return null;
     const docs = await pack.getDocuments();
     const map = {};
-    for (const d of docs) {
-      const tree = d.system?.tree;
+    for (const doc of docs) {
+      const tree = doc.system?.tree;
       if (!tree) continue;
-      (map[tree] ??= []).push(d);
+      (map[tree] ??= []).push(doc);
     }
     CrowSheet._treeMap = map;
     return map;
@@ -187,203 +372,206 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   async _prepareContext(options) {
     const ctx = await super._prepareContext(options);
-    const sys = this.document.system;
-    ctx.system = sys; ctx.actor = this.document; ctx.CROWS = CROWS;
+    const actor = this.document;
+    const system = actor.system;
+    const inventory = inventoryView(actor);
+    const advancement = advancementOptions(actor);
+
+    ctx.system = system;
+    ctx.actor = actor;
     ctx.activeTab = this._activeTab;
-    ctx.tabs = [
-      { id: "main", label: "Main" },
-      { id: "equipment", label: "Equipment" },
-      { id: "inventory", label: "Inventory" },
-      { id: "advancement", label: "Advancement" },
-      { id: "downtime", label: "Downtime" },
-      { id: "bio", label: "Bio" }
-    ];
+    ctx.isGM = Boolean(game.user?.isGM);
+    ctx.shift = 1;
+    ctx.tabs = ["main", "equipment", "inventory", "advancement", "downtime", "bio"]
+      .map(id => ({ id, label: t(`CROWS.Sheet.Crow.tab.${id}`) }));
 
-    // Skills grouped into General / Spellcasting / Weapon. Each row carries the
-    // current bonus value (0/1/2) so the template can render two checkboxes
-    // (+1 / +2) bound by data-action="toggleSkillBonus".
-    ctx.skillGroups = {
-      general: [], spellcasting: [], weapon: []
-    };
-    for (const key of CROWS.skills) {
-      const bonus = sys.skills?.[key]?.bonus ?? 0;
-      const row = { key, label: SKILL_LABELS[key] ?? key, bonus, char: skillChar(key) };
-      if (WEAPON_SKILLS.has(key)) ctx.skillGroups.weapon.push(row);
-      else if (SPELL_SKILLS.has(key)) ctx.skillGroups.spellcasting.push(row);
-      else ctx.skillGroups.general.push(row);
-    }
+    ctx.nextAdvancement = nextAdvancementTXP(system.xp?.txp ?? 0);
+    ctx.expertiseGroups = expertiseGroups(system);
+    ctx.expertiseOverBudget = Number.isFinite(Number(system.expertiseOverBudget))
+      && Number(system.expertiseOverBudget) > 0
+      ? Number(system.expertiseOverBudget)
+      : null;
+    ctx.expertiseOverBudgetLabel = ctx.expertiseOverBudget === null ? "" : t(
+      "CROWS.Warn.expertiseOverBudget", { over: ctx.expertiseOverBudget }
+    );
 
-    // Conditions: net (blessed - boned), plus the binary condition flags.
-    const cn = sys.conditions ?? {};
-    ctx.condNet = (cn.blessed ?? 0) - (cn.boned ?? 0);
-    ctx.condFlags = {
-      grabbed: !!cn.grabbed,
-      prone: !!cn.prone,
-      unconscious: !!cn.unconscious
-    };
-
-    // Next-advancement TXP threshold (M3 will add the proper table; placeholder).
-    const txp = sys.xp?.txp ?? 0;
-    ctx.nextAdvancement = txp < 100 ? 100 : txp < 500 ? 500 : txp < 1250 ? 1250
-      : txp < 2250 ? 2250 : txp < 3500 ? 3500 : txp < 5000 ? 5000
-      : (Math.ceil(txp / 5000) * 5000) + 5000;
-
-    // Equipment grid (10 named slots with item-card render).
-    ctx.equipSlots = NAMED_SLOTS.map(slot => {
-      const it = this.document.items.find(i =>
-        i.system?.location?.container === slot.container &&
-        (i.system?.location?.index ?? 0) === slot.index
-      );
-      return { ...slot, card: slotCard(it) };
-    });
-
-    // Backpack grid (10 slots). Wounds occupy slots from the bottom.
-    const cap = CROWS.backpackSize;
-    const wounds = sys.wounds ?? 0;
-    const backpackItems = this.document.items.filter(i => i.system?.location?.container === "backpack");
-    ctx.backpack = [];
-    for (let i = 0; i < cap; i++) {
-      const isWound = i >= (cap - wounds);
-      const it = backpackItems.find(b => (b.system.location?.index ?? 0) === i);
-      ctx.backpack.push({ index: i, isWound, card: slotCard(it) });
-    }
-
-    // Perks = owned trait items.
-    ctx.perks = this.document.items.filter(i => i.type === "trait").map(t => ({
-      id: t.id,
-      name: t.name,
-      img: t.img,
-      tree: t.system?.tree ?? "",
-      tier: t.system?.tier ?? 1,
-      column: t.system?.column ?? 1,
-      description: t.system?.description ?? ""
+    ctx.conditions = CONDITION_KEYS.map(key => ({
+      key,
+      label: t(`CROWS.Condition.${key}`),
+      hint: t(`CROWS.Condition.${key}Hint`),
+      active: Boolean(system.conditions?.[key])
     }));
 
-    // Derived shift (M1: always 1; M3 will let traits modify).
-    ctx.shift = 1;
+    ctx.inventory = inventory;
+    ctx.effectiveSpeed = applyWoundSpeedPenalty(system.effectiveSpeed, inventory.layout);
+    ctx.speedNote = [system.speedNote, inventory.layout.slots.some(s => s.wound && s.items.length)
+      ? t("CROWS.Sheet.Crow.woundSpeedNote") : ""].filter(Boolean).join(" · ");
+    ctx.magicOverload = inventory.layout.magicOverload;
+    ctx.orphanedWoundCount = system.orphanedWounds?.length ?? 0;
+    ctx.orphanedWoundsLabel = ctx.orphanedWoundCount > 0
+      ? t("CROWS.Warn.orphanedWounds", { count: ctx.orphanedWoundCount }) : "";
 
-    // Time / DT counter + GM-only flag for the Time panel.
+    ctx.perks = [...actor.items].filter(item => item.type === "trait").map(trait => {
+      const poolConfigured = Boolean(trait.system?.usePool?.sizedBy)
+        || Number(trait.system?.usePool?.fixedMax) > 0;
+      return {
+        id: trait.id,
+        name: trait.name,
+        img: trait.img,
+        tree: trait.system?.tree ?? "",
+        treeLabel: trait.system?.tree
+          ? t(`CROWS.Sheet.Crow.tree.${trait.system.tree}`) : "",
+        tier: trait.system?.tier ?? 1,
+        usePool: poolConfigured ? traitPoolState(trait, actor) : null
+      };
+    });
+
+    ctx.preparedTask = system.preparedTask?.task ? {
+      task: system.preparedTask.task,
+      bonus: system.preparedTask.bonus,
+      setOn: system.preparedTask.setOn
+    } : null;
+
     try {
       ctx.dtCount = game.crows?.dt?.get?.() ?? 0;
       ctx.dungeonEN = game.crows?.dt?.getDungeonEN?.() ?? 6;
-    } catch { ctx.dtCount = 0; ctx.dungeonEN = 6; }
-    ctx.isGM = !!game.user?.isGM;
+    } catch {
+      ctx.dtCount = 0;
+      ctx.dungeonEN = 6;
+    }
 
-    // Crafting projects (Cluster 12).
-    ctx.craftingProjects = (sys.crafting?.projects ?? []).map(p => ({
-      ...p, complete: (p.points ?? 0) >= (p.goal ?? 1), pct: Math.min(100, Math.round(((p.points ?? 0) / (p.goal || 1)) * 100))
+    ctx.craftingProjects = (system.crafting?.projects ?? []).map(project => ({
+      ...project,
+      expertiseLabel: project.expertise ? t(`CROWS.Expertise.${project.expertise}`) : "—",
+      complete: (project.points ?? 0) >= (project.goal ?? 1),
+      pct: Math.min(100, Math.round(((project.points ?? 0) / (project.goal || 1)) * 100))
     }));
 
-    // Village shell (name/prosperity/cycle) for the Crypt panel header.
     try {
-      const vil = getVillage();
-      ctx.village = { name: vil.name, prosperity: vil.prosperity, cycle: vil.cycle, hasUpgraded: vil.hasUpgradedThisCycle };
-    } catch { ctx.village = null; }
+      const village = getVillage();
+      ctx.village = {
+        name: village.name,
+        prosperity: village.prosperity,
+        cycle: village.cycle,
+        hasUpgraded: village.hasUpgradedThisCycle
+      };
+    } catch {
+      ctx.village = null;
+    }
 
-    // Crypt — active boon + crypt level + count of interments for UI gating.
     try {
       ctx.cryptLevel = getCryptLevel();
       ctx.cryptCycle = getCycleId();
       ctx.cryptInterments = listInterments();
-      const ab = sys.activeBoon;
-      if (ab?.boonId && CRYPT_BOONS[ab.boonId]) {
-        const b = CRYPT_BOONS[ab.boonId];
+      const active = system.activeBoon;
+      if (active?.boonId && CRYPT_BOONS[active.boonId]) {
+        const boon = CRYPT_BOONS[active.boonId];
         ctx.activeBoonCard = {
-          id: ab.boonId,
-          label: b.label,
-          source: ab.sourceCrowName,
-          usesLeft: ab.usesLeft ?? 1,
-          summary: b.summary(ctx.cryptLevel),
-          text: b.text(ctx.cryptLevel)
+          id: active.boonId,
+          label: boon.label,
+          source: active.sourceCrowName,
+          usesLeft: active.usesLeft ?? 1,
+          summary: boon.summary(ctx.cryptLevel),
+          text: boon.text(ctx.cryptLevel)
         };
       } else {
         ctx.activeBoonCard = null;
       }
-      ctx.alreadyPrayedThisCycle = (sys.activeBoon?.prayedOnCycle ?? -1) === ctx.cryptCycle;
+      ctx.alreadyPrayedThisCycle = (active?.prayedOnCycle ?? -1) === ctx.cryptCycle;
     } catch {
-      ctx.cryptLevel = 1; ctx.cryptInterments = []; ctx.activeBoonCard = null; ctx.alreadyPrayedThisCycle = false;
+      ctx.cryptLevel = 1;
+      ctx.cryptInterments = [];
+      ctx.activeBoonCard = null;
+      ctx.alreadyPrayedThisCycle = false;
     }
 
-    // Miasma — environment flag + active effects with humane labels.
     try {
       ctx.inMiasma = getInMiasma();
-      const eff = sys.miasma?.effects ?? [];
-      ctx.miasmaEffects = eff.map(v => {
-        const e = MIASMA_EFFECTS[Math.max(1, Math.min(12, v))];
-        return { bucket: v, label: e?.label ?? `#${v}`, text: e?.text ?? "" };
+      ctx.miasmaEffects = (system.miasma?.effects ?? []).map(bucket => {
+        const effect = MIASMA_EFFECTS[Math.max(1, Math.min(12, bucket))];
+        return { bucket, label: effect?.label ?? `#${bucket}`, text: effect?.text ?? "" };
       });
-      ctx.miasmaPermanentNPC = !!sys.miasma?.permanentNPC;
-    } catch { ctx.inMiasma = false; ctx.miasmaEffects = []; ctx.miasmaPermanentNPC = false; }
+      ctx.miasmaPermanentNPC = Boolean(system.miasma?.permanentNPC);
+    } catch {
+      ctx.inMiasma = false;
+      ctx.miasmaEffects = [];
+      ctx.miasmaPermanentNPC = false;
+    }
 
-    // Advancement tab data — only build when that tab is active to keep
-    // the trait-pack load cost off the critical path.
+    ctx.advancement = {
+      ...advancement,
+      canSpendExpertise: advancement.window.open && advancement.available.expertise > 0,
+      canSpendCharacteristic: advancement.window.open && advancement.available.char > 0,
+      expertiseDisabledReason: advancementDisabledReason(advancement),
+      characteristicDisabledReason: characteristicDisabledReason(advancement),
+      next: ctx.nextAdvancement
+    };
+
     if (this._activeTab === "advancement") {
       try {
-        const txp = sys.xp?.txp ?? 0;
-        ctx.bonusesEarned = bonusesEarned(txp);
-        ctx.nextBonusAt = nextBonusTXP(txp);
-        ctx.bonusesAvailable = bonusesAvailable(this.document);
-
         const treeMap = await CrowSheet.getTreeMap();
         ctx.selectedTree = this._selectedTree;
-        ctx.treeList = CROWS.traitTrees;
-        if (treeMap && treeMap[this._selectedTree]) {
-          // Build a 4x3 grid keyed by tier/column. Each cell carries
-          // owned/buyable status + cost.
-          const grid = Array.from({ length: 4 }, (_, tIdx) => ({
-            tier: tIdx + 1,
-            cost: CROWS.traitTierXP[tIdx + 1],
+        ctx.treeList = CROWS.traitTrees.map(key => ({
+          key,
+          label: t(`CROWS.Sheet.Crow.tree.${key}`)
+        }));
+        if (treeMap?.[this._selectedTree]) {
+          const grid = Array.from({ length: 4 }, (_, index) => ({
+            tier: index + 1,
+            cost: CROWS.traitTierXP[index + 1],
             cells: Array(3).fill(null)
           }));
           for (const trait of treeMap[this._selectedTree]) {
-            const tier = trait.system?.tier ?? 1;
-            const col = trait.system?.column ?? 1;
-            if (tier < 1 || tier > 4 || col < 1 || col > 3) continue;
-            const owned = this.document.items.some(i => i.type === "trait" && i.name === trait.name && i.system?.tree === trait.system.tree);
-            const buyCheck = owned ? null : isTraitBuyable(this.document, trait);
-            grid[tier - 1].cells[col - 1] = {
+            const info = traitPurchaseInfo(actor, trait);
+            const tier = Number(info.tier ?? 1);
+            const column = Number(info.column ?? 1);
+            if (tier < 1 || tier > 4 || column < 1 || column > 3) continue;
+            const enabled = !info.owned && info.buyable && info.affordable && info.window.open;
+            const reason = info.owned
+              ? t("CROWS.Dialog.Trait.alreadyOwned")
+              : !info.window.open
+                ? t("CROWS.Dialog.Advancement.windowClosed")
+                : !info.buyable
+                  ? info.reason
+                  : !info.affordable
+                    ? t("CROWS.Dialog.Trait.notAffordable", { cost: info.cost, spendable: info.spendable })
+                    : "";
+            grid[tier - 1].cells[column - 1] = {
               id: trait.id,
-              uuid: trait.uuid,
               name: trait.name,
-              isStarting: !!trait.system.isStarting,
-              cost: CROWS.traitTierXP[tier],
-              owned,
-              buyable: !!buyCheck?.ok,
-              reason: buyCheck?.reason ?? (owned ? "owned" : "")
+              cost: info.cost,
+              owned: info.owned,
+              enabled,
+              reason
             };
           }
           ctx.treeGrid = grid;
         }
-      } catch (e) {
-        console.error("crows | advancement tab build failed", e);
+      } catch (error) {
+        console.error("crows | advancement tab build failed", error);
       }
     }
 
     return ctx;
   }
 
-  /**
-   * Wire keyboard navigation on the tab strip — arrow keys cycle, Home/End
-   * jump to first/last. ApplicationV2 fires this after each render.
-   */
   _onRender(context, options) {
     super._onRender?.(context, options);
     const tabs = this.element?.querySelectorAll?.('[role="tab"]');
     if (!tabs?.length) return;
     for (const tab of tabs) {
-      tab.addEventListener("keydown", (ev) => {
+      tab.addEventListener("keydown", event => {
         const list = [...this.element.querySelectorAll('[role="tab"]')];
-        const i = list.indexOf(ev.currentTarget);
+        const index = list.indexOf(event.currentTarget);
         let next = null;
-        if (ev.key === "ArrowRight" || ev.key === "ArrowDown") next = list[(i + 1) % list.length];
-        else if (ev.key === "ArrowLeft" || ev.key === "ArrowUp") next = list[(i - 1 + list.length) % list.length];
-        else if (ev.key === "Home") next = list[0];
-        else if (ev.key === "End")  next = list[list.length - 1];
-        if (next) {
-          ev.preventDefault();
-          next.focus();
-          next.click();
-        }
+        if (event.key === "ArrowRight" || event.key === "ArrowDown") next = list[(index + 1) % list.length];
+        else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = list[(index - 1 + list.length) % list.length];
+        else if (event.key === "Home") next = list[0];
+        else if (event.key === "End") next = list[list.length - 1];
+        if (!next) return;
+        event.preventDefault();
+        next.focus();
+        next.click();
       });
     }
   }
@@ -391,179 +579,275 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _onDropItem(event, item) {
     if (item.type === "background") {
       await applyBackground(this.document, item);
-      return false;
+      return null;
     }
-    return super._onDropItem(event, item);
+
+    const target = event.target?.closest?.("[data-container][data-index]");
+    if (!target) {
+      if (PHYSICAL_ITEM_TYPES.has(item.type)) {
+        notify("warn", "CROWS.Dialog.InventoryDrop.choose-slot");
+        return null;
+      }
+      return super._onDropItem(event, item);
+    }
+
+    const container = target.dataset.container;
+    const index = Number(target.dataset.index);
+    const refused = dropRefusal(item, container);
+    if (refused) {
+      notify("warn", `CROWS.Dialog.InventoryDrop.${refused}`, {
+        item: item.name,
+        slot: slotLabel(container, index)
+      });
+      return null;
+    }
+
+    const layout = layoutFor(this.document);
+    const isEmbedded = this.document.uuid === item.parent?.uuid;
+    if (isEmbedded) unpackItem(layout, item.id);
+    const result = packItem(layout, item, container, index);
+    if (!result.ok) {
+      notify("warn", `CROWS.Dialog.InventoryDrop.${result.reason}`, {
+        item: item.name,
+        slot: slotLabel(container, index),
+        count: slotsNeeded(item)
+      });
+      return null;
+    }
+
+    const location = { container, index, length: slotsNeeded(item) };
+    if (isEmbedded) {
+      await item.update({ "system.location": location });
+      return item;
+    }
+    const created = await super._onDropItem(event, item);
+    if (!created) return null;
+    await created.update({ "system.location": location });
+    return created;
   }
 
-  static _onTab(event, target) { this._activeTab = target.dataset.tab; this.render(); }
-
-  static async _onRollSkill(event, target) {
-    await rollTest({
-      actor: this.document,
-      characteristic: target.dataset.characteristic,
-      skill: target.dataset.skill,
-      flavor: `${SKILL_LABELS[target.dataset.skill] ?? target.dataset.skill} test`
-    });
+  static _onTab(event, target) {
+    this._activeTab = target.dataset.tab;
+    this.render();
   }
 
   static async _onRollChar(event, target) {
+    const characteristic = target.dataset.characteristic;
     await rollTest({
       actor: this.document,
-      characteristic: target.dataset.characteristic,
-      flavor: `${target.dataset.characteristic} test`
+      characteristic,
+      flavor: t("CROWS.Sheet.Crow.test.characteristic", {
+        characteristic: t(`CROWS.Characteristic.${characteristic}`)
+      })
     });
   }
 
-  static async _onToggleSkillBonus(event, target) {
-    const skill = target.dataset.skill;
-    const level = Number(target.dataset.level); // 1 or 2
-    const cur = this.document.system.skills?.[skill]?.bonus ?? 0;
-    // Two-checkbox semantics: clicking +1 sets bonus=1 (or back to 0 if already 1);
-    // clicking +2 sets bonus=2 (or back to 1 if already 2).
-    let next;
-    if (level === 1) next = cur === 1 ? 0 : 1;
-    else next = cur === 2 ? 1 : 2;
-    await this.document.update({ [`system.skills.${skill}.bonus`]: next });
+  static async _onRollPreparedTask() {
+    const actor = this.document;
+    const task = String(actor.system?.preparedTask?.task ?? "").trim();
+    if (!task) {
+      notify("warn", "CROWS.Dialog.PreparedTask.none");
+      return;
+    }
+    const characteristic = await DialogV2.prompt({
+      window: { title: t("CROWS.Dialog.PreparedTask.title", { actor: actor.name }) },
+      content: `<div class="crows adv-spend-form"><p>${esc(t("CROWS.Dialog.PreparedTask.choose", { task }))}</p></div>`,
+      buttons: Object.keys(CROWS.characteristics).map(key => ({
+        action: key,
+        label: t(`CROWS.Characteristic.${key}`),
+        callback: () => key
+      }))
+    });
+    if (!characteristic) return;
+    await rollTest({ actor, characteristic, task, flavor: task });
   }
 
-  static async _onAdjBlessed(event, target) {
-    const d = Number(target.dataset.delta);
-    await this.document.update({ "system.conditions.blessed": Math.max(0, (this.document.system.conditions.blessed ?? 0) + d) });
-  }
-  static async _onAdjBoned(event, target) {
-    const d = Number(target.dataset.delta);
-    // Rules p.1117: while in the Miasma, boned cannot decrease.
-    if (d < 0) {
-      if (getInMiasma() && !this.document.system?.miasma?.permanentNPC) {
-        ui.notifications?.warn("Can't lose boned levels while in the Miasma.");
+  static async _onSpendExpertiseUse(event, target) {
+    const key = target.dataset.expertise;
+    if (!ALL_EXPERTISES.includes(key) || this._expertiseInFlight.has(key)) return;
+    const actor = this.document;
+    if (actor.isOwner !== true) return;
+    this._expertiseInFlight.add(key);
+    try {
+      const value = Math.max(0, Number(actor.system.expertises?.[key]?.value) || 0);
+      if (value < 1) {
+        notify("warn", "CROWS.Dialog.Expertise.noneLeft", { expertise: t(`CROWS.Expertise.${key}`) });
         return;
       }
-    }
-    const before = this.document.system.conditions.boned ?? 0;
-    const after = Math.max(0, before + d);
-    await this.document.update({ "system.conditions.boned": after });
-    // If boned reached 0, wipe any violence-bucket Miasma effects.
-    if (before > 0 && after === 0) {
-      await onBonedCleared(this.document);
+      await actor.update({ [`system.expertises.${key}.value`]: value - 1 });
+      await ChatMessage.create({
+        content: `<div class="crows adv-spend"><strong>${esc(actor.name)}</strong> ${esc(t(
+          "CROWS.Dialog.Expertise.spentMessage", { expertise: t(`CROWS.Expertise.${key}`), remaining: value - 1 }
+        ))}</div>`,
+        speaker: ChatMessage.getSpeaker({ actor })
+      });
+    } finally {
+      this._expertiseInFlight.delete(key);
     }
   }
-  static async _onAdjWounds(event, target) {
-    const d = Number(target.dataset.delta);
-    const cap = CROWS.backpackSize;
-    await this.document.update({ "system.wounds": Math.max(0, Math.min(cap, (this.document.system.wounds ?? 0) + d)) });
+
+  static async _onToggleWound(event, target) {
+    const actor = this.document;
+    const layout = layoutFor(actor);
+    const index = Number(target.dataset.index);
+    const capacity = layout.capacities.backpack ?? 0;
+    if (!Number.isInteger(index) || index < 0 || index >= capacity) {
+      notify("warn", "CROWS.Dialog.Wound.invalidSlot", { slot: index + 1 });
+      return;
+    }
+    const wounds = new Set([...actor.system.woundSlots].map(Number));
+    const adding = !wounds.has(index);
+    const before = [...wounds].filter(slot => slot >= 0 && slot < capacity).length;
+    if (adding) wounds.add(index);
+    else wounds.delete(index);
+    const after = [...wounds].filter(slot => slot >= 0 && slot < capacity).length;
+    const update = { "system.woundSlots": [...wounds].sort((a, b) => a - b) };
+    if (adding && capacity > 0 && before < capacity && after >= capacity) {
+      update["system.conditions.defeated"] = true;
+    }
+    await actor.update(update);
   }
 
   static async _onOpenItem(event, target) {
-    const id = target.dataset.itemId;
-    const it = this.document.items.get(id);
-    if (it) it.sheet.render(true);
+    this.document.items.get(target.dataset.itemId)?.sheet.render(true);
   }
 
   static async _onTakeRest(event, target) {
-    // Legacy dataset path: direct "rest" calls (e.g. macros) can still bypass the dialog.
-    if (target?.dataset?.tend === "true" || target?.dataset?.town === "true") {
-      const tendedBy = target?.dataset?.tend === "true";
-      const inTown   = target?.dataset?.town === "true";
-      await takeRest(this.document, { tendedBy, inTown });
+    if (target?.dataset?.town === "true") {
+      await takeRest(this.document, { inTown: true });
       this.render();
       return;
     }
 
-    // Dialog flow: pick activity (and any detail) + town toggle.
-    const DialogV2 = foundry.applications.api.DialogV2;
     const actor = this.document;
-
-    // Build skill options for Prepare for Task (all skills, current bonus shown).
-    const skillOpts = (CROWS.skills ?? [])
-      .map(k => `<option value="${k}">${(SKILL_LABELS[k] ?? k)} (current +${actor.system.skills?.[k]?.bonus ?? 0})</option>`)
+    const layout = layoutFor(actor);
+    const itemOptions = [...actor.items]
+      .filter(item => PHYSICAL_ITEM_TYPES.has(item.type))
+      .map(item => `<option value="${esc(item.id)}">${esc(item.name)} (${esc(itemTypeLabel(item.type))})</option>`)
       .join("");
-
-    // Build item options for Identify Item (any inventory item — gear/consumable/weapon/armor/spellbook).
-    const idOpts = actor.items
-      .filter(i => ["gear","consumable","weapon","armor","spellbook","ammunition"].includes(i.type))
-      .map(i => `<option value="${i.id}">${i.name} (${i.type})</option>`)
+    const armorOptions = [...actor.items]
+      .filter(item => item.type === "armor")
+      .map(item => `<option value="${esc(item.id)}">${esc(item.name)}</option>`)
       .join("");
-
-    const prep = actor.system?.preparedTask;
-    const prepNote = (prep?.skill)
-      ? `<div class="rest-prep-note"><em>Currently prepared: <strong>${prep.skill}</strong>${prep.detail ? ` — ${prep.detail}` : ""} (will be overwritten if you pick Prepare for Task again).</em></div>`
+    const projectOptions = (actor.system.crafting?.projects ?? [])
+      .map(project => `<option value="${esc(project.id)}">${esc(project.name)} (${project.points}/${project.goal} ${esc(
+        t(`CROWS.Expertise.${project.expertise}`)
+      )})</option>`)
+      .join("");
+    const targetOptions = [...game.actors]
+      .filter(other => other.type === "crow" && other.id !== actor.id && Number(other.system?.wounds) >= 2)
+      .map(other => `<option value="${esc(other.id)}">${esc(other.name)} (${other.system.wounds})</option>`)
+      .join("");
+    const woundOptions = woundCandidatesFromLayout(layout)
+      .map(index => `<label><input type="checkbox" name="woundChoice" value="${index}"> ${esc(
+        t("CROWS.Dialog.Rest.woundSlot", { slot: index + 1 })
+      )}</label>`)
+      .join("");
+    const sizeOptions = CROWS.sizes
+      .map(size => `<option value="${esc(size)}">${esc(enumLabel("size", size))}</option>`)
+      .join("");
+    const prep = actor.system.preparedTask;
+    const prepNote = prep?.task
+      ? `<div class="rest-prep-note"><em>${esc(t("CROWS.Dialog.Rest.preparedNow", {
+        task: prep.task, bonus: prep.bonus, setOn: prep.setOn
+      }))}</em></div>`
       : "";
 
     const content = `<div class="crows rest-form">
-      <p>Pick one rest activity (or none) for this 6-hour rest.</p>
+      <p>${esc(t("CROWS.Dialog.Rest.intro"))}</p>
       ${prepNote}
-      <div class="rest-opt"><label><input type="radio" name="act" value="none" checked> <strong>No activity</strong> — recover Stamina/wound only.</label></div>
-      <div class="rest-opt"><label><input type="radio" name="act" value="tendWounds"> <strong>Tend Wounds</strong> — remove 2 wounds instead of 1.</label></div>
-      <div class="rest-opt"><label><input type="radio" name="act" value="identifyItem"> <strong>Identify Item</strong></label>
-        <div><label>Item: <select name="identifyItem">${idOpts || '<option value="">(no inventory items)</option>'}</select></label></div>
+      <div class="rest-opt"><label><input type="radio" name="activity" value="none" checked> <strong>${esc(t("CROWS.Dialog.Rest.none"))}</strong></label></div>
+      <div class="rest-opt"><label><input type="radio" name="activity" value="tendWounds"> <strong>${esc(t("CROWS.Dialog.Rest.tendWounds"))}</strong></label>
+        <div><label>${esc(t("CROWS.Dialog.Rest.target"))}: <select name="targetId">${targetOptions || `<option value="">${esc(t("CROWS.Dialog.Rest.noTargets"))}</option>`}</select></label></div>
       </div>
-      <div class="rest-opt"><label><input type="radio" name="act" value="prepareForTask"> <strong>Prepare for Task</strong> — +1 to next test of the chosen skill.</label>
-        <div><label>Skill: <select name="prepSkill">${skillOpts}</select></label></div>
-        <div><label>Task: <input type="text" name="prepDetail" placeholder="e.g. 'pick the vault lock'" style="width:100%"></label></div>
+      <div class="rest-opt"><label><input type="radio" name="activity" value="identifyItem"> <strong>${esc(t("CROWS.Dialog.Rest.identifyItem"))}</strong></label>
+        <div><label>${esc(t("CROWS.Dialog.Rest.item"))}: <select name="identifyItem">${itemOptions || `<option value="">${esc(t("CROWS.Dialog.Rest.noItems"))}</option>`}</select></label></div>
       </div>
-      <div class="rest-opt"><label><input type="radio" name="act" value="craftEquipment"> <strong>Craft Equipment</strong></label>
-        ${(actor.system?.crafting?.projects ?? []).length ? `
-          <div><label>Active project: <select name="craftProjectId">
-            <option value="">— (none / ad-hoc) —</option>
-            ${(actor.system.crafting.projects ?? []).map(p => `<option value="${p.id}">${p.name} (${p.points}/${p.goal} ${p.skill})</option>`).join("")}
-          </select></label></div>
-        ` : `<div><em>No active projects. Start one on the Advancement tab to make this activity roll for crafting points.</em></div>`}
-        <div><label>Or ad-hoc project name: <input type="text" name="craftProject" placeholder="e.g. 'spear haft'" style="width:100%"></label></div>
+      <div class="rest-opt"><label><input type="radio" name="activity" value="prepareForTask"> <strong>${esc(t("CROWS.Dialog.Rest.prepareForTask"))}</strong></label>
+        <div><label>${esc(t("CROWS.Dialog.Rest.task"))}: <input type="text" name="preparedTask" placeholder="${esc(t("CROWS.Dialog.Rest.taskPlaceholder"))}" style="width:100%"></label></div>
       </div>
-      <div class="rest-opt"><label><input type="radio" name="act" value="harvest"> <strong>Harvest</strong></label>
-        <div><label>Target: <input type="text" name="harvestTarget" placeholder="e.g. 'wolf hides'" style="width:100%"></label></div>
+      <div class="rest-opt"><label><input type="radio" name="activity" value="craftEquipment"> <strong>${esc(t("CROWS.Dialog.Rest.craftEquipment"))}</strong></label>
+        <div><label>${esc(t("CROWS.Dialog.Rest.project"))}: <select name="craftProjectId"><option value="">${esc(t("CROWS.Dialog.Rest.noProject"))}</option>${projectOptions}</select></label></div>
+        <div><label>${esc(t("CROWS.Dialog.Rest.adHocProject"))}: <input type="text" name="craftProject" style="width:100%"></label></div>
       </div>
+      <div class="rest-opt"><label><input type="radio" name="activity" value="harvest"> <strong>${esc(t("CROWS.Dialog.Rest.harvest"))}</strong></label>
+        <div><label>${esc(t("CROWS.Dialog.Rest.target"))}: <input type="text" name="harvestTarget" style="width:100%"></label></div>
+        <div><label>${esc(t("CROWS.Dialog.Rest.size"))}: <select name="harvestSize">${sizeOptions}</select></label></div>
+      </div>
+      <div class="rest-opt"><label><input type="radio" name="activity" value="repairArmor"> <strong>${esc(t("CROWS.Dialog.Rest.repairArmor"))}</strong></label>
+        <div><label>${esc(t("CROWS.Dialog.Rest.armor"))}: <select name="repairArmorId">${armorOptions || `<option value="">${esc(t("CROWS.Dialog.Rest.noArmor"))}</option>`}</select></label></div>
+      </div>
+      <div class="rest-opt"><label><input type="radio" name="activity" value="secludeCamp"> <strong>${esc(t("CROWS.Dialog.Rest.secludeCamp"))}</strong></label></div>
       <hr>
-      <div><label><input type="checkbox" name="inTown"> <strong>Town rest</strong> — skip encounter checks.</label></div>
+      <div><strong>${esc(t("CROWS.Dialog.Rest.healWound"))}</strong> ${woundOptions || `<em>${esc(t("CROWS.Dialog.Rest.noWounds"))}</em>`}</div>
+      <div><label><input type="checkbox" name="inTown"> <strong>${esc(t("CROWS.Dialog.Rest.inTown"))}</strong></label></div>
     </div>`;
 
     try {
       const choice = await DialogV2.prompt({
-        window: { title: `${actor.name} — Take Rest` },
+        window: { title: t("CROWS.Dialog.Rest.title", { actor: actor.name }) },
         content,
         ok: {
-          label: "Rest",
-          callback: (event, button, dialog) => {
+          label: t("CROWS.Dialog.Rest.confirm"),
+          callback: (dialogEvent, button, dialog) => {
             const root = dialog.element ?? button?.form;
-            const activity = root?.querySelector?.('input[name="act"]:checked')?.value ?? "none";
-            const inTown   = !!root?.querySelector?.('input[name="inTown"]')?.checked;
+            const activity = root?.querySelector?.('input[name="activity"]:checked')?.value ?? "none";
             const activityData = {};
             if (activity === "identifyItem") {
-              const id = root?.querySelector?.('select[name="identifyItem"]')?.value;
-              if (id) {
-                activityData.itemId = id;
-                const it = actor.items.get(id);
-                if (it) activityData.itemName = it.name;
+              const itemId = root?.querySelector?.('select[name="identifyItem"]')?.value;
+              if (itemId) {
+                activityData.itemId = itemId;
+                activityData.itemName = actor.items.get(itemId)?.name ?? "";
               }
             } else if (activity === "prepareForTask") {
-              activityData.skill  = root?.querySelector?.('select[name="prepSkill"]')?.value ?? "";
-              activityData.detail = root?.querySelector?.('input[name="prepDetail"]')?.value ?? "";
+              activityData.task = root?.querySelector?.('input[name="preparedTask"]')?.value ?? "";
             } else if (activity === "craftEquipment") {
               activityData.projectId = root?.querySelector?.('select[name="craftProjectId"]')?.value ?? "";
               activityData.project = root?.querySelector?.('input[name="craftProject"]')?.value ?? "";
             } else if (activity === "harvest") {
               activityData.target = root?.querySelector?.('input[name="harvestTarget"]')?.value ?? "";
+              activityData.size = root?.querySelector?.('select[name="harvestSize"]')?.value ?? "";
+            } else if (activity === "repairArmor") {
+              activityData.itemId = root?.querySelector?.('select[name="repairArmorId"]')?.value ?? "";
             }
-            return { activity, inTown, activityData };
+            return {
+              activity,
+              activityData,
+              inTown: Boolean(root?.querySelector?.('input[name="inTown"]')?.checked),
+              targetId: root?.querySelector?.('select[name="targetId"]')?.value ?? "",
+              woundChoices: [...(root?.querySelectorAll?.('input[name="woundChoice"]:checked') ?? [])]
+                .map(input => Number(input.value))
+            };
           }
         }
       });
       if (!choice) return;
-      await takeRest(this.document, { activity: choice.activity, inTown: choice.inTown, activityData: choice.activityData });
+      await takeRest(actor, {
+        activity: choice.activity,
+        activityData: choice.activityData,
+        target: choice.targetId ? game.actors.get(choice.targetId) : null,
+        inTown: choice.inTown,
+        woundChoices: choice.woundChoices
+      });
       this.render();
-    } catch { /* dialog dismissed */ }
+    } catch { /* dismissed */ }
   }
 
   static async _onEndDT() {
-    if (!game.user.isGM) { ui.notifications?.warn("End DT is GM-only."); return; }
+    if (!game.user.isGM) {
+      notify("warn", "CROWS.Sheet.Crow.notice.gmOnly");
+      return;
+    }
     await endDungeonTurn();
     this.render();
   }
 
   static async _onEncounterCheck() {
-    if (!game.user.isGM) { ui.notifications?.warn("Encounter check is GM-only."); return; }
-    await rollEncounterCheck({ label: "Ad-hoc" });
+    if (!game.user.isGM) {
+      notify("warn", "CROWS.Sheet.Crow.notice.gmOnly");
+      return;
+    }
+    await rollEncounterCheck({ label: t("CROWS.Sheet.Crow.encounterAdHoc") });
   }
 
   static async _onSelectTree(event, target) {
@@ -573,67 +857,77 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async _onBuyTrait(event, target) {
     const treeMap = await CrowSheet.getTreeMap();
-    if (!treeMap) { ui.notifications?.warn("Traits compendium not available."); return; }
-    const id = target.dataset.traitId;
-    const trait = (treeMap[this._selectedTree] ?? []).find(t => t.id === id);
-    if (!trait) { ui.notifications?.warn("Trait not found in compendium."); return; }
+    if (!treeMap) {
+      notify("warn", "CROWS.Dialog.Trait.packUnavailable");
+      return;
+    }
+    const trait = (treeMap[this._selectedTree] ?? []).find(entry => entry.id === target.dataset.traitId);
+    if (!trait) {
+      notify("warn", "CROWS.Dialog.Trait.notFound");
+      return;
+    }
     await purchaseTrait(this.document, trait);
     this.render();
   }
 
   static async _onGrantXp(event, target) {
-    if (!game.user.isGM) { ui.notifications?.warn("Grant XP is GM-only."); return; }
-    const amount = Number(target.dataset.amount) || 0;
-    await gainXP(this.document, amount);
+    if (!game.user.isGM) {
+      notify("warn", "CROWS.Sheet.Crow.notice.gmOnly");
+      return;
+    }
+    await gainXP(this.document, Number(target.dataset.amount) || 0);
     this.render();
   }
 
   static async _onAttackWithWeapon(event, target) {
     event?.stopPropagation?.();
-    const id = target.dataset.itemId;
-    const wp = this.document.items.get(id);
-    if (!wp) { ui.notifications?.warn("Weapon not found."); return; }
-    await attackWithWeapon(this.document, wp);
+    const weapon = this.document.items.get(target.dataset.itemId);
+    if (!weapon) {
+      notify("warn", "CROWS.Sheet.Crow.notice.weaponMissing");
+      return;
+    }
+    await attackWithWeapon(this.document, weapon);
   }
 
   static async _onSpendExpertiseBonus() {
-    const DialogV2 = foundry.applications.api.DialogV2;
     const actor = this.document;
-    const cap = actor.system.expertiseCap ?? 2;
-    const eligible = ALL_EXPERTISES.filter(k => (actor.system.expertises?.[k]?.max ?? 0) < cap);
-    const opts = eligible.map(k => `<option value="${k}">${k} (${actor.system.expertises?.[k]?.max ?? 0}/${cap} uses)</option>`).join("");
+    const view = advancementOptions(actor);
+    if (!view.window.open) {
+      notify("warn", "CROWS.Dialog.Advancement.windowClosed");
+      return;
+    }
+    const allocations = view.expertises.filter(entry => entry.room > 0).map(entry => `
+      <label>${esc(t(entry.labelKey))}
+        <input type="number" data-expertise="${esc(entry.key)}" value="0" min="0" max="${entry.room}" step="1">
+        <em>${esc(t("CROWS.Dialog.Advancement.room", { room: entry.room, cap: view.cap }))}</em>
+      </label>`).join("");
     const content = `<div class="crows adv-spend-form">
-      <p>Choose ONE of the three advancement options:</p>
-      <div class="adv-opt"><label><input type="radio" name="opt" value="uses" checked> <strong>Three expertise uses</strong> (distributed freely)</label>
-        <div class="adv-skill-pair">
-          <label>Expertise A: <select name="expertiseA">${opts}</select></label>
-          <label>Expertise B: <select name="expertiseB">${opts}</select></label>
-          <label>Expertise C: <select name="expertiseC">${opts}</select></label>
-        </div>
-      </div>
-      <div class="adv-opt"><label><input type="radio" name="opt" value="stamina"> <strong>Stamina max +2</strong></label></div>
-      <div class="adv-opt"><label><input type="radio" name="opt" value="useAndStamina"> <strong>One expertise use and Stamina max +1</strong></label>
-        <div><label>Expertise: <select name="splitExpertise">${opts}</select></label></div>
-      </div>
+      <p>${esc(t("CROWS.Dialog.Advancement.chooseOption"))}</p>
+      <div class="adv-opt"><label><input type="radio" name="option" value="uses" checked> <strong>${esc(t(
+        "CROWS.Dialog.Advancement.optionUses", { uses: CROWS.expertiseUsesPerBonus }
+      ))}</strong></label></div>
+      <div class="adv-opt"><label><input type="radio" name="option" value="stamina"> <strong>${esc(t(
+        "CROWS.Dialog.Advancement.optionStamina"
+      ))}</strong></label></div>
+      <div class="adv-opt"><label><input type="radio" name="option" value="useAndStamina"> <strong>${esc(t(
+        "CROWS.Dialog.Advancement.optionSplit"
+      ))}</strong></label></div>
+      <div class="ci-row">${allocations || `<em>${esc(t("CROWS.Dialog.Advancement.noRoom"))}</em>`}</div>
     </div>`;
     try {
       const choice = await DialogV2.prompt({
-        window: { title: `${actor.name} — Spend Skill/Stamina Advancement` },
+        window: { title: t("CROWS.Dialog.Advancement.title", { actor: actor.name }) },
         content,
         ok: {
-          label: "Spend",
+          label: t("CROWS.Dialog.Advancement.confirm"),
           callback: (event, button, dialog) => {
             const root = dialog.element ?? button?.form;
-            const option = root?.querySelector?.('input[name="opt"]:checked')?.value;
-            const keys = option === "uses"
-              ? ["expertiseA", "expertiseB", "expertiseC"].map(name => root?.querySelector?.(`select[name="${name}"]`)?.value)
-              : option === "useAndStamina"
-                ? [root?.querySelector?.('select[name="splitExpertise"]')?.value]
-                : [];
-            const distribution = keys.filter(Boolean).reduce((out, key) => {
-              out[key] = (out[key] ?? 0) + 1;
-              return out;
-            }, {});
+            const option = root?.querySelector?.('input[name="option"]:checked')?.value;
+            const distribution = {};
+            for (const input of root?.querySelectorAll?.("input[data-expertise]") ?? []) {
+              const amount = Number(input.value);
+              if (Number.isInteger(amount) && amount > 0) distribution[input.dataset.expertise] = amount;
+            }
             return { option, distribution };
           }
         }
@@ -641,20 +935,61 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       if (!choice) return;
       await spendExpertiseBonus(actor, choice.option, { distribution: choice.distribution });
       this.render();
-    } catch { /* dialog dismissed */ }
+    } catch { /* dismissed */ }
+  }
+
+  static async _onSpendCharBonus() {
+    const actor = this.document;
+    const view = advancementOptions(actor);
+    if (!view.window.open) {
+      notify("warn", "CROWS.Dialog.Advancement.windowClosed");
+      return;
+    }
+    if (view.charAdvancementConverts) {
+      await spendCharBonus(actor);
+      this.render();
+      return;
+    }
+    const content = `<div class="crows adv-spend-form">
+      <p>${esc(t("CROWS.Dialog.Advancement.chooseCharacteristic", { cap: view.charCap }))}</p>
+      <div>${view.characteristics.map(entry => esc(t("CROWS.Dialog.Advancement.characteristicValue", {
+        characteristic: t(`CROWS.Characteristic.${entry.key}`), value: entry.value
+      }))).join(" · ")}</div>
+    </div>`;
+    try {
+      const choice = await DialogV2.prompt({
+        window: { title: t("CROWS.Dialog.Advancement.characteristicTitle", { actor: actor.name }) },
+        content,
+        buttons: view.characteristics.map(entry => ({
+          action: entry.key,
+          label: t("CROWS.Dialog.Advancement.raiseCharacteristic", {
+            characteristic: t(`CROWS.Characteristic.${entry.key}`)
+          }),
+          callback: () => entry.key,
+          disabled: entry.atCap
+        }))
+      });
+      if (!choice) return;
+      await spendCharBonus(actor, choice);
+      this.render();
+    } catch { /* dismissed */ }
   }
 
   static async _onToggleMiasma() {
-    if (!game.user.isGM) { ui.notifications?.warn("Miasma toggle is GM-only."); return; }
-    const cur = getInMiasma();
-    await setInMiasma(!cur);
-    // Re-render all open crow sheets so badges update everywhere.
+    if (!game.user.isGM) {
+      notify("warn", "CROWS.Sheet.Crow.notice.gmOnly");
+      return;
+    }
+    const current = getInMiasma();
+    await setInMiasma(!current);
     for (const app of Object.values(ui.windows)) {
       if (app?.constructor?.name === "CrowSheet") app.render();
     }
-    ChatMessage.create({
-      content: `<div class="crows miasma-toggle"><strong>Miasma:</strong> ${cur ? "cleared" : "ENTERED"}</div>`,
-      speaker: { alias: "Environment" }
+    await ChatMessage.create({
+      content: `<div class="crows miasma-toggle"><strong>${esc(t("CROWS.Sheet.Crow.miasma.title"))}:</strong> ${esc(t(
+        current ? "CROWS.Sheet.Crow.miasmaCleared" : "CROWS.Sheet.Crow.miasmaEntered"
+      ))}</div>`,
+      speaker: { alias: t("CROWS.Sheet.Crow.environment") }
     });
   }
 
@@ -671,16 +1006,18 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onCryptPray() {
     const interments = listInterments();
     if (!interments.length) {
-      ui.notifications?.warn("No crows are interred in the Crypt.");
+      notify("warn", "CROWS.Dialog.Crypt.noInterments");
       return;
     }
-    const DialogV2 = foundry.applications.api.DialogV2;
-    const opts = interments.map(e => `<option value="${e.crowName}">${e.crowName} — ${e.boonId}</option>`).join("");
+    const options = interments.map(entry => `<option value="${esc(entry.crowName)}">${esc(entry.crowName)} — ${esc(entry.boonId)}</option>`).join("");
     try {
       const choice = await DialogV2.prompt({
-        window: { title: `${this.document.name} — Pray at a grave` },
-        content: `<div class="crows crypt-form"><label>Grave: <select name="grave">${opts}</select></label></div>`,
-        ok: { label: "Pray", callback: (event, button, dialog) => (dialog.element ?? button?.form)?.querySelector?.('select[name="grave"]')?.value }
+        window: { title: t("CROWS.Dialog.Crypt.prayTitle", { actor: this.document.name }) },
+        content: `<div class="crows crypt-form"><label>${esc(t("CROWS.Dialog.Crypt.grave"))}: <select name="grave">${options}</select></label></div>`,
+        ok: {
+          label: t("CROWS.Dialog.Crypt.pray"),
+          callback: (event, button, dialog) => (dialog.element ?? button?.form)?.querySelector?.('select[name="grave"]')?.value
+        }
       });
       if (!choice) return;
       await pray(this.document, choice);
@@ -694,166 +1031,141 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async _onCryptInter() {
-    if (!game.user.isGM) { ui.notifications?.warn("Internment is GM-only."); return; }
-    const DialogV2 = foundry.applications.api.DialogV2;
-    const opts = Object.values(CRYPT_BOONS).map(b => `<option value="${b.id}">${b.label}</option>`).join("");
+    if (!game.user.isGM) {
+      notify("warn", "CROWS.Sheet.Crow.notice.gmOnly");
+      return;
+    }
+    const options = Object.values(CRYPT_BOONS)
+      .map(boon => `<option value="${esc(boon.id)}">${esc(boon.label)}</option>`).join("");
     try {
       const choice = await DialogV2.prompt({
-        window: { title: `Inter ${this.document.name} in the Crypt` },
-        content: `<div class="crows crypt-form">
-          <p>Pick the boon this dead crow grants:</p>
-          <label>Boon: <select name="boonId">${opts}</select></label>
-        </div>`,
-        ok: { label: "Inter", callback: (event, button, dialog) => (dialog.element ?? button?.form)?.querySelector?.('select[name="boonId"]')?.value }
+        window: { title: t("CROWS.Dialog.Crypt.interTitle", { actor: this.document.name }) },
+        content: `<div class="crows crypt-form"><p>${esc(t("CROWS.Dialog.Crypt.chooseBoon"))}</p><label>${esc(t(
+          "CROWS.Dialog.Crypt.boon"
+        ))}: <select name="boonId">${options}</select></label></div>`,
+        ok: {
+          label: t("CROWS.Dialog.Crypt.inter"),
+          callback: (event, button, dialog) => (dialog.element ?? button?.form)?.querySelector?.('select[name="boonId"]')?.value
+        }
       });
       if (!choice) return;
       await inter({ crowName: this.document.name, boonId: choice, interredBy: game.user.name });
-      // Also stamp the actor's cryptBoon field for sheet display.
       await this.document.update({ "system.cryptBoon": choice });
       this.render();
     } catch { /* dismissed */ }
   }
 
   static async _onCryptBumpCycle() {
-    if (!game.user.isGM) { ui.notifications?.warn("Bumping cycle is GM-only."); return; }
+    if (!game.user.isGM) {
+      notify("warn", "CROWS.Sheet.Crow.notice.gmOnly");
+      return;
+    }
     await bumpCycle();
-    // Re-render all crow sheets so prayed-this-cycle gating updates.
     for (const app of Object.values(ui.windows)) {
       if (app?.constructor?.name === "CrowSheet") app.render();
     }
   }
 
   static async _onOpenVillage() {
-    const DialogV2 = foundry.applications.api.DialogV2;
-    const isGM = !!game.user.isGM;
-    const v = getVillage();
-    const instRows = v.institutions.map(i => `<tr>
-      <td>${i.name} <em>(${INSTITUTION_TYPES[i.type] ?? i.type})</em></td>
-      <td style="text-align:center">${i.level}</td>
-      <td>${i.steward || "<em>—</em>"}</td>
-      <td>
-        ${isGM ? `<button type="button" data-vil-upgrade="${i.id}" ${i.level >= 5 ? "disabled" : ""}>+L</button>
-                  <button type="button" data-vil-damage="${i.id}">-L</button>` : ""}
-      </td>
+    const isGM = Boolean(game.user.isGM);
+    const village = getVillage();
+    const rows = village.institutions.map(institution => `<tr>
+      <td>${esc(institution.name)} <em>(${esc(t(`CROWS.Dialog.Village.institutionType.${institution.type}`))})</em></td>
+      <td style="text-align:center">${institution.level}</td>
+      <td>${institution.steward ? esc(institution.steward) : "—"}</td>
+      <td>${isGM ? `<button type="button" data-village-upgrade="${esc(institution.id)}" ${institution.level >= 5 ? "disabled" : ""}>${esc(t(
+        "CROWS.Dialog.Village.levelUp"
+      ))}</button><button type="button" data-village-damage="${esc(institution.id)}">${esc(t(
+        "CROWS.Dialog.Village.levelDown"
+      ))}</button>` : ""}</td>
     </tr>`).join("");
-    const typeOpts = Object.entries(INSTITUTION_TYPES).map(([k, v2]) => `<option value="${k}">${v2}</option>`).join("");
+    const typeOptions = Object.keys(INSTITUTION_TYPES)
+      .map(key => `<option value="${esc(key)}">${esc(t(`CROWS.Dialog.Village.institutionType.${key}`))}</option>`).join("");
     const content = `<div class="crows village-dialog">
-      <header><strong>${v.name}</strong> · Prosperity <strong>${v.prosperity}</strong> · Cycle <strong>${v.cycle}</strong>${v.hasUpgradedThisCycle ? " <em>(upgraded this cycle)</em>" : " <em>(no upgrade yet)</em>"}</header>
-      <table class="village-inst-table">
-        <thead><tr><th>Institution</th><th>Lvl</th><th>Steward</th><th>${isGM ? "GM" : ""}</th></tr></thead>
-        <tbody>${instRows || `<tr><td colspan="4"><em>No institutions yet.</em></td></tr>`}</tbody>
-      </table>
-      ${isGM ? `
-        <div class="village-found-form">
-          <strong>Found new:</strong>
-          <select name="newType">${typeOpts}</select>
-          <input type="text" name="newName" placeholder="Optional name" />
-          <input type="text" name="newSteward" placeholder="Steward" />
-          <button type="button" data-vil-found="1">Found (+1 Prosperity)</button>
-        </div>
-        <div class="village-prosp-form">
-          <strong>Prosperity:</strong>
-          <input type="number" name="prosp" value="${v.prosperity}" min="-10" max="10" step="1" />
-          <button type="button" data-vil-setprosp="1">Set</button>
-        </div>
-        <div class="village-name-form">
-          <strong>Name:</strong>
-          <input type="text" name="vname" value="${v.name}" />
-          <button type="button" data-vil-setname="1">Rename</button>
-        </div>
-        <div class="village-cycle-form">
-          <button type="button" data-vil-endcycle="1">End Cycle</button>
-          <button type="button" data-vil-rollevent="1">Roll Event</button>
-        </div>
-      ` : ""}
+      <header><strong>${esc(village.name)}</strong> · ${esc(t("CROWS.Dialog.Village.prosperity"))} <strong>${village.prosperity}</strong> · ${esc(t(
+        "CROWS.Dialog.Village.cycle"
+      ))} <strong>${village.cycle}</strong></header>
+      <table class="village-inst-table"><thead><tr><th>${esc(t("CROWS.Dialog.Village.institution"))}</th><th>${esc(t(
+        "CROWS.Dialog.Village.level"
+      ))}</th><th>${esc(t("CROWS.Dialog.Village.steward"))}</th><th>${isGM ? esc(t("CROWS.Dialog.Village.gm")) : ""}</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="4"><em>${esc(t("CROWS.Dialog.Village.none"))}</em></td></tr>`}</tbody></table>
+      ${isGM ? `<div class="village-found-form"><strong>${esc(t("CROWS.Dialog.Village.found"))}</strong>
+        <select name="newType">${typeOptions}</select><input type="text" name="newName" placeholder="${esc(t("CROWS.Dialog.Village.optionalName"))}">
+        <input type="text" name="newSteward" placeholder="${esc(t("CROWS.Dialog.Village.steward"))}">
+        <button type="button" data-village-found="1">${esc(t("CROWS.Dialog.Village.foundConfirm"))}</button></div>
+        <div class="village-prosp-form"><strong>${esc(t("CROWS.Dialog.Village.prosperity"))}</strong><input type="number" name="prosperity" value="${village.prosperity}" min="-10" max="10" step="1"><button type="button" data-village-prosperity="1">${esc(t("CROWS.Dialog.Village.set"))}</button></div>
+        <div class="village-name-form"><strong>${esc(t("CROWS.Dialog.Village.name"))}</strong><input type="text" name="villageName" value="${esc(village.name)}"><button type="button" data-village-name="1">${esc(t("CROWS.Dialog.Village.rename"))}</button></div>
+        <div class="village-cycle-form"><button type="button" data-village-end-cycle="1">${esc(t("CROWS.Dialog.Village.endCycle"))}</button><button type="button" data-village-event="1">${esc(t("CROWS.Dialog.Village.rollEvent"))}</button></div>` : ""}
     </div>`;
-
-    const dlg = new DialogV2({
-      window: { title: `Village — ${v.name}`, resizable: true },
+    const dialog = new DialogV2({
+      window: { title: t("CROWS.Dialog.Village.title", { village: village.name }), resizable: true },
       content,
-      buttons: [{ action: "close", label: "Close", default: true, callback: () => null }],
+      buttons: [{ action: "close", label: t("CROWS.Dialog.close"), default: true, callback: () => null }],
       submit: () => null
     });
-    await dlg.render({ force: true });
-
-    // Wire button actions inside the dialog content.
-    const root = dlg.element;
+    await dialog.render({ force: true });
+    const root = dialog.element;
     if (!root) return;
-    root.querySelector?.('[data-vil-found="1"]')?.addEventListener("click", async () => {
-      const type = root.querySelector('select[name="newType"]')?.value;
-      const name = root.querySelector('input[name="newName"]')?.value?.trim() || null;
-      const steward = root.querySelector('input[name="newSteward"]')?.value?.trim() || "";
-      await foundInstitution({ type, name, steward });
-      dlg.close();
-      CrowSheet._onOpenVillage.call(this);
+    const reopen = async () => { await dialog.close(); CrowSheet._onOpenVillage.call(this); };
+    root.querySelector?.('[data-village-found="1"]')?.addEventListener("click", async () => {
+      await foundInstitution({
+        type: root.querySelector('select[name="newType"]')?.value,
+        name: root.querySelector('input[name="newName"]')?.value?.trim() || null,
+        steward: root.querySelector('input[name="newSteward"]')?.value?.trim() || ""
+      });
+      await reopen();
     });
-    root.querySelector?.('[data-vil-setprosp="1"]')?.addEventListener("click", async () => {
-      const val = Number(root.querySelector('input[name="prosp"]')?.value ?? 0);
-      await setProsperity(val);
-      dlg.close();
-      CrowSheet._onOpenVillage.call(this);
+    root.querySelector?.('[data-village-prosperity="1"]')?.addEventListener("click", async () => {
+      await setProsperity(Number(root.querySelector('input[name="prosperity"]')?.value ?? 0));
+      await reopen();
     });
-    root.querySelector?.('[data-vil-setname="1"]')?.addEventListener("click", async () => {
-      const val = String(root.querySelector('input[name="vname"]')?.value ?? "").trim();
-      if (!val) return;
-      await setVillage({ name: val });
-      dlg.close();
-      CrowSheet._onOpenVillage.call(this);
+    root.querySelector?.('[data-village-name="1"]')?.addEventListener("click", async () => {
+      const name = String(root.querySelector('input[name="villageName"]')?.value ?? "").trim();
+      if (!name) return;
+      await setVillage({ name });
+      await reopen();
     });
-    root.querySelector?.('[data-vil-endcycle="1"]')?.addEventListener("click", async () => {
+    root.querySelector?.('[data-village-end-cycle="1"]')?.addEventListener("click", async () => {
       await endCycle();
-      dlg.close();
-      CrowSheet._onOpenVillage.call(this);
+      await reopen();
     });
-    root.querySelector?.('[data-vil-rollevent="1"]')?.addEventListener("click", async () => {
-      await rollVillageEvent();
-    });
-    root.querySelectorAll?.("[data-vil-upgrade]").forEach(btn => {
-      btn.addEventListener("click", async (ev) => {
-        await upgradeInstitution(ev.currentTarget.dataset.vilUpgrade);
-        dlg.close();
-        CrowSheet._onOpenVillage.call(this);
-      });
-    });
-    root.querySelectorAll?.("[data-vil-damage]").forEach(btn => {
-      btn.addEventListener("click", async (ev) => {
-        await damageInstitution(ev.currentTarget.dataset.vilDamage);
-        dlg.close();
-        CrowSheet._onOpenVillage.call(this);
-      });
-    });
+    root.querySelector?.('[data-village-event="1"]')?.addEventListener("click", () => rollVillageEvent());
+    root.querySelectorAll?.("[data-village-upgrade]").forEach(button => button.addEventListener("click", async event => {
+      await upgradeInstitution(event.currentTarget.dataset.villageUpgrade);
+      await reopen();
+    }));
+    root.querySelectorAll?.("[data-village-damage]").forEach(button => button.addEventListener("click", async event => {
+      await damageInstitution(event.currentTarget.dataset.villageDamage);
+      await reopen();
+    }));
   }
 
   static async _onCraftStart() {
-    const DialogV2 = foundry.applications.api.DialogV2;
     const actor = this.document;
-    // Skill <option>s with current bonuses.
-    const opts = (CROWS.skills ?? [])
-      .map(k => `<option value="${k}">${SKILL_LABELS[k] ?? k} (current +${actor.system.skills?.[k]?.bonus ?? 0})</option>`).join("");
+    const options = CRAFTING_EXPERTISES.map(key => `<option value="${esc(key)}">${esc(t(`CROWS.Expertise.${key}`))} (${actor.system.expertises?.[key]?.max ?? 0})</option>`).join("");
     const content = `<div class="crows craft-start-form">
-      <label>Item name: <input type="text" name="name" placeholder="e.g. 'Healing Potion'" style="width:100%"></label>
-      <label>Skill: <select name="skill">${opts}</select></label>
-      <label>Prereq bonus (0-2): <input type="number" name="prereq" value="0" min="0" max="2" step="1"></label>
-      <label>Crafting goal (points): <input type="number" name="goal" value="100" min="1" step="10"></label>
-      <label>Materials (comma-sep): <input type="text" name="materials" placeholder="herbs, vial" style="width:100%"></label>
-      <label><input type="checkbox" name="hasRecipe"> Has recipe (or skill > prereq)</label>
-      <label>Notes: <input type="text" name="notes" style="width:100%"></label>
+      <label>${esc(t("CROWS.Dialog.Crafting.itemName"))}: <input type="text" name="name" style="width:100%"></label>
+      <label>${esc(t("CROWS.Dialog.Crafting.expertise"))}: <select name="expertise">${options}</select></label>
+      <label>${esc(t("CROWS.Dialog.Crafting.requiredUses"))}: <input type="number" name="uses" value="1" min="1" max="4" step="1"></label>
+      <label>${esc(t("CROWS.Dialog.Crafting.goal"))}: <input type="number" name="goal" value="100" min="1" step="10"></label>
+      <label>${esc(t("CROWS.Dialog.Crafting.materials"))}: <input type="text" name="materials" style="width:100%"></label>
+      <label>${esc(t("CROWS.Dialog.Crafting.notes"))}: <input type="text" name="notes" style="width:100%"></label>
     </div>`;
     try {
       const choice = await DialogV2.prompt({
-        window: { title: `${actor.name} — Start crafting project` },
+        window: { title: t("CROWS.Dialog.Crafting.startTitle", { actor: actor.name }) },
         content,
         ok: {
-          label: "Start",
+          label: t("CROWS.Dialog.Crafting.start"),
           callback: (event, button, dialog) => {
             const root = dialog.element ?? button?.form;
             return {
               name: root?.querySelector?.('input[name="name"]')?.value?.trim(),
-              skill: root?.querySelector?.('select[name="skill"]')?.value,
-              prereqBonus: Number(root?.querySelector?.('input[name="prereq"]')?.value ?? 0),
+              expertise: root?.querySelector?.('select[name="expertise"]')?.value,
+              uses: Number(root?.querySelector?.('input[name="uses"]')?.value ?? 1),
               goal: Number(root?.querySelector?.('input[name="goal"]')?.value ?? 100),
-              materials: (root?.querySelector?.('input[name="materials"]')?.value ?? "").split(",").map(s => s.trim()).filter(Boolean),
-              hasRecipe: !!root?.querySelector?.('input[name="hasRecipe"]')?.checked,
+              materials: String(root?.querySelector?.('input[name="materials"]')?.value ?? "")
+                .split(",").map(value => value.trim()).filter(Boolean),
               notes: root?.querySelector?.('input[name="notes"]')?.value ?? ""
             };
           }
@@ -866,65 +1178,46 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async _onCraftRoll(event, target) {
-    const id = target.dataset.projectId;
-    if (!id) return;
-    await makeCraftingRoll(this.document, id);
-    this.render();
+    const projectId = target.dataset.projectId;
+    if (!projectId) return;
+    const available = ALL_EXPERTISES.filter(key => Number(this.document.system.expertises?.[key]?.value) > 0);
+    const content = `<div class="crows craft-start-form"><p>${esc(t("CROWS.Dialog.Crafting.chooseUpToTwo"))}</p>${available.map(key => `
+      <label><input type="checkbox" name="expertise" value="${esc(key)}"> ${esc(t(`CROWS.Expertise.${key}`))} (${this.document.system.expertises[key].value})</label>`).join("") || `<em>${esc(t("CROWS.Dialog.Crafting.noneAvailable"))}</em>`}</div>`;
+    try {
+      const expertises = await DialogV2.prompt({
+        window: { title: t("CROWS.Dialog.Crafting.rollTitle") },
+        content,
+        ok: {
+          label: t("CROWS.Dialog.Crafting.roll"),
+          callback: (dialogEvent, button, dialog) => [...((dialog.element ?? button?.form)?.querySelectorAll?.('input[name="expertise"]:checked') ?? [])]
+            .slice(0, 2).map(input => input.value)
+        }
+      });
+      if (!expertises) return;
+      await makeCraftingRoll(this.document, projectId, { expertises });
+      this.render();
+    } catch { /* dismissed */ }
   }
 
   static async _onCraftCancel(event, target) {
-    const id = target.dataset.projectId;
-    if (!id) return;
-    await cancelProject(this.document, id);
+    if (!target.dataset.projectId) return;
+    await cancelProject(this.document, target.dataset.projectId);
     this.render();
   }
 
   static async _onCraftComplete(event, target) {
-    const id = target.dataset.projectId;
-    if (!id) return;
-    await completeProject(this.document, id);
+    if (!target.dataset.projectId) return;
+    await completeProject(this.document, target.dataset.projectId);
     this.render();
   }
 
   static async _onIdentifyItem(event, target) {
-    const itemId = target.dataset.itemId;
-    await identifyMagicItem(this.document, { itemId });
+    await identifyMagicItem(this.document, { itemId: target.dataset.itemId });
     this.render();
   }
 
   static async _onOpenCreator() {
     await openCharacterCreator(this.document);
     this.render();
-  }
-
-  static async _onSpendCharBonus() {
-    const DialogV2 = foundry.applications.api.DialogV2;
-    const actor = this.document;
-    const c = actor.system.characteristics ?? {};
-    const allMax = (c.agility?.value ?? 0) >= 3 && (c.mind?.value ?? 0) >= 3 && (c.strength?.value ?? 0) >= 3;
-    if (allMax) {
-      await spendCharBonus(actor);   // auto-converts to +4 stamina
-      this.render();
-      return;
-    }
-    const content = `<div class="crows adv-spend-form">
-      <p>Choose a characteristic to raise by +1 (each capped at +3):</p>
-      <div>Agility ${c.agility?.value ?? 0}, Mind ${c.mind?.value ?? 0}, Strength ${c.strength?.value ?? 0}</div>
-    </div>`;
-    try {
-      const choice = await DialogV2.prompt({
-        window: { title: `${actor.name} — Characteristic Advancement` },
-        content,
-        buttons: [
-          { action: "agility",  label: "+1 Agility",  callback: () => "agility",  disabled: (c.agility?.value ?? 0) >= 3 },
-          { action: "mind",     label: "+1 Mind",     callback: () => "mind",     disabled: (c.mind?.value ?? 0) >= 3 },
-          { action: "strength", label: "+1 Strength", callback: () => "strength", disabled: (c.strength?.value ?? 0) >= 3 },
-          { action: "cancel",   label: "Cancel",      callback: () => null, default: true }
-        ]
-      });
-      if (!choice) return;
-      await spendCharBonus(actor, choice);
-      this.render();
-    } catch { /* dialog dismissed */ }
   }
 }

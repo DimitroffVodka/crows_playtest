@@ -1,51 +1,64 @@
 <div class="crows-crow">
-
   <header class="cc-header">
     <div class="cc-portrait-frame">
       <img class="cc-portrait" src="{{actor.img}}" alt="{{actor.name}}"
            data-action="editImage" data-edit="img"
-           data-tooltip="Click to change portrait">
+           data-tooltip="{{localize 'CROWS.Sheet.Crow.tooltip.changePortrait'}}">
     </div>
     <div class="cc-id">
       <div class="cc-field">
-        <label>Name</label>
+        <label>{{localize "CROWS.Sheet.Crow.name"}}</label>
         <input type="text" name="name" value="{{actor.name}}">
       </div>
       <div class="cc-field">
-        <label>Background</label>
+        <label>{{localize "CROWS.Sheet.Crow.background"}}</label>
         <input type="text" name="system.background" value="{{system.background}}">
       </div>
       <div class="cc-field feature">
-        <label>Feature</label>
+        <label>{{localize "CROWS.Sheet.Crow.feature"}}</label>
         <input type="text" name="system.details.feature" value="{{system.details.feature}}">
       </div>
     </div>
     <div class="cc-xp">
       <div class="cc-xp-row">
-        <div class="cc-xp-cell"><label>Unspent XP</label><input type="number" name="system.xp.spendable" value="{{system.xp.spendable}}"></div>
-        <div class="cc-xp-cell"><label>Next Advancement</label><span class="cc-xp-target">{{nextAdvancement}} TXP</span></div>
+        <div class="cc-xp-cell">
+          <label>{{localize "CROWS.Sheet.Crow.xp.spendable"}}</label>
+          <input type="number" name="system.xp.spendable" value="{{system.xp.spendable}}">
+        </div>
+        <div class="cc-xp-cell">
+          <label>{{localize "CROWS.Sheet.Crow.xp.next"}}</label>
+          <span class="cc-xp-target" data-tooltip="{{localize 'CROWS.Sheet.Crow.xp.nextHint'}}">
+            {{nextAdvancement.expertise}} / {{nextAdvancement.char}}
+          </span>
+        </div>
       </div>
       <div class="cc-xp-row">
-        <div class="cc-xp-cell"><label>Total XP</label><input type="number" name="system.xp.txp" value="{{system.xp.txp}}"></div>
+        <div class="cc-xp-cell">
+          <label>{{localize "CROWS.Sheet.Crow.xp.total"}}</label>
+          <input type="number" name="system.xp.txp" value="{{system.xp.txp}}">
+        </div>
       </div>
     </div>
   </header>
 
   <section class="cc-stats">
-    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="strength" title="Roll Strength test">
-      <div class="cc-stat-label">Strength</div>
+    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="strength"
+         data-tooltip="{{localize 'CROWS.Sheet.Crow.tooltip.rollStrength'}}">
+      <div class="cc-stat-label">{{localize "CROWS.Characteristic.strength"}}</div>
       <input type="number" class="cc-stat-value" name="system.characteristics.strength.value" value="{{system.characteristics.strength.value}}">
     </div>
-    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="agility" title="Roll Agility test">
-      <div class="cc-stat-label">Agility</div>
+    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="agility"
+         data-tooltip="{{localize 'CROWS.Sheet.Crow.tooltip.rollAgility'}}">
+      <div class="cc-stat-label">{{localize "CROWS.Characteristic.agility"}}</div>
       <input type="number" class="cc-stat-value" name="system.characteristics.agility.value" value="{{system.characteristics.agility.value}}">
     </div>
-    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="mind" title="Roll Mind test">
-      <div class="cc-stat-label">Mind</div>
+    <div class="cc-stat-box clickable" data-action="rollChar" data-characteristic="mind"
+         data-tooltip="{{localize 'CROWS.Sheet.Crow.tooltip.rollMind'}}">
+      <div class="cc-stat-label">{{localize "CROWS.Characteristic.mind"}}</div>
       <input type="number" class="cc-stat-value" name="system.characteristics.mind.value" value="{{system.characteristics.mind.value}}">
     </div>
     <div class="cc-stat-box">
-      <div class="cc-stat-label">Stamina</div>
+      <div class="cc-stat-label">{{localize "CROWS.Sheet.Crow.stamina"}}</div>
       <div class="cc-stat-pair">
         <input type="number" name="system.stamina.value" value="{{system.stamina.value}}">
         <span class="sep">/</span>
@@ -53,277 +66,385 @@
       </div>
     </div>
     <div class="cc-stat-box">
-      <div class="cc-stat-label">AD</div>
+      <div class="cc-stat-label">{{localize "CROWS.Sheet.Crow.ad"}}</div>
       <div class="cc-stat-value cc-ad-derived">{{system.ad}}</div>
     </div>
   </section>
 
   <section class="cc-substats">
-    <div class="cc-mini-box" title="{{#if system.speedNote}}Reduced by {{system.speedNote}} (base {{system.speed}}){{/if}}">
+    <div class="cc-mini-box" data-tooltip="{{speedNote}}">
       <div class="cc-mini-value">
-        {{#if system.speedNote}}<span class="cc-speed-effective">{{system.effectiveSpeed}}</span><span class="cc-speed-base">/{{system.speed}}</span>{{else}}<input type="number" name="system.speed" value="{{system.speed}}">{{/if}}
+        {{#if speedNote}}
+          <span class="cc-speed-effective">{{effectiveSpeed}}</span><span class="cc-speed-base">/{{system.speed}}</span>
+        {{else}}
+          <input type="number" name="system.speed" value="{{system.speed}}">
+        {{/if}}
       </div>
-      <div class="cc-mini-label">Speed{{#if system.speedNote}} <em>({{system.speedNote}})</em>{{/if}}</div>
+      <div class="cc-mini-label">{{localize "CROWS.Sheet.Crow.speed"}}{{#if speedNote}} <em>({{speedNote}})</em>{{/if}}</div>
     </div>
     <div class="cc-mini-box">
       <div class="cc-mini-value">{{shift}}</div>
-      <div class="cc-mini-label">Shift</div>
+      <div class="cc-mini-label">{{localize "CROWS.Sheet.Crow.shift"}}</div>
     </div>
-    <div class="cc-conditions">
-      <div class="cc-conditions-title">Conditions</div>
-      <div class="cc-conditions-row">
-        <div class="cc-cond-cell">
-          <div class="cc-cond-label" id="cond-bb-label">Blessed/Boned</div>
-          <div class="cc-cond-value" aria-labelledby="cond-bb-label">
-            <span class="cc-net" aria-label="Net blessed minus boned">{{condNet}}</span>
-            <button type="button" data-action="adjBlessed" data-delta="1" aria-label="Add 1 Blessed" title="+1 Blessed">+</button>
-            <button type="button" data-action="adjBoned" data-delta="1" aria-label="Add 1 Boned" title="+1 Boned">&minus;</button>
-          </div>
-        </div>
-        <div class="cc-cond-cell">
-          <label class="cc-cond-label" for="cond-grabbed">Grabbed</label>
-          <input id="cond-grabbed" type="checkbox" name="system.conditions.grabbed" {{#if condFlags.grabbed}}checked{{/if}} aria-label="Grabbed condition">
-        </div>
-        <div class="cc-cond-cell">
-          <label class="cc-cond-label" for="cond-prone">Prone</label>
-          <input id="cond-prone" type="checkbox" name="system.conditions.prone" {{#if condFlags.prone}}checked{{/if}} aria-label="Prone condition">
-        </div>
-        <div class="cc-cond-cell">
-          <label class="cc-cond-label" for="cond-unconscious">Unconscious</label>
-          <input id="cond-unconscious" type="checkbox" name="system.conditions.unconscious" {{#if condFlags.unconscious}}checked{{/if}} aria-label="Unconscious condition">
-        </div>
+    <div class="cc-conditions cc-condition-panel">
+      <div class="cc-conditions-title">{{localize "CROWS.Sheet.Crow.conditions"}}</div>
+      <div class="cc-conditions-row cc-condition-grid">
+        {{#each conditions as |condition|}}
+          <label class="cc-cond-cell cc-condition-toggle" data-tooltip="{{condition.hint}}">
+            <span class="cc-cond-label">{{condition.label}}</span>
+            <input type="checkbox" name="system.conditions.{{condition.key}}" {{#if condition.active}}checked{{/if}}
+                   aria-label="{{condition.label}}">
+          </label>
+        {{/each}}
       </div>
     </div>
     <div class="cc-time">
-      <div class="cc-conditions-title">Time</div>
+      <div class="cc-conditions-title">{{localize "CROWS.Sheet.Crow.time"}}</div>
       <div class="cc-time-row">
         <div class="cc-time-cell">
-          <div class="cc-cond-label">DT #</div>
+          <div class="cc-cond-label">{{localize "CROWS.Sheet.Crow.dungeonTurn"}}</div>
           <div class="cc-net">{{dtCount}}</div>
         </div>
-        <button type="button" data-action="takeRest" title="Take a 6h rest — full Stamina, -1 wound, restore spellbook UDs, encounter checks every 2h. Pick a rest activity in the dialog.">Rest…</button>
+        <button type="button" data-action="takeRest" data-tooltip="{{localize 'CROWS.Sheet.Crow.tooltip.rest'}}">
+          {{localize "CROWS.Sheet.Crow.rest"}}
+        </button>
         {{#if isGM}}
-          <button type="button" data-action="endDt" title="End Dungeon Turn — roll DT-expiry UDs, reset blessed/boned, encounter check (GM)">End DT</button>
-          <button type="button" data-action="encounterCheck" title="Roll an ad-hoc encounter check (1d6 vs {{dungeonEN}}+) (GM)">Encounter</button>
+          <button type="button" data-action="endDt" data-tooltip="{{localize 'CROWS.Sheet.Crow.tooltip.endTurn'}}">
+            {{localize "CROWS.Sheet.Crow.endTurn"}}
+          </button>
+          <button type="button" data-action="encounterCheck" data-tooltip="{{localize 'CROWS.Sheet.Crow.tooltip.encounter'}}">
+            {{localize "CROWS.Sheet.Crow.encounter"}}
+          </button>
         {{/if}}
       </div>
-      {{#if system.preparedTask.skill}}
-        <div class="cc-prepared-task" title="Prepare for Task: next {{system.preparedTask.skill}} test gets +1. Set during DT {{system.preparedTask.setOn}}.">
-          <strong>Prepared:</strong> +1 to next <em>{{system.preparedTask.skill}}</em>{{#if system.preparedTask.detail}} — {{system.preparedTask.detail}}{{/if}}
-          <span class="cc-prepared-when">(set DT {{system.preparedTask.setOn}})</span>
+      {{#if preparedTask}}
+        <div class="cc-prepared-task" data-tooltip="{{localize 'CROWS.Sheet.Crow.prepared.hint'}}">
+          <button type="button" data-action="rollPreparedTask">
+            <strong>{{localize "CROWS.Sheet.Crow.prepared.label"}}</strong>
+            {{localize "CROWS.Sheet.Crow.prepared.bonus" bonus=preparedTask.bonus task=preparedTask.task}}
+          </button>
+          <span class="cc-prepared-when">{{localize "CROWS.Sheet.Crow.prepared.setOn" turn=preparedTask.setOn}}</span>
         </div>
       {{/if}}
       {{#if activeBoonCard}}
-        <div class="cc-active-boon" title="Active Crypt boon — manage on the Downtime tab">
+        <div class="cc-active-boon" data-tooltip="{{localize 'CROWS.Sheet.Crow.crypt.activeHint'}}">
           <strong>{{activeBoonCard.label}}</strong>
-          {{#if activeBoonCard.source}}<span class="cb-src">via {{activeBoonCard.source}}</span>{{/if}}
-          {{#if (gte activeBoonCard.usesLeft 2)}}<span class="cb-uses">{{activeBoonCard.usesLeft}} uses</span>{{/if}}
+          {{#if activeBoonCard.source}}<span class="cb-src">{{localize "CROWS.Sheet.Crow.via" source=activeBoonCard.source}}</span>{{/if}}
+          {{#if (gte activeBoonCard.usesLeft 2)}}<span class="cb-uses">{{localize "CROWS.Sheet.Crow.uses" count=activeBoonCard.usesLeft}}</span>{{/if}}
           <div class="cb-summary">{{activeBoonCard.summary}}</div>
         </div>
       {{/if}}
       {{#if inMiasma}}
-        <div class="cc-mini-flag" title="In the Miasma — see Downtime tab"><span class="cc-miasma-badge in-miasma" role="status">⚠ In Miasma</span>{{#if miasmaEffects.length}} <em>· {{miasmaEffects.length}} active effect{{#unless (eq miasmaEffects.length 1)}}s{{/unless}}</em>{{/if}}</div>
+        <div class="cc-mini-flag" data-tooltip="{{localize 'CROWS.Sheet.Crow.miasma.activeHint'}}">
+          <span class="cc-miasma-badge in-miasma" role="status">{{localize "CROWS.Sheet.Crow.miasma.in"}}</span>
+          {{#if miasmaEffects.length}}<em>{{localize "CROWS.Sheet.Crow.miasma.effectCount" count=miasmaEffects.length}}</em>{{/if}}
+        </div>
       {{/if}}
       {{#if miasmaPermanentNPC}}
-        <div class="cc-mini-flag"><span class="cc-miasma-badge permanent-npc">PERMANENT NPC</span></div>
+        <div class="cc-mini-flag"><span class="cc-miasma-badge permanent-npc">{{localize "CROWS.Sheet.Crow.miasma.permanentNpc"}}</span></div>
       {{/if}}
     </div>
   </section>
 
-  <nav class="cc-tabs" role="tablist" aria-label="Character sheet tabs">
-    {{#each tabs as |t|}}
-      <button type="button" role="tab" data-action="switchTab" data-tab="{{t.id}}"
-              id="tab-{{t.id}}"
-              aria-controls="panel-{{t.id}}"
-              aria-selected="{{#if (eq t.id ../activeTab)}}true{{else}}false{{/if}}"
-              tabindex="{{#if (eq t.id ../activeTab)}}0{{else}}-1{{/if}}"
-              class="{{#if (eq t.id ../activeTab)}}active{{/if}}">{{t.label}}</button>
+  <nav class="cc-tabs" role="tablist" aria-label="{{localize 'CROWS.Sheet.Crow.tabsLabel'}}">
+    {{#each tabs as |tab|}}
+      <button type="button" role="tab" data-action="switchTab" data-tab="{{tab.id}}"
+              id="tab-{{tab.id}}" aria-controls="panel-{{tab.id}}"
+              aria-selected="{{#if (eq tab.id ../activeTab)}}true{{else}}false{{/if}}"
+              tabindex="{{#if (eq tab.id ../activeTab)}}0{{else}}-1{{/if}}"
+              class="{{#if (eq tab.id ../activeTab)}}active{{/if}}">{{tab.label}}</button>
     {{/each}}
   </nav>
 
-  {{!-- MAIN TAB: Skills horizontal up top (3 columns: General/Spellcasting/Weapon), Perks below --}}
   <section class="cc-tab cc-main {{#if (eq activeTab 'main')}}active{{/if}}"
            role="tabpanel" id="panel-main" aria-labelledby="tab-main"
            {{#unless (eq activeTab 'main')}}hidden{{/unless}}>
-
-    <div class="cc-skills cc-skills-horizontal">
-      <div class="cc-section-title cc-skills-title">Skills</div>
-      <div class="cc-skills-hint">Click name to roll · check <strong>+1</strong> / <strong>+2</strong> to set skill bonus</div>
-      <div class="cc-skill-cols cc-skill-cols-tight">
-
-        <div class="cc-skill-col cc-skill-col-general">
-          <div class="cc-skill-group">General</div>
-          <div class="cc-skill-grid-general">
-            {{#each skillGroups.general as |s|}}
-              <div class="cc-skill-row">
-                <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
-                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
-                <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
+    <div class="cc-expertise-panel">
+      <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.expertise.title"}}</div>
+      <div class="cc-expertise-hint">{{localize "CROWS.Sheet.Crow.expertise.hint"}}</div>
+      {{#if expertiseOverBudget}}
+        <div class="cc-expertise-warning" role="status">{{expertiseOverBudgetLabel}}</div>
+      {{/if}}
+      <div class="cc-expertise-groups">
+        {{#each expertiseGroups as |group|}}
+          <div class="cc-expertise-group">
+            <div class="cc-expertise-group-title" data-tooltip="{{group.hint}}">{{group.label}}</div>
+            {{#each group.entries as |entry|}}
+              <div class="cc-expertise-row" data-tooltip="{{entry.hint}}">
+                <span class="cc-expertise-name">{{entry.label}}</span>
+                <span class="cc-expertise-pool" aria-label="{{localize 'CROWS.Sheet.Crow.expertise.poolLabel' expertise=entry.label value=entry.value max=entry.max}}">
+                  {{entry.value}} / {{entry.max}}
+                </span>
+                <button type="button" class="cc-expertise-spend" data-action="spendExpertiseUse" data-expertise="{{entry.key}}"
+                        {{#unless entry.canSpend}}disabled{{/unless}}
+                        data-tooltip="{{localize 'CROWS.Sheet.Crow.expertise.spendHint' expertise=entry.label}}">
+                  {{localize "CROWS.Sheet.Crow.expertise.spend"}}
+                </button>
+                {{#if entry.overCap}}<span class="cc-expertise-warning">{{localize "CROWS.Sheet.Crow.expertise.overCap" count=entry.overCap}}</span>{{/if}}
+                {{#if entry.overMax}}<span class="cc-expertise-warning">{{localize "CROWS.Sheet.Crow.expertise.overMax" count=entry.overMax}}</span>{{/if}}
               </div>
             {{/each}}
           </div>
-        </div>
-
-        <div class="cc-skill-col">
-          <div class="cc-skill-group">Spellcasting</div>
-          {{#each skillGroups.spellcasting as |s|}}
-            <div class="cc-skill-row">
-              <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}} (Mind)">{{s.label}}</button>
-              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
-              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
-            </div>
-          {{/each}}
-        </div>
-
-        <div class="cc-skill-col">
-          <div class="cc-skill-group">Weapon</div>
-          {{#each skillGroups.weapon as |s|}}
-            <div class="cc-skill-row">
-              <button type="button" class="cc-skill-name" data-action="rollSkill" data-skill="{{s.key}}" data-characteristic="{{s.char}}" title="Roll {{s.label}}">{{s.label}}</button>
-              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="1" title="+1" {{#if (gte s.bonus 1)}}checked{{/if}}>
-              <input type="checkbox" data-action="toggleSkillBonus" data-skill="{{s.key}}" data-level="2" title="+2" {{#if (gte s.bonus 2)}}checked{{/if}}>
-            </div>
-          {{/each}}
-        </div>
-
+        {{/each}}
       </div>
     </div>
 
     <div class="cc-perks">
-      <div class="cc-section-title">Perks</div>
+      <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.traits.title"}}</div>
       <div class="cc-perks-list">
         {{#if perks.length}}
-          {{#each perks as |p|}}
-            <div class="cc-perk" data-action="openItem" data-item-id="{{p.id}}">
-              <img class="cc-item-icon sm" src="{{p.img}}" alt="">
-              <span class="cc-perk-name">{{p.name}}</span>
-              <span class="cc-perk-meta">{{p.tree}} · t{{p.tier}}</span>
+          {{#each perks as |trait|}}
+            <div class="cc-perk" data-action="openItem" data-item-id="{{trait.id}}">
+              <img class="cc-item-icon sm" src="{{trait.img}}" alt="">
+              <span class="cc-perk-name">{{trait.name}}</span>
+              <span class="cc-perk-meta">
+                {{trait.treeLabel}} · {{localize "CROWS.Sheet.Crow.tierShort" tier=trait.tier}}
+                {{#if trait.usePool}}
+                  · {{localize "CROWS.Sheet.Crow.traits.pool" remaining=trait.usePool.remaining max=trait.usePool.max}}
+                  {{#if trait.usePool.overused}} · {{localize "CROWS.Sheet.Crow.traits.overused" count=trait.usePool.overused}}{{/if}}
+                {{/if}}
+              </span>
             </div>
           {{/each}}
         {{else}}
-          <p class="cc-empty">No perks yet. Drag traits from the compendium onto this sheet.</p>
+          <p class="cc-empty">{{localize "CROWS.Sheet.Crow.traits.empty"}}</p>
         {{/if}}
       </div>
     </div>
-
   </section>
 
-  {{!-- EQUIPMENT TAB: 10 named slots, each renders item card inline --}}
   <section class="cc-tab cc-equipment {{#if (eq activeTab 'equipment')}}active{{/if}}"
            role="tabpanel" id="panel-equipment" aria-labelledby="tab-equipment"
            {{#unless (eq activeTab 'equipment')}}hidden{{/unless}}>
+    <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.equipment.carry"}}</div>
     <div class="cc-equip-grid">
-      {{#each equipSlots as |s|}}
-        <div class="cc-slot {{#if s.card}}filled{{/if}}" data-slot-id="{{s.id}}" data-container="{{s.container}}" data-index="{{s.index}}">
-          <div class="cc-slot-header">{{s.label}}</div>
-          {{#if s.card}}
-            <div class="cc-card">
-              <div class="cc-card-hd" data-action="openItem" data-item-id="{{s.card.id}}" title="Open item sheet">
-                <span class="cc-sigil"><img class="cc-sigil-img" src="{{s.card.img}}" alt=""></span>
-                <span class="cc-card-name">{{s.card.name}}</span>
-                <span class="cc-card-kw">{{s.card.type}}{{#if s.card.stack}} · {{s.card.stack}}{{/if}}</span>
-              </div>
-              <div class="cc-card-body">
-                {{#each s.card.summary.lines as |line|}}
-                  <div class="cc-card-line">{{line}}</div>
-                {{/each}}
-              </div>
-              {{#if (eq s.card.type "weapon")}}
-                <button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{s.card.id}}" title="Roll attack with {{s.card.name}}">⚔ Attack</button>
-              {{/if}}
-              {{#if s.card.cost}}<div class="cc-card-cost">{{s.card.cost}} gc</div>{{/if}}
-            </div>
+      {{#each inventory.hand.slots as |slot|}}
+        <div class="cc-slot {{#if slot.filled}}filled{{/if}}" data-container="{{slot.container}}" data-index="{{slot.index}}">
+          <div class="cc-slot-header">{{slot.label}}</div>
+          {{#if slot.isContinuation}}
+            <div class="cc-slot-empty cc-slot-continuation">{{localize "CROWS.Sheet.Crow.inventory.continues" item=slot.continuationName}}</div>
           {{else}}
-            <div class="cc-slot-empty">{{s.hint}}</div>
+            {{#each slot.cards as |card|}}
+              <div class="cc-card" draggable="true" data-item-id="{{card.id}}">
+                <div class="cc-card-hd" data-action="openItem" data-item-id="{{card.id}}">
+                  <span class="cc-sigil"><img class="cc-sigil-img" src="{{card.img}}" alt=""></span>
+                  <span class="cc-card-name">{{card.name}}</span>
+                  <span class="cc-card-kw">{{card.typeLabel}}{{#if card.stack}} · {{card.stack}}{{/if}}</span>
+                </div>
+                <div class="cc-card-body">
+                  {{#each card.summary.lines as |line|}}<div class="cc-card-line">{{line}}</div>{{/each}}
+                  {{#if (eq card.type "weapon")}}
+                    <button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{card.id}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>
+                  {{/if}}
+                  {{#if card.cost}}<div class="cc-card-cost">{{localize "CROWS.Sheet.Crow.currencyAmount" amount=card.cost}}</div>{{/if}}
+                </div>
+              </div>
+            {{/each}}
+            {{#unless slot.cards.length}}<div class="cc-slot-empty">{{localize "CROWS.Sheet.Crow.inventory.empty"}}</div>{{/unless}}
           {{/if}}
         </div>
       {{/each}}
     </div>
+
+    <div class="cc-belt-panel">
+      <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.equipment.belt"}}</div>
+      <div class="cc-belt-grid">
+        {{#each inventory.belt.slots as |slot|}}
+          <div class="cc-slot {{#if slot.filled}}filled{{/if}}" data-container="{{slot.container}}" data-index="{{slot.index}}">
+            <div class="cc-slot-header">{{slot.label}}</div>
+            {{#if slot.isContinuation}}
+              <div class="cc-slot-empty cc-slot-continuation">{{localize "CROWS.Sheet.Crow.inventory.continues" item=slot.continuationName}}</div>
+            {{else}}
+              {{#each slot.cards as |card|}}
+                <div class="cc-card" draggable="true" data-item-id="{{card.id}}">
+                  <div class="cc-card-hd" data-action="openItem" data-item-id="{{card.id}}">
+                    <span class="cc-sigil"><img class="cc-sigil-img" src="{{card.img}}" alt=""></span>
+                    <span class="cc-card-name">{{card.name}}</span>
+                    <span class="cc-card-kw">{{card.typeLabel}}{{#if card.stack}} · {{card.stack}}{{/if}}</span>
+                  </div>
+                  <div class="cc-card-body">
+                    {{#each card.summary.lines as |line|}}<div class="cc-card-line">{{line}}</div>{{/each}}
+                    {{#if (eq card.type "weapon")}}<button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{card.id}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>{{/if}}
+                    {{#if card.cost}}<div class="cc-card-cost">{{localize "CROWS.Sheet.Crow.currencyAmount" amount=card.cost}}</div>{{/if}}
+                  </div>
+                </div>
+              {{/each}}
+              {{#unless slot.cards.length}}<div class="cc-slot-empty">{{localize "CROWS.Sheet.Crow.inventory.empty"}}</div>{{/unless}}
+            {{/if}}
+          </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="cc-magic-panel">
+      <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.equipment.magic"}}</div>
+      {{#if magicOverload}}<div class="cc-inventory-warning" role="status">{{localize "CROWS.Warn.magicSlotOverload"}}</div>{{/if}}
+      <div class="cc-magic-grid">
+        {{#each inventory.magic as |group|}}
+          {{#each group.slots as |slot|}}
+            <div class="cc-slot {{#if slot.filled}}filled{{/if}}" data-container="{{slot.container}}" data-index="{{slot.index}}">
+              <div class="cc-slot-header">{{group.label}}</div>
+              {{#each slot.cards as |card|}}
+                <div class="cc-card" draggable="true" data-item-id="{{card.id}}">
+                  <div class="cc-card-hd" data-action="openItem" data-item-id="{{card.id}}">
+                    <span class="cc-sigil"><img class="cc-sigil-img" src="{{card.img}}" alt=""></span>
+                    <span class="cc-card-name">{{card.name}}</span>
+                    <span class="cc-card-kw">{{card.typeLabel}}</span>
+                  </div>
+                  <div class="cc-card-body">
+                    {{#each card.summary.lines as |line|}}<div class="cc-card-line">{{line}}</div>{{/each}}
+                  </div>
+                </div>
+              {{/each}}
+              {{#unless slot.cards.length}}<div class="cc-slot-empty">{{localize "CROWS.Sheet.Crow.inventory.empty"}}</div>{{/unless}}
+            </div>
+          {{/each}}
+        {{/each}}
+      </div>
+    </div>
   </section>
 
-  {{!-- INVENTORY TAB: 10 backpack slots in 2x5 grid, wound checkbox per slot --}}
   <section class="cc-tab cc-inventory {{#if (eq activeTab 'inventory')}}active{{/if}}"
            role="tabpanel" id="panel-inventory" aria-labelledby="tab-inventory"
            {{#unless (eq activeTab 'inventory')}}hidden{{/unless}}>
+    <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.inventory.backpack"}}</div>
     <div class="cc-wounds-controls">
-      <span>Wounds: <strong>{{system.wounds}}</strong> / {{CROWS.backpackSize}}</span>
-      <button type="button" data-action="adjWounds" data-delta="1">+ wound</button>
-      <button type="button" data-action="adjWounds" data-delta="-1">- wound</button>
+      <span>{{localize "CROWS.Sheet.Crow.wounds.summary" count=system.wounds capacity=inventory.backpack.capacity}}</span>
+      <span>{{localize "CROWS.Sheet.Crow.wounds.choose"}}</span>
     </div>
+    {{#if orphanedWoundCount}}<div class="cc-inventory-warning" role="status">{{orphanedWoundsLabel}}</div>{{/if}}
     <div class="cc-inv-grid">
-      {{#each backpack as |cell|}}
-        <div class="cc-slot cc-inv-slot {{#if cell.card}}filled{{/if}} {{#if cell.isWound}}wound{{/if}}" data-container="backpack" data-index="{{cell.index}}">
+      {{#each inventory.backpack.slots as |slot|}}
+        <div class="cc-slot cc-inv-slot {{#if slot.filled}}filled{{/if}} {{#if slot.wound}}wound{{/if}}"
+             data-container="{{slot.container}}" data-index="{{slot.index}}">
           <div class="cc-slot-header">
-            <span>Slot {{add cell.index 1}}</span>
-            <label class="cc-wound-check"><span>Wound</span><input type="checkbox" {{#if cell.isWound}}checked{{/if}} disabled></label>
+            <span>{{slot.label}}</span>
+            <label class="cc-wound-check cc-wound-toggle">
+              <span>{{localize "CROWS.Sheet.Crow.wounds.wound"}}</span>
+              <input type="checkbox" data-action="toggleWound" data-index="{{slot.index}}" {{#if slot.wound}}checked{{/if}}>
+            </label>
           </div>
-          {{#if cell.isWound}}
-            <div class="cc-slot-wound">&#10006; wound</div>
-          {{else if cell.card}}
-            <div class="cc-card" data-action="openItem" data-item-id="{{cell.card.id}}">
-              <div class="cc-card-hd">
-                <span class="cc-sigil"><img class="cc-sigil-img" src="{{cell.card.img}}" alt=""></span>
-                <span class="cc-card-name">{{cell.card.name}}</span>
-                <span class="cc-card-kw">{{cell.card.type}}{{#if cell.card.stack}} · {{cell.card.stack}}{{/if}}</span>
-              </div>
-              <div class="cc-card-body">
-                {{#each cell.card.summary.lines as |line|}}
-                  <div class="cc-card-line">{{line}}</div>
-                {{/each}}
-              </div>
-              {{#if cell.card.cost}}<div class="cc-card-cost">{{cell.card.cost}} gc</div>{{/if}}
-            </div>
+          {{#if slot.wound}}<div class="cc-slot-wound cc-wound-marker">{{localize "CROWS.Sheet.Crow.wounds.marker"}}</div>{{/if}}
+          {{#if slot.isContinuation}}
+            <div class="cc-slot-empty cc-slot-continuation">{{localize "CROWS.Sheet.Crow.inventory.continues" item=slot.continuationName}}</div>
           {{else}}
-            <div class="cc-slot-empty">empty</div>
+            {{#each slot.cards as |card|}}
+              <div class="cc-card" draggable="true" data-item-id="{{card.id}}">
+                <div class="cc-card-hd" data-action="openItem" data-item-id="{{card.id}}">
+                  <span class="cc-sigil"><img class="cc-sigil-img" src="{{card.img}}" alt=""></span>
+                  <span class="cc-card-name">{{card.name}}</span>
+                  <span class="cc-card-kw">{{card.typeLabel}}{{#if card.stack}} · {{card.stack}}{{/if}}</span>
+                </div>
+                <div class="cc-card-body">
+                  {{#each card.summary.lines as |line|}}<div class="cc-card-line">{{line}}</div>{{/each}}
+                  {{#if card.cost}}<div class="cc-card-cost">{{localize "CROWS.Sheet.Crow.currencyAmount" amount=card.cost}}</div>{{/if}}
+                </div>
+              </div>
+            {{/each}}
+            {{#unless slot.cards.length}}{{#unless slot.wound}}<div class="cc-slot-empty">{{localize "CROWS.Sheet.Crow.inventory.empty"}}</div>{{/unless}}{{/unless}}
           {{/if}}
         </div>
       {{/each}}
     </div>
+
+    <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.inventory.coin"}}</div>
+    <div class="cc-wounds-controls">
+      <span>{{localize "CROWS.Sheet.Crow.inventory.looseCoin" amount=inventory.coin.loose slots=inventory.coin.looseSlots}}</span>
+      <span>{{localize "CROWS.Sheet.Crow.inventory.purseCoin" held=inventory.coin.purseHeld capacity=inventory.coin.purseCapacity}}</span>
+      <span>{{localize "CROWS.Sheet.Crow.inventory.totalCoin" amount=inventory.coin.totalHeld}}</span>
+      {{#if inventory.coin.overflow}}<span class="cc-inventory-warning">{{localize "CROWS.Sheet.Crow.inventory.coinOverflow" amount=inventory.coin.overflow}}</span>{{/if}}
+    </div>
+
+    {{#if inventory.unplaced.length}}
+      <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.inventory.unplaced"}}</div>
+      <div class="cc-inventory-warning">{{localize "CROWS.Sheet.Crow.inventory.unplacedHint"}}</div>
+      <div class="cc-equip-grid">
+        {{#each inventory.unplaced as |entry|}}
+          <div class="cc-slot filled">
+            <div class="cc-slot-header">{{entry.reasonLabel}}</div>
+            {{#if entry.card}}
+              <div class="cc-card" draggable="true" data-item-id="{{entry.card.id}}">
+                <div class="cc-card-hd" data-action="openItem" data-item-id="{{entry.card.id}}">
+                  <span class="cc-sigil"><img class="cc-sigil-img" src="{{entry.card.img}}" alt=""></span>
+                  <span class="cc-card-name">{{entry.card.name}}</span>
+                  <span class="cc-card-kw">{{entry.card.typeLabel}}</span>
+                </div>
+                <div class="cc-card-body">{{#each entry.card.summary.lines as |line|}}<div class="cc-card-line">{{line}}</div>{{/each}}</div>
+              </div>
+            {{/if}}
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
+
+    {{#if inventory.weightless.length}}
+      <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.inventory.weightless"}}</div>
+      <div class="cc-perks-list">
+        {{#each inventory.weightless as |card|}}
+          <div class="cc-perk" draggable="true" data-action="openItem" data-item-id="{{card.id}}">
+            <img class="cc-item-icon sm" src="{{card.img}}" alt=""><span class="cc-perk-name">{{card.name}}</span><span class="cc-perk-meta">{{card.typeLabel}}</span>
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
   </section>
 
-  {{!-- ADVANCEMENT TAB: XP, advancement-bonus tally, trait-tree purchase --}}
   <section class="cc-tab cc-advancement {{#if (eq activeTab 'advancement')}}active{{/if}}"
            role="tabpanel" id="panel-advancement" aria-labelledby="tab-advancement"
            {{#unless (eq activeTab 'advancement')}}hidden{{/unless}}>
     <div class="cc-adv-header">
-      <div class="cc-adv-stat"><span class="cc-adv-label">TXP</span><strong>{{system.xp.txp}}</strong></div>
-      <div class="cc-adv-stat"><span class="cc-adv-label">Spendable XP</span><strong>{{system.xp.spendable}}</strong></div>
-      <div class="cc-adv-stat"><span class="cc-adv-label">Next bonus at</span><strong>{{nextBonusAt}} TXP</strong></div>
-      <div class="cc-adv-stat"><span class="cc-adv-label">Skill/Stam bonuses</span><strong>{{bonusesEarned.skill}}</strong>{{#if bonusesAvailable.skill}}<span class="cc-adv-pending">{{bonusesAvailable.skill}} unspent</span>{{/if}}</div>
-      <div class="cc-adv-stat"><span class="cc-adv-label">Characteristic adv.</span><strong>{{bonusesEarned.char}}</strong>{{#if bonusesAvailable.char}}<span class="cc-adv-pending">{{bonusesAvailable.char}} unspent</span>{{/if}}</div>
-      {{#if bonusesAvailable.expertise}}<button type="button" data-action="spendExpertiseBonus" class="cc-adv-spend-btn">Spend expertise/Stamina</button>{{/if}}
-      {{#if bonusesAvailable.char}}<button type="button" data-action="spendCharBonus" class="cc-adv-spend-btn">Spend char.</button>{{/if}}
+      <div class="cc-adv-stat"><span class="cc-adv-label">{{localize "CROWS.Sheet.Crow.xp.total"}}</span><strong>{{system.xp.txp}}</strong></div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">{{localize "CROWS.Sheet.Crow.xp.spendable"}}</span><strong>{{system.xp.spendable}}</strong></div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">{{localize "CROWS.Sheet.Crow.advancement.nextExpertise"}}</span><strong>{{advancement.next.expertise}}</strong></div>
+      <div class="cc-adv-stat"><span class="cc-adv-label">{{localize "CROWS.Sheet.Crow.advancement.nextCharacteristic"}}</span><strong>{{advancement.next.char}}</strong></div>
+      <div class="cc-adv-stat">
+        <span class="cc-adv-label">{{localize "CROWS.Sheet.Crow.advancement.expertiseTrack"}}</span>
+        <strong>{{advancement.available.earned.expertise}}</strong>
+        {{#if advancement.available.expertise}}<span class="cc-adv-pending">{{localize "CROWS.Sheet.Crow.advancement.unspent" count=advancement.available.expertise}}</span>{{/if}}
+      </div>
+      <div class="cc-adv-stat">
+        <span class="cc-adv-label">{{localize "CROWS.Sheet.Crow.advancement.characteristicTrack"}}</span>
+        <strong>{{advancement.available.earned.char}}</strong>
+        {{#if advancement.available.char}}<span class="cc-adv-pending">{{localize "CROWS.Sheet.Crow.advancement.unspent" count=advancement.available.char}}</span>{{/if}}
+      </div>
+      <button type="button" data-action="spendExpertiseBonus" class="cc-adv-spend-btn"
+              {{#unless advancement.canSpendExpertise}}disabled{{/unless}} data-tooltip="{{advancement.expertiseDisabledReason}}">
+        {{localize "CROWS.Sheet.Crow.advancement.claimExpertise"}}
+      </button>
+      <button type="button" data-action="spendCharBonus" class="cc-adv-spend-btn"
+              {{#unless advancement.canSpendCharacteristic}}disabled{{/unless}} data-tooltip="{{advancement.characteristicDisabledReason}}">
+        {{localize "CROWS.Sheet.Crow.advancement.claimCharacteristic"}}
+      </button>
       {{#if isGM}}
-        <button type="button" data-action="grantXp" data-amount="100" class="cc-adv-grant">+100 XP</button>
-        <button type="button" data-action="grantXp" data-amount="500" class="cc-adv-grant">+500 XP</button>
-        <button type="button" data-action="grantXp" data-amount="1000" class="cc-adv-grant">+1000 XP</button>
+        <button type="button" data-action="grantXp" data-amount="100" class="cc-adv-grant">{{localize "CROWS.Sheet.Crow.advancement.grant" amount=100}}</button>
+        <button type="button" data-action="grantXp" data-amount="500" class="cc-adv-grant">{{localize "CROWS.Sheet.Crow.advancement.grant" amount=500}}</button>
+        <button type="button" data-action="grantXp" data-amount="1000" class="cc-adv-grant">{{localize "CROWS.Sheet.Crow.advancement.grant" amount=1000}}</button>
       {{/if}}
     </div>
 
     <div class="cc-tree-picker">
-      {{#each treeList as |t|}}
-        <button type="button" data-action="selectTree" data-tree="{{t}}" class="cc-tree-chip {{#if (eq t ../selectedTree)}}active{{/if}}">{{t}}</button>
+      {{#each treeList as |tree|}}
+        <button type="button" data-action="selectTree" data-tree="{{tree.key}}"
+                class="cc-tree-chip {{#if (eq tree.key ../selectedTree)}}active{{/if}}">{{tree.label}}</button>
       {{/each}}
     </div>
-
     {{#if treeGrid}}
       <div class="cc-trait-grid">
         {{#each treeGrid as |row|}}
           <div class="cc-trait-row">
             <div class="cc-tier-label">
-              <div class="ct-tier">Tier {{row.tier}}</div>
-              <div class="ct-cost">{{row.cost}} XP</div>
+              <div class="ct-tier">{{localize "CROWS.Sheet.Crow.tier" tier=row.tier}}</div>
+              <div class="ct-cost">{{localize "CROWS.Sheet.Crow.xp.amount" amount=row.cost}}</div>
             </div>
             {{#each row.cells as |cell|}}
               {{#if cell}}
-                <div class="cc-trait-cell {{#if cell.owned}}owned{{else if cell.buyable}}buyable{{else}}locked{{/if}}"
-                     {{#if cell.buyable}}data-action="buyTrait" data-trait-id="{{cell.id}}"{{/if}}
-                     title="{{cell.reason}}">
+                <div class="cc-trait-cell {{#if cell.owned}}owned{{else if cell.enabled}}buyable{{else}}locked{{/if}}"
+                     {{#if cell.enabled}}data-action="buyTrait" data-trait-id="{{cell.id}}"{{/if}} data-tooltip="{{cell.reason}}">
                   <div class="ct-name">{{cell.name}}</div>
                   <div class="ct-status">
-                    {{#if cell.owned}}<span class="ct-owned">✓ OWNED</span>
-                    {{else if cell.buyable}}<span class="ct-buy">Buy ({{cell.cost}} XP)</span>
-                    {{else}}<span class="ct-locked">🔒 locked</span>{{/if}}
+                    {{#if cell.owned}}<span class="ct-owned">{{localize "CROWS.Sheet.Crow.advancement.owned"}}</span>
+                    {{else if cell.enabled}}<span class="ct-buy">{{localize "CROWS.Sheet.Crow.advancement.buy" cost=cell.cost}}</span>
+                    {{else}}<span class="ct-locked">{{localize "CROWS.Sheet.Crow.advancement.locked"}}</span>{{/if}}
                   </div>
                 </div>
               {{else}}
@@ -334,152 +455,121 @@
         {{/each}}
       </div>
     {{else}}
-      <p class="cc-empty">Trait compendium not yet loaded.</p>
+      <p class="cc-empty">{{localize "CROWS.Sheet.Crow.advancement.noTraits"}}</p>
     {{/if}}
   </section>
 
-  {{!-- DOWNTIME TAB: Village + Crypt boons + Miasma + Crafting projects --}}
   <section class="cc-tab cc-downtime {{#if (eq activeTab 'downtime')}}active{{/if}}"
            role="tabpanel" id="panel-downtime" aria-labelledby="tab-downtime"
            {{#unless (eq activeTab 'downtime')}}hidden{{/unless}}>
-
-    {{!-- Village shell --}}
     {{#if village}}
       <div class="dt-panel dt-village">
         <header class="dt-panel-header">
-          <strong>Village — {{village.name}}</strong>
-          <span class="dt-village-stat" title="Prosperity (-10..+10)">Prosperity <strong>{{village.prosperity}}</strong></span>
-          <span class="dt-village-stat" title="Village cycle (10 days each)">Cycle <strong>{{village.cycle}}</strong></span>
-          <button type="button" data-action="openVillage" title="Manage village (institutions, prosperity, cycle, events)">Manage…</button>
+          <strong>{{localize "CROWS.Sheet.Crow.village.title" name=village.name}}</strong>
+          <span class="dt-village-stat">{{localize "CROWS.Sheet.Crow.village.prosperity" value=village.prosperity}}</span>
+          <span class="dt-village-stat">{{localize "CROWS.Sheet.Crow.village.cycle" value=village.cycle}}</span>
+          <button type="button" data-action="openVillage" data-tooltip="{{localize 'CROWS.Sheet.Crow.village.manageHint'}}">{{localize "CROWS.Sheet.Crow.manage"}}</button>
         </header>
       </div>
     {{/if}}
 
-    {{!-- Crypt --}}
     <div class="dt-panel dt-crypt">
       <header class="dt-panel-header">
-        <strong>Crypt</strong>
-        <span class="cc-crypt-label" title="Village Crypt institution level">L{{cryptLevel}}</span>
-        <button type="button" data-action="cryptPray"
-          {{#if alreadyPrayedThisCycle}}disabled title="Already prayed this cycle."
-          {{else}}title="Pray at a dead crow's grave to receive their boon (once per cycle)."{{/if}}>
-          Pray
+        <strong>{{localize "CROWS.Sheet.Crow.crypt.title"}}</strong>
+        <span class="cc-crypt-label">{{localize "CROWS.Sheet.Crow.levelShort" level=cryptLevel}}</span>
+        <button type="button" data-action="cryptPray" {{#if alreadyPrayedThisCycle}}disabled{{/if}}
+                data-tooltip="{{#if alreadyPrayedThisCycle}}{{localize 'CROWS.Sheet.Crow.crypt.prayed'}}{{else}}{{localize 'CROWS.Sheet.Crow.crypt.prayHint'}}{{/if}}">
+          {{localize "CROWS.Sheet.Crow.crypt.pray"}}
         </button>
-        {{#if activeBoonCard}}
-          <button type="button" data-action="cryptExpend" title="Expend the active boon (free action).">Expend</button>
-        {{/if}}
+        {{#if activeBoonCard}}<button type="button" data-action="cryptExpend">{{localize "CROWS.Sheet.Crow.crypt.expend"}}</button>{{/if}}
         {{#if isGM}}
-          <button type="button" data-action="cryptInter" title="Inter this crow in the Crypt (pick a boon).">Inter (GM)</button>
-          <button type="button" data-action="cryptBumpCycle" title="Advance the Village cycle (re-enables praying).">+Cycle (GM)</button>
+          <button type="button" data-action="cryptInter">{{localize "CROWS.Sheet.Crow.crypt.inter"}}</button>
+          <button type="button" data-action="cryptBumpCycle">{{localize "CROWS.Sheet.Crow.crypt.advanceCycle"}}</button>
         {{/if}}
       </header>
       {{#if activeBoonCard}}
-        <div class="cc-active-boon" title="Active Crypt boon">
+        <div class="cc-active-boon">
           <strong>{{activeBoonCard.label}}</strong>
-          {{#if activeBoonCard.source}}<span class="cb-src">via {{activeBoonCard.source}}</span>{{/if}}
-          {{#if (gte activeBoonCard.usesLeft 2)}}<span class="cb-uses">{{activeBoonCard.usesLeft}} uses</span>{{/if}}
+          {{#if activeBoonCard.source}}<span class="cb-src">{{localize "CROWS.Sheet.Crow.via" source=activeBoonCard.source}}</span>{{/if}}
+          {{#if (gte activeBoonCard.usesLeft 2)}}<span class="cb-uses">{{localize "CROWS.Sheet.Crow.uses" count=activeBoonCard.usesLeft}}</span>{{/if}}
           <div class="cb-summary">{{activeBoonCard.summary}}</div>
         </div>
       {{else}}
-        <p class="cc-empty">
-          <em>No active boon.</em> {{#if cryptInterments.length}}Press <strong>Pray</strong> to receive a boon from a dead crow (once per cycle).{{else}}Once a crow dies and is interred (GM uses <strong>Inter</strong>), you can pray at their grave.{{/if}}
-        </p>
+        <p class="cc-empty">{{#if cryptInterments.length}}{{localize "CROWS.Sheet.Crow.crypt.emptyWithGraves"}}{{else}}{{localize "CROWS.Sheet.Crow.crypt.empty"}}{{/if}}</p>
       {{/if}}
     </div>
 
-    {{!-- Miasma --}}
     <div class="dt-panel dt-miasma">
       <header class="dt-panel-header">
-        <strong>Miasma</strong>
+        <strong>{{localize "CROWS.Sheet.Crow.miasma.title"}}</strong>
         {{#if inMiasma}}
-          <span class="cc-miasma-badge in-miasma" title="The party is in the Miasma. Outdoor rests trigger a resist test.">In Miasma</span>
+          <span class="cc-miasma-badge in-miasma">{{localize "CROWS.Sheet.Crow.miasma.in"}}</span>
         {{else}}
-          <span class="cc-miasma-badge clear" title="The party is currently not in the Miasma.">No Miasma</span>
+          <span class="cc-miasma-badge clear">{{localize "CROWS.Sheet.Crow.miasma.out"}}</span>
         {{/if}}
-        {{#if isGM}}
-          <button type="button" data-action="toggleMiasma" title="Toggle the world-level Miasma flag (GM)">Toggle (GM)</button>
-        {{/if}}
-        <button type="button" data-action="rollMiasmaResist" title="Roll a 24h Miasma resist test (2d10 + M + Endurance)">Resist</button>
-        {{#if miasmaEffects.length}}
-          <button type="button" data-action="clearMiasmaSelf" title="Leave the Miasma — clears non-violence effects on this crow">Clear (leave)</button>
-        {{/if}}
-        {{#if miasmaPermanentNPC}}
-          <span class="cc-miasma-badge permanent-npc" title="13+ catastrophic result — this PC is now a Ref-controlled NPC.">PERMANENT NPC</span>
-        {{/if}}
+        {{#if isGM}}<button type="button" data-action="toggleMiasma">{{localize "CROWS.Sheet.Crow.miasma.toggle"}}</button>{{/if}}
+        <button type="button" data-action="rollMiasmaResist">{{localize "CROWS.Sheet.Crow.miasma.resist"}}</button>
+        {{#if miasmaEffects.length}}<button type="button" data-action="clearMiasmaSelf">{{localize "CROWS.Sheet.Crow.miasma.clear"}}</button>{{/if}}
+        {{#if miasmaPermanentNPC}}<span class="cc-miasma-badge permanent-npc">{{localize "CROWS.Sheet.Crow.miasma.permanentNpc"}}</span>{{/if}}
       </header>
       {{#if miasmaEffects.length}}
-        <ul class="cc-miasma-effects" title="Active Miasma effects on this crow">
-          {{#each miasmaEffects as |e|}}
-            <li><strong>{{e.label}}</strong> <span class="me-bucket">(d10+boned={{e.bucket}})</span> — {{e.text}}</li>
+        <ul class="cc-miasma-effects">
+          {{#each miasmaEffects as |effect|}}
+            <li><strong>{{effect.label}}</strong> <span class="me-bucket">{{localize "CROWS.Sheet.Crow.miasma.bucket" bucket=effect.bucket}}</span> — {{effect.text}}</li>
           {{/each}}
         </ul>
       {{else}}
-        <p class="cc-empty">
-          <em>No active Miasma effects.</em> {{#if inMiasma}}Press <strong>Resist</strong> after a 24h period outdoors (or just take a non-town rest — it auto-rolls).{{else}}Toggle In Miasma when entering an outdoor Cornath region.{{/if}}
-        </p>
+        <p class="cc-empty">{{#if inMiasma}}{{localize "CROWS.Sheet.Crow.miasma.emptyIn"}}{{else}}{{localize "CROWS.Sheet.Crow.miasma.emptyOut"}}{{/if}}</p>
       {{/if}}
     </div>
 
-    {{!-- Crafting --}}
     <div class="dt-panel dt-crafting">
       <header class="dt-panel-header">
-        <strong>Crafting Projects</strong>
-        <button type="button" data-action="craftStart" title="Start a new crafting project (skill prereq + materials + goal).">+ Start Project</button>
+        <strong>{{localize "CROWS.Sheet.Crow.crafting.title"}}</strong>
+        <button type="button" data-action="craftStart">{{localize "CROWS.Sheet.Crow.crafting.start"}}</button>
       </header>
       {{#if craftingProjects.length}}
         <ul class="cc-crafting-list">
-          {{#each craftingProjects as |p|}}
-            <li class="cc-crafting-item {{#if p.complete}}complete{{/if}}">
+          {{#each craftingProjects as |project|}}
+            <li class="cc-crafting-item {{#if project.complete}}complete{{/if}}">
               <div class="ci-head">
-                <strong>{{p.name}}</strong>
-                <span class="ci-meta">{{p.skill}}+{{p.prereqBonus}} · goal {{p.goal}}</span>
+                <strong>{{project.name}}</strong>
+                <span class="ci-meta">{{localize "CROWS.Sheet.Crow.crafting.meta" expertise=project.expertiseLabel required=project.prereqBonus goal=project.goal}}</span>
               </div>
-              <div class="ci-bar"><div class="ci-bar-fill" style="width: {{p.pct}}%"></div></div>
+              <div class="ci-bar"><div class="ci-bar-fill" style="width: {{project.pct}}%"></div></div>
               <div class="ci-row">
-                <span class="ci-pts">{{p.points}} / {{p.goal}} pts ({{p.pct}}%)</span>
-                {{#if p.materials.length}}<span class="ci-mat">materials: {{#each p.materials}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
-                <button type="button" data-action="craftRoll" data-project-id="{{p.id}}" {{#if p.complete}}disabled{{/if}} title="Make a crafting roll (2d10 + M + skill).">Roll</button>
-                {{#if p.complete}}<button type="button" data-action="craftComplete" data-project-id="{{p.id}}" title="Finalize the project — Ref grants the item.">Finalize</button>{{/if}}
-                <button type="button" data-action="craftCancel" data-project-id="{{p.id}}" title="Cancel project (no materials expended).">Cancel</button>
+                <span class="ci-pts">{{localize "CROWS.Sheet.Crow.crafting.points" points=project.points goal=project.goal pct=project.pct}}</span>
+                {{#if project.materials.length}}<span class="ci-mat">{{localize "CROWS.Sheet.Crow.crafting.materials"}}: {{#each project.materials}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
+                <button type="button" data-action="craftRoll" data-project-id="{{project.id}}" {{#if project.complete}}disabled{{/if}}>{{localize "CROWS.Sheet.Crow.crafting.roll"}}</button>
+                {{#if project.complete}}<button type="button" data-action="craftComplete" data-project-id="{{project.id}}">{{localize "CROWS.Sheet.Crow.crafting.finalize"}}</button>{{/if}}
+                <button type="button" data-action="craftCancel" data-project-id="{{project.id}}">{{localize "CROWS.Sheet.Crow.crafting.cancel"}}</button>
               </div>
-              {{#if p.notes}}<div class="ci-notes">{{p.notes}}</div>{{/if}}
+              {{#if project.notes}}<div class="ci-notes">{{project.notes}}</div>{{/if}}
             </li>
           {{/each}}
         </ul>
       {{else}}
-        <p class="cc-empty">
-          No active projects. Press <strong>+ Start Project</strong> to define one (skill prereq + materials + goal). When you take a rest with the <strong>Craft Equipment</strong> activity, the rest dialog will let you advance the chosen project.
-        </p>
+        <p class="cc-empty">{{localize "CROWS.Sheet.Crow.crafting.empty"}}</p>
       {{/if}}
     </div>
-
   </section>
 
-  {{!-- BIO TAB --}}
   <section class="cc-tab cc-bio {{#if (eq activeTab 'bio')}}active{{/if}}"
            role="tabpanel" id="panel-bio" aria-labelledby="tab-bio"
            {{#unless (eq activeTab 'bio')}}hidden{{/unless}}>
     <div class="cc-creator-launch">
-      <button type="button" data-action="openCreator" class="cc-creator-btn" title="Walk through the character creator: roll/pick background, assign characteristics, name + feature.">
-        <i class="fas fa-feather-pointed" aria-hidden="true"></i> Open Character Creator
+      <button type="button" data-action="openCreator" class="cc-creator-btn" data-tooltip="{{localize 'CROWS.Sheet.Crow.creator.hint'}}">
+        <i class="fas fa-feather-pointed" aria-hidden="true"></i> {{localize "CROWS.Sheet.Crow.creator.open"}}
       </button>
-      <span class="cc-creator-hint"><em>For a fresh crow: rolls a background, applies skills/stamina/equipment/starting trait, and adds universal starter items.</em></span>
+      <span class="cc-creator-hint"><em>{{localize "CROWS.Sheet.Crow.creator.summary"}}</em></span>
     </div>
-    <div class="cc-field">
-      <label>Background</label>
-      <input type="text" name="system.background" value="{{system.background}}">
-    </div>
-    <div class="cc-field">
-      <label>Feature</label>
-      <textarea name="system.details.feature" rows="8">{{system.details.feature}}</textarea>
-    </div>
-    <div class="cc-field">
-      <label>Crypt Boon</label>
-      <input type="text" name="system.cryptBoon" value="{{system.cryptBoon}}">
-    </div>
-    <div class="cc-field">
-      <label>Currency (gc)</label>
-      <input type="number" name="system.currency" value="{{system.currency}}">
-    </div>
+    <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.background"}}</label><input type="text" name="system.background" value="{{system.background}}"></div>
+    <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.feature"}}</label><textarea name="system.details.feature" rows="6">{{system.details.feature}}</textarea></div>
+    <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.cryptBoon"}}</label><input type="text" name="system.cryptBoon" value="{{system.cryptBoon}}"></div>
+    <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.currency"}}</label><input type="number" name="system.currency" value="{{system.currency}}"></div>
+    <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.npcConnection.title"}}</div>
+    <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.npcConnection.name"}}</label><input type="text" name="system.npcConnection.name" value="{{system.npcConnection.name}}"></div>
+    <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.npcConnection.relationship"}}</label><input type="text" name="system.npcConnection.relationship" value="{{system.npcConnection.relationship}}"></div>
+    <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.npcConnection.notes"}}</label><textarea name="system.npcConnection.notes" rows="4">{{system.npcConnection.notes}}</textarea></div>
   </section>
 </div>
