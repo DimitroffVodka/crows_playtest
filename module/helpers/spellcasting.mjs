@@ -165,10 +165,120 @@ export function castingExpertiseAllows(result, key) {
  *
  * @param {object} spellbookSystem
  * @returns {{summons: boolean, actsAsPet: boolean, requiresCommandTest: boolean}}
+ * A summoned OBJECT is not a pet. R:1467 makes "Summoned" cover "a creature or
+ * object", and R:1553's pet behaviour is about creatures only — so `actsAsPet`
+ * keys on the target's kind, not on the fact of the summon. An earlier version
+ * returned `actsAsPet: summons`, which would have handed pet mechanics to a
+ * conjured rock.
+ *
+ * @param {object} spellbookSystem
+ * @returns {{summons: boolean, actsAsPet: boolean, requiresCommandTest: boolean}}
  */
 export function summonBehaviour(spellbookSystem = {}) {
-  const summons = /summoned/i.test(spellbookSystem?.target ?? "");
-  return { summons, actsAsPet: summons, requiresCommandTest: false };
+  const target = normalizeTarget(spellbookSystem?.target);
+  const summons = !!target.summoned;
+  return {
+    summons,
+    actsAsPet: summons && target.kind === "creature",
+    requiresCommandTest: false
+  };
+}
+
+/**
+ * The target-entry vocabulary of R:1461–R:1521.
+ *
+ * `""` is R:1521's "No Target Entry". `other` is the escape hatch, and it earns
+ * its place: the shipped spellbooks target "1 corpse", "1 square", "1 space"
+ * and "1 vessel or area", none of which are in the rules' vocabulary. A strict
+ * enum would reject real content, and guessing a kind for them would be worse
+ * than admitting the parse failed.
+ */
+export const TARGET_KINDS = Object.freeze(
+  ["", "self", "creature", "object", "target", "ally", "enemy", "other"]);
+
+/**
+ * Parse a printed target line into structure, keeping the line verbatim.
+ *
+ * WHY THIS IS STRUCTURED AND NOT A REGEX AT THE CALL SITE.
+ * `summonBehaviour` used to answer "is this a summon?" with `/summoned/i`
+ * against this free text. Across the 25 shipped spellbooks that matches
+ * ZERO of them — including the one named "Summon Object", whose target line
+ * reads "Self". A detector that silently returns false for every document in
+ * the corpus is the same class of bug as a spend gate that lets the wrong
+ * expertise through: nothing fails, the answer is just always wrong.
+ *
+ * The parser stays deliberately literal. It will NOT infer a summon from
+ * description prose — that is how "1 corpse" becomes a guess. What it cannot
+ * classify it marks `other` and flags for review (`targetNeedsReview`).
+ *
+ * @param {string} text
+ * @returns {{count: number, all: boolean, kind: string, summoned: boolean, text: string}}
+ */
+export function parseTarget(text) {
+  const raw = String(text ?? "").trim();
+  const out = { count: 1, all: false, kind: "creature", summoned: false, text: raw };
+  if (!raw) return { ...out, count: 0, kind: "" };
+
+  const lower = raw.toLowerCase();
+
+  // R:1467 — "All" stands in place of the number.
+  if (/^all\b/.test(lower)) { out.all = true; out.count = 0; }
+  else {
+    const n = lower.match(/^(\d+)/);
+    if (n) out.count = Number(n[1]);
+  }
+
+  // R:1467 — Summoned. Orthogonal to the kind: a summon is still a creature
+  // or an object, and R:1553 only makes the creature case a pet.
+  if (/\bsummon(ed)?\b/.test(lower)) out.summoned = true;
+
+  if (/^self\b/.test(lower)) { out.kind = "self"; out.count = 0; }
+  else if (/\bcreatures?\b/.test(lower)) out.kind = "creature";
+  else if (/\bobj(ect)?s?\b\.?|\bobj\./.test(lower)) out.kind = "object";
+  else if (/\btargets?\b/.test(lower)) out.kind = "target";
+  else if (/\ball(y|ies)\b/.test(lower)) out.kind = "ally";
+  else if (/\benem(y|ies)\b/.test(lower)) out.kind = "enemy";
+  else out.kind = "other";
+
+  return out;
+}
+
+/** Accept either the structured target or a legacy free-text one. */
+function normalizeTarget(target) {
+  if (target && typeof target === "object") return target;
+  return parseTarget(target);
+}
+
+/**
+ * Does this spell's target line need a human before it can be trusted?
+ *
+ * Modelled on `MonsterData.suspectMissingSlots` (CONTRACT §3): a parse that
+ * could not classify its input REPORTS that, so Wave 3 can list the documents
+ * rather than discover them one bug at a time. Two cases:
+ *   - the kind came out `other` — a noun outside R:1467's vocabulary;
+ *   - the spell reads like it places a creature or object in the world, but
+ *     its target line never said "Summoned".
+ *
+ * DELIBERATELY OVER-INCLUSIVE. "create" is in the pattern even though plenty of
+ * spells create a non-summon effect (Cacophony creates a noise, Minor Phantasm
+ * an image), because the alternative is what this flag exists to prevent: the
+ * shipped "Summon Object" targets "Self" and its description says *create*, not
+ * summon, so a tighter pattern misses the one document that most obviously
+ * needs a human. A false positive here costs someone a glance; a false negative
+ * ships a summon nothing detects.
+ *
+ * @param {object} spellbookSystem
+ * @param {object} [opts]
+ * @param {string} [opts.name]  The item name — "Summon Object" says it there
+ *                              and nowhere else.
+ * @returns {boolean}
+ */
+export function targetNeedsReview(spellbookSystem = {}, { name = "" } = {}) {
+  const target = normalizeTarget(spellbookSystem?.target);
+  if (target.summoned) return false;              // already stated properly
+  if (target.kind === "other") return true;
+  const prose = `${name} ${spellbookSystem?.description ?? ""}`;
+  return /\b(summons?|summoned|summoning|conjures?|creates?)\b/i.test(prose);
 }
 
 /**
@@ -208,6 +318,10 @@ export function migrateSpellbookSystem(source) {
   // duration: free string -> {kind, count}. PT1 content stores "instant",
   // "1 UD", "DT", "until the end of the DT".
   if (typeof source.duration === "string") source.duration = parseDuration(source.duration);
+
+  // target: free string -> {count, all, kind, summoned, text}. The printed line
+  // survives in `text`, so a parse this migration got wrong is recoverable.
+  if (typeof source.target === "string") source.target = parseTarget(source.target);
 
   return source;
 }

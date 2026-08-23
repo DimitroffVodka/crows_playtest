@@ -2,7 +2,8 @@ const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
 import { CROWS } from "../../config.mjs";
 import { physicalItemFields, usageDieFields } from "../../helpers/schema.mjs";
-import { migrateSpellbookSystem, summonBehaviour } from "../../helpers/spellcasting.mjs";
+import { migrateSpellbookSystem, summonBehaviour, targetNeedsReview, TARGET_KINDS }
+  from "../../helpers/spellcasting.mjs";
 
 /**
  * The four casting times printed at R:1449–R:1457.
@@ -41,9 +42,18 @@ export class SpellbookData extends TypeDataModel {
       // creature or object." Orthogonal to casting time.
       isAttack: new fields.BooleanField({ initial: false }),
 
-      // R:1471 — free text; the printed target lines mix counts, kinds and
-      // "Summoned", and every parse of them so far has been lossy.
-      target: new fields.StringField({ initial: "1 creature" }),
+      // R:1461–R:1471. Structured, because the one thing this line has to
+      // answer reliably — is this a summon (R:1467/R:1553)? — cannot be
+      // answered by matching text against it: not one of the 25 shipped
+      // spellbooks says "Summoned", including "Summon Object". `text` keeps
+      // the printed line verbatim so a bad parse is recoverable.
+      target: new fields.SchemaField({
+        count: new fields.NumberField({ initial: 1, min: 0, integer: true }),
+        all: new fields.BooleanField({ initial: false }),          // R:1467 "All"
+        kind: new fields.StringField({ initial: "creature", choices: TARGET_KINDS }),
+        summoned: new fields.BooleanField({ initial: false }),     // R:1467 "Summoned"
+        text: new fields.StringField({ blank: true, initial: "" })
+      }),
 
       // R:1475 — range in squares.
       range: new fields.SchemaField({
@@ -89,10 +99,18 @@ export class SpellbookData extends TypeDataModel {
   }
 
   prepareDerivedData() {
-    // R:1553 — summoned creatures act as pets but need no command test.
+    // R:1553 — summoned CREATURES act as pets but need no command test. A
+    // summoned object is neither.
     const summon = summonBehaviour(this);
     this.summons = summon.summons;
+    this.actsAsPet = summon.actsAsPet;
     this.requiresCommandTest = summon.requiresCommandTest;
+
+    // Reporting only, on the `suspectMissingSlots` pattern (CONTRACT §3): the
+    // target line could not be classified, or the spell talks about summoning
+    // while its target line does not. Wave 3 lists these; nothing adjudicates
+    // from it.
+    this.targetNeedsReview = targetNeedsReview(this, { name: this.parent?.name ?? "" });
 
     // For sheets and chat cards, so nobody re-derives the printed form.
     this.durationLabel = this.duration.kind === "ud"

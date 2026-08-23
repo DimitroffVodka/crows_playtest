@@ -129,6 +129,57 @@ Row `03-04`'s *"makes you feels so good"* is likewise as printed.
 
 ---
 
+## Content impact
+
+### R7 — R:1467's "Summoned" target keyword appears in no shipped spellbook
+
+`R:1467` makes **Summoned** one of the target-entry keywords: *"This spell
+summons a creature or object within range… If the summoned target is an object
+and you have enough hand or belt slots free to hold the object, you can summon
+the object into those slots."* `R:1553` then gives summoned **creatures** their
+behaviour — they act as pets, but need no test to command.
+
+**Across all 25 spellbooks in `src/packs/crows-spellbooks`, not one target line
+contains the word.** The distinct lines are:
+
+| Target line | Count | Parses as |
+|---|---:|---|
+| `1 creature` | 10 | creature |
+| `Self` | 5 | self |
+| `1 obj.` | 3 | object |
+| `1 object` | 1 | object |
+| `2 targets` | 1 | target |
+| `All creatures` | 1 | creature, `all` |
+| `1 corpse` | 1 | **other** |
+| `1 square` | 1 | **other** |
+| `1 space` | 1 | **other** |
+| `1 vessel or area` | 1 | **other** |
+
+The clearest case is **Summon Object** (conjuration, rank 0), whose target line
+reads `Self` and whose description says *"You create a mundane object that
+appears in any open slot in your inventory"* — R:1467's summon-into-slots
+clause, almost word for word, with neither "Summoned" nor even "summon" in the
+text the system could read.
+
+**Why it mattered.** `summonBehaviour()` originally answered "is this a summon?"
+by matching `/summoned/i` against the free-text target line. That returned
+**false for all 25 documents**, so the summon path never fired once and nothing
+failed — the same shape of bug as a spend gate that admits the wrong expertise.
+
+**Fixed:** `target` is now a structured field
+(`{count, all, kind, summoned, text}`) with the printed line preserved in
+`text`. `summoned` is orthogonal to `kind`, because R:1467 covers a creature
+*or* an object and only the creature case is a pet — `actsAsPet` previously
+followed `summons`, which would have handed pet mechanics to a conjured rock.
+
+**Wave 3 action:** transcribe PT2 target lines using R:1467's vocabulary. Any
+spell the parser cannot classify sets the derived `targetNeedsReview` flag,
+which currently catches 5 of the 25: Summon Object, Cacophony, Create Water,
+Deadspeech and Minor Phantasm. The flag is deliberately over-inclusive —
+a false positive costs a glance, a false negative ships a summon nothing sees.
+
+---
+
 ## Related — logged elsewhere, not repeated here
 
 Both of these are Characters Book issues affecting the same six Discipline
@@ -154,6 +205,7 @@ Mastery traits, and are recorded in
 | R4 | MEDIUM | ~20 | words run together by OCR | formatting only |
 | R5 | MEDIUM | `57-58` | stray `A` bold marker | yes — dropped |
 | R6 | LOW | 2 rows | canonical typos | no — preserved |
+| R7 | HIGH | content | R:1467's "Summoned" in 0 of 25 spellbooks | **yes** — `target` modelled structurally |
 
 R1 and R2 are worth reporting to MCDM: R1 makes the table unusable as printed
 without a house ruling, and R2 names a characteristic the game does not have.

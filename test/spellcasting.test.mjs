@@ -15,7 +15,8 @@ import {
 import {
   planCastingOutcome, applyChaosRoll, summonBehaviour, migrateSpellbookSystem,
   parseDuration, resolveCastContext, _parkCast, _clearPendingCasts,
-  matchingExpertiseFor, castingExpertiseAllows
+  matchingExpertiseFor, castingExpertiseAllows,
+  parseTarget, targetNeedsReview, TARGET_KINDS
 } from "../module/helpers/spellcasting.mjs";
 import { CROWS } from "../module/config.mjs";
 
@@ -404,14 +405,147 @@ describe("casting expertise must match the spell's discipline (R:1451)", () => {
 /* ========================================================================== */
 
 describe("summoned creatures (R:1553)", () => {
-  test("a Summoned target acts as a pet and never needs a command test", () => {
-    const s = summonBehaviour({ target: "1 Summoned creature" });
+  test("a summoned CREATURE acts as a pet and never needs a command test", () => {
+    const s = summonBehaviour({ target: parseTarget("1 Summoned creature") });
     assert.deepEqual(s, { summons: true, actsAsPet: true, requiresCommandTest: false });
   });
 
+  test("a summoned OBJECT is a summon but is NOT a pet", () => {
+    // R:1467 covers "a creature or object"; R:1553's pet behaviour is about
+    // creatures. Keying actsAsPet off `summons` alone hands pet mechanics to
+    // a conjured rock.
+    const s = summonBehaviour({ target: parseTarget("1 Summoned object") });
+    assert.equal(s.summons, true);
+    assert.equal(s.actsAsPet, false);
+  });
+
   test("an ordinary spell summons nothing", () => {
-    assert.equal(summonBehaviour({ target: "1 creature" }).summons, false);
+    assert.equal(summonBehaviour({ target: parseTarget("1 creature") }).summons, false);
     assert.equal(summonBehaviour({}).summons, false);
+  });
+
+  test("a legacy free-text target still resolves", () => {
+    assert.equal(summonBehaviour({ target: "1 Summoned creature" }).actsAsPet, true);
+  });
+});
+
+describe("target lines are modelled, not pattern-matched (R:1461-1521)", () => {
+  test("count, kind and the verbatim line all survive", () => {
+    assert.deepEqual(parseTarget("1 creature"),
+      { count: 1, all: false, kind: "creature", summoned: false, text: "1 creature" });
+    assert.deepEqual(parseTarget("2 targets"),
+      { count: 2, all: false, kind: "target", summoned: false, text: "2 targets" });
+  });
+
+  test("'All' stands in place of the number (R:1467)", () => {
+    const t = parseTarget("All creatures");
+    assert.equal(t.all, true);
+    assert.equal(t.count, 0);
+    assert.equal(t.kind, "creature");
+  });
+
+  test("Self takes no discrete targets", () => {
+    const t = parseTarget("Self");
+    assert.equal(t.kind, "self");
+    assert.equal(t.count, 0);
+  });
+
+  test("the abbreviation the content actually uses parses as an object", () => {
+    assert.equal(parseTarget("1 obj.").kind, "object");
+    assert.equal(parseTarget("1 object").kind, "object");
+  });
+
+  test("no target entry at all is its own kind (R:1521)", () => {
+    assert.equal(parseTarget("").kind, "");
+    assert.equal(parseTarget(undefined).count, 0);
+  });
+
+  test("every kind it can produce is a legal schema choice", () => {
+    const lines = ["1 creature", "Self", "1 obj.", "2 targets", "All creatures",
+                   "1 corpse", "", "1 ally", "1 enemy", "1 Summoned creature"];
+    for (const line of lines) {
+      assert.ok(TARGET_KINDS.includes(parseTarget(line).kind), `${line} -> ${parseTarget(line).kind}`);
+    }
+  });
+
+  test("a noun outside the rules' vocabulary is 'other', never a guess", () => {
+    for (const line of ["1 corpse", "1 square", "1 space", "1 vessel or area"]) {
+      const t = parseTarget(line);
+      assert.equal(t.kind, "other", line);
+      assert.equal(t.text, line, "the printed line must survive the parse");
+    }
+  });
+});
+
+describe("unparseable targets REPORT rather than resolve silently", () => {
+  test("an 'other' kind is flagged for review", () => {
+    assert.equal(targetNeedsReview({ target: parseTarget("1 corpse") }), true);
+  });
+
+  test("the shipped Summon Object — the case that started this — IS flagged", () => {
+    // Verbatim from src/packs/crows-spellbooks/summon-object.yaml. Its target
+    // line says "Self" and its description says "create", so neither the old
+    // /summoned/i detector nor a tight prose pattern sees it. It is R:1467's
+    // summon-into-slots clause and it must not pass silently.
+    assert.equal(targetNeedsReview({
+      target: parseTarget("Self"),
+      description: "<p>You create a mundane object that appears in any open slot in your inventory of your choice and lasts for the duration.</p>"
+    }, { name: "Summon Object" }), true);
+  });
+
+  test("the name alone is enough to flag it", () => {
+    assert.equal(targetNeedsReview({ target: parseTarget("Self"), description: "<p>Nothing to see.</p>" },
+      { name: "Summon Object" }), true);
+  });
+
+  test("a clean, classified target needs no review", () => {
+    assert.equal(targetNeedsReview({
+      target: parseTarget("1 creature"),
+      description: "<p>You hurl a bolt of fire.</p>"
+    }, { name: "Firebolt" }), false);
+  });
+
+  test("a properly-marked summon is not flagged", () => {
+    assert.equal(targetNeedsReview({
+      target: parseTarget("1 Summoned creature"),
+      description: "<p>You summon a wolf.</p>"
+    }), false);
+  });
+});
+
+describe("the shipped corpus — a detector that matches nothing is the bug", () => {
+  // Every distinct target line across the 25 spellbooks in
+  // src/packs/crows-spellbooks, with its count. Inlined rather than read from
+  // disk so the test stays a pure unit test and still fails loudly if Wave 3
+  // introduces a line shape the parser cannot classify.
+  const SHIPPED = [
+    ["1 creature", 10], ["Self", 5], ["1 obj.", 3], ["1 square", 1],
+    ["1 vessel or area", 1], ["1 corpse", 1], ["1 space", 1], ["2 targets", 1],
+    ["All creatures", 1], ["1 object", 1]
+  ];
+
+  test("the fixture is the whole corpus", () => {
+    assert.equal(SHIPPED.reduce((n, [, c]) => n + c, 0), 25);
+  });
+
+  test("every shipped target line parses to a legal kind", () => {
+    for (const [line] of SHIPPED) {
+      assert.ok(TARGET_KINDS.includes(parseTarget(line).kind), line);
+    }
+  });
+
+  test("NOT ONE shipped target line says 'Summoned' — why the regex had to go", () => {
+    // This is the finding: `/summoned/i` against the free-text target line
+    // returned false for all 25 documents, including "Summon Object". The
+    // detector never fired once, and nothing failed.
+    for (const [line] of SHIPPED) {
+      assert.equal(parseTarget(line).summoned, false, line);
+    }
+  });
+
+  test("the four unclassifiable lines are exactly the ones flagged for review", () => {
+    const flagged = SHIPPED.filter(([line]) => parseTarget(line).kind === "other").map(([l]) => l);
+    assert.deepEqual(flagged.sort(), ["1 corpse", "1 space", "1 square", "1 vessel or area"]);
   });
 });
 
