@@ -1,8 +1,9 @@
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
-import { CROWS } from "../config.mjs";
+import { ALL_EXPERTISES, CROWS } from "../config.mjs";
 import { rollTest } from "../helpers/roll.mjs";
 import { applyDamage, applyHealing } from "../helpers/damage.mjs";
+import { adjustXRestUse, monsterViewData, toggleMonsterWound } from "../helpers/monster-view.mjs";
 
 export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -17,7 +18,13 @@ export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       deleteTrait:     MonsterSheet._onDeleteTrait,
       damageSelf:      MonsterSheet._onDamageSelf,
       healSelf:        MonsterSheet._onHealSelf,
-      toggleCondition: MonsterSheet._onToggleCondition
+      toggleCondition: MonsterSheet._onToggleCondition,
+      addXRest:        MonsterSheet._onAddXRest,
+      deleteXRest:     MonsterSheet._onDeleteXRest,
+      adjustXRest:     MonsterSheet._onAdjustXRest,
+      addExpertise:    MonsterSheet._onAddExpertise,
+      deleteExpertise: MonsterSheet._onDeleteExpertise,
+      toggleWound:     MonsterSheet._onToggleWound
     },
     window: { resizable: true },
     form: { submitOnChange: true }
@@ -31,6 +38,13 @@ export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.actor = this.document;
     ctx.CROWS = CROWS;
     ctx.isGM = !!game.user?.isGM;
+    ctx.isOwner = this.document.isOwner === true;
+
+    Object.assign(ctx, monsterViewData(sys, {
+      expertiseKeys: ALL_EXPERTISES,
+      conditionKeys: CROWS.conditions,
+      localize: (key) => game.i18n?.localize?.(key) ?? key
+    }));
 
     // Speed display: base + named modes (e.g. "6, climb 4, fly 6")
     const modes = (sys.speed?.modes ?? []).filter(m => m?.name && m?.value);
@@ -167,9 +181,65 @@ export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async _onToggleCondition(event, target) {
+    if (this.document.isOwner !== true) return;
     const cond = target.dataset.condition;
     if (!cond) return;
     const cur = !!(this.document.system.conditions?.[cond]);
     await this.document.update({ [`system.conditions.${cond}`]: !cur });
+  }
+
+  static async _onAddXRest() {
+    if (!game.user.isGM) { ui.notifications?.warn("GM only."); return; }
+    const features = [...(this.document.system.xRest ?? [])];
+    features.push({ name: "New Feature", max: 1, used: 0 });
+    await this.document.update({ "system.xRest": features });
+  }
+
+  static async _onDeleteXRest(event, target) {
+    if (!game.user.isGM) { ui.notifications?.warn("GM only."); return; }
+    const index = Number(target.dataset.index);
+    const features = [...(this.document.system.xRest ?? [])];
+    if (!Number.isInteger(index) || index < 0 || index >= features.length) return;
+    features.splice(index, 1);
+    await this.document.update({ "system.xRest": features });
+  }
+
+  static async _onAdjustXRest(event, target) {
+    if (this.document.isOwner !== true) return;
+    const features = adjustXRestUse(
+      this.document.system.xRest,
+      target.dataset.index,
+      target.dataset.delta
+    );
+    await this.document.update({ "system.xRest": features });
+  }
+
+  static async _onAddExpertise() {
+    if (!game.user.isGM) { ui.notifications?.warn("GM only."); return; }
+    const expertises = [...(this.document.system.expertises ?? [])];
+    const owned = new Set(expertises.map((entry) => entry?.key));
+    const key = ALL_EXPERTISES.find((candidate) => !owned.has(candidate));
+    if (!key) { ui.notifications?.warn("This creature already has every expertise."); return; }
+    expertises.push({ key, value: 1, max: 1 });
+    await this.document.update({ "system.expertises": expertises });
+  }
+
+  static async _onDeleteExpertise(event, target) {
+    if (!game.user.isGM) { ui.notifications?.warn("GM only."); return; }
+    const index = Number(target.dataset.index);
+    const expertises = [...(this.document.system.expertises ?? [])];
+    if (!Number.isInteger(index) || index < 0 || index >= expertises.length) return;
+    expertises.splice(index, 1);
+    await this.document.update({ "system.expertises": expertises });
+  }
+
+  static async _onToggleWound(event, target) {
+    if (this.document.isOwner !== true) return;
+    const woundSlots = toggleMonsterWound(
+      this.document.system.woundSlots,
+      target.dataset.index,
+      this.document.system.slots
+    );
+    await this.document.update({ "system.woundSlots": woundSlots });
   }
 }

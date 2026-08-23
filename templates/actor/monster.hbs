@@ -25,7 +25,10 @@
         <td><strong>Size:</strong> <select name="system.size">
           {{#each CROWS.sizes as |s|}}<option value="{{s}}" {{#if (eq s ../system.size)}}selected{{/if}}>{{s}}</option>{{/each}}
         </select></td>
-        <td><strong>Power:</strong> <input type="number" name="system.power" value="{{system.power}}" min="0" max="50"></td>
+        <td class="m-power-cell">
+          <strong>Power:</strong> <input type="number" name="system.power" value="{{system.power}}" min="0">
+          <strong>Reactions:</strong> <input type="number" name="system.reactions" value="{{system.reactions}}" min="0" class="m-cur">
+        </td>
         <td><strong>Type:</strong> <select name="system.creatureType">
           {{#each CROWS.creatureTypes as |t|}}<option value="{{t}}" {{#if (eq t ../system.creatureType)}}selected{{/if}}>{{t}}</option>{{/each}}
         </select></td>
@@ -47,6 +50,12 @@
     </tbody>
   </table>
 
+  {{#if system.suspectMissingSlots}}
+    <div class="m-warning" role="status">
+      {{system.creatureType}} creatures should have backpack slots (F:698); this stat block has 0.
+    </div>
+  {{/if}}
+
   {{!-- ─────────────────────── Quick combat controls ─────────────────────── --}}
   <div class="m-combat-row">
     <button type="button" data-action="damageSelf" class="m-btn-dmg" title="Apply damage to this monster (with optional piercing)" aria-label="Apply damage">
@@ -56,20 +65,104 @@
       <i class="fas fa-heart" aria-hidden="true"></i> Heal
     </button>
     <div class="m-cond-toggles" role="group" aria-label="Conditions">
-      <button type="button" data-action="toggleCondition" data-condition="prone"
-              class="m-cond-btn {{#if system.conditions.prone}}on{{/if}}"
-              aria-pressed="{{#if system.conditions.prone}}true{{else}}false{{/if}}"
-              title="Toggle prone (-1 melee atk, +1 melee vs)">Prone</button>
-      <button type="button" data-action="toggleCondition" data-condition="grabbed"
-              class="m-cond-btn {{#if system.conditions.grabbed}}on{{/if}}"
-              aria-pressed="{{#if system.conditions.grabbed}}true{{else}}false{{/if}}"
-              title="Toggle grabbed (speed 0)">Grabbed</button>
-      <button type="button" data-action="toggleCondition" data-condition="unconscious"
-              class="m-cond-btn {{#if system.conditions.unconscious}}on{{/if}}"
-              aria-pressed="{{#if system.conditions.unconscious}}true{{else}}false{{/if}}"
-              title="Toggle unconscious (auto-tier-3 against)">Unconscious</button>
+      {{#each conditions as |condition|}}
+        <button type="button" data-action="toggleCondition" data-condition="{{condition.key}}"
+                class="m-cond-btn {{#if condition.active}}on{{/if}}"
+                aria-pressed="{{#if condition.active}}true{{else}}false{{/if}}"
+                title="{{condition.hint}}">{{condition.label}}</button>
+      {{/each}}
     </div>
   </div>
+
+  {{!-- ─────────────────────── Slots ─────────────────────── --}}
+  {{#if hasSlots}}
+    <section class="m-slots-panel">
+      <header class="m-section-header">
+        <span>Backpack Slots</span>
+        <span class="m-section-meta">{{slotCount}} slots &middot; {{system.wounds}} wounds</span>
+      </header>
+      {{#if orphanedWoundCount}}
+        <div class="m-warning" role="status">{{orphanedWoundCount}} wound(s) are beyond the current slot capacity and remain preserved.</div>
+      {{/if}}
+      <div class="m-slot-grid">
+        {{#each slotCells as |slot|}}
+          <button type="button" data-action="toggleWound" data-index="{{slot.index}}"
+                  class="m-slot-cell {{#if slot.wounded}}wound{{/if}}"
+                  aria-pressed="{{#if slot.wounded}}true{{else}}false{{/if}}"
+                  title="Toggle wound in {{slot.label}}">
+            <span class="m-slot-label">{{slot.label}}</span>
+            <span class="m-slot-state">{{#if slot.wounded}}Wound{{else}}Empty{{/if}}</span>
+          </button>
+        {{/each}}
+      </div>
+    </section>
+  {{/if}}
+
+  {{!-- ─────────────────────── X/Rest features ─────────────────────── --}}
+  <section class="m-xrest">
+    <header class="m-section-header">
+      <span>X/Rest</span>
+      {{#if isGM}}<button type="button" data-action="addXRest" class="m-add-btn" title="Add an X/Rest feature">+ Add</button>{{/if}}
+    </header>
+    <div class="m-xrest-list">
+      {{#each xRestFeatures as |feature|}}
+        <div class="m-xrest-row {{#if feature.overused}}overused{{/if}}">
+          {{#if ../isGM}}
+            <input type="text" name="system.xRest.{{feature.index}}.name" value="{{feature.name}}" class="m-xrest-name" aria-label="Feature name">
+            <label class="m-inline-field">Max <input type="number" name="system.xRest.{{feature.index}}.max" value="{{feature.max}}" min="0"></label>
+          {{else}}
+            <strong class="m-xrest-name-readonly">{{feature.name}}</strong>
+            <span class="m-xrest-max">Max {{feature.max}}</span>
+          {{/if}}
+          <div class="m-use-tracker" aria-label="{{feature.used}} of {{feature.max}} uses spent">
+            <button type="button" data-action="adjustXRest" data-index="{{feature.index}}" data-delta="-1"
+                    {{#unless feature.canRefund}}disabled{{/unless}} title="Refund one use" aria-label="Refund one use">&minus;</button>
+            <span><strong>{{feature.remaining}}</strong> remaining</span>
+            <button type="button" data-action="adjustXRest" data-index="{{feature.index}}" data-delta="1"
+                    {{#unless feature.canSpend}}disabled{{/unless}} title="Spend one use" aria-label="Spend one use">+</button>
+          </div>
+          {{#if feature.overused}}<span class="m-overused" role="status">{{feature.overused}} over max</span>{{/if}}
+          {{#if ../isGM}}
+            <button type="button" data-action="deleteXRest" data-index="{{feature.index}}" class="m-del-btn"
+                    aria-label="Delete X/Rest feature {{feature.name}}" title="Delete feature"><i class="fas fa-times" aria-hidden="true"></i></button>
+          {{/if}}
+        </div>
+      {{else}}
+        <div class="m-empty">No X/Rest features. {{#if isGM}}Use + Add to define one.{{/if}}</div>
+      {{/each}}
+    </div>
+  </section>
+
+  {{!-- ─────────────────────── Expertises ─────────────────────── --}}
+  <section class="m-expertises">
+    <header class="m-section-header">
+      <span>Expertises</span>
+      {{#if isGM}}<button type="button" data-action="addExpertise" class="m-add-btn" title="Add an expertise">+ Add</button>{{/if}}
+    </header>
+    <div class="m-expertise-list">
+      {{#each expertises as |expertise|}}
+        <div class="m-expertise-row">
+          {{#if ../isGM}}
+            <select name="system.expertises.{{expertise.index}}.key" aria-label="Expertise">
+              {{#each expertise.choices as |choice|}}
+                <option value="{{choice.key}}" {{#if choice.selected}}selected{{/if}}>{{choice.label}}</option>
+              {{/each}}
+            </select>
+          {{else}}
+            <strong>{{expertise.label}}</strong>
+          {{/if}}
+          <label class="m-inline-field">Remaining <input type="number" name="system.expertises.{{expertise.index}}.value" value="{{expertise.value}}" min="0"></label>
+          <label class="m-inline-field">Owned <input type="number" name="system.expertises.{{expertise.index}}.max" value="{{expertise.max}}" min="0"></label>
+          {{#if ../isGM}}
+            <button type="button" data-action="deleteExpertise" data-index="{{expertise.index}}" class="m-del-btn"
+                    aria-label="Delete expertise {{expertise.label}}" title="Delete expertise"><i class="fas fa-times" aria-hidden="true"></i></button>
+          {{/if}}
+        </div>
+      {{else}}
+        <div class="m-empty">No expertises. {{#if isGM}}Use + Add to define one.{{/if}}</div>
+      {{/each}}
+    </div>
+  </section>
 
   {{!-- ─────────────────────── Attacks ─────────────────────── --}}
   <section class="m-attacks">
