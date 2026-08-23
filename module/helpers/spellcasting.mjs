@@ -331,11 +331,20 @@ export async function onTestCommitted(result, message = null) {
 /**
  * Find the cast a committed test belongs to.
  *
- * The TestResult shape frozen in the contract does not include the `casting`
- * payload, and the hook is not guaranteed to pass the message, so this tries
- * every route in order of reliability and falls back to the actor's oldest
- * unclaimed cast. It never guesses a rank: with no context the caller declines
- * to resolve rather than roll a backlash at the wrong rank.
+ * Route 1 is the real one: T1.1's `TestResult` carries the `casting` payload
+ * verbatim, so `castId` identifies the cast exactly. Route 2 reads the same
+ * payload off the persisted flags when the hook passes a message but the
+ * result was rebuilt. Route 3 exists only for a result that somehow carries
+ * neither, and is deliberately REFUSED when it is ambiguous.
+ *
+ * The rank is what makes this worth being careful about: it is added to the
+ * d100 (R:1559), so resolving the wrong cast rolls the backlash on the wrong
+ * row. One caster CAN have two casts in flight — a reaction spell cast while
+ * an out-of-combat casting sits pending on its expertise decision — and there
+ * is nothing in a bare TestResult to tell them apart. Guessing the oldest
+ * would be wrong half the time and silent every time, so when more than one
+ * cast is parked for the actor this returns null and the caller declines to
+ * resolve rather than roll at a rank it invented.
  */
 export function resolveCastContext(result, message = null) {
   const byId = result?.casting?.castId ?? message?.flags?.crows?.test?.casting?.castId;
@@ -346,8 +355,11 @@ export function resolveCastContext(result, message = null) {
     return { castId: inline.castId ?? "", actorId: result?.actorId, masteredDisciplines: [], ...inline };
   }
 
-  for (const [, ctx] of _pendingCasts) {
-    if (ctx.actorId === result?.actorId) return ctx;
+  const mine = [...(_pendingCasts.values())].filter(ctx => ctx.actorId === result?.actorId);
+  if (mine.length === 1) return mine[0];
+  if (mine.length > 1) {
+    console.warn(`crows | ${mine.length} casts in flight for this actor and the committed test names none of them; `
+                 + "declining to resolve rather than roll a backlash at a guessed rank", result);
   }
   return null;
 }

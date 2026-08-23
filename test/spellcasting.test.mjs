@@ -14,7 +14,7 @@ import {
 } from "../module/helpers/backlash.mjs";
 import {
   planCastingOutcome, applyChaosRoll, summonBehaviour, migrateSpellbookSystem,
-  parseDuration
+  parseDuration, resolveCastContext, _parkCast, _clearPendingCasts
 } from "../module/helpers/spellcasting.mjs";
 import { CROWS } from "../module/config.mjs";
 
@@ -411,6 +411,70 @@ describe("spellbook migration (layer a — safe on partial deltas)", () => {
     const out = migrateSpellbookSystem({ castingTime: "reaction", duration: { kind: "ud", count: 2, note: "" } });
     assert.equal(out.castingTime, "reaction");
     assert.deepEqual(out.duration, { kind: "ud", count: 2, note: "" });
+  });
+});
+
+/* ========================================================================== */
+/*  Which cast did this committed test belong to?                             */
+/* ========================================================================== */
+
+describe("cast context resolution — the rank a backlash rolls at", () => {
+  const cast = (over = {}) => ({
+    castId: "cast-A", actorId: "actor-1", spellbookId: "sb-1", spellbookName: "Firebolt",
+    rank: 3, discipline: "elemental", masteredDisciplines: [], ...over
+  });
+
+  test("the castId on the committed result claims the parked cast", () => {
+    _clearPendingCasts();
+    const parked = _parkCast(cast());
+    const found = resolveCastContext({ kind: "casting", actorId: "actor-1", casting: { castId: "cast-A" } });
+    assert.equal(found, parked);
+  });
+
+  test("a result carrying the whole payload needs nothing parked at all", () => {
+    _clearPendingCasts();
+    const found = resolveCastContext({
+      kind: "casting", actorId: "actor-1",
+      casting: { castId: "cast-Z", rank: 5, discipline: "necromancy" }
+    });
+    assert.equal(found.rank, 5);
+    assert.equal(found.discipline, "necromancy");
+  });
+
+  test("the persisted flags are read when the result was rebuilt", () => {
+    _clearPendingCasts();
+    const parked = _parkCast(cast());
+    const found = resolveCastContext(
+      { kind: "casting", actorId: "actor-1" },
+      { flags: { crows: { test: { casting: { castId: "cast-A" } } } } }
+    );
+    assert.equal(found, parked);
+  });
+
+  test("a single unnamed cast in flight resolves unambiguously", () => {
+    _clearPendingCasts();
+    const parked = _parkCast(cast());
+    assert.equal(resolveCastContext({ kind: "casting", actorId: "actor-1" }), parked);
+  });
+
+  test("TWO casts in flight and no castId REFUSES rather than guessing a rank", () => {
+    // The rank is added to the d100 (R:1559). Picking the wrong one of two
+    // parked casts rolls the backlash on the wrong row, silently.
+    _clearPendingCasts();
+    _parkCast(cast({ castId: "cast-A", rank: 0 }));
+    _parkCast(cast({ castId: "cast-B", rank: 5 }));
+    assert.equal(resolveCastContext({ kind: "casting", actorId: "actor-1" }), null);
+  });
+
+  test("another actor's parked cast is never claimed", () => {
+    _clearPendingCasts();
+    _parkCast(cast({ actorId: "actor-2" }));
+    assert.equal(resolveCastContext({ kind: "casting", actorId: "actor-1" }), null);
+  });
+
+  test("nothing parked and nothing on the result resolves to null", () => {
+    _clearPendingCasts();
+    assert.equal(resolveCastContext({ kind: "casting", actorId: "actor-1" }), null);
   });
 });
 
