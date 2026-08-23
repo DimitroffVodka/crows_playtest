@@ -10,17 +10,22 @@ import { GearData } from "./data/item/gear.mjs";
 import { SpellbookData } from "./data/item/spellbook.mjs";
 import { TraitData } from "./data/item/trait.mjs";
 import { BackgroundData } from "./data/item/background.mjs";
-import { rollTest, classifyTier, classifyDoomCrit } from "./helpers/roll.mjs";
+import { ROLL_API } from "./helpers/roll.mjs";
+import { bindTestCardActions } from "./helpers/expertise.mjs";
 import { applyBackground } from "./helpers/creation.mjs";
 import { applyDamage, applyHealing, repairArmor } from "./helpers/damage.mjs";
-import { registerChaosSetting, getChaos, setChaos, addToChaos, resetChaos, showChaosDialog } from "./helpers/chaos.mjs";
 import { rollBacklash, lookupBacklash } from "./helpers/backlash.mjs";
-import { castSpell } from "./helpers/spellcasting.mjs";
+import { castSpell, registerSpellcastingHooks } from "./helpers/spellcasting.mjs";
 import {
   registerDungeonTurnSettings, endDungeonTurn, rollEncounterCheck,
-  getDT, setDT, bumpDT, getDungeonEN
+  getDT, setDT, bumpDT, getDungeonEN, getDTLength, resolvePendingEncounter
 } from "./helpers/dungeon-turn.mjs";
-import { takeRest, restoreSpellbookUds, consumePreparedTask } from "./helpers/rest.mjs";
+import {
+  takeRest, takeTownActivity, beginRestSession, endRestSession,
+  restoreSpellbookUds, consumePreparedTask
+} from "./helpers/rest.mjs";
+import { enterDungeon, leaveDungeon, applyGreedBonus } from "./helpers/greed.mjs";
+import { registerSlotSettings } from "./helpers/slots.mjs";
 import {
   registerMiasmaSettings, getInMiasma, setInMiasma,
   rollMiasmaResist, rollMiasmaEffect, clearMiasma, onBonedCleared, MIASMA_EFFECTS
@@ -36,7 +41,7 @@ import {
   registerVillageSettings, INSTITUTION_TYPES, STARTING_INSTITUTIONS,
   getVillage, setVillage,
   foundInstitution, upgradeInstitution, damageInstitution,
-  setProsperity, sellPercentage, rollAvailability,
+  setProsperity, sellPercentage, itemAvailability,
   endCycle, rollVillageEvent, getInstitutionLevel, getInstitution
 } from "./helpers/village.mjs";
 import {
@@ -45,13 +50,90 @@ import {
 } from "./helpers/crafting.mjs";
 import {
   openCharacterCreator, createCharacter, applyCharacteristics,
-  applyUniversalStarterItems, rollBackground
+  applyUniversalStarterItems, rollBackground, rollStartingGold
 } from "./helpers/character-creator.mjs";
-import { gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait, bonusesAvailable, spendSkillBonus, spendCharBonus } from "./helpers/advancement.mjs";
+import {
+  gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait,
+  bonusesAvailable, spendExpertiseBonus, spendCharBonus, advancementOptions
+} from "./helpers/advancement.mjs";
 import { attackWithWeapon } from "./helpers/attack.mjs";
 import { registerConditions } from "./conditions.mjs";
+import {
+  STATUS_TO_CONDITION, expireDungeonTurnConditions, handleStatusToggleIntent,
+  isMirroring, mirrorConditions, registerCombatHooks, setCondition
+} from "./helpers/combat.mjs";
+import {
+  RECONCILED_FLAG, buildBackgroundIndex, buildMigrationReport, migrateActorDocument
+} from "./helpers/migration.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
+
+const MIGRATION_TARGET_VERSION = "0.2.0";
+const MIGRATION_VERSION_SETTING = "systemMigrationVersion";
+const MIGRATION_BUDGET_SETTING = "migrationExpertiseBudget";
+
+function registerMigrationSettings() {
+  game.settings.register("crows", MIGRATION_VERSION_SETTING, {
+    scope: "world",
+    config: false,
+    type: String,
+    default: "0.0.0"
+  });
+  game.settings.register("crows", MIGRATION_BUDGET_SETTING, {
+    name: "Playtest 2 expertise migration",
+    hint: "Report-only preserves existing expertise uses. Enforce applies the deterministic Playtest 2 budget trim.",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: {
+      "report-only": "Report only (recommended)",
+      enforce: "Enforce the Playtest 2 budget"
+    },
+    default: "report-only",
+    restricted: true
+  });
+}
+
+function versionPrecedesMigration(version) {
+  const current = String(version ?? "").trim();
+  if (!current) return true;
+  return foundry.utils.isNewerVersion(MIGRATION_TARGET_VERSION, current);
+}
+
+async function backgroundIndex() {
+  const pack = game.packs?.get("crows.crows-backgrounds");
+  const docs = pack ? await pack.getDocuments() : [];
+  return buildBackgroundIndex(docs);
+}
+
+async function migrateOneActor(actor, { backgrounds, mode, reportTitle } = {}) {
+  const result = migrateActorDocument(actor, { backgrounds, mode });
+  if (Object.keys(result.updates).length) await actor.update(result.updates);
+  if (reportTitle) {
+    await JournalEntry.create(buildMigrationReport([result], { mode, title: reportTitle }));
+  }
+  return result;
+}
+
+/** Layer (b): one GM-run world pass, gated by the stored world system version. */
+async function runWorldMigration() {
+  if (!game.user?.isGM) return { ran: false, reason: "not-gm" };
+  const stored = game.settings.get("crows", MIGRATION_VERSION_SETTING);
+  if (!versionPrecedesMigration(stored)) return { ran: false, reason: "current", stored };
+
+  const mode = game.settings.get("crows", MIGRATION_BUDGET_SETTING) || "report-only";
+  const backgrounds = await backgroundIndex();
+  const results = [];
+  for (const actor of game.actors ?? []) {
+    results.push(await migrateOneActor(actor, { backgrounds, mode }));
+  }
+
+  if (results.length) {
+    await JournalEntry.create(buildMigrationReport(results, { mode }));
+  }
+  await game.settings.set("crows", MIGRATION_VERSION_SETTING, game.system.version ?? MIGRATION_TARGET_VERSION);
+  return { ran: true, mode, actors: results.length, results };
+}
 
 Hooks.once("init", () => {
   console.log("crows | init");
@@ -60,26 +142,39 @@ Hooks.once("init", () => {
   Handlebars.registerHelper("gte", (a, b) => Number(a) >= Number(b));
   Handlebars.registerHelper("add", (a, b) => Number(a) + Number(b));
   registerConditions();
-  Object.assign(CONFIG.Item.dataModels, {
-    weapon: WeaponData, armor: ArmorData, ammunition: AmmunitionData,
-    consumable: ConsumableData, gear: GearData, spellbook: SpellbookData,
-    trait: TraitData, background: BackgroundData
-  });
-  Object.assign(CONFIG.Actor.dataModels, { crow: CrowData, monster: MonsterData });
-  registerChaosSetting();
+
+  // Register one subtype at a time. Other systems/modules may have already
+  // extended these registries; replacing either object erases their models.
+  CONFIG.Item.dataModels.weapon = WeaponData;
+  CONFIG.Item.dataModels.armor = ArmorData;
+  CONFIG.Item.dataModels.ammunition = AmmunitionData;
+  CONFIG.Item.dataModels.consumable = ConsumableData;
+  CONFIG.Item.dataModels.gear = GearData;
+  CONFIG.Item.dataModels.spellbook = SpellbookData;
+  CONFIG.Item.dataModels.trait = TraitData;
+  CONFIG.Item.dataModels.background = BackgroundData;
+  CONFIG.Actor.dataModels.crow = CrowData;
+  CONFIG.Actor.dataModels.monster = MonsterData;
+
+  registerMigrationSettings();
+  registerSlotSettings();
   registerDungeonTurnSettings();
   registerMiasmaSettings();
   registerCryptSettings();
   registerVillageSettings();
   game.crows = Object.assign(game.crows ?? {}, {
-    rollTest, classifyTier, classifyDoomCrit,
     applyBackground,
     applyDamage, applyHealing, repairArmor,
     castSpell, rollBacklash, lookupBacklash,
-    takeRest, restoreSpellbookUds, consumePreparedTask,
-    gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait, bonusesAvailable, spendSkillBonus, spendCharBonus,
+    runWorldMigration,
+    takeRest, takeTownActivity, beginRestSession, endRestSession,
+    restoreSpellbookUds, consumePreparedTask,
+    enterDungeon, leaveDungeon, applyGreedBonus,
+    resolvePendingEncounter, getDTLength,
+    setCondition, mirrorConditions, expireDungeonTurnConditions,
+    gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait,
+    bonusesAvailable, spendExpertiseBonus, spendCharBonus, advancementOptions,
     attackWithWeapon,
-    chaos: { get: getChaos, set: setChaos, add: addToChaos, reset: resetChaos, show: showChaosDialog },
     dt: { get: getDT, set: setDT, bump: bumpDT, end: endDungeonTurn, encounterCheck: rollEncounterCheck, getDungeonEN },
     miasma: { get: getInMiasma, set: setInMiasma, resist: rollMiasmaResist, effect: rollMiasmaEffect, clear: clearMiasma, onBonedCleared, EFFECTS: MIASMA_EFFECTS },
     crypt: {
@@ -94,7 +189,7 @@ Hooks.once("init", () => {
       TYPES: INSTITUTION_TYPES, STARTING: STARTING_INSTITUTIONS,
       get: getVillage, set: setVillage,
       found: foundInstitution, upgrade: upgradeInstitution, damage: damageInstitution,
-      setProsperity, sellPercentage, rollAvailability,
+      setProsperity, sellPercentage, availability: itemAvailability,
       endCycle, rollEvent: rollVillageEvent,
       institutionLevel: getInstitutionLevel, institution: getInstitution
     },
@@ -107,12 +202,14 @@ Hooks.once("init", () => {
       open: openCharacterCreator,
       create: createCharacter,
       applyCharacteristics, applyUniversalStarterItems,
-      rollBackground
+      rollBackground, rollStartingGold
     }
   });
-  foundry.documents.collections.Items.registerSheet("crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
-  foundry.documents.collections.Actors.registerSheet("crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
-  foundry.documents.collections.Actors.registerSheet("crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });
+  Object.assign(game.crows, ROLL_API);
+  const SheetConfig = foundry.applications.apps.DocumentSheetConfig;
+  SheetConfig.registerSheet(Item, "crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
+  SheetConfig.registerSheet(Actor, "crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
+  SheetConfig.registerSheet(Actor, "crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/crow/sheet.hbs"]);
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/chat/test-card.hbs"]);
   foundry.applications.handlebars.loadTemplates([
@@ -122,49 +219,67 @@ Hooks.once("init", () => {
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/monster.hbs"]);
 });
 
-Hooks.once("ready", () => {
+Hooks.once("ready", async () => {
   console.log("crows | ready");
+  registerSpellcastingHooks();
+  registerCombatHooks({ autoApply: false });
+  await runWorldMigration();
 });
 
 /**
- * Sync Active Effects ↔ system.conditions on crows.
- *   - Boolean conditions (grabbed/prone/unconscious): mirror the AE's
- *     presence onto the boolean field.
- *   - Leveled conditions (blessed/boned): each AE add increments the
- *     counter; each delete decrements (clamped at 0). Players who want
- *     to set a level directly should use the +/− buttons on the sheet.
+ * Foundry's pre-document hooks are synchronous, including on v14.367: an
+ * async callback returns a truthy Promise and core proceeds before it settles.
+ * Therefore both gates happen here, synchronously. Only a recognized Token HUD
+ * intent is cancelled; our mirror's own create/delete is explicitly allowed.
  */
-const _BOOL_CONDS = ["grabbed", "prone", "unconscious"];
-const _LEVELED_CONDS = ["blessed", "boned"];
+function interceptStatusToggle(effect, active) {
+  const actor = effect?.parent;
+  const statuses = [...(effect?.statuses ?? [])];
+  if (!actor?.system?.conditions || statuses.length !== 1) return;
+  const statusId = statuses[0];
+  if (!STATUS_TO_CONDITION[statusId] || isMirroring(actor)) return;
 
-Hooks.on("createActiveEffect", async (effect /*, options, userId */) => {
-  const actor = effect.parent;
-  if (!actor || actor.type !== "crow") return;
-  const statuses = [...(effect.statuses ?? [])];
-  if (!statuses.length) return;
-  const updates = {};
-  for (const id of statuses) {
-    if (_BOOL_CONDS.includes(id)) updates[`system.conditions.${id}`] = true;
-    if (_LEVELED_CONDS.includes(id)) updates[`system.conditions.${id}`] = (actor.system.conditions?.[id] ?? 0) + 1;
-  }
-  if (Object.keys(updates).length) await actor.update(updates);
+  handleStatusToggleIntent(actor, statusId, active).catch((error) => {
+    console.error(`crows | failed to translate status toggle "${statusId}" into actor state`, error);
+  });
+  return false;
+}
+
+Hooks.on("preCreateActiveEffect", (effect) => interceptStatusToggle(effect, true));
+Hooks.on("preDeleteActiveEffect", (effect) => interceptStatusToggle(effect, false));
+
+// Keep direct boolean writes (sheet actions, damage and DT expiry) mirrored too.
+// Defer one turn so helpers such as setCondition() can perform their own mirror
+// first; the follow-up is then either skipped while mirroring or a pure no-op.
+const _conditionMirrorTimers = new Map();
+Hooks.on("updateActor", (actor, changes) => {
+  const conditionChanged = !!changes?.system?.conditions
+    || Object.keys(changes ?? {}).some((key) => key.startsWith("system.conditions."));
+  if (!conditionChanged) return;
+  const id = actor.uuid ?? actor.id;
+  clearTimeout(_conditionMirrorTimers.get(id));
+  _conditionMirrorTimers.set(id, setTimeout(() => {
+    _conditionMirrorTimers.delete(id);
+    if (isMirroring(actor)) return;
+    mirrorConditions(actor).catch((error) => console.error("crows | condition mirror failed", error));
+  }, 0));
 });
 
-Hooks.on("deleteActiveEffect", async (effect) => {
-  const actor = effect.parent;
-  if (!actor || actor.type !== "crow") return;
-  const statuses = [...(effect.statuses ?? [])];
-  if (!statuses.length) return;
-  const updates = {};
-  for (const id of statuses) {
-    if (_BOOL_CONDS.includes(id)) {
-      // Only clear if no other AE on the actor still carries this status.
-      const stillHas = actor.effects.some(e => e.id !== effect.id && e.statuses?.has?.(id));
-      if (!stillHas) updates[`system.conditions.${id}`] = false;
-    }
-    if (_LEVELED_CONDS.includes(id)) updates[`system.conditions.${id}`] = Math.max(0, (actor.system.conditions?.[id] ?? 0) - 1);
-  }
-  if (Object.keys(updates).length) await actor.update(updates);
+// An imported PT1 actor arrives after the one-time world gate. Its document
+// _stats retain the old system version even though layer (a) has shaped its
+// data, so reconcile layer (b) here and stamp it exactly once.
+Hooks.on("createActor", (actor) => {
+  if (!game.user?.isGM || actor.flags?.crows?.[RECONCILED_FLAG]) return;
+  if (!versionPrecedesMigration(actor?._stats?.systemVersion)) return;
+  (async () => {
+    const mode = game.settings.get("crows", MIGRATION_BUDGET_SETTING) || "report-only";
+    const backgrounds = await backgroundIndex();
+    await migrateOneActor(actor, {
+      backgrounds,
+      mode,
+      reportTitle: `CROWS — Playtest 2 Migration — ${actor.name}`
+    });
+  })().catch((error) => console.error(`crows | imported actor migration failed for ${actor.name}`, error));
 });
 
 /**
@@ -175,6 +290,7 @@ Hooks.on("deleteActiveEffect", async (effect) => {
  * token is selected.
  */
 Hooks.on("renderChatMessageHTML", (message, html /*, context */) => {
+  bindTestCardActions(message, html);
   const buttons = html.querySelectorAll('[data-action="applyDamage"]');
   for (const btn of buttons) {
     // Guard against listener stacking — chat log re-renders this html
