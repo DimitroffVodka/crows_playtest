@@ -63,6 +63,32 @@ export class MonsterData extends TypeDataModel {
         new fields.NumberField({ min: 0, integer: true }), { initial: [] }
       ),
 
+      // C:2429-2445 — pet state lives on the animal, the one side that can
+      // enforce a SINGLE owner without a mirrored owner->pets list drifting.
+      // UUIDs, not ids: a human owner can be a world Actor or a synthetic token
+      // Actor. Empty ownerUuid means ownerless; `isPet` is therefore derived by
+      // helpers/pets.mjs from animal + owner rather than stored as a second bit.
+      pet: new fields.SchemaField({
+        ownerUuid: new fields.StringField({ initial: "", blank: true }),
+
+        // Taming tier 2: follows this prospective owner at a distance for 24h,
+        // heeds no commands, and becomes owned only if their bonding rest
+        // activity finishes. `followsUntil` is injected world-time seconds; no
+        // data-model preparation reaches for `game.time`.
+        prospectiveOwnerUuid: new fields.StringField({ initial: "", blank: true }),
+        followsUntil: new fields.NumberField({ initial: 0, min: 0 }),
+
+        // A rider occupies 6 inventory slots (C:2443). The occupied amount is
+        // derived by pets.mjs; only the identity needed to persist a mount is
+        // stored here. Transfer clears this field.
+        riderUuid: new fields.StringField({ initial: "", blank: true }),
+
+        // Pets eat daily and must eat during a rest to receive its benefits
+        // (C:2445). This records the supplied world-time second of the latest
+        // successful forage/feed; feed inventory remains ordinary item data.
+        lastFedAt: new fields.NumberField({ initial: 0, min: 0 })
+      }),
+
       // F:708 — "most creatures have only 1 reaction each round, but some have
       // more. If a creature can use more than one ... their stat block will say so."
       reactions: new fields.NumberField({ initial: 1, min: 0, integer: true }),
