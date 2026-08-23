@@ -69,10 +69,9 @@ export function lookupEffect(roll) {
 }
 
 /**
- * Roll a Miasma resist test on `actor`. Returns the test result + any
- * effect rolled. The 2d10 test goes through rollTest so it shows up in
- * chat with the standard mod chain; we read the resulting tier and then
- * dispatch.
+ * Start a Miasma resist test on `actor`. The 2d10 test goes through rollTest so
+ * it shows up in chat with the standard mod chain. Its consequences resolve
+ * only from `crowsTestCommitted`; an expertise may still change the tier.
  */
 export async function rollMiasmaResist(actor, { silent = false } = {}) {
   if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
@@ -82,16 +81,25 @@ export async function rollMiasmaResist(actor, { silent = false } = {}) {
   }
   const { rollTest } = await import("./roll.mjs");
   const res = await rollTest({
-    actor, characteristic: "mind", skill: "endurance",
-    flavor: "Miasma Resist (24h)"
+    actor, characteristic: "mind", allowedExpertises: ["endurance"],
+    flavor: "Miasma Resist (24h)", miasma: { kind: "resist" }
   });
-  if (!res?.tier) return { ok: false, error: "no roll" };
+  if (!res) return { ok: false, error: "no roll" };
+  return { ok: true, pending: res.state !== "committed", test: res, resolution: null };
+}
+
+/** Apply a FINAL Miasma-resist tier. Pending results are never readable here. */
+export async function resolveMiasmaResist(result, actor) {
+  if (result?.state !== "committed") return { ok: false, error: "test-pending" };
+  if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
+  if (actor.system?.miasma?.permanentNPC) return { ok: false, error: "permanent NPC" };
+  if (!result?.tier) return { ok: false, error: "no roll" };
 
   // Stamp lastTestOn (DT counter) — useful for "when did you last test" displays.
   await actor.update({ "system.miasma.lastTestOn": getDT() });
 
   // Tier 3: nothing.
-  if (res.tier >= 3) {
+  if (result.tier >= 3) {
     await ChatMessage.create({
       content: `<div class="crows miasma-result tier3"><strong>${actor.name}</strong> shrugs off the Miasma (tier 3).</div>`,
       speaker: ChatMessage.getSpeaker({ actor })
@@ -104,7 +112,7 @@ export async function rollMiasmaResist(actor, { silent = false } = {}) {
   await actor.update({ "system.conditions.boned": before + 1 });
 
   // Tier 2 stops here.
-  if (res.tier === 2) {
+  if (result.tier === 2) {
     await ChatMessage.create({
       content: `<div class="crows miasma-result tier2">
         <strong>${actor.name}</strong> resists badly (tier 2): <em>+1 boned</em> (now ${before + 1}).
@@ -117,6 +125,31 @@ export async function rollMiasmaResist(actor, { silent = false } = {}) {
   // Tier 1: +1 boned AND roll on Effects table.
   const eff = await rollMiasmaEffect(actor);
   return { ok: true, tier: 1, boned: true, effect: eff };
+}
+
+function defaultGetActor(actorId, message = null) {
+  return globalThis.game?.actors?.get?.(actorId) ?? message?.speakerActor ?? null;
+}
+
+/** Resolve only tests that carry the persisted Miasma-resist purpose marker. */
+export async function onMiasmaTestCommitted(result, message = null, {
+  getActor = defaultGetActor
+} = {}) {
+  if (result?.miasma?.kind !== "resist") return null;
+  if (result.state !== "committed") return null;
+  const actor = getActor(result.actorId, message);
+  if (!actor) return { ok: false, error: "actor unavailable" };
+  return resolveMiasmaResist(result, actor);
+}
+
+/** Register the Miasma outcome subscriber once per client. */
+export function registerMiasmaHooks() {
+  if (registerMiasmaHooks._bound) return;
+  registerMiasmaHooks._bound = true;
+  globalThis.Hooks?.on?.("crowsTestCommitted", (result, message) => {
+    void onMiasmaTestCommitted(result, message).catch(err =>
+      console.warn("crows | committed Miasma test could not be resolved", err));
+  });
 }
 
 /**

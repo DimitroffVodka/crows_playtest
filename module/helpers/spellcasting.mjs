@@ -113,7 +113,7 @@ export function applyChaosRoll(plan, face, { rank = 0, discipline = "", mastered
 }
 
 /**
- * The ONE spellcasting expertise a given casting may spend (R:1451).
+ * The ONE spellcasting expertise a given casting may spend (R:1459).
  *
  * "A spell's discipline describes the type of magic it harnesses and the
  * spellcasting expertise th[at] can be used for the test made to cast the
@@ -131,20 +131,13 @@ export function matchingExpertiseFor(discipline) {
 
 /**
  * May this expertise be spent on this test, as far as the DISCIPLINE rule is
- * concerned? Category legality is a separate, earlier question that T1.1's
+ * concerned? Applicability is a separate, earlier question that
  * `canSpendExpertise` owns; this answers only "is it the right one of the six".
  *
  * Returns true for anything that is not a spellcasting spend, so it composes as
- * an extra AND on top of the category gate rather than replacing it.
- *
- * NOTE — this rule is currently NOT enforced anywhere in the spend path.
- * `helpers/expertise.mjs` gates by CATEGORY only, so a caster of an alteration
- * spell can improve the result by spending necromancy. That file is T1.1's and
- * this one is T1.8's; the rule lives here, the gate lives there. Wiring it is a
- * one-line addition to `canSpendExpertise`, and the information it needs is
- * already on the result now that T1.1 carries the `casting` payload:
- *
- *     if (!castingExpertiseAllows(result, key)) return "wrong discipline";
+ * an extra defense after either the legacy category path or D1's exact
+ * applicability declaration. `helpers/expertise.mjs` is the enforcement point;
+ * keeping the rule here gives the spell discipline one owner.
  *
  * @param {object} result  A TestResult; `result.casting.discipline` is read.
  * @param {string} key     The expertise key being spent.
@@ -395,7 +388,8 @@ export async function castSpell(actor, spellbook, opts = {}) {
     characteristic: "mind",
     flavor: `${actor.name} casts ${spellbook.name} (rank ${rank} ${discipline})`,
     casting: context,
-    ...opts
+    ...opts,
+    allowedExpertises: [discipline]
   });
 
   return { ok: true, castId, test };

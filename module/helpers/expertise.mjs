@@ -79,6 +79,19 @@ export function readExpertiseUses(actor, key) {
 }
 
 /**
+ * Can one roll-level spend improve a resolved outcome?
+ *
+ * R:961 makes the target tiers authoritative when an attack has targets. The
+ * base tier describes the roll only, so it is the efficacy check only for a
+ * targetless test.
+ */
+function hasImprovableOutcome(result) {
+  const targets = Array.isArray(result?.targets) ? result.targets : [];
+  if (targets.length) return targets.some(target => Number(target?.tier) < 3);
+  return Number(result?.tier) < 3;
+}
+
+/**
  * The spend gate (R:292 — improve by one tier, max 3; one expertise and one use
  * per test).
  *
@@ -91,10 +104,19 @@ export function canSpendExpertise(result, key, actor) {
   // tier. This check must come first.
   if (result?.state === "committed") return "already resolved";
   if (result?.terminal === "doom") return "a doom can't be improved";   // R:246
-  if ((result?.tier ?? 0) >= 3) return "already tier 3";                // no-op burn
+  if (result?.terminal) return "a terminal result can't be improved";
+  if (!hasImprovableOutcome(result)) return "already tier 3";           // no-op burn
   if (result?.expertiseSpent) return "one expertise per test";          // R:292
-  if (!categoryAllows(result?.kind ?? "test", key)) return "wrong expertise category";
-  // R:1451 is SINGULAR — the spell's discipline names THE expertise, not "any
+  if (!expertiseCategory(key)) return "wrong expertise category";
+  // D1 — `null`/absent is the additive legacy category path. When a caller
+  // knows the task's applicability, its declaration replaces that broad table:
+  // an empty list means none; a non-empty list is the exact authority.
+  if (result?.allowedExpertises == null) {
+    if (!categoryAllows(result?.kind ?? "test", key)) return "wrong expertise category";
+  } else if (!result.allowedExpertises?.includes?.(key)) {
+    return "expertise not applicable";
+  }
+  // R:1459 is SINGULAR — the spell's discipline names THE expertise, not "any
   // spellcasting one". The category gate alone lets an alteration caster spend
   // necromancy: the spend looks legal and the tier really does improve. This
   // covers spell ATTACKS too — R:913 opens the weapon/spellcasting category on

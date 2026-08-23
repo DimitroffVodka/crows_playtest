@@ -32,7 +32,7 @@ export class SpellbookData extends TypeDataModel {
       // R:1447 — rank 0 to 5.
       rank: new fields.NumberField({ initial: 0, min: 0, max: 5, integer: true }),
 
-      // R:1451 — the discipline also names the spellcasting expertise that may
+      // R:1459 — the discipline also names the spellcasting expertise that may
       // be applied to the casting test. Same six keys as CROWS.expertises.spellcasting.
       discipline: new fields.StringField({ initial: "elemental", choices: CROWS.disciplines }),
 

@@ -76,7 +76,7 @@ Two things that still hold from the original: the mirror's own write **must** pa
 
 ## 3. Open handoffs — T2.2 (chat cards)
 
-- **Read `legalExpertiseSpends(result, actor)`** (`expertise.mjs:109`). Do **not** filter by category yourself, or you will render six spend buttons where one is legal — the discipline gate (R:1451) is a refinement of the category check.
+- **Read the exported `legalExpertiseSpends(result, actor)`.** Do **not** filter by category yourself, or you will render choices the persisted applicability gate rejects — the discipline gate (R:1459) is a refinement of that applicability check.
 - The spellbook template reads `system.castType` and `system.duration`-as-string; both renamed. Use `system.durationLabel` and `system.target.text`.
 - `targets[].tier` is what damage reads; the message-level `tier` only describes the roll.
 
@@ -119,15 +119,21 @@ Scope notes made at dispatch, because both one-liners below understate their ite
 
 ## 5. Open decisions
 
-1. ~~**Per-target expertise gating.**~~ — **DECIDED by D1, 2026-08-23. Route: CODE NOW. No MCDM question.**
+1. ~~**Per-target expertise gating.**~~ — **DECIDED and IMPLEMENTED by D1, 2026-08-23. CLOSED. No MCDM question.**
 
    **Verdict (confidence 0.87):** add a roll-level `allowedExpertises: string[] | null` to `TestResult`; keep today's kind/category rules only as the `null` legacy fallback; and replace the base-tier no-op guard with *"at least one **actual target** tier is below 3, or the base tier for a targetless test."* One spend still raises every target by one tier, capped at 3.
+
+   **Implementation closure:** the declaration now survives `rollTest` into the persisted result/flag and late-join card, and the efficacy gate reads actual target tiers. Weapon attacks declare their validated weapon type; castings their discipline; Miasma Endurance; and taming/dangerous pet commands Handle Pet. Natural monster attacks deliberately remain `null` because their schema names no authoritative expertise. Empty/exact/legacy contracts, both efficacy directions, mixed-target capping and all caller boundaries are regression-pinned; the `some`/`every`, empty/null and base/target mutations all went red. After a hard reload, a pure live probe confirmed all three applicability states and both target-efficacy directions.
+
+   Luna's final regression review caught the Miasma caller reading and applying its pre-expertise tier. That path now persists `{kind:"resist"}`, returns without mutation while pending, and resolves actor/chat consequences only from its registered `crowsTestCommitted` subscriber. The Miasma marker is required because an exact Endurance list alone cannot distinguish this outcome from an ordinary Endurance test. A final hard reload confirmed the marked/unmarked flags and all three commit subscribers in the live world, with no system error. Final suite: **833 tests / 158 suites / 0 fail**; both verify modes 0.
+
+   **T2.5 remains open beyond this shared gate.** D1 closes only Handle Pet applicability. Pet context in the persisted result/flags and the pet commit subscriber are still separate obligations in §7.
 
    `null` (absent) = legacy category path; `[]` = caller declares no expertise applies, commit immediately as `no-legal-spend`; non-empty = exact allowed set. **Absent and empty must stay distinct**, or an additive field becomes a breaking migration for existing flags.
 
    §5.1 and T2.5's `handlePet` facet are **two semantic questions sharing one gate**: applicability (which keys match the task) vs efficacy (whether the one spend can improve any resolved outcome). Neither should be expressed in terms of the other.
 
-   Guard order: state → doom/terminal → any actual outcome improvable → already spent → broad category → declared allowlist → discipline defense → uses.
+   Guard order, clarified by the owner during implementation: state → doom/terminal → any actual outcome improvable → already spent → known key → applicability (**legacy category only for null/absent; exact allowlist otherwise**) → discipline defense → uses. A non-null declaration replaces rather than narrows the category table.
 
    **This register's example was wrong.** It claimed "base tier 3 with a target at tier 1 (two banes)". **R:270**: two or more banes make a *double bane*, which subtracts nothing and drops the outcome **one** tier, to a minimum of tier 1 — so two banes give tier 2, not tier 1. The real case is simpler and worse: **a single bane suffices**, since tier 3 starts at 17 and −2 turns an ordinary 17 into 15 (tier 2). A numeric range penalty can drop a target further (17 with three squares beyond range = −6 → tier 1).
 
@@ -249,7 +255,7 @@ Every significant defect had the same signature: **no error, no red test, a conf
 | Found by | Defect |
 |---|---|
 | T1.8 | `summonBehaviour` matched **0 of 25** shipped spellbooks — including *Summon Object* |
-| T1.8 | Any of six spellcasting expertises passed on any casting (R:1451 names *the* discipline) |
+| T1.8 | Any of six spellcasting expertises passed on any casting (R:1459 names *the* discipline) |
 | T1.7 | Edges double-counted at the seam — they clamp at 2, so one duplicate is a whole tier shift |
 | T1.2 | `schema.mjs` boot blocker — the shim never imports data models, so that tree is untested by construction |
 | T1.2 | Six more dead imports from `chaos.mjs`, in a second file, on nobody's list |

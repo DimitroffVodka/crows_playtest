@@ -404,15 +404,15 @@ describe("module/crows.mjs imports resolve", () => {
     }
 
     // A non-GM ready pass skips the world mutation but must still subscribe
-    // spellcasting and combat to the committed-test lifecycle.
+    // spellcasting, combat and Miasma to the committed-test lifecycle.
     game.user = { isGM: false };
     const ready = registrations.find(({ kind, name }) => kind === "once" && name === "ready");
     assert.ok(ready, "ready callback was not captured");
     await ready.callback();
     assert.equal(
       registrations.filter(({ kind, name }) => kind === "on" && name === "crowsTestCommitted").length,
-      2,
-      "spellcasting and combat did not both subscribe to committed tests"
+      3,
+      "spellcasting, combat and Miasma did not all subscribe to committed tests"
     );
 
     // Exercise the world-version gate itself. The first ready-equivalent call

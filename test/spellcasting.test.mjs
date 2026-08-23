@@ -353,10 +353,10 @@ describe("backlash targeting (R:1561)", () => {
 });
 
 /* ========================================================================== */
-/*  R:1451 — only the MATCHING spellcasting expertise applies                  */
+/*  R:1459 — only the MATCHING spellcasting expertise applies                  */
 /* ========================================================================== */
 
-describe("casting expertise must match the spell's discipline (R:1451)", () => {
+describe("casting expertise must match the spell's discipline (R:1459)", () => {
   const casting = (discipline) => ({ kind: "casting", casting: { discipline, rank: 2 } });
 
   test("each discipline names exactly one expertise, and it is its own key", () => {

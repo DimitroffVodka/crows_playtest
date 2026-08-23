@@ -749,6 +749,59 @@ describe("Weapon attack assembly", () => {
     assert.equal(p.t3, 7);
   });
 
+  test("a weapon attack persists only its exact weapon expertise", async () => {
+    const previousRoll = globalThis.Roll;
+    const previousGame = globalThis.game;
+    const previousChatMessage = globalThis.ChatMessage;
+    const previousApplications = globalThis.foundry.applications;
+    let messageData = null;
+
+    globalThis.Roll = class DeterministicAttackRoll {
+      constructor() {
+        this.total = 12;
+        this.dice = [{ faces: 10, results: [{ result: 6 }, { result: 6 }] }];
+      }
+      async evaluate() { return this; }
+      async toMessage(data) {
+        messageData = data;
+        return { id: "Message.weaponExpertise" };
+      }
+    };
+    globalThis.game = {
+      i18n: { localize: key => key },
+      settings: { get: () => "publicroll" },
+      user: { targets: new Set() }
+    };
+    globalThis.ChatMessage = { getSpeaker: () => ({ actor: "a1" }) };
+    globalThis.foundry.applications = {
+      handlebars: { renderTemplate: async () => "<div>attack</div>" }
+    };
+
+    const weapon = {
+      id: "w1", name: "Shortbow", type: "weapon",
+      system: {
+        attackStat: "agility", type: "bow",
+        range: { melee: 0, ranged: 10 },
+        damage: { t2: "1 + A", t3: "2 + A" }
+      }
+    };
+
+    try {
+      const result = await attackWithWeapon(actor(), weapon, { targets: [] });
+      assert.deepEqual(result.allowedExpertises, ["bow"]);
+      assert.deepEqual(messageData.flags.crows.test.allowedExpertises, ["bow"]);
+    } finally {
+      if (previousRoll === undefined) delete globalThis.Roll;
+      else globalThis.Roll = previousRoll;
+      if (previousGame === undefined) delete globalThis.game;
+      else globalThis.game = previousGame;
+      if (previousChatMessage === undefined) delete globalThis.ChatMessage;
+      else globalThis.ChatMessage = previousChatMessage;
+      if (previousApplications === undefined) delete globalThis.foundry.applications;
+      else globalThis.foundry.applications = previousApplications;
+    }
+  });
+
   test("a multi-target attack with unroutable situation labels visibly refuses before rolling", async () => {
     const previousUi = globalThis.ui;
     const previousRoll = globalThis.Roll;

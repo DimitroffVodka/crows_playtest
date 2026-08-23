@@ -231,7 +231,8 @@ export async function rollTamingTest(animal, human, {
     ...rollOptions,
     actor: human,
     characteristic: "mind",
-    flavor: rollOptions.flavor ?? `Tame ${animal?.name ?? "Animal"}`
+    flavor: rollOptions.flavor ?? `Tame ${animal?.name ?? "Animal"}`,
+    allowedExpertises: ["handlePet"]
   });
   if (result?.state !== "committed") {
     return { ok: true, pending: true, test: result, resolution: null };
@@ -506,7 +507,8 @@ export async function rollPetCommandTest(animal, human, {
     ...rollOptions,
     actor: human,
     characteristic: "mind",
-    flavor: rollOptions.flavor ?? `Command ${animal?.name ?? "Pet"}`
+    flavor: rollOptions.flavor ?? `Command ${animal?.name ?? "Pet"}`,
+    allowedExpertises: ["handlePet"]
   });
   if (result?.state !== "committed") {
     return { ok: true, pending: true, test: result, resolution: null };

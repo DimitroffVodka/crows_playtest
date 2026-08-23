@@ -27,7 +27,7 @@ import {
 import { enterDungeon, leaveDungeon, applyGreedBonus } from "./helpers/greed.mjs";
 import { registerSlotSettings } from "./helpers/slots.mjs";
 import {
-  registerMiasmaSettings, getInMiasma, setInMiasma,
+  registerMiasmaSettings, registerMiasmaHooks, getInMiasma, setInMiasma,
   rollMiasmaResist, rollMiasmaEffect, clearMiasma, onBonedCleared, MIASMA_EFFECTS
 } from "./helpers/miasma.mjs";
 import {
@@ -225,6 +225,7 @@ Hooks.once("ready", async () => {
   console.log("crows | ready");
   registerSpellcastingHooks();
   registerCombatHooks({ autoApply: false });
+  registerMiasmaHooks();
   await runWorldMigration();
 });
 

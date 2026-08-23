@@ -20,6 +20,7 @@
  *    hit, so the outcome is read on `crowsTestCommitted` — see combat.mjs.
  */
 
+import { CROWS } from "../config.mjs";
 import { rollTest } from "./roll.mjs";
 import { buildAttackLabels, targetRef } from "./combat.mjs";
 
@@ -207,6 +208,9 @@ export async function attackWithWeapon(actor, weapon, {
   }
 
   const attack = weaponAttackPayload(actor, weapon, { isMelee, characteristic, furyBonus, situation });
+  const allowedExpertises = CROWS.weaponTypes.includes(attack.weaponType)
+    ? [attack.weaponType]
+    : [];
 
   const flavorBits = [`${actor.name} attacks with ${weapon.name}`];
   if (furyBonus) flavorBits.push(`(+${furyBonus} fury)`);
@@ -220,6 +224,7 @@ export async function attackWithWeapon(actor, weapon, {
     banes: labels.banes,
     flavor: flavorBits.join(" "),
     attack,
+    allowedExpertises,
     // TargetRef snapshots (C10): plain data, never a Token or an Actor.
     targets: situations.map(t => targetRef(t.tokenId, t.conditions))
   });

@@ -228,6 +228,7 @@ describe("taming and bonding", () => {
     });
     assert.equal(seen.actor.uuid, "Actor.crow1");
     assert.equal(seen.characteristic, "mind");
+    assert.deepEqual(seen.allowedExpertises, ["handlePet"]);
     assert.deepEqual(seen.edges, [{ key: "buddy" }]);
     assert.equal(result.resolution.outcome, "owned");
   });
@@ -408,6 +409,7 @@ describe("pets and summoned creatures in combat", () => {
     });
     assert.equal(seen.characteristic, "mind");
     assert.equal(seen.actor.uuid, "Actor.crow1");
+    assert.deepEqual(seen.allowedExpertises, ["handlePet"]);
     assert.equal(result.resolution.weakened, true);
   });
 });

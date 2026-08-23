@@ -301,19 +301,31 @@ Part 1.1 freezes `Layout.coin.purses[]` as `{id, held, cap}`, but **nothing owne
 
 ---
 
-## 4b. `TestResult` — amended by T1.1 during Wave 1
+## 4b. `TestResult` — amended during Wave 1 and D1
 
-Two fields were **added** after the freeze. Additive only: no existing field changed meaning and no signature moved.
+Four fields were **added** after the freeze. Additive only: no existing field changed meaning.
 
 ```js
-attack:  object | null,    // the attack context, if this test was one
-casting: object | null,    // the casting context, if this test was one
+attack:             object | null,    // the attack context, if this test was one
+casting:            object | null,    // the casting context, if this test was one
+miasma:             object | null,    // {kind:"resist"} for a Miasma resist test
+allowedExpertises: string[] | null,   // exact applicability, or legacy fallback
 ```
 
 **Why it had to change.** `rollTest` was rendering the card with both and then discarding them, which broke the contract's own invariant — `API-NOTES.md` §4 requires the card to be a pure function of `message.flags.crows.test`, and a late-joining client could not render the Apply-T2/T3 buttons or name the spell from a flag that had dropped them. Two consumers were already reaching for them:
 
 - `spellcasting.mjs resolveCastContext()` reads `result.casting.castId` first and otherwise scans `_pendingCasts` by actorId — ambiguous the moment one caster has two casts in flight. It was silently on that fallback.
 - `combat.mjs onTestCommitted()` computes damage from `ctx.attack ?? {}`, and the hook path never supplied one.
+
+**D1 makes expertise applicability part of that same persisted authority.** Both `rollTest({allowedExpertises})` and `buildTestResult({allowedExpertises})` default to `null`; new results always own the field, while an older flag with the field absent behaves as `null`. Arrays are copied into the result so a caller cannot mutate a posted decision later.
+
+- `null` or absent uses the legacy kind/category table.
+- `[]` declares that no expertise applies and therefore commits `"no-legal-spend"` immediately.
+- A non-empty array is the exact allowed set and **replaces** the broad category table. The known-key check and spell-discipline defense still apply.
+
+For a targetful result, efficacy reads the actual `targets[].tier` values and a spend is legal when **any** target is below tier 3. The base `tier` is used only for a targetless test. One spend raises the base and every target once, capped at 3.
+
+**Miasma is also commit-bound once Endurance is legal.** A resist test persists `miasma: {kind:"resist"}`; the initiator posts the roll and applies nothing. The Miasma subscriber recognizes that marker on `crowsTestCommitted` and only then stamps the test, adds boned and rolls any tier-1 effect. Matching on the exact Endurance list would be lossy — an ordinary Endurance test is not a Miasma resist — and reading the tier in `rollMiasmaResist` would apply a pre-expertise result.
 
 **The emit signature is `(result, message)`.** T1.8 matched it; T1.7 subscribed as `(result, ctx = {})`, so a ChatMessage lands in its `ctx` and `ctx.attack` never arrives. Fix relayed.
 
@@ -323,15 +335,17 @@ casting: object | null,    // the casting context, if this test was one
 
 ### The discipline gate changes card LIFECYCLE, not just which button is refused
 
-`canSpendExpertise` gated by **category** only, so on a casting all six spellcasting expertises passed — a caster of an *alteration* spell could improve their result by spending *necromancy*. `R:1451` is singular: the discipline names **the** expertise. Found by T1.8, fixed by T1.1 in `2f2ce7e`. Guard order is now:
+`canSpendExpertise` originally gated by **category** only, so on a casting all six spellcasting expertises passed — a caster of an *alteration* spell could improve their result by spending *necromancy*. `R:1459` is singular: the discipline names **the** expertise. Found by T1.8, fixed by T1.1 in `2f2ce7e`. D1 keeps that discipline check after the new applicability branch:
 
 ```
-state -> doom -> tier>=3 -> expertiseSpent -> category -> DISCIPLINE -> uses
+state -> doom/terminal -> actual outcome improvable -> expertiseSpent
+      -> known key -> (legacy category IF null | exact membership otherwise)
+      -> DISCIPLINE -> uses
 ```
 
 **The consequence Wave 2 must know about.** The gate feeds `hasLegalSpend`, and `hasLegalSpend` decides the A1 commit state. So a caster holding only necromancy and illusion who casts *alteration* now commits **`"no-legal-spend"` on the first render** instead of sitting `pending`. That is correct — the old path stranded T1.8's chaos roll and T1.7's Counter window behind a spend the player could never legally make — but it means the rule affects the card's lifecycle, not merely its buttons.
 
-> **T2.2:** read `legalExpertiseSpends(result, actor)` (exported from `expertise.mjs:109`). Do **not** filter by category yourself, or you will render six spend buttons where one is legal.
+> **T2.2:** read the exported `legalExpertiseSpends(result, actor)`. Do **not** filter by category yourself, or you will render choices the persisted applicability gate rejects.
 
 **A hazard class worth generalising**, from T1.8's `state` bug: a destructured **default** upstream of a correct guard — `state = "committed"` — turned `undefined` into a committed test before the guard ever saw it. The guard reads correctly in review and the defect is invisible at the assertion site. Audit defaults on any parameter that *gates* behaviour. T1.1 notes `buildTestResult` defaults `actor = null` with the same shape; that one is deliberate and tested (a null actor genuinely has no spend), but it is the same trap if ever called while intending to pass an actor.
 

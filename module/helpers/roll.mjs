@@ -49,7 +49,8 @@ const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
  *
  * Returns a TierResolution — the tier-resolution SUBSET only. It has no `state`,
  * `commitReason`, `actorId`, `characteristic`, `kind`, `targets` or
- * `expertiseSpent`; `buildTestResult` assembles those.
+ * `expertiseSpent`, applicability declaration or purpose payload;
+ * `buildTestResult` assembles those.
  *
  * @param {object}  o
  * @param {number}  o.rawSum    the UNMODIFIED 2d10 sum — never a modified total
@@ -201,6 +202,8 @@ export function autoDoomApplies({ conditions = {}, characteristic = null } = {})
  *
  * @param {object} o
  * @param {object|null} o.actor  read ONLY to decide whether a legal spend exists
+ * @param {string[]|null} o.allowedExpertises exact keys, [] for none, null for legacy
+ * @param {object|null} o.miasma persisted Miasma-test purpose, when applicable
  */
 export function buildTestResult({
   actorId = null,
@@ -214,6 +217,8 @@ export function buildTestResult({
   targets = [],
   attack = null,
   casting = null,
+  miasma = null,
+  allowedExpertises = null,
   autoDoom = false,
   actor = null
 } = {}) {
@@ -242,19 +247,20 @@ export function buildTestResult({
     kind,
     targets: targetEntries,
     expertiseSpent: null,
+    allowedExpertises: Array.isArray(allowedExpertises) ? [...allowedExpertises] : null,
 
     // The roll's PAYLOAD, carried through to commit.
     //
-    // The frozen TestResult type block did not list these, but its own stated
-    // invariant requires them: the card must be a PURE FUNCTION of
+    // The card must be a PURE FUNCTION of
     // `message.flags.crows.test` (API-NOTES §4), and a late-joining client
     // cannot render the Apply-Damage buttons — or say which spell was cast —
-    // from a flag that dropped them. Both downstream consumers already assume
-    // they survive: spellcasting.mjs resolves its cast context from
-    // `result.casting.castId`, and combat.mjs computes damage from an `attack`.
-    // Dropping them left each of them on a lossy fallback path.
+    // from a flag that dropped them. Downstream consumers need the same durable
+    // authority: spellcasting resolves `casting.castId`, combat computes damage
+    // from `attack`, and Miasma distinguishes its resist from an ordinary
+    // Endurance test through `miasma.kind`.
     attack: attack ?? null,
     casting: casting ?? null,
+    miasma: miasma ? structuredClone(miasma) : null,
 
     state: "pending",
     commitReason: null
@@ -306,6 +312,9 @@ export function snapshotUserTargets() {
  * derived from `characteristic` and nothing else in the signature can name it.
  *
  * @param {string|null} [o.task] free text, matched against `system.preparedTask.task`
+ * @param {string[]|null} [o.allowedExpertises] exact applicability declaration;
+ *        null/absent preserves the legacy kind/category gate
+ * @param {object|null} [o.miasma] persisted Miasma-test purpose marker
  * @returns {Promise<object>} the TestResult (also on the message's flags)
  */
 export async function rollTest({
@@ -317,8 +326,10 @@ export async function rollTest({
   flavor = "Test",
   attack = null,
   casting = null,
+  miasma = null,
   targets = null,
-  task = null
+  task = null,
+  allowedExpertises = null
 } = {}) {
   const kind = casting ? "casting" : attack ? "attack" : "test";
   const conditions = actor?.system?.conditions ?? {};
@@ -350,7 +361,7 @@ export async function rollTest({
     actorId: actor?.id ?? null,
     characteristic, kind, rawSum, charVal,
     mods: allMods, edges: allEdges, banes: allBanes,
-    targets: refs, attack, casting, autoDoom, actor
+    targets: refs, attack, casting, miasma, allowedExpertises, autoDoom, actor
   });
 
   const content = await foundry.applications.handlebars.renderTemplate(

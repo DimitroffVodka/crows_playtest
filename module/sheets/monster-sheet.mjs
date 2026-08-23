@@ -71,6 +71,9 @@ export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const atk = this.document.system.attacks[idx];
     if (!atk) return;
     const isMelee = /^melee/i.test(atk.range ?? "");
+    // D1: this schema names no weapon type or spell discipline, so applicability
+    // is unknown rather than explicitly empty. Omission deliberately preserves
+    // the null/legacy path until content supplies an authoritative key.
     await rollTest({
       actor: this.document,
       mods: [{ value: atk.toHit ?? 0, label: `${atk.name} +${atk.toHit ?? 0}` }],

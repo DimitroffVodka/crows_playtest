@@ -10,7 +10,8 @@ import {
   autoDoomApplies,
   classifyTier,
   testCardData,
-  preparedTaskMod
+  preparedTaskMod,
+  rollTest
 } from "../module/helpers/roll.mjs";
 import {
   canSpendExpertise,
@@ -408,23 +409,103 @@ describe("the roll payload survives to commit — the card is a pure function of
 
   test("the payload is still there after a spend commits", async () => {
     const actor = fakeCrow({ expertises: { bow: { value: 1, max: 1 } } });
-    const msg = fakeMessage(buildTestResult({ actorId: actor.id, kind: "attack", rawSum: 12, attack, actor }));
+    const msg = fakeMessage(buildTestResult({
+      actorId: actor.id, kind: "attack", rawSum: 12, attack,
+      allowedExpertises: ["bow"], actor
+    }));
     const out = await applyExpertise(msg, "bow", { getActor: () => actor });
     assert.deepEqual(out.attack, attack, "T1.7 reads damage off the COMMITTED result");
+    assert.deepEqual(out.allowedExpertises, ["bow"], "the exact gate survives the spend transform");
+    assert.deepEqual(flagOf(msg).allowedExpertises, ["bow"], "and the committed flag keeps it");
     assert.deepEqual(commits()[0].args[0].attack, attack, "and the event carries it");
   });
 
   test("the payload is still there after a decline commits", async () => {
     const actor = fakeCrow({ expertises: { elemental: { value: 1, max: 1 } } });
-    const msg = fakeMessage(buildTestResult({ actorId: actor.id, kind: "casting", rawSum: 12, casting, actor }));
+    const msg = fakeMessage(buildTestResult({
+      actorId: actor.id, kind: "casting", rawSum: 12, casting,
+      allowedExpertises: ["elemental"], actor
+    }));
     const out = await declineExpertise(msg, { getActor: () => actor });
     assert.equal(out.casting.castId, "cast-abc");
+    assert.deepEqual(out.allowedExpertises, ["elemental"], "the exact gate survives decline");
+    assert.deepEqual(flagOf(msg).allowedExpertises, ["elemental"], "and the committed flag keeps it");
   });
 
   test("testCardData reads the payload off the result, not off the caller", () => {
     const r = buildTestResult({ kind: "attack", rawSum: 12, attack, actor: null });
     const data = testCardData(r, { flavor: "Shoot" });
     assert.deepEqual(data.attack, attack, "a re-render with no caller context still shows Apply Damage");
+  });
+
+  test("an exact expertise declaration survives the flag and drives a late-join card", () => {
+    const actor = fakeCrow({
+      expertises: { bow: { value: 1, max: 1 }, bashing: { value: 1, max: 1 } }
+    });
+    const declared = ["bow"];
+    const message = fakeMessage(buildTestResult({
+      kind: "attack", rawSum: 12, attack,
+      allowedExpertises: declared, actor
+    }));
+    declared.push("bashing");
+
+    assert.deepEqual(flagOf(message).allowedExpertises, ["bow"], "the persisted declaration is cloned");
+    assert.deepEqual(
+      testCardData(flagOf(message), { actor }).expertiseButtons.map(button => button.key),
+      ["bow"],
+      "the card needs no transient caller option"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe("rollTest — persisted expertise declaration", () => {
+  test("the public roll boundary carries the exact allowlist into the chat flag", async () => {
+    const previousRoll = globalThis.Roll;
+    const previousGame = globalThis.game;
+    const previousChatMessage = globalThis.ChatMessage;
+    const previousApplications = globalThis.foundry.applications;
+    let messageData = null;
+
+    globalThis.Roll = class DeterministicTestRoll {
+      constructor() {
+        this.total = 12;
+        this.dice = [{ faces: 10, results: [{ result: 6 }, { result: 6 }] }];
+      }
+      async evaluate() { return this; }
+      async toMessage(data) {
+        messageData = data;
+        return { id: "Message.allowedExpertises" };
+      }
+    };
+    globalThis.game = {
+      i18n: { localize: key => key },
+      settings: { get: () => "publicroll" },
+      user: { targets: new Set() }
+    };
+    globalThis.ChatMessage = { getSpeaker: () => ({ actor: "Actor.crow" }) };
+    globalThis.foundry.applications = {
+      handlebars: { renderTemplate: async () => "<div>test</div>" }
+    };
+
+    try {
+      const actor = fakeCrow({ expertises: { bow: { value: 1, max: 1 } } });
+      const result = await rollTest({
+        actor, characteristic: "agility", attack: { isMelee: false }, targets: [],
+        allowedExpertises: ["bow"]
+      });
+      assert.deepEqual(result.allowedExpertises, ["bow"]);
+      assert.deepEqual(messageData.flags.crows.test.allowedExpertises, ["bow"]);
+    } finally {
+      if (previousRoll === undefined) delete globalThis.Roll;
+      else globalThis.Roll = previousRoll;
+      if (previousGame === undefined) delete globalThis.game;
+      else globalThis.game = previousGame;
+      if (previousChatMessage === undefined) delete globalThis.ChatMessage;
+      else globalThis.ChatMessage = previousChatMessage;
+      if (previousApplications === undefined) delete globalThis.foundry.applications;
+      else globalThis.foundry.applications = previousApplications;
+    }
   });
 });
 
@@ -448,7 +529,7 @@ describe("canSpendExpertise — the gate (R:292)", () => {
     assert.equal(canSpendExpertise(attack, "elemental", caster), null);
   });
 
-  test("a casting accepts only its OWN discipline's expertise (R:1451, singular)", () => {
+  test("a casting accepts only its OWN discipline's expertise (R:1459, singular)", () => {
     // Category alone is not enough: without the discipline gate an alteration
     // caster could improve their result by spending necromancy, and it would be
     // silent — the spend looks legal and the tier really does improve.
@@ -484,10 +565,37 @@ describe("canSpendExpertise — the gate (R:292)", () => {
     assert.equal(canSpendExpertise(attack, "necromancy", caster), null);
   });
 
+  test("new null results and old flags with no field both use the legacy category fallback", () => {
+    const actor = bowCrow();
+    const current = buildTestResult({ kind: "attack", rawSum: 12, actor });
+    const oldFlag = pendingResult({ kind: "attack" });
+    assert.equal(current.allowedExpertises, null);
+    assert.equal(current.state, "pending");
+    assert.equal(Object.hasOwn(oldFlag, "allowedExpertises"), false);
+    assert.equal(canSpendExpertise(oldFlag, "bow", actor), null);
+  });
+
   test("a general expertise is refused on both attacks and castings", () => {
     assert.equal(categoryAllows("attack", "athletics"), false);
     assert.equal(categoryAllows("casting", "athletics"), false);
     assert.equal(categoryAllows("test", "athletics"), true);
+  });
+
+  test("a declared exact allowlist replaces the legacy kind/category table", () => {
+    const declared = pendingResult({ kind: "attack", allowedExpertises: ["athletics"] });
+    const crow = fakeCrow({ expertises: { athletics: { value: 1, max: 1 }, bow: { value: 1, max: 1 } } });
+    assert.equal(canSpendExpertise(declared, "athletics", crow), null);
+    assert.deepEqual(legalExpertiseSpends(declared, crow), ["athletics"]);
+  });
+
+  test("the spell discipline remains a defense after an exact declaration", () => {
+    const result = pendingResult({
+      kind: "casting",
+      casting: { discipline: "alteration", rank: 1 },
+      allowedExpertises: ["necromancy"]
+    });
+    const caster = fakeCrow({ expertises: { necromancy: { value: 1, max: 1 } } });
+    assert.equal(canSpendExpertise(result, "necromancy", caster), "wrong discipline");
   });
 
   test("a spend is REFUSED when the tier is already 3, so a use cannot be burned for nothing", () => {
@@ -550,6 +658,32 @@ describe("A1 commit lifecycle — nothing downstream fires while pending", () =>
     assert.equal(r.targets[0].terminal, "unconscious");
   });
 
+  test("base tier 3 stays pending when an actual target can still be improved", () => {
+    const actor = spendable();
+    const r = buildTestResult({
+      kind: "attack", rawSum: 17, attack: { isMelee: false },
+      targets: [{ tokenId: "T.prone", conditions: { prone: true } }],
+      allowedExpertises: ["bow"], actor
+    });
+    assert.equal(r.tier, 3);
+    assert.equal(r.targets[0].tier, 2, "the ranged attack takes one target-only bane");
+    assert.equal(r.state, "pending");
+    assert.equal(r.commitReason, null);
+  });
+
+  test("base tier 2 commits when every actual target is already tier 3", () => {
+    const actor = spendable();
+    const r = buildTestResult({
+      kind: "attack", rawSum: 15, attack: { isMelee: true },
+      targets: [{ tokenId: "T.grabbed", conditions: { grabbed: true } }],
+      allowedExpertises: ["bow"], actor
+    });
+    assert.equal(r.tier, 2);
+    assert.equal(r.targets[0].tier, 3);
+    assert.equal(r.state, "committed");
+    assert.equal(r.commitReason, "no-legal-spend");
+  });
+
   test("no uses -> committed, \"no-legal-spend\"", () => {
     const r = buildTestResult({ kind: "attack", rawSum: 12, actor: fakeCrow({ expertises: { bow: { value: 0, max: 2 } } }) });
     assert.equal(r.state, "committed");
@@ -559,6 +693,17 @@ describe("A1 commit lifecycle — nothing downstream fires while pending", () =>
   test("no legal CATEGORY -> committed, \"no-legal-spend\"", () => {
     // Plenty of uses, but they are all general expertises and this is a casting.
     const r = buildTestResult({ kind: "casting", rawSum: 12, actor: fakeCrow({ expertises: { athletics: { value: 5, max: 5 } } }) });
+    assert.equal(r.state, "committed");
+    assert.equal(r.commitReason, "no-legal-spend");
+  });
+
+  test("an explicit empty expertise allowlist survives on the result and commits immediately", () => {
+    const actor = spendable();
+    const r = buildTestResult({
+      actorId: actor.id, kind: "attack", rawSum: 12,
+      allowedExpertises: [], actor
+    });
+    assert.deepEqual(r.allowedExpertises, [], "the persisted flag keeps empty distinct from absent");
     assert.equal(r.state, "committed");
     assert.equal(r.commitReason, "no-legal-spend");
   });
@@ -713,6 +858,23 @@ describe("pure commit transforms", () => {
   test("spendExpertise floors per-target tiers at 3", () => {
     const r = pendingResult({ targets: [{ tokenId: "a", tier: 3, edges: [], banes: [], terminal: "unconscious" }] });
     assert.equal(spendExpertise(r, "athletics").targets[0].tier, 3);
+  });
+
+  test("one spend improves every non-maxed target and preserves tier-3 caps", () => {
+    const r = pendingResult({
+      kind: "attack", tier: 3, allowedExpertises: ["bow"],
+      targets: [
+        { tokenId: "maxed", tier: 3, edges: [], banes: [], terminal: null },
+        { tokenId: "open", tier: 2, edges: [], banes: [], terminal: null }
+      ]
+    });
+    const actor = fakeCrow({ expertises: { bow: { value: 1, max: 1 } } });
+    assert.equal(canSpendExpertise(r, "bow", actor), null, "one actual target is improvable");
+
+    const next = spendExpertise(r, "bow");
+    assert.equal(next.tier, 3);
+    assert.deepEqual(next.targets.map(target => target.tier), [3, 3]);
+    assert.deepEqual(next.allowedExpertises, ["bow"]);
   });
 
   test("spendExpertise does not mutate its input", () => {
