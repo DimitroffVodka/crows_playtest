@@ -118,6 +118,7 @@ Scope notes made at dispatch, because both one-liners below understate their ite
 ## 6. Wave 3 content dependencies
 
 - **`ArmorData` has no `qualities` field** (weapons do), so "Silent" (C:2140) has nowhere to live. T1.7 falls back to the item name.
+- ~~**`coin-purse.yaml` does not set `purse.isPurse: true`**~~ — **CLOSED `fb4122d`.** Stamped in the YAML and the packed DB; the creation-time name match is deleted. Verified live across all three paths with the workaround already removed — compendium, **dragged-from-compendium** (the path p11 never covered) and wizard-created all report `{isPurse: true, held: 0, baseCapacity: 500}`. `baseCapacity` is deliberately left out of the content so it keeps tracking `CROWS.purseBaseCapacity`. Original finding below.
 - **`coin-purse.yaml` does not set `purse.isPurse: true`** — no shipped purse is a purse yet. **Confirmed live on 2026-08-23** against the booted world: the compendium Coin Purse reads `{isPurse: false, held: 0, baseCapacity: 500}`, and `src/packs/crows-gear/coin-purse.yaml` has **no `purse:` block at all**, so the value is only the schema default. Nothing else in `crows-gear` claims `isPurse`.
   **This is a live player-facing bug, not just missing content.** `character-creator.mjs:191` name-matches `wantedItem.name === "Coin Purse"` and stamps `{isPurse: true, held: 0, baseCapacity: 500}` at creation, so a **wizard-made crow gets a working purse while a purse dragged in from the compendium does not** — it silently holds no coins. The name match also means a renamed purse, or any second purse item, gets nothing.
   p11 passes *because* of the workaround and therefore hides the bug — the same "green on the happy path, wrong on the other path" shape as §7. Fix: stamp the YAML, repack, then delete the creation-time special case. Do not add a second name match anywhere.
@@ -147,6 +148,11 @@ Hard-reloaded at `923cb5a` after 13.8h on 0.1.3. **The system boots clean.**
 
 ### p11 was stale, not broken
 It destructured `createCharacter` from `game.crows.creator`, but the public name is `creator.create` (`module/crows.mjs:203`) — same function, same signature. It failed with `createCharacter is not a function`, which reads like a wiring gap and is not one. Fixed to bind the public name, so the probe now tests what actually ships.
+
+### ⚠ The pack build was broken for everyone — fixed in `fb4122d`
+Every `npm run pack*` and `npm run unpack` script died with `TypeError: Cannot read properties of undefined (reading 'toLowerCase')`. The fvtt CLI dereferences `currentPackageType` at `commands/package.mjs:308` **unconditionally**, even when `--in`/`--out` are supplied and the early guard above it has already been skipped — so no argument combination avoided it. The scripts now pass `--type System --id crows`.
+
+**The running world holds the LevelDB lock**, so the packer cannot open `packs/` at all while Foundry is up: it fails cleanly (`Iterator is not open` / `Database is not open`) rather than half-writing, and the pack was verified intact both before and after. Content changes therefore either need the world down, or must go through Foundry's own compendium API — which is what `fb4122d` did. **Re-run `npm run pack:gear` when the world is next down** to confirm the build reproduces those bytes.
 
 ### ⚠ `dev/` is in `.gitignore` — the probes are not version-controlled
 `.gitignore:17` ignores `dev/`, so every probe named in a Wave 2 acceptance criterion lives on **one disk only**, never appears in `git status`, and is absent from a fresh clone. Agent updates to p08/p09 are therefore invisible to review and unrecoverable if this checkout is lost. Same failure mode as the two untracked template partials that `7bcc486` rescued. **Decide whether to track `dev/probes/`** — deliberately not changed mid-wave, because un-ignoring `dev/` would change what both running agents' `git add` picks up.
