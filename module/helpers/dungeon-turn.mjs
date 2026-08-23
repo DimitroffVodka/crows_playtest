@@ -98,6 +98,47 @@ export function resolveEncounterCheck(roll, en) {
 }
 
 /**
+ * Resolve a whole usage-die pool against R:200: roll ALL of the dice, and every
+ * die showing a 1 or a 2 is removed. At 0 the effect ends.
+ *
+ * Note this is a POOL, not a single die. `helpers/usage-die.mjs` rolls exactly
+ * one d6 per call regardless of how many dice an item has, so a 3-UD torch
+ * decays at a third of the published rate — reported to the orchestrator; that
+ * file is not T1.5's to change.
+ *
+ * @param {number[]} faces  one d6 result per die currently in the pool
+ * @returns {{removed:number, remaining:number, depleted:boolean, faces:number[]}}
+ */
+export function resolveUsageDicePool(faces = []) {
+  const rolled = (faces ?? []).map(Number).filter(Number.isFinite);
+  const removed = rolled.filter(f => f <= 2).length;
+  const remaining = Math.max(0, rolled.length - removed);
+  return { removed, remaining, depleted: remaining === 0, faces: rolled };
+}
+
+/**
+ * A durational backlash (R:1561) carries its own usage dice, and rolling them at
+ * the end of a dungeon turn is the DT clock's job rather than the backlash
+ * table's — which is why this lives here and not in backlash.mjs.
+ *
+ * PROPOSED SEAM, not yet written by anything: `backlashUsageDice(row)` (T1.8)
+ * parses the die count out of the row text, but nothing creates the effect that
+ * would hold it. When something does, it should carry:
+ *
+ *     effect.flags.crows.ud = { current: <n>, max: <n> }
+ *
+ * and this pass will decay and delete it. Documented here so T1.8 has a target
+ * to hit instead of inventing a second one.
+ */
+export const BACKLASH_UD_FLAG = "ud";
+
+/** The pool size on an effect, or 0 when it carries none. */
+export function effectUsageDice(effect) {
+  const ud = effect?.flags?.crows?.[BACKLASH_UD_FLAG];
+  return Math.max(0, Math.floor(Number(ud?.current) || 0));
+}
+
+/**
  * The update that ends the durational conditions on one creature, or null when
  * none of them are set. Returning null rather than an all-false object keeps
  * endDungeonTurn from writing to every actor in the world every single turn.
@@ -271,12 +312,38 @@ export async function runEndOfDtEffects() {
     });
   }
 
+  const backlash = await _rollEffectUsageDice(crows);
+
   try {
     const { clearPerDtBoonFlags } = await import("./crypt.mjs");
     await clearPerDtBoonFlags();
   } catch { /* crypt module not loaded */ }
 
-  return { udRolls, expired };
+  return { udRolls, expired, backlash };
+}
+
+/**
+ * Decay every durational effect carrying a usage-die pool, and delete the ones
+ * that run out. See BACKLASH_UD_FLAG for the shape.
+ */
+async function _rollEffectUsageDice(actors) {
+  const out = [];
+  for (const actor of actors) {
+    const doomed = [];
+    for (const effect of actor.effects ?? []) {
+      const pool = effectUsageDice(effect);
+      if (!pool) continue;
+      const faces = [];
+      for (let i = 0; i < pool; i++) faces.push((await new Roll("1d6").evaluate()).total);
+      const res = resolveUsageDicePool(faces);
+      if (!res.removed) continue;
+      if (res.depleted) doomed.push(effect.id);
+      else await effect.update({ [`flags.crows.${BACKLASH_UD_FLAG}.current`]: res.remaining });
+      out.push({ actor: actor.name, effect: effect.name, ...res });
+    }
+    if (doomed.length) await actor.deleteEmbeddedDocuments("ActiveEffect", doomed);
+  }
+  return out;
 }
 
 /**
