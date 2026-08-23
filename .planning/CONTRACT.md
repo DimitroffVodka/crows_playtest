@@ -348,6 +348,32 @@ state -> doom -> tier>=3 -> expertiseSpent -> category -> DISCIPLINE -> uses
 3. an idempotent, LOOP-GUARDED mirror adds/removes the status effect to match
 ```
 
+> ### ⚠️ The interception hook MUST be synchronous. Verified on live 14.367.
+>
+> An earlier version of this section said to `await handleStatusToggleIntent(...)` and cancel core when it returns `handled: true`. **That is unimplementable.** Foundry dispatches `preCreate`/`preDelete` lifecycle hooks **synchronously** — it does not await the handler — so an `async` hook returns a Promise, the Promise is truthy, and **core proceeds regardless**. Found by T2.3, which read the v14 source rather than trusting this document. Confirmed by probe:
+>
+> | probe on `preCreateActiveEffect` | result |
+> |---|---|
+> | handler returns a Promise resolving `false` | **ignored** — the effect was created |
+> | handler returns `false` synchronously | **cancels** |
+>
+> This is the project's recurring failure shape in its purest form: the code reads correctly, the `await` resolves, the cancel silently never happens, and the boolean and the effect drift apart with nothing erroring.
+>
+> **The shape that works:**
+>
+> ```js
+> Hooks.on("preCreateActiveEffect", (effect, data, options, userId) => {
+>   if (isMirroring(actor) || !isOurStatus(effect)) return true;   // sync gates
+>   handleStatusToggleIntent(actor, statusId, active)              // fire-and-forget
+>     .catch(err => console.warn("crows | status intent failed", err));
+>   return false;                                                  // cancel core
+> });
+> ```
+>
+> **The gates must be genuinely synchronous.** `isMirroring` and the is-this-ours check have to complete *before* the hook returns. If either sits behind an `await` inside the handler, the guard has not run by the time you return `false` — and you are back in the deadlock the loop-guard exists to prevent.
+>
+> **Log loudly on rejection.** Cancelling core and then re-applying asynchronously means a rejected promise leaves the boolean set and the status effect absent. A visible desync a Ref can fix beats an invisible one.
+
 The guard is not optional: without it step 3 re-triggers step 1. Mirror only when the effect's presence actually disagrees with the boolean, and make the write a no-op when they already agree.
 
 **`dead` ↔ `conditions.defeated`** is the one id where the two vocabularies differ. **Both** `CrowData` and `MonsterData` now carry `defeated`, so the mapping is a single rule with no actor-type branch — previously only monsters had it, and the mirror had nowhere to write for a PC.

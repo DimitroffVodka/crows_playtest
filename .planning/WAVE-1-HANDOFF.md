@@ -39,9 +39,13 @@ T2.3 is the critical Wave 2 task: it owns `module/crows.mjs`, which **currently 
 - Expose T1.7's: `setCondition`, `mirrorConditions`, `expireDungeonTurnConditions`.
 - Delete T1.4's deprecated `spendSkillBonus` stub once the import is gone.
 
-### ⚠ The HUD interception trap
+### ⚠ The HUD interception trap — CORRECTED, the hook must be SYNCHRONOUS
 
-On the status-effect lifecycle hook, call `await handleStatusToggleIntent(actor, statusId, active)` and **cancel core's write ONLY when it returns `handled: true`**. When it returns `handled: false` with reason `"our own mirror write"`, core **must** proceed — that is the mirror completing, and cancelling it **deadlocks the pair**. This is the concrete shape of the loop-guard the contract warned about abstractly.
+The original wording here said to `await handleStatusToggleIntent(...)` and cancel core when it returns `handled: true`. **That is unimplementable.** T2.3 read the v14 source and found `preCreate`/`preDelete` are dispatched synchronously — core does not await the handler, so an `async` hook returns a truthy Promise and **core proceeds regardless**. Confirmed by probe on live 14.367: an async handler resolving `false` was ignored and the effect was created; a synchronous `false` cancelled.
+
+The working shape: a **synchronous** hook that passes through immediately when `isMirroring(actor)` or the status is not ours, and otherwise starts `handleStatusToggleIntent(...)` fire-and-forget with rejection logging before returning `false`.
+
+Two things that still hold from the original: the mirror's own write **must** pass through, or the pair deadlocks — that is what `isMirroring` is for; and rejection must be logged loudly, because cancelling core then failing to re-apply leaves the boolean set and the effect absent. See CONTRACT §5b for the code shape and the caveat that the gates must be genuinely synchronous.
 
 ---
 
