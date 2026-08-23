@@ -104,7 +104,9 @@ Two things that still hold from the original: the mirror's own write **must** pa
 ## 6. Wave 3 content dependencies
 
 - **`ArmorData` has no `qualities` field** (weapons do), so "Silent" (C:2140) has nowhere to live. T1.7 falls back to the item name.
-- **`coin-purse.yaml` does not set `purse.isPurse: true`** — no shipped purse is a purse yet.
+- **`coin-purse.yaml` does not set `purse.isPurse: true`** — no shipped purse is a purse yet. **Confirmed live on 2026-08-23** against the booted world: the compendium Coin Purse reads `{isPurse: false, held: 0, baseCapacity: 500}`, and `src/packs/crows-gear/coin-purse.yaml` has **no `purse:` block at all**, so the value is only the schema default. Nothing else in `crows-gear` claims `isPurse`.
+  **This is a live player-facing bug, not just missing content.** `character-creator.mjs:191` name-matches `wantedItem.name === "Coin Purse"` and stamps `{isPurse: true, held: 0, baseCapacity: 500}` at creation, so a **wizard-made crow gets a working purse while a purse dragged in from the compendium does not** — it silently holds no coins. The name match also means a renamed purse, or any second purse item, gets nothing.
+  p11 passes *because* of the workaround and therefore hides the bug — the same "green on the happy path, wrong on the other path" shape as §7. Fix: stamp the YAML, repack, then delete the creation-time special case. Do not add a second name match anywhere.
 - **`targetNeedsReview` flags 5 of 25 spellbooks** — Summon Object, Cacophony, Create Water, Deadspeech, Minor Phantasm. Transcribe PT2 target lines using R:1467's vocabulary and the `Summoned` keyword.
 - **Backgrounds are re-transcribed, not migrated** (C:89–602). Until then, H5's budget reports "skipped" for every actor — correct by design.
 - **`CrowData.crafting.projects`** still carries PT1's `prereqBonus`/`hasRecipe` and has no field for the PT2 prerequisite (expertise **+ uses**, R:1540). T1.6 validates at project start and does not persist it.
@@ -112,6 +114,28 @@ Two things that still hold from the original: the mirror's own write **must** pa
 - **`TraitData` cannot declare "grants purse capacity"** — T1.2 matches Bursting Purse by compendium id `ctthie42brstprs0` with a name fallback.
 
 ---
+
+## 8. Live verification — world `crow-test` reloaded onto 0.2.0, 2026-08-23
+
+Hard-reloaded at `923cb5a` after 13.8h on 0.1.3. **The system boots clean.**
+
+| Check | Result |
+|---|---|
+| Console errors since reload | **zero** (one benign MCP-relay warn) |
+| `CONFIG.statusEffects` | `blessed, grabbed, prone, unconscious, vulnerable, weakened, dead` — `boned` gone |
+| id-keyed status access | **works** — `CONFIG.statusEffects["vulnerable"]` resolves, so T2.3's proxy fix holds |
+| `game.crows` surface | 61 keys |
+| Actor / Item types | `crow, monster` / 8 item types |
+| **p02 config** | **PASS** — 30 expertises, belt 4, 6 conditions, `skills` and `backpackSize` both `undefined` |
+| **p11 creation** | **PASS** — every sub-check; *Acolyte of the Gardner*, 7 expertises, 3d6=10 gold, 6 rations, actor and chat cards cleaned up |
+
+**`system.json` version still reports `0.1.3`** from the server. That is expected and cosmetic: Foundry reads the manifest at *world launch*, not at tab reload, so the string is stale while the executing code is 0.2.0. The v0.1.3→HEAD diff of `system.json` touches only `description`, `version` and `compatibility.minimum` — no `documentTypes`, packs or esmodules change — which is *why* a browser reload is sufficient here. A future manifest change to any of those **will** require a real world relaunch, not a reload.
+
+### p11 was stale, not broken
+It destructured `createCharacter` from `game.crows.creator`, but the public name is `creator.create` (`module/crows.mjs:203`) — same function, same signature. It failed with `createCharacter is not a function`, which reads like a wiring gap and is not one. Fixed to bind the public name, so the probe now tests what actually ships.
+
+### ⚠ `dev/` is in `.gitignore` — the probes are not version-controlled
+`.gitignore:17` ignores `dev/`, so every probe named in a Wave 2 acceptance criterion lives on **one disk only**, never appears in `git status`, and is absent from a fresh clone. Agent updates to p08/p09 are therefore invisible to review and unrecoverable if this checkout is lost. Same failure mode as the two untracked template partials that `7bcc486` rescued. **Decide whether to track `dev/probes/`** — deliberately not changed mid-wave, because un-ignoring `dev/` would change what both running agents' `git add` picks up.
 
 ## 7. The failure shape this wave kept producing
 
