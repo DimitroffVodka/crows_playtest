@@ -1,7 +1,9 @@
+import { getInstitutionLevel, getVillage, setVillage } from "./village.mjs";
+
 /**
  * Crypt — village institution that grants boons via dead crows.
  *
- * Rules Booklet pp.6158–6235.
+ * Characters Book C:2913-2961.
  *
  *   - When a crow dies, their remains can be interred in the village
  *     Crypt. The player picks a boon for the dead crow.
@@ -11,14 +13,13 @@
  *     while holding a boon overwrites the old one.
  *   - Expending a boon takes no action; once expended, it's gone.
  *
- * The Crypt has a level 1–5 (+6 unlock at Prosperity 10). Level affects
- * the magnitude of every boon. This module currently stores the level
- * as a world setting; the M3 Village system will fold this into the
- * full institution model.
+ * The Crypt has a raw institution level of 1–5. At raw level 5 and
+ * Prosperity 10, it is level 6 specifically for boon effects (C:2943).
+ * The Village institution model is authoritative for those effects.
  */
 
 const NS = "crows";
-const KEY_LEVEL = "cryptLevel";
+const KEY_LEGACY_LEVEL = "cryptLevel";
 const KEY_INTERMENTS = "cryptInterments";
 const KEY_CYCLE = "cryptCycleId";
 
@@ -43,6 +44,10 @@ export const CRYPT_BOONS = {
     text: (lvl) => `When you make an assist, expend this boon to grant an additional bonus to the test you aid equal to twice the crypt's level (+${2 * lvl}).`
   },
   disappearance: {
+    // Intentionally narrative. PT2 still defines invisibility (R:775), but it
+    // is no longer a condition flag, and this system has no combat-round
+    // lifecycle to expire it correctly. The chat text carries the exact clock
+    // for GM adjudication; dungeon-turn expiry would use the wrong clock.
     id: "disappearance", label: "Boon of Disappearance", applyTo: "narrative",
     uses: () => 1,
     value: (lvl) => lvl,
@@ -109,12 +114,38 @@ export const CRYPT_BOONS = {
 
 export const BOON_IDS = Object.keys(CRYPT_BOONS);
 
+function normaliseLevel(value) {
+  if (value == null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(0, Math.floor(number)) : null;
+}
+
+/**
+ * Resolve the level used by every boon effect.
+ *
+ * `institutionLevel` is already the Village model's effective operating level,
+ * including pending upgrades, event modifiers, and the C:2943 boon capstone.
+ * The old standalone setting is read only when that authority is genuinely
+ * unavailable. In particular, level 0 is authoritative rather than a falsey
+ * signal to resurrect a destroyed/closed crypt from stale fallback data.
+ *
+ * `readFallback` is injected so this rule stays pure and mutation-testable.
+ */
+export function resolveCryptBoonLevel({ institutionLevel, readFallback = () => 1 } = {}) {
+  const authoritative = normaliseLevel(institutionLevel);
+  if (authoritative != null) return authoritative;
+  return normaliseLevel(readFallback()) ?? 1;
+}
+
 export function registerCryptSettings() {
-  game.settings.register(NS, KEY_LEVEL, {
+  // Compatibility only. This used to be the primary Crypt level; it is hidden
+  // now so a GM cannot edit a second source of truth. `getCryptBoonLevel()`
+  // consults it only if the Village authority is unavailable.
+  game.settings.register(NS, KEY_LEGACY_LEVEL, {
     scope: "world",
-    config: true,
-    name: "Crypt Level",
-    hint: "The village Crypt institution's level (1–5; 6 at Prosperity 10). Scales every boon's magnitude.",
+    config: false,
+    name: "Legacy Crypt Level",
+    hint: "Compatibility fallback; the Village Crypt institution owns boon-effect level.",
     type: Number,
     range: { min: 0, max: 6, step: 1 },
     default: 1
@@ -133,24 +164,38 @@ export function registerCryptSettings() {
   });
 }
 
-export function getCryptLevel() {
-  // Prefer the Village's Crypt institution level when one exists.
-  try {
-    const v = game.settings.get(NS, "village");
-    const crypt = v?.institutions?.find?.(i => i.type === "crypt");
-    if (crypt && Number.isFinite(crypt.level)) {
-      let lvl = Math.max(0, Math.min(5, crypt.level));
-      // Rules p.6221: at Crypt 5 + Prosperity 10, treat as level 6 for boons.
-      if (lvl === 5 && (v.prosperity ?? 0) >= 10) lvl = 6;
-      return lvl;
-    }
-  } catch { /* village not registered yet */ }
-  // Fallback to standalone Crypt level setting.
-  try { return Math.max(0, Math.min(6, Number(game.settings.get(NS, KEY_LEVEL)) || 0)); } catch { return 1; }
+function readLegacyCryptLevel() {
+  try { return game.settings.get(NS, KEY_LEGACY_LEVEL); } catch { return 1; }
 }
-export async function setCryptLevel(lvl) {
-  return game.settings.set(NS, KEY_LEVEL, Math.max(0, Math.min(6, Math.floor(Number(lvl) || 0))));
+
+/** Effective Crypt level for boon effects, not the raw purchased level. */
+export function getCryptBoonLevel() {
+  let institutionLevel;
+  try { institutionLevel = getInstitutionLevel("crypt"); } catch { /* startup compatibility */ }
+  return resolveCryptBoonLevel({ institutionLevel, readFallback: readLegacyCryptLevel });
 }
+
+/**
+ * Set the raw Village Crypt institution level (0–5).
+ * Level 6 is never stored: C:2943 derives it for boon effects only.
+ */
+export async function setRawCryptInstitutionLevel(lvl) {
+  const rawLevel = Math.max(0, Math.min(5, Math.floor(Number(lvl) || 0)));
+  const village = getVillage();
+  const index = village.institutions?.findIndex?.(institution => institution.type === "crypt") ?? -1;
+  if (index < 0) throw new Error("Cannot set Crypt level: the village has no Crypt institution");
+  const institutions = village.institutions.map((institution, i) => i === index
+    ? { ...institution, level: rawLevel }
+    : institution);
+  await setVillage({ institutions });
+  return rawLevel;
+}
+
+// Compatibility aliases. Both names historically meant "Crypt level"; the
+// explicit exports above now make raw institution level vs boon-effect level
+// impossible to confuse inside this module.
+export const getCryptLevel = getCryptBoonLevel;
+export const setCryptLevel = setRawCryptInstitutionLevel;
 
 export function getCycleId() {
   try { return Number(game.settings.get(NS, KEY_CYCLE)) || 0; } catch { return 0; }
@@ -228,7 +273,7 @@ export async function pray(actor, crowName) {
   }
 
   const boon = CRYPT_BOONS[grave.boonId];
-  const lvl = getCryptLevel();
+  const lvl = getCryptBoonLevel();
   const uses = boon.uses(lvl);
   await actor.update({
     "system.activeBoon.boonId": grave.boonId,
@@ -266,7 +311,7 @@ export async function expendBoon(actor, { silent = false } = {}) {
     });
     return { ok: false, error: "unknown boon id (cleared)" };
   }
-  const lvl = getCryptLevel();
+  const lvl = getCryptBoonLevel();
   const usesLeft = (ab.usesLeft ?? 1) - 1;
   if (usesLeft <= 0) {
     await actor.update({
@@ -297,7 +342,7 @@ export async function expendBoon(actor, { silent = false } = {}) {
 export async function consumeBoonOnDamage(actor) {
   const ab = actor?.system?.activeBoon;
   if (!ab?.boonId || ab.boonId !== "fury") return { extra: 0 };
-  const lvl = getCryptLevel();
+  const lvl = getCryptBoonLevel();
   const dice = Math.max(1, lvl);
   const r = await new Roll(`${dice}d6`).evaluate();
   await expendBoon(actor, { silent: true });
@@ -318,7 +363,7 @@ export async function consumeBoonOnDamage(actor) {
 export async function consumeBoonOnHeal(actor) {
   const ab = actor?.system?.activeBoon;
   if (!ab?.boonId || ab.boonId !== "vitality") return { extra: 0 };
-  const lvl = getCryptLevel();
+  const lvl = getCryptBoonLevel();
   const extra = 2 * lvl;
   await expendBoon(actor, { silent: true });
   await ChatMessage.create({
@@ -339,7 +384,7 @@ export async function consumeBoonOnHeal(actor) {
 export async function consumeBoonOnSwiftness(actor) {
   const ab = actor?.system?.activeBoon;
   if (!ab?.boonId || ab.boonId !== "swiftness") return { extra: 0 };
-  const lvl = getCryptLevel();
+  const lvl = getCryptBoonLevel();
   await expendBoon(actor, { silent: true });
   // Stamp a speed-bonus flag the DT-end cleanup can read.
   await actor.setFlag("crows", "swiftnessUntilDtEnd", lvl);

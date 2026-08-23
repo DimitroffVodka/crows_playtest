@@ -1691,6 +1691,8 @@ The Elemental Mastery body names "conjuration spells" in both clauses. It is the
 
 **C2 — Monster `power`.** Is a published figure expected for every stat block, including uniques like the Ring Collector? F:704 says the 0–50 scale "could go even higher" in future products — should the ceiling be treated as soft? **Shipping: unbounded, validated with a warning.** Observed range in the Ref Book is 1–11.
 
+**C3 — Does “use” expend Boons of Disappearance and Flight?** The Crypt preamble says that after you *expend* a boon you no longer have it (C:2921), and most boons explicitly say “expend.” Disappearance and Flight instead say “use” (C:2925, C:2929), while Rescue also says “use” but explicitly grants level-many uses before it is expended (C:2937). **Shipping: Disappearance and Flight each have one use, matching the ordinary single-use boon default; Rescue alone has uses equal to the Crypt's boon-effect level.**
+
 ---
 
 *Withdrawn:* **Counter damage vs. AD.** R:985 says you "deal the tier 2 result of the weapon you're wielding" — ordinary weapon damage with no AD exemption stated, so it interacts with AD normally. No question to ask.
