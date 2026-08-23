@@ -181,6 +181,21 @@ export async function attackWithWeapon(actor, weapon, {
   const isMelee = isMeleeAttack(weapon, { thrown });
   const normalRange = weapon.system?.range?.ranged ?? 0;
 
+  const situations = targets ?? _situationsFromUserTargets();
+  const labels = buildAttackLabels({
+    attacker: { id: actor.id, conditions: actor.system?.conditions ?? {} },
+    isMelee,
+    improvised,
+    normalRange,
+    targets: situations
+  });
+  if (labels.warnings.length) {
+    globalThis.ui?.notifications?.warn?.(
+      "This attack gives different modifiers to different targets, but Crows cannot resolve them separately yet. No attack was rolled."
+    );
+    return { ok: false, error: "per-target-modifiers-unsupported" };
+  }
+
   // Boon of Fury: expends now and raises BOTH tiers, since which one lands is
   // not known until the result commits.
   let furyBonus = 0;
@@ -190,16 +205,6 @@ export async function attackWithWeapon(actor, weapon, {
       furyBonus = (await consumeBoonOnDamage(actor)).extra || 0;
     } catch { /* crypt module not loaded */ }
   }
-
-  const situations = targets ?? _situationsFromUserTargets();
-  const labels = buildAttackLabels({
-    attacker: { id: actor.id, conditions: actor.system?.conditions ?? {} },
-    isMelee,
-    improvised,
-    normalRange,
-    targets: situations
-  });
-  for (const w of labels.warnings) console.warn(`crows | ${w}`);
 
   const attack = weaponAttackPayload(actor, weapon, { isMelee, characteristic, furyBonus, situation });
 

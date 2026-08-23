@@ -15,9 +15,10 @@ import {
   silentArmorConsequence, attackOutcome
 } from "../module/helpers/combat.mjs";
 import {
-  evalDamage, attackCharacteristic, isMeleeAttack, blessedDamageBonus, weaponAttackPayload
+  evalDamage, attackCharacteristic, isMeleeAttack, blessedDamageBonus, weaponAttackPayload,
+  attackWithWeapon
 } from "../module/helpers/attack.mjs";
-import { buildTestResult } from "../module/helpers/roll.mjs";
+import { buildTestResult, resolveTier } from "../module/helpers/roll.mjs";
 
 /**
  * T1.7 — damage, conditions, combat resolution.
@@ -415,6 +416,22 @@ describe("buildAttackLabels — no double counting with the roll pipeline", () =
 /* ================================================== multi-target resolution */
 
 describe("Multiple targets — R:961, ONE roll, per-target tiers", () => {
+  test("R:757 — raw 12 is tier 2 against a clear target and tier 1 against cover", () => {
+    const clear = targetLabels({ isMelee: false });
+    const covered = targetLabels({ isMelee: false, cover: true });
+    const resolve = (labels) => resolveTier({
+      rawSum: 12,
+      charVal: 0,
+      kind: "attack",
+      mods: labels.mods,
+      edges: labels.edges,
+      banes: labels.banes
+    });
+
+    assert.equal(resolve(clear).tier, 2);
+    assert.equal(resolve(covered).tier, 1);
+  });
+
   // ACCEPTANCE: an edge on A and a bane on B resolve to DIFFERENT tiers from one roll.
   // Run through T1.1's real `buildTestResult`, not a local re-implementation.
   test("an edge on A and a bane on B give different tiers from a single rawSum", () => {
@@ -730,5 +747,56 @@ describe("Weapon attack assembly", () => {
     const p = weaponAttackPayload(actor(), weapon, { isMelee: true, characteristic: "strength", furyBonus: 2 });
     assert.equal(p.t2, 6);
     assert.equal(p.t3, 7);
+  });
+
+  test("a multi-target attack with unroutable situation labels visibly refuses before rolling", async () => {
+    const previousUi = globalThis.ui;
+    const previousRoll = globalThis.Roll;
+    const warnings = [];
+    let rolls = 0;
+    globalThis.ui = { notifications: { warn: (message) => warnings.push(message) } };
+    globalThis.Roll = class RefusedAttackRoll {
+      constructor() {
+        rolls += 1;
+        throw new Error("a refused attack reached the dice");
+      }
+    };
+
+    const weapon = {
+      id: "w1", name: "Shortbow", type: "weapon",
+      system: {
+        attackStat: "agility",
+        type: "bow",
+        range: { melee: 0, ranged: 10 },
+        damage: { t2: "1 + A", t3: "2 + A" }
+      }
+    };
+
+    try {
+      const attacker = actor({
+        activeBoon: { boonId: "fury" },
+        characteristics: {
+          agility: { value: 0 },
+          mind: { value: 0 },
+          strength: { value: 0 }
+        }
+      });
+      const result = await attackWithWeapon(attacker, weapon, {
+        targets: [
+          { tokenId: "clear", conditions: {} },
+          { tokenId: "covered", conditions: {}, cover: true }
+        ]
+      });
+
+      assert.deepEqual(result, { ok: false, error: "per-target-modifiers-unsupported" });
+      assert.equal(warnings.length, 1);
+      assert.match(warnings[0], /different modifiers.*targets/i);
+      assert.equal(rolls, 0, "neither Boon of Fury nor the attack may roll");
+    } finally {
+      if (previousUi === undefined) delete globalThis.ui;
+      else globalThis.ui = previousUi;
+      if (previousRoll === undefined) delete globalThis.Roll;
+      else globalThis.Roll = previousRoll;
+    }
   });
 });
