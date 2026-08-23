@@ -15,9 +15,13 @@ That is the orchestration gap this wave exposed. Eight agents produced dozens of
 
 ---
 
-## 1. Open handoffs — T2.3 (entry point)
+## 1. ~~Open handoffs — T2.3 (entry point)~~ — **CLOSED `eb40076`**
 
-T2.3 is the critical Wave 2 task: it owns `module/crows.mjs`, which **currently cannot load**.
+**The system boots.** All seven dead bindings removed, `KNOWN_UNWIRED = {}`, entry point evaluates
+through init/ready, and every wiring item below landed. Verified independently: 753 tests / 141
+suites / 0 fail, `verify.sh` and `--strict` both exit 0.
+
+Retained below for the record — and because §2 gained an item from it.
 
 ### Boot blockers — the system does not start today
 
@@ -37,7 +41,12 @@ T2.3 is the critical Wave 2 task: it owns `module/crows.mjs`, which **currently 
 - `registerCombatHooks({ autoApply: false })` in `ready` — T1.7.
 - Expose T1.5's: `takeTownActivity`, `beginRestSession`/`endRestSession`, `enterDungeon`/`leaveDungeon`/`applyGreedBonus`, `resolvePendingEncounter`, `getDTLength`.
 - Expose T1.7's: `setCondition`, `mirrorConditions`, `expireDungeonTurnConditions`.
-- Delete T1.4's deprecated `spendSkillBonus` stub once the import is gone.
+- ~~Delete T1.4's deprecated `spendSkillBonus` stub~~ — **DEFERRED, and the ordering matters.**
+  T2.3 correctly refused: `crow-sheet.mjs:8` still name-imports it (used at `:141`, `:635`), so
+  deleting the stub now recreates a hard boot failure through CrowSheet — the exact class T2.3 was
+  dispatched to fix, reintroduced by its own cleanup. **Two steps, in order: T2.1 removes the
+  import first, then the stub can go.** My original wording stated this as unconditional; T2.3
+  spotted that the 'once the import is gone' clause was not satisfied.
 
 ### ⚠ The HUD interception trap — CORRECTED, the hook must be SYNCHRONOUS
 
@@ -50,6 +59,11 @@ Two things that still hold from the original: the mirror's own write **must** pa
 ---
 
 ## 2. Open handoffs — T2.1 (crow sheet)
+
+- **FIRST, because it unblocks a deletion:** remove the `spendSkillBonus` named import at
+  `crow-sheet.mjs:8` and its uses at `:141` and `:635`, replacing them with
+  `spendExpertiseBonus(actor, option, { distribution })`. Until this lands, T1.4's deprecated stub
+  cannot be deleted without breaking the boot again.
 
 - `crow-sheet.mjs:241,453` read the **deleted** `CROWS.backpackSize`.
 - `crow-sheet.mjs:488` reads `prep.skill` / `prep.detail` — neither exists; the schema is `task` / `bonus` / `setOn`.
