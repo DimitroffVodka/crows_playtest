@@ -13,6 +13,7 @@
 import { CROWS, effectiveCapacities } from "../config.mjs";
 import { rollTest } from "./roll.mjs";
 import { parseTarget, summonBehaviour } from "./spellcasting.mjs";
+import { setCondition } from "./combat.mjs";
 
 export const PET_RIDER_SLOTS = 6;                         // C:2443
 export const TAMING_FOLLOW_SECONDS = 24 * 60 * 60;        // C:2437
@@ -308,14 +309,29 @@ export function onPetTestCommitted(result, message = null, options = {}) {
   return resolution;
 }
 
+function reportPetResolutionFailure(resolution) {
+  if (resolution?.ok !== false
+      || resolution?.state !== "unknown"
+      || resolution?.retryTest !== false) return;
+  const message = "A committed pet result could not be safely updated. Do not reroll the test; ask the Ref to inspect the pet.";
+  console.warn("crows | committed pet result has unknown persisted state", resolution);
+  const notifications = globalThis.ui?.notifications;
+  if (typeof notifications?.error === "function") notifications.error(message);
+  else notifications?.warn?.(message);
+}
+
 /** Register the persisted pet-purpose subscriber once per client. */
 export function registerPetHooks() {
   if (registerPetHooks._bound) return;
   registerPetHooks._bound = true;
-  globalThis.Hooks?.on?.("crowsTestCommitted", (result, message) => {
-    void onPetTestCommitted(result, message).catch((error) =>
-      console.warn("crows | committed pet test could not be resolved", error));
-  });
+  globalThis.Hooks?.on?.("crowsTestCommitted", (result, message) =>
+    onPetTestCommitted(result, message)
+      .then((resolution) => {
+        reportPetResolutionFailure(resolution);
+        return resolution;
+      })
+      .catch((error) =>
+        console.warn("crows | committed pet test could not be resolved", error)));
 }
 
 async function _resolvePetTestCommitted(result, {
@@ -383,7 +399,20 @@ async function _resolvePetTestCommitted(result, {
   if (String(petDataOf(animal).ownerUuid ?? "").trim() !== uuidOf(human)) {
     return failure("commander-not-owner");
   }
-  return planPetCommandResult(result, petCombatProfile({ animal }));
+  const plan = planPetCommandResult(result, petCombatProfile({ animal }));
+  if (plan?.weakened === true) {
+    try {
+      await setCondition(animal, "weakened", true);
+    } catch {
+      // The committed test cannot be replayed safely: a rejected Foundry
+      // document write may still have reached the server.
+      return failure("pet-condition-failed", {
+        state: "unknown",
+        retryTest: false
+      });
+    }
+  }
+  return plan;
 }
 
 /**

@@ -32,12 +32,20 @@ function animal() {
         lastFedAt: 0
       }
     },
+    statuses: new Set(),
+    statusToggles: [],
     updates: [],
     async update(data) {
       this.updates.push(structuredClone(data));
       for (const [path, value] of Object.entries(data)) {
         foundry.utils.setProperty(this, path, value);
       }
+      return this;
+    },
+    async toggleStatusEffect(statusId, { active } = {}) {
+      this.statusToggles.push({ statusId, active });
+      if (active) this.statuses.add(statusId);
+      else this.statuses.delete(statusId);
       return this;
     }
   };
@@ -189,7 +197,44 @@ test("declining a pending taming test resolves tier 1 without a pet write", asyn
   assert.deepEqual(pet.updates, []);
 });
 
-test("a committed tier-2 command resolves its plan without applying Weakened yet", async () => {
+test("a pending pet command cannot resolve or apply Weakened", async () => {
+  const crow = human();
+  const pet = animal();
+  pet.system.pet.ownerUuid = crow.uuid;
+  pet.system.conditions = { weakened: false };
+  let resolverCalls = 0;
+
+  const resolution = await pets.onPetTestCommitted({
+    actorId: crow.id,
+    state: "pending",
+    tier: 2,
+    kind: "test",
+    targets: [],
+    allowedExpertises: ["handlePet"],
+    attack: null,
+    casting: null,
+    miasma: null,
+    petContext: {
+      kind: "command",
+      animalUuid: pet.uuid,
+      humanUuid: crow.uuid,
+      needsTest: true
+    }
+  }, { id: "Message.pending-command-condition" }, {
+    resolveUuid: async () => {
+      resolverCalls += 1;
+      return pet;
+    }
+  });
+
+  assert.equal(resolution, null);
+  assert.equal(resolverCalls, 0);
+  assert.deepEqual(pet.updates, []);
+  assert.deepEqual(pet.statusToggles, []);
+  assert.equal(pet.system.conditions.weakened, false);
+});
+
+test("a committed tier-2 command applies canonical Weakened state", async () => {
   const crow = human();
   const pet = animal();
   pet.system.pet.ownerUuid = crow.uuid;
@@ -222,11 +267,162 @@ test("a committed tier-2 command resolves its plan without applying Weakened yet
     weakened: true,
     testRequired: true
   });
-  assert.deepEqual(pet.updates, [], "item 3 owns the canonical Weakened write");
-  assert.equal(pet.system.conditions.weakened, false);
+  assert.deepEqual(pet.updates, [{ "system.conditions.weakened": true }]);
+  assert.equal(pet.system.conditions.weakened, true);
+  assert.deepEqual([...pet.statuses], ["weakened"]);
 });
 
-test("command tiers 1 and 3 resolve without writing pet state", async () => {
+test("tier-2 command repairs a missing Weakened mirror without rewriting the boolean", async () => {
+  const crow = human();
+  const pet = animal();
+  pet.system.pet.ownerUuid = crow.uuid;
+  pet.system.conditions = { weakened: true };
+
+  const resolution = await pets.onPetTestCommitted({
+    actorId: crow.id,
+    state: "committed",
+    tier: 2,
+    kind: "test",
+    targets: [],
+    allowedExpertises: ["handlePet"],
+    attack: null,
+    casting: null,
+    miasma: null,
+    petContext: {
+      kind: "command",
+      animalUuid: pet.uuid,
+      humanUuid: crow.uuid,
+      needsTest: true
+    }
+  }, { id: "Message.command-already-weakened" }, {
+    resolveUuid: async (uuid) => uuid === pet.uuid ? pet : crow
+  });
+
+  assert.equal(resolution.outcome, "follows-command");
+  assert.equal(resolution.weakened, true);
+  assert.deepEqual(pet.updates, []);
+  assert.equal(pet.system.conditions.weakened, true);
+  assert.deepEqual([...pet.statuses], ["weakened"]);
+  assert.deepEqual(pet.statusToggles, [{ statusId: "weakened", active: true }]);
+});
+
+test("an already-synchronized tier-2 command does not rewrite Weakened", async () => {
+  const crow = human();
+  const pet = animal();
+  pet.system.pet.ownerUuid = crow.uuid;
+  pet.system.conditions = { weakened: true };
+  pet.statuses.add("weakened");
+
+  const resolution = await pets.onPetTestCommitted({
+    actorId: crow.id,
+    state: "committed",
+    tier: 2,
+    kind: "test",
+    targets: [],
+    allowedExpertises: ["handlePet"],
+    attack: null,
+    casting: null,
+    miasma: null,
+    petContext: {
+      kind: "command",
+      animalUuid: pet.uuid,
+      humanUuid: crow.uuid,
+      needsTest: true
+    }
+  }, { id: "Message.command-weakened-in-sync" }, {
+    resolveUuid: async (uuid) => uuid === pet.uuid ? pet : crow
+  });
+
+  assert.equal(resolution.outcome, "follows-command");
+  assert.equal(resolution.weakened, true);
+  assert.deepEqual(pet.updates, []);
+  assert.deepEqual(pet.statusToggles, []);
+  assert.equal(pet.system.conditions.weakened, true);
+  assert.deepEqual([...pet.statuses], ["weakened"]);
+});
+
+test("a mirror-only failure preserves the successful tier-2 command condition", async () => {
+  const crow = human();
+  const pet = animal();
+  pet.system.pet.ownerUuid = crow.uuid;
+  pet.system.conditions = { weakened: false };
+  pet.toggleStatusEffect = async () => {
+    throw new Error("status mirror unavailable");
+  };
+  const originalWarn = console.warn;
+  console.warn = () => {};
+
+  try {
+    const resolution = await pets.onPetTestCommitted({
+      actorId: crow.id,
+      state: "committed",
+      tier: 2,
+      kind: "test",
+      targets: [],
+      allowedExpertises: ["handlePet"],
+      attack: null,
+      casting: null,
+      miasma: null,
+      petContext: {
+        kind: "command",
+        animalUuid: pet.uuid,
+        humanUuid: crow.uuid,
+        needsTest: true
+      }
+    }, { id: "Message.command-mirror-failed" }, {
+      resolveUuid: async (uuid) => uuid === pet.uuid ? pet : crow
+    });
+
+    assert.equal(resolution.outcome, "follows-command");
+    assert.equal(resolution.weakened, true);
+    assert.deepEqual(pet.updates, [{ "system.conditions.weakened": true }]);
+    assert.equal(pet.system.conditions.weakened, true);
+    assert.deepEqual([...pet.statuses], []);
+  } finally {
+    console.warn = originalWarn;
+  }
+});
+
+test("duplicate delivery of one tier-2 command weakens the pet once", async () => {
+  const crow = human();
+  const pet = animal();
+  pet.system.pet.ownerUuid = crow.uuid;
+  pet.system.conditions = { weakened: false };
+  const message = { id: "Message.duplicate-command-condition" };
+  const result = {
+    actorId: crow.id,
+    state: "committed",
+    tier: 2,
+    kind: "test",
+    targets: [],
+    allowedExpertises: ["handlePet"],
+    attack: null,
+    casting: null,
+    miasma: null,
+    petContext: {
+      kind: "command",
+      animalUuid: pet.uuid,
+      humanUuid: crow.uuid,
+      needsTest: true
+    }
+  };
+  const options = {
+    resolveUuid: async (uuid) => uuid === pet.uuid ? pet : crow
+  };
+
+  const [first, second] = await Promise.all([
+    pets.onPetTestCommitted(result, message, options),
+    pets.onPetTestCommitted(structuredClone(result), message, options)
+  ]);
+
+  assert.deepEqual(second, first);
+  assert.deepEqual(pet.updates, [{ "system.conditions.weakened": true }]);
+  assert.deepEqual(pet.statusToggles, [{ statusId: "weakened", active: true }]);
+  assert.equal(pet.system.conditions.weakened, true);
+  assert.deepEqual([...pet.statuses], ["weakened"]);
+});
+
+test("command tiers 1 and 3 neither set nor clear Weakened", async () => {
   const crow = human();
   for (const [tier, expected] of [
     [1, { outcome: "refuses-command", weakened: false }],
@@ -234,6 +430,8 @@ test("command tiers 1 and 3 resolve without writing pet state", async () => {
   ]) {
     const pet = animal();
     pet.system.pet.ownerUuid = crow.uuid;
+    pet.system.conditions = { weakened: tier === 3 };
+    if (tier === 3) pet.statuses.add("weakened");
     const resolution = await pets.onPetTestCommitted({
       actorId: crow.id,
       state: "committed",
@@ -257,6 +455,9 @@ test("command tiers 1 and 3 resolve without writing pet state", async () => {
     assert.equal(resolution.outcome, expected.outcome);
     assert.equal(resolution.weakened, expected.weakened);
     assert.deepEqual(pet.updates, []);
+    assert.equal(pet.system.conditions.weakened, tier === 3);
+    assert.deepEqual([...pet.statuses], tier === 3 ? ["weakened"] : []);
+    assert.deepEqual(pet.statusToggles, []);
   }
 });
 
@@ -770,15 +971,35 @@ test("the persisted human must be the actor who rolled the test", async () => {
   assert.deepEqual(pet.updates, []);
 });
 
-test("pet commit-hook registration is idempotent", () => {
+test("pet commit-hook registration is idempotent and reports unknown writes", async () => {
   const previousHooks = globalThis.Hooks;
+  const previousUi = globalThis.ui;
+  const previousFromUuid = foundry.utils.fromUuid;
+  const previousWarn = console.warn;
+  const previousBound = pets.registerPetHooks._bound;
   const handlers = [];
+  const notifications = [];
+  const crow = human();
+  const pet = animal();
+  pet.system.pet.ownerUuid = crow.uuid;
+  pet.system.conditions = { weakened: false };
+  pet.update = async () => {
+    throw new Error("backend result unknown");
+  };
   globalThis.Hooks = {
     on(name, handler) {
       handlers.push({ name, handler });
       return handlers.length;
     }
   };
+  globalThis.ui = {
+    notifications: {
+      error(message) { notifications.push(message); }
+    }
+  };
+  foundry.utils.fromUuid = async (uuid) => uuid === pet.uuid ? pet : uuid === crow.uuid ? crow : null;
+  console.warn = () => {};
+  pets.registerPetHooks._bound = false;
   try {
     pets.registerPetHooks();
     pets.registerPetHooks();
@@ -786,9 +1007,37 @@ test("pet commit-hook registration is idempotent", () => {
       handlers.filter(({ name }) => name === "crowsTestCommitted").length,
       1
     );
+    const [{ handler }] = handlers.filter(({ name }) => name === "crowsTestCommitted");
+    await handler({
+      actorId: crow.id,
+      state: "committed",
+      tier: 2,
+      kind: "test",
+      targets: [],
+      allowedExpertises: ["handlePet"],
+      attack: null,
+      casting: null,
+      miasma: null,
+      petContext: {
+        kind: "command",
+        animalUuid: pet.uuid,
+        humanUuid: crow.uuid,
+        needsTest: true
+      }
+    }, { id: "Message.hook-condition-failed" });
+
+    assert.equal(notifications.length, 1);
+    assert.match(notifications[0], /pet.*could not.*updated.*do not reroll.*Ref/i);
   } finally {
+    if (previousBound === undefined) delete pets.registerPetHooks._bound;
+    else pets.registerPetHooks._bound = previousBound;
     if (previousHooks === undefined) delete globalThis.Hooks;
     else globalThis.Hooks = previousHooks;
+    if (previousUi === undefined) delete globalThis.ui;
+    else globalThis.ui = previousUi;
+    if (previousFromUuid === undefined) delete foundry.utils.fromUuid;
+    else foundry.utils.fromUuid = previousFromUuid;
+    console.warn = previousWarn;
   }
 });
 
@@ -834,4 +1083,52 @@ test("a rejected taming write reports unknown state and is not replayed", async 
   });
   assert.deepEqual(second, first);
   assert.equal(attempts, 1);
+});
+
+test("a rejected command-condition write reports unknown state and is not replayed", async () => {
+  const crow = human();
+  const pet = animal();
+  pet.system.pet.ownerUuid = crow.uuid;
+  pet.system.conditions = { weakened: false };
+  let attempts = 0;
+  pet.update = async () => {
+    attempts += 1;
+    throw new Error("backend result unknown");
+  };
+  const message = { id: "Message.command-condition-failed" };
+  const result = {
+    actorId: crow.id,
+    state: "committed",
+    tier: 2,
+    kind: "test",
+    targets: [],
+    allowedExpertises: ["handlePet"],
+    attack: null,
+    casting: null,
+    miasma: null,
+    petContext: {
+      kind: "command",
+      animalUuid: pet.uuid,
+      humanUuid: crow.uuid,
+      needsTest: true
+    }
+  };
+  const options = {
+    resolveUuid: async (uuid) => uuid === pet.uuid ? pet : crow
+  };
+
+  const first = await pets.onPetTestCommitted(result, message, options);
+  const second = await pets.onPetTestCommitted(result, message, options);
+
+  assert.deepEqual(first, {
+    ok: false,
+    reason: "pet-condition-failed",
+    update: null,
+    state: "unknown",
+    retryTest: false
+  });
+  assert.deepEqual(second, first);
+  assert.equal(attempts, 1);
+  assert.equal(pet.system.conditions.weakened, false);
+  assert.deepEqual([...pet.statuses], []);
 });
