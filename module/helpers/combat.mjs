@@ -219,6 +219,26 @@ export function targetLabels({
 }
 
 /**
+ * Labels the ROLL PIPELINE already contributes for itself.
+ *
+ * `rollTest` calls `selfEdgesBanes` on the roller's conditions and
+ * `targetEdgesBanes` on each TargetRef, so blessed / weakened / prone / grabbed
+ * arrive in the resolution whether this file emits them or not. Emitting them
+ * again is not cosmetic: edges and banes are COUNTED and clamp at two, so one
+ * duplicated edge is the difference between +2 on the total and a whole tier
+ * shift. `buildAttackLabels` therefore drops these by default and contributes
+ * only what the roll pipeline cannot see — position, cover, geometry.
+ *
+ * The functions above still emit them, because they are the complete statement
+ * of the rules and are tested as such.
+ */
+export const ROLL_PIPELINE_LABEL_KEYS = Object.freeze([
+  "blessed", "weakened", "prone-self", "prone-target", "grabbed-target"
+]);
+
+const dropPipelineLabels = (list) => list.filter(l => !ROLL_PIPELINE_LABEL_KEYS.includes(l.key));
+
+/**
  * Assemble one attack's whole label set: roll-level from the attacker, and one
  * entry per target.
  *
@@ -229,43 +249,68 @@ export function targetLabels({
  * mods are merged into the roll-level `mods`, which is exactly right. With more
  * than one target carrying mods, they stay in `targets[].mods` and a warning is
  * emitted so the caller cannot lose them silently.
+ *
+ * SECOND GAP, same shape: `rollTest` builds each `targets[]` entry from the
+ * roll-level lists plus the target's own CONDITIONS, and has no parameter for a
+ * caller-supplied per-target edge. Flanking, high ground, cover and concealment
+ * are all per-target, so on a single-target attack they are passed at roll level
+ * — which resolves identically, since one target inherits every roll-level
+ * label. On a multi-target attack they would wrongly apply to every target, so
+ * they stay in `targets[]` and a warning is emitted instead.
+ *
+ * @param {boolean} [includeConditionLabels=false] emit the labels the roll
+ *        pipeline already contributes. Only for testing the rules in isolation;
+ *        passing them to `rollTest` double-counts them.
  */
 export function buildAttackLabels({
   attacker = {},
   isMelee = true,
   improvised = false,
   normalRange = 0,
-  targets = []
+  targets = [],
+  includeConditionLabels = false
 } = {}) {
-  const roll = rollLevelLabels({
+  const keep = includeConditionLabels ? (l => l) : dropPipelineLabels;
+
+  const rollRaw = rollLevelLabels({
     conditions: attacker.conditions ?? {},
     isMelee,
     improvised,
     sourceId: attacker.id
   });
+  const roll = { mods: rollRaw.mods, edges: keep(rollRaw.edges), banes: keep(rollRaw.banes) };
 
-  const resolved = targets.map(t => targetLabels({
-    ...t,
-    isMelee: t.isMelee ?? isMelee,
-    normalRange: t.normalRange ?? normalRange,
-    sourceId: attacker.id
-  }));
+  const resolved = targets.map(t => {
+    const raw = targetLabels({
+      ...t,
+      isMelee: t.isMelee ?? isMelee,
+      normalRange: t.normalRange ?? normalRange,
+      sourceId: attacker.id
+    });
+    return { ...raw, edges: keep(raw.edges), banes: keep(raw.banes) };
+  });
 
   const mods = [...roll.mods];
+  const edges = [...roll.edges];
+  const banes = [...roll.banes];
   const warnings = [];
   if (resolved.length === 1) {
+    // One target inherits every roll-level label, so promoting its situational
+    // ones is exact rather than an approximation.
     mods.push(...resolved[0].mods);
+    edges.push(...resolved[0].edges);
+    banes.push(...resolved[0].banes);
   } else {
-    const carrying = resolved.filter(t => t.mods.length);
+    const carrying = resolved.filter(t => t.mods.length || t.edges.length || t.banes.length);
     if (carrying.length) {
       warnings.push(
-        `TestResult.mods is roll-level only: ${carrying.length} target(s) carry a numeric ` +
-        `modifier that cannot be represented per-target. Read targets[].mods.`
+        `rollTest takes edges/banes/mods at roll level only: ${carrying.length} target(s) carry a ` +
+        `situational modifier that cannot be routed per-target. Read targets[].`
       );
     }
   }
 
-  return { mods, edges: roll.edges, banes: roll.banes, targets: resolved, warnings };
+  return { mods, edges, banes, targets: resolved, warnings };
 }
 
 /* ==========================================================================
@@ -578,8 +623,15 @@ export function wearsSilentArmor(actor) {
  * re-emits `crowsAttackResolved` for the card. Pass `autoApply: true` when
  * wiring if a world wants the damage applied for it.
  *
+ * THE PAYLOAD COMES OFF THE RESULT, NOT OFF THE SECOND ARGUMENT. T1.1 emits
+ * `crowsTestCommitted(result, message)` — a ChatMessage, not a context object —
+ * so an `attack` read from the second argument is ALWAYS undefined and every
+ * damage figure would be computed from `{}`. `TestResult` now carries `attack`
+ * and `casting` through to commit, which is the supported route; `ctx.attack`
+ * survives only for a direct programmatic call.
+ *
  * @param {object} result   the committed TestResult
- * @param {object} [ctx]    {actor, attack, tags, autoApply}
+ * @param {object} [ctx]    {actor, attack, tags, autoApply, message}
  */
 export async function onTestCommitted(result, ctx = {}) {
   if (result?.state !== "committed") return { ok: false, reason: "not committed" };
@@ -600,7 +652,8 @@ export async function onTestCommitted(result, ctx = {}) {
 
   if (result.kind !== "attack") return { ok: true, outcome: null };
 
-  const outcome = attackOutcome(result, ctx.attack ?? {});
+  const attack = ctx.attack ?? result.attack ?? {};
+  const outcome = attackOutcome(result, attack);
   if (!outcome.ok) return outcome;
 
   if (ctx.autoApply) {
@@ -608,7 +661,7 @@ export async function onTestCommitted(result, ctx = {}) {
     for (const t of outcome.targets) {
       if (!t.hit || !t.tokenId) continue;
       const target = _actorFromTokenId(t.tokenId);
-      if (target) await applyDamage(target, t.damage, { piercing: t.piercing, source: ctx.attack?.weaponName });
+      if (target) await applyDamage(target, t.damage, { piercing: t.piercing, source: attack.weaponName });
     }
   }
 
@@ -621,8 +674,11 @@ export async function onTestCommitted(result, ctx = {}) {
  * only for the handler; the registration call itself is T2.3's to make.
  */
 export function registerCombatHooks({ autoApply = false } = {}) {
-  globalThis.Hooks?.on?.("crowsTestCommitted", (result, ctx = {}) =>
-    onTestCommitted(result, { ...ctx, autoApply }));
+  // T1.1's emitter signature is `(result, message)`. The second argument is a
+  // ChatMessage, so it is named as one and never spread into the context — the
+  // payload is read off the result. See onTestCommitted.
+  globalThis.Hooks?.on?.("crowsTestCommitted", (result, message) =>
+    onTestCommitted(result, { message, autoApply }));
 }
 
 function _actorFromId(actorId) {
