@@ -652,21 +652,3 @@ export function replacementCharacter({ deadTxp = 0, partyTxps = [] } = {}) {
     suggestedGold: Math.floor(lowest / 2)
   };
 }
-
-/* -------------------------------------------------------------------------- */
-/* Deprecated PT1 surface                                                      */
-/* -------------------------------------------------------------------------- */
-
-/**
- * DEPRECATED. PT1's skill/stamina bonus: "twoSkills" / "stamina4" / "skillStam"
- * against `system.skills.*.bonus`, which no longer exists. Kept as an export
- * ONLY so `module/crows.mjs` and `module/sheets/crow-sheet.mjs` still resolve
- * their named imports until T2.3 and T2.1 rewire them; it deliberately applies
- * nothing rather than writing PT1-shaped data into a PT2 actor.
- */
-export async function spendSkillBonus(actor) {
-  const msg = "spendSkillBonus is a Playtest 1 API — use spendExpertiseBonus(actor, option, { distribution })";
-  console.error(`crows | ${msg}`);
-  notify("error", msg);
-  return fail(msg);
-}

@@ -41,12 +41,11 @@ Retained below for the record — and because §2 gained an item from it.
 - `registerCombatHooks({ autoApply: false })` in `ready` — T1.7.
 - Expose T1.5's: `takeTownActivity`, `beginRestSession`/`endRestSession`, `enterDungeon`/`leaveDungeon`/`applyGreedBonus`, `resolvePendingEncounter`, `getDTLength`.
 - Expose T1.7's: `setCondition`, `mirrorConditions`, `expireDungeonTurnConditions`.
-- ~~Delete T1.4's deprecated `spendSkillBonus` stub~~ — **DEFERRED, and the ordering matters.**
-  T2.3 correctly refused: `crow-sheet.mjs:8` still name-imports it (used at `:141`, `:635`), so
-  deleting the stub now recreates a hard boot failure through CrowSheet — the exact class T2.3 was
-  dispatched to fix, reintroduced by its own cleanup. **Two steps, in order: T2.1 removes the
-  import first, then the stub can go.** My original wording stated this as unconditional; T2.3
-  spotted that the 'once the import is gone' clause was not satisfied.
+- ~~Delete T1.4's deprecated `spendSkillBonus` stub~~ — **CLOSED, 2026-08-23.** The ordering
+  warning was correct: `2e1737a` first moved CrowSheet to `spendExpertiseBonus`; only then did this
+  close-out delete the obsolete export and replace its keep-alive test with a negative public-API
+  contract. The advancement + entry-point boot seam is green, so the cleanup does not recreate the
+  named-import boot failure T2.3 prevented.
 
 ### ⚠ The HUD interception trap — CORRECTED, the hook must be SYNCHRONOUS
 
@@ -58,38 +57,48 @@ Two things that still hold from the original: the mirror's own write **must** pa
 
 ---
 
-## 2. Open handoffs — T2.1 (crow sheet)
+## 2. ~~Open handoffs — T2.1 (crow sheet)~~ — **CLOSED**
 
-- **FIRST, because it unblocks a deletion:** remove the `spendSkillBonus` named import at
-  `crow-sheet.mjs:8` and its uses at `:141` and `:635`, replacing them with
-  `spendExpertiseBonus(actor, option, { distribution })`. Until this lands, T1.4's deprecated stub
-  cannot be deleted without breaking the boot again.
+The runtime migration landed in `2e1737a`, and the complete Playtest 2 sheet surface landed in
+`5ed5f35`: derived backpack layout, `preparedTask.task` display and roll-through, the positive-only
+expertise-budget badge, explicit wound-slot selection on rest, trait pool remaining/overused, and
+the full `advancementOptions` dialog/tree surface. This close-out removed the final deprecated
+`spendSkillBonus` export after proving the current sheet and entry point no longer import it. No
+T2.1 obligation remains open. After a hard reload on Foundry 14.367, both the module and
+`game.crows` exposed `spendExpertiseBonus` and neither exposed `spendSkillBonus`; the world booted
+ready with no new system error. Suite: **854 tests / 159 suites / 0 fail**, both verify modes 0.
 
-- `crow-sheet.mjs:241,453` read the **deleted** `CROWS.backpackSize`.
-- `crow-sheet.mjs:488` reads `prep.skill` / `prep.detail` — neither exists; the schema is `task` / `bonus` / `setOn`.
-- **Prepare for Task is live in the helper and dead in the product.** T1.1 wired `rollTest({ ..., task })` and T1.5 owns the match, but *nothing passes `task`*. Read `system.preparedTask.task` and pass it through. Fold into the `:488` fix so the file is touched once.
-  > T1.1 deliberately did **not** infer the task from `flavor` or `characteristic`: R:658 binds the bonus to "a specific task in a specific location", and guessing would silently consume a player's one-shot on an unrelated roll.
-- Render `expertiseOverBudget` as a badge when it is a positive number. It is `null` when uncomputed — do not render on null.
-- Ask for the wound slot on rest. T1.5 falls back to the lowest index with `autoChosen: true` so a rest never hard-fails, but the player should choose (R:524 "of the PC's choice").
-- Display trait `usePool` remaining / `overused`.
-- Advancement surface changed: `spendExpertiseBonus(actor, option, { distribution })` replaces `spendSkillBonus(...)`. `advancementOptions(crow)` supplies the dialog and tree grid, including `traitPurchaseInfo` per trait, and `.window` explains why a button is disabled.
+### Open cross-owner follow-up — advancement-window lifecycle
 
-## 3. Open handoffs — T2.2 (chat cards)
+This close-out found the same failure shape that created this register: `setSpendingWindow`,
+`openSpendingWindow`, and `closeSpendingWindow` exist, but **no production caller**. The tested
+`spendingWindow()` reader and spend gates deliberately treat an absent flag as permissive, so a
+world that never writes `flags.crows.advancementWindow` can claim advancements outside the end of
+a rest forever. The sheet correctly renders and enforces an explicit closed state; it cannot create
+that state itself. The rest/action lifecycle must open the window only after a successful rest and
+close it at the agreed post-rest boundary. Do not "fix" this by making absent mean closed: that
+would turn the missing integration into a migration-breaking lockout and hide the unwired caller
+again.
 
-- **Read the exported `legalExpertiseSpends(result, actor)`.** Do **not** filter by category yourself, or you will render choices the persisted applicability gate rejects — the discipline gate (R:1459) is a refinement of that applicability check.
-- The spellbook template reads `system.castType` and `system.duration`-as-string; both renamed. Use `system.durationLabel` and `system.target.text`.
-- `targets[].tier` is what damage reads; the message-level `tier` only describes the roll.
+## 3. ~~Open handoffs — T2.2 (chat cards)~~ — **CLOSED**
+
+`6d053e4` moved the spellbook sheet to `durationLabel` and structured `target.text`; `03c2c51`
+made the persisted result flag the interactive card authority. `testCardData` delegates expertise
+choices to `legalExpertiseSpends(result, actor)`, and its target rows preserve each
+`targets[].tier` rather than substituting the message-level tier. Corpus and card-view tests pin all
+three obligations. No T2.2 obligation remains open.
 
 ---
 
 ## 4. ~~Unowned~~ — all three assigned, 2026-08-23
 
-**Nothing in this section is unowned any more.** One closed, two dispatched.
+**Nothing in this section is unowned any more.** All three assignments completed; Pets deliberately
+handed its cross-owner product integration back to §7.
 
 | Item | Owner | State |
 |---|---|---|
 | `helpers/usage-die.mjs` | orchestrator | **CLOSED `03049bd`** |
-| Pets (C:2429) | **T2.5** (`4ef6e99b`) | dispatched — rules + data only, no sheet UI |
+| Pets (C:2429) | **T2.5** (`4ef6e99b`) | rules + data **CLOSED `802f356`**; integration **OPEN §7** |
 | `helpers/crypt.mjs` | **T2.4** (`ac87edba`) | **CLOSED `16e0040`** |
 
 **T2.4 closed.** `getInstitutionLevel("crypt")` is now the boon-effect authority via an explicit `getCryptBoonLevel()`; all five runtime boon reads go through it, and the pure `resolveCryptBoonLevel({institutionLevel, readFallback})` makes a present institution value win **including 0**, so the legacy standalone value can only be read when there is no authority at all. Disappearance stays `applyTo: "narrative"` with the reason recorded in code. 786 tests / 150 suites / 0 fail, `verify.sh` and `--strict` both 0; commit touches only its three authorized paths. Mutation-verified — inverting the authority guard fails both divergence tests.

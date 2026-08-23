@@ -402,6 +402,10 @@ describe("module/crows.mjs imports resolve", () => {
     ]) {
       assert.equal(typeof game.crows[api], "function", `${api} was not wired onto game.crows`);
     }
+    assert.equal(
+      Object.hasOwn(game.crows, "spendSkillBonus"), false,
+      "the removed Playtest 1 advancement API leaked back onto game.crows"
+    );
 
     // A non-GM ready pass skips the world mutation but must still subscribe
     // spellcasting, combat and Miasma to the committed-test lifecycle.

@@ -63,7 +63,7 @@ Exports:
 | `corpseStack` | `{tiny:3}` | every other size is 1 |
 | `harvestDice` | `{tiny/small/medium:"1d6", large:"2d6", huge:"3d6", holyShit:"4d6"}` | R:652 |
 
-> **`backpackSize` is DELETED.** Capacity is config **plus trait grants**, computed in `prepareDerivedData` (critique M12). Read `carryContainers.backpack` as the BASE only, never as the effective capacity. Callers still on the old constant, all owned by Wave 1/2: `helpers/damage.mjs`, `helpers/slots.mjs`, `sheets/crow-sheet.mjs`.
+> **`backpackSize` is DELETED.** Capacity is config **plus trait grants**, computed in `prepareDerivedData` (critique M12). Read `carryContainers.backpack` as the BASE only, never as the effective capacity. Wave 1 moved every former caller in `helpers/damage.mjs`, `helpers/slots.mjs`, and `sheets/crow-sheet.mjs` to the derived layout/capacity seams; no runtime caller remains on the deleted constant.
 
 ### Dungeon turns
 
@@ -440,7 +440,7 @@ This is expected and is Wave 1's job. Do not "fix" it from another task.
 | `helpers/slots.mjs` | `CROWS.containers`, `CROWS.backpackSize` gone | T1.2 |
 | `helpers/damage.mjs` | `CROWS.backpackSize`, `wounds` as a stored number | T1.7 |
 | `helpers/schema.mjs` | `CROWS.containers` → use `containerKeys` | T1.2 |
-| `sheets/crow-sheet.mjs` | `CROWS.skills`, `backpackSize`, leveled conditions | T2.1 |
+| `sheets/crow-sheet.mjs` | ~~`CROWS.skills`, `backpackSize`, leveled conditions~~ — closed by the Playtest 2 sheet rebuild | T2.1 |
 | `helpers/crafting.mjs` | `crafting.projects[].skill` → `.expertise` | T1.6 |
 | `data/item/*.mjs` (others) | `equipSlotTypes` still works — alias retained | — |
 

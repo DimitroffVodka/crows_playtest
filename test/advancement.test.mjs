@@ -1,6 +1,7 @@
 import "./shim/foundry.mjs";
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
+import * as advancementApi from "../module/helpers/advancement.mjs";
 
 import {
   bonusesEarned, expertiseBonusesEarned, charBonusesEarned,
@@ -8,7 +9,7 @@ import {
   retirementStatus, bonusesAvailable, expertiseCapFor,
   advancementBonusOptions, advancementOptions,
   planExpertiseDistribution, planExpertiseBonus, planCharAdvancement,
-  spendExpertiseBonus, spendCharBonus, spendSkillBonus,
+  spendExpertiseBonus, spendCharBonus,
   spendingWindow, treasureXP, replacementCharacter,
   isTraitBuyable, traitCost, traitPurchaseInfo, purchaseTrait,
   traitMinimumModifier, traitPoolMax, traitPoolState,
@@ -595,16 +596,11 @@ describe("minimum modifier — C:671", () => {
 });
 
 /* -------------------------------------------------------------------------- */
-/* The Playtest 1 surface                                                      */
+/* The public Playtest 2 surface                                               */
 /* -------------------------------------------------------------------------- */
 
-describe("deprecated PT1 API", () => {
-  test("spendSkillBonus still exports, so the module graph loads, but applies nothing", async () => {
-    // module/crows.mjs and the crow sheet still import it by name; an ESM named
-    // import of a missing export is a hard load failure for the whole system.
-    const c = crow({ txp: 100 });
-    const res = await spendSkillBonus(c, "twoSkills", { skillA: "stealth", skillB: "athletics" });
-    assert.equal(res.ok, false);
-    assert.equal(c.applied, null, "must not write PT1-shaped data into a PT2 actor");
+describe("public advancement API", () => {
+  test("does not export the removed Playtest 1 spendSkillBonus helper", () => {
+    assert.equal(Object.hasOwn(advancementApi, "spendSkillBonus"), false);
   });
 });

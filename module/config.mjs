@@ -58,8 +58,7 @@ export const CROWS = {
   // grants and is computed in prepareDerivedData (critique M12), so a single
   // frozen constant is exactly the bug we removed. Read
   // `carryContainers.backpack` for the BASE, never as the effective capacity.
-  // Known callers still on the old constant, all owned by Wave 1/2:
-  //   helpers/damage.mjs, helpers/slots.mjs, sheets/crow-sheet.mjs
+  // Wave 1 moved every former caller to the derived layout/capacity seams.
 
   stackLimits: { potion: 5, lock: 3, oil: 2 },   // R:432; default 1, same KIND only
   handSlotsNeverStack: true,                     // R:432
