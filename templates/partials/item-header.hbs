@@ -1,0 +1,17 @@
+{{!--
+  Shared item-sheet header.
+
+  Same anatomy as the printed cards and the actor-sheet slot cards: a
+  black band carrying a 45deg sigil frame, the name, and the item type as
+  a tracked keyword. The sigil image is click-to-edit via DocumentSheetV2's
+  built-in editImage action.
+--}}
+<header class="ci-header">
+  <span class="cc-sigil">
+    <img class="cc-sigil-img" src="{{item.img}}" alt=""
+         data-action="editImage" data-edit="img"
+         data-tooltip="Click to change icon">
+  </span>
+  <input type="text" name="name" value="{{item.name}}" class="ci-name" aria-label="Item name">
+  <span class="ci-kind">{{item.type}}</span>
+</header>

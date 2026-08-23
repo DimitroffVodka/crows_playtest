@@ -1,17 +1,81 @@
-<form class="crows-item weapon">
-  <input type="text" name="name" value="{{item.name}}" class="title">
-  <label>Type <select name="system.type">{{#each CROWS.weaponTypes as |t|}}<option value="{{t}}" {{#if (eq t ../system.type)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
-  <label>Melee <input type="number" name="system.range.melee" value="{{system.range.melee}}"></label>
-  <label>Ranged <input type="number" name="system.range.ranged" value="{{system.range.ranged}}"></label>
-  <label>Attack stat <select name="system.attackStat">
-    <option value="strength" {{#if (eq system.attackStat "strength")}}selected{{/if}}>S</option>
-    <option value="agility" {{#if (eq system.attackStat "agility")}}selected{{/if}}>A</option>
-    <option value="either" {{#if (eq system.attackStat "either")}}selected{{/if}}>A or S</option>
-  </select></label>
-  <label>Dmg T2 <input type="text" name="system.damage.t2" value="{{system.damage.t2}}"></label>
-  <label>Dmg T3 <input type="text" name="system.damage.t3" value="{{system.damage.t3}}"></label>
-  <label><input type="checkbox" name="system.piercing" {{#if system.piercing}}checked{{/if}}> Piercing (ignores AD)</label>
-  <label>Quality <select name="system.qualityTier">{{#each CROWS.qualityTiers as |q|}}<option value="{{q}}" {{#if (eq q ../system.qualityTier)}}selected{{/if}}>{{q}}</option>{{/each}}</select></label>
-  {{> "systems/crows/templates/partials/physical-item.hbs"}}
-  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+{{!--
+  Weapon sheet, laid out as the printed item card.
+
+  Structure follows crows_design/bfjvo2wbjyvzap98drtfclcn0f7l.avif (the
+  Mace / Torch / Animal Form plate):
+    black header  — centred uncial title, keyword right, triangle glyph
+                    straddling the header edge, action label with a rule,
+                    glyph meta rows, then the attribute line
+    tier ladder   — left rail carrying the 2d10 bands, results centred
+    rules note    — centred title over centred prose
+
+  Fields stay editable; the inputs are styled to read as card text rather
+  than form controls. Everything the card does not show lives in the
+  collapsed "All fields" block at the foot.
+--}}
+<form class="crows-item weapon ci-card">
+
+  <header class="ci-card-hd">
+    <input type="text" name="name" value="{{item.name}}" class="ci-title" aria-label="Name">
+    <div class="ci-kw">{{system.type}}{{#if system.piercing}} · piercing{{/if}}</div>
+
+    <div class="ci-action">
+      <span class="ci-glyph" data-action="editImage" data-edit="img" data-tooltip="Click to change icon">
+        <img src="{{item.img}}" alt="">
+      </span>
+      <div class="ci-action-main">
+        <div class="ci-action-label">Attack</div>
+        <dl class="ci-meta">
+          <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Quality</dt><dd>{{system.qualityTier}}</dd></div>
+          <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Range</dt>
+            <dd>{{#if system.range.ranged}}Ranged {{system.range.ranged}}{{else}}Melee {{system.range.melee}}{{/if}}</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="ci-attr">
+      <span class="ci-sym" aria-hidden="true">&#9860;</span> +
+      {{#if (eq system.attackStat "strength")}}<span class="ci-chip">S</span>trength{{/if}}
+      {{#if (eq system.attackStat "agility")}}<span class="ci-chip">A</span>gility{{/if}}
+      {{#if (eq system.attackStat "either")}}<span class="ci-chip">A</span> or <span class="ci-chip">S</span>{{/if}}
+    </div>
+  </header>
+
+  <div class="ci-tiers">
+    <div class="ci-tier miss">
+      <div class="ci-rail"><span>&ndash;</span><span>{{CROWS.tiers.t1Max}}</span></div>
+      <div class="ci-result">Miss. Target can counter.</div>
+    </div>
+    <div class="ci-tier">
+      <div class="ci-rail"><span>{{add CROWS.tiers.t1Max 1}}</span><span>{{CROWS.tiers.t2Max}}</span></div>
+      <div class="ci-result"><input type="text" name="system.damage.t2" value="{{system.damage.t2}}" class="ci-dmg" aria-label="Tier 2 damage"> dam</div>
+    </div>
+    <div class="ci-tier">
+      <div class="ci-rail"><span>{{add CROWS.tiers.t2Max 1}}</span><span>+</span></div>
+      <div class="ci-result"><input type="text" name="system.damage.t3" value="{{system.damage.t3}}" class="ci-dmg" aria-label="Tier 3 damage"> dam</div>
+    </div>
+  </div>
+
+  <section class="ci-note">
+    <h2 class="ci-note-title">{{item.name}}</h2>
+    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
+  </section>
+
+  <details class="ci-more">
+    <summary>All fields</summary>
+    <div class="ci-body">
+      <label>Type <select name="system.type">{{#each CROWS.weaponTypes as |t|}}<option value="{{t}}" {{#if (eq t ../system.type)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
+      <label>Melee <input type="number" name="system.range.melee" value="{{system.range.melee}}"></label>
+      <label>Ranged <input type="number" name="system.range.ranged" value="{{system.range.ranged}}"></label>
+      <label>Attack stat <select name="system.attackStat">
+        <option value="strength" {{#if (eq system.attackStat "strength")}}selected{{/if}}>S</option>
+        <option value="agility" {{#if (eq system.attackStat "agility")}}selected{{/if}}>A</option>
+        <option value="either" {{#if (eq system.attackStat "either")}}selected{{/if}}>A or S</option>
+      </select></label>
+      <label><input type="checkbox" name="system.piercing" {{#if system.piercing}}checked{{/if}}> Piercing (ignores AD)</label>
+      <label>Quality <select name="system.qualityTier">{{#each CROWS.qualityTiers as |q|}}<option value="{{q}}" {{#if (eq q ../system.qualityTier)}}selected{{/if}}>{{q}}</option>{{/each}}</select></label>
+      {{> "systems/crows/templates/partials/physical-item.hbs"}}
+    </div>
+  </details>
+
 </form>

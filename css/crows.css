@@ -1731,3 +1731,612 @@
    smaller than Signika did. Nudge the running text up to compensate
    without touching the label and figure scales. */
 .crows-crow { font-size: var(--crows-text-mid); }
+
+/* ====================================================================
+   11. STRUCTURE — the book's two constructions
+   ====================================================================
+   Both are lifted from the design system rather than invented:
+
+   1. SECTION BANNER (components/content/SectionBanner.jsx) — a black bar
+      framed by a 3px rule, a gap, then a 1px rule, mirrored underneath.
+      The campaign banners all use it.
+
+   2. ITEM CARD (components/game/ItemCard.jsx) — a black header block
+      carrying a rotated-45deg sigil frame and the item name, over a
+      white body. This is the anatomy of the printed Mace / Torch /
+      Animal Form cards.
+   ==================================================================== */
+
+/* -------- Section banner --------
+   Scoped under .crows-crow to outrank the original
+   `.crows-crow .cc-section-title` rule, which centres the text, sets a
+   1px bottom border and pads the bottom to 2px. A bare class selector
+   loses to it on specificity. */
+.crows-crow .cc-section-title {
+  position: relative;
+  background: var(--crows-ink);
+  color: var(--crows-white);
+  font-family: var(--crows-face-display);
+  font-size: var(--crows-text-lead);
+  font-weight: 400;
+  text-transform: uppercase;
+  text-align: left;
+  letter-spacing: var(--crows-track-display);
+  line-height: 1.1;
+  border-top: 3px solid var(--crows-white);
+  border-bottom: 3px solid var(--crows-white);
+  /* Uncial sits low and has real descenders; 11px bottom padding keeps
+     them clear of the inner hairline. */
+  padding: 9px 14px 11px;
+  margin-bottom: 8px;
+}
+/* The inner hairlines. Absolute offsets are measured from the padding
+   edge, so 3px sits them just inside the 3px border with black between. */
+.crows-crow .cc-section-title::before,
+.crows-crow .cc-section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--crows-white);
+  pointer-events: none;
+}
+.crows-crow .cc-section-title::before { top: 3px; }
+.crows-crow .cc-section-title::after  { bottom: 3px; }
+
+/* -------- Item card -------- */
+.cc-card {
+  padding: 0;
+  gap: 0;
+}
+.cc-card-hd {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "sigil name" "sigil kw";
+  align-items: center;
+  column-gap: 8px;
+  background: var(--crows-ink);
+  color: var(--crows-white);
+  padding: 7px 9px;
+  /* Names wrap to two lines at unpredictable points, which left the
+     header band 46px on some cards and 56px on others and made the grid
+     read as ragged. Pin it to the two-line height so the bands align
+     across a row. */
+  min-height: 56px;
+  box-sizing: border-box;
+}
+.cc-card-name {
+  grid-area: name;
+  font-family: var(--crows-face-display);
+  font-size: var(--crows-text-small);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: var(--crows-track-display);
+  line-height: 1.15;
+  display: block;          /* overrides the icon-row flex from section 10 */
+  align-self: end;
+}
+.cc-card-kw {
+  grid-area: kw;
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+  color: var(--crows-night-fade);
+  align-self: start;
+}
+
+/* Sigil — a square rotated 45deg. The image counter-rotates so the
+   artwork stays upright inside the diamond. */
+.cc-sigil {
+  grid-area: sigil;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border: 1px solid var(--crows-white);
+  transform: rotate(45deg);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  margin: 3px;
+}
+.cc-sigil-img {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  transform: rotate(-45deg);
+  border: 0;
+  display: block;
+}
+
+.cc-card-body {
+  padding: 6px 9px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+/* ====================================================================
+   12. ITEM SHEETS — all eight types
+   ====================================================================
+   These were bare form dumps: a title input and a flat stack of <label>
+   rows with no styling at all. They now share the card anatomy — black
+   header band with a sigil frame — and lay their fields out as a
+   label/control grid instead of a ragged column.
+   ==================================================================== */
+
+/* ────────────────────────────────────────────────────────────────────
+   ITEM CARD — the printed card layout
+   Modelled on the Mace / Torch / Animal Form plate. A black header
+   carrying a centred title, a triangle glyph straddling its lower edge,
+   an action label and glyph meta rows; then the 2d10 tier ladder with a
+   left rail; then a centred rules note.
+   ──────────────────────────────────────────────────────────────────── */
+.crows-item.ci-card {
+  background: var(--crows-white);
+  padding: 0;
+  border: 1px solid var(--crows-ink);
+}
+
+/* -------- Header -------- */
+.ci-card .ci-card-hd {
+  position: relative;
+  background: var(--crows-ink);
+  color: var(--crows-white);
+  padding: 12px 16px 16px;
+  display: block;
+}
+/* Foundry's dark theme styles bare elements (h2, textarea, input) in its
+   own light palette. The card sits on white, so every text element inside
+   it must state its colour or it inherits the wrong one. */
+.ci-card :is(h1, h2, h3, p, label, span, div, dt, dd) { color: inherit; }
+
+.ci-card .ci-title {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: var(--crows-white);
+  font-family: var(--crows-face-display);
+  font-size: var(--crows-text-display);
+  /* Uncial is tall and has real descenders; an input box sized to a bare
+     line-height clips both ends, so give it explicit room. */
+  line-height: 1.25;
+  height: auto;
+  padding: 4px 0 8px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: var(--crows-track-display);
+}
+.ci-card .ci-title:focus { outline: none; border-bottom: 1px solid var(--crows-white); }
+.ci-card .ci-kw {
+  text-align: right;
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-small);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+  color: var(--crows-night-warm);
+  margin-top: 2px;
+}
+
+/* Action row: triangle glyph, then the action label with its rule. */
+.ci-card .ci-action {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  align-items: start;
+  gap: 6px;
+  margin-top: 6px;
+}
+.ci-card .ci-glyph {
+  width: 88px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  /* The printed glyph is a triangle outline, not a box. Two stacked
+     clip-paths would need an extra element, so the frame is drawn as a
+     filled white triangle with the artwork inset on a black triangle. */
+  background: var(--crows-white);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  position: relative;
+}
+.ci-card .ci-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 3px 4px 3px 4px;
+  background: var(--crows-ink);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.ci-card .ci-glyph img {
+  position: relative;
+  z-index: 1;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  margin-top: 22px;   /* optically centres inside a triangle */
+  border: 0;
+  filter: grayscale(1) brightness(1.9) contrast(1.2);
+}
+.ci-card .ci-action-label {
+  font-family: var(--crows-face-display);
+  font-size: var(--crows-text-lead);
+  text-transform: uppercase;
+  letter-spacing: var(--crows-track-display);
+  border-bottom: 1px solid var(--crows-white);
+  padding-bottom: 2px;
+  line-height: 1.15;
+}
+.ci-card .ci-meta { margin: 5px 0 0; display: grid; gap: 2px; }
+.ci-card .ci-meta-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-small);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+.ci-card .ci-meta-row dt { margin: 0; color: var(--crows-night-fade); }
+.ci-card .ci-meta-row dd { margin: 0; color: var(--crows-white); }
+.ci-card .ci-sym { font-size: 1.05em; }
+
+.ci-card .ci-attr {
+  margin-top: 10px;
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-mid);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+/* Inverted initial — white ground, black letter, as printed. */
+.ci-card .ci-chip {
+  background: var(--crows-white);
+  color: var(--crows-ink);
+  padding: 0 4px;
+  font-weight: 700;
+}
+
+/* -------- Tier ladder -------- */
+.ci-card .ci-tiers { background: var(--crows-white); color: var(--crows-ink); }
+.ci-card .ci-tier {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  align-items: center;
+  min-height: 56px;
+}
+.ci-card .ci-tier + .ci-tier { border-top: 1px solid var(--crows-ink); }
+/* The rail: two stacked figures with the vertical rule to their right. */
+.ci-card .ci-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  align-self: stretch;
+  border-right: 1px solid var(--crows-ink);
+  font-family: var(--crows-face-figure);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 700;
+  font-size: var(--crows-text-lead);
+  line-height: 1.05;
+  padding: 6px 0;
+}
+.ci-card .ci-result {
+  text-align: center;
+  padding: 8px 12px;
+  font-size: var(--crows-text-mid);
+  line-height: 1.35;
+}
+.ci-card .ci-tier.miss .ci-result { color: var(--crows-ink-mute); }
+/* Damage value reads as an inverted chip, as on the card. */
+.ci-card .ci-dmg {
+  background: var(--crows-ink);
+  color: var(--crows-white);
+  border: 0;
+  font-family: var(--crows-face-figure);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 700;
+  font-size: var(--crows-sheet-text);
+  text-align: center;
+  padding: 2px 6px;
+  width: 88px;
+  border-radius: 0;
+}
+.ci-card .ci-dmg:focus { outline: 2px solid var(--crows-blood); outline-offset: 1px; }
+
+/* Band inputs read as card prose, not form fields. */
+.ci-card .ci-band {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: inherit;
+  font-family: var(--crows-face-body);
+  font-size: var(--crows-text-mid);
+  text-align: center;
+  padding: 2px 0;
+}
+.ci-card .ci-band:hover { border-bottom-color: var(--crows-rule); }
+.ci-card .ci-band:focus { outline: none; border-bottom-color: var(--crows-ink); }
+
+/* -------- Stat strip --------
+   Stands in for the tier ladder on types that have no roll bands:
+   armour, gear, ammunition, traits. Same rules, same rhythm. */
+.ci-card .ci-stats {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--crows-white);
+  color: var(--crows-ink);
+  border-top: 1px solid var(--crows-ink);
+}
+.ci-card .ci-stat {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  padding: 10px 6px;
+  text-align: center;
+}
+.ci-card .ci-stat + .ci-stat { border-left: 1px solid var(--crows-ink); }
+.ci-card .ci-stat-label {
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-wide);
+  text-transform: uppercase;
+  color: var(--crows-ink-dim);
+}
+.ci-card .ci-stat-value {
+  font-family: var(--crows-face-figure);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 700;
+  font-size: var(--crows-text-lead);
+}
+
+/* -------- Background flavour + granted lists -------- */
+.ci-card .ci-flavor {
+  margin: 0;
+  padding: 10px 18px 0;
+  text-align: center;
+  font-style: italic;
+  color: var(--crows-ink-mute);
+  font-size: var(--crows-text-mid);
+}
+.ci-card .ci-lists {
+  display: grid;
+  gap: 8px;
+  padding: 10px 18px 0;
+}
+.ci-card .ci-list h3 {
+  margin: 0;
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-wide);
+  text-transform: uppercase;
+  color: var(--crows-ink-dim);
+  text-align: center;
+}
+.ci-card .ci-list p {
+  margin: 2px 0 0;
+  text-align: center;
+  font-size: var(--crows-sheet-text);
+  line-height: 1.4;
+}
+
+/* Cast bar sits between header and ladder on spellbooks. */
+.ci-card .cast-bar { margin: 0; border-radius: 0; border-left: 0; border-right: 0; }
+
+/* -------- Rules note -------- */
+.ci-card .ci-note {
+  border-top: 1px solid var(--crows-ink);
+  padding: 12px 18px 14px;
+  text-align: center;
+}
+.ci-card .ci-note-title {
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-lead);
+  font-weight: 700;
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+  color: var(--crows-ink);
+  margin: 0 0 4px;
+}
+.ci-card .ci-note textarea {
+  width: 100%;
+  min-height: 84px;
+  border: 0;
+  color: var(--crows-ink);
+  background: transparent;
+  text-align: center;
+  font-family: var(--crows-face-body);
+  font-size: var(--crows-text-mid);
+  line-height: 1.45;
+  resize: vertical;
+  padding: 0;
+}
+.ci-card .ci-note textarea:focus { outline: 1px dashed var(--crows-rule); }
+
+/* -------- Collapsed raw fields -------- */
+.ci-card .ci-more { border-top: 1px solid var(--crows-rule); }
+.ci-card .ci-more > summary {
+  cursor: pointer;
+  padding: 7px 14px;
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-wide);
+  text-transform: uppercase;
+  color: var(--crows-ink-dim);
+  min-height: var(--crows-touch-sm);
+}
+.ci-card .ci-more[open] > summary { border-bottom: 1px solid var(--crows-rule-soft); }
+
+.crows-item {
+  display: flex;
+  flex-direction: column;
+  background: var(--crows-paper);
+  color: var(--crows-ink);
+  font-family: var(--crows-face-body);
+  font-size: var(--crows-sheet-text);
+  padding: 0;
+}
+
+/* -------- Header band -------- */
+.crows-item .ci-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: var(--crows-ink);
+  color: var(--crows-white);
+  padding: 9px 12px;
+}
+.crows-item .ci-name {
+  font-family: var(--crows-face-display);
+  font-size: var(--crows-text-lead);
+  text-transform: uppercase;
+  letter-spacing: var(--crows-track-display);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: var(--crows-white);
+  padding: 2px 0;
+  min-width: 0;
+}
+.crows-item .ci-name:hover  { border-bottom-color: var(--crows-night-rule-soft); }
+.crows-item .ci-name:focus  { border-bottom-color: var(--crows-white); outline: none; background: transparent; }
+.crows-item .ci-kind {
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-wide);
+  text-transform: uppercase;
+  color: var(--crows-night-fade);
+  white-space: nowrap;
+}
+/* The sigil frame is white-on-black here, same as on the cards.
+   `grid-area: sigil` is inherited from the card rules in section 11;
+   this header uses positional columns and has no such named area, so it
+   must be reset or the sigil drops into an implicit row. */
+.crows-item .cc-sigil {
+  grid-area: auto;
+  border-color: var(--crows-white);
+  align-self: center;
+}
+
+/* -------- Field grid --------
+   Each <label> holds its own text plus the control, so the label becomes
+   the grid row and the control is pushed right. */
+.crows-item .ci-body {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px 12px;
+  gap: 0;
+}
+.crows-item .ci-body > label,
+.crows-item .physical > label,
+.crows-item .usage-die > label {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 190px);
+  align-items: center;
+  gap: 10px;
+  padding: 5px 2px;
+  border-bottom: 1px solid var(--crows-rule-soft);
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-tiny);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+.crows-item .ci-body > label:last-child { border-bottom: 0; }
+
+/* Controls sit in the right column and read as data, not labels. */
+.crows-item .ci-body input[type="text"],
+.crows-item .ci-body input[type="number"],
+.crows-item .ci-body select,
+.crows-item .physical input,
+.crows-item .usage-die input,
+.crows-item .usage-die select {
+  font-family: var(--crows-face-body);
+  font-size: var(--crows-sheet-text);
+  text-transform: none;
+  letter-spacing: 0;
+  background: var(--crows-white);
+  border: 1px solid var(--crows-rule);
+  border-radius: var(--crows-radius-tight);
+  padding: 3px 6px;
+  width: 100%;
+  min-height: var(--crows-touch-sm);
+  box-sizing: border-box;
+}
+.crows-item .ci-body input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  justify-self: start;
+  min-height: 0;
+  cursor: pointer;
+}
+/* Some labels put the checkbox before their text (e.g. "Piercing",
+   "Usage die"), which would drop the control into the label column.
+   Flip those so every row reads label-left / control-right, including
+   inside the grouped sub-blocks. */
+.crows-item :is(.ci-body, .physical, .usage-die) > label:has(> input[type="checkbox"]:first-child) {
+  grid-template-areas: "text box";
+}
+.crows-item :is(.ci-body, .physical, .usage-die) > label:has(> input[type="checkbox"]:first-child) > input[type="checkbox"] {
+  grid-area: box;
+}
+
+/* Grouped sub-blocks (slots/stack/qty/cost, usage die) get their own
+   banded heading so the sheet reads as sections, not one long list. */
+.crows-item .physical,
+.crows-item .usage-die {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0 0;
+  border: 1px solid var(--crows-rule);
+  padding: 4px 8px 6px;
+}
+.crows-item .physical > label:last-child,
+.crows-item .usage-die > label:last-child { border-bottom: 0; }
+
+/* Description is prose — drop the caps treatment and give it room. */
+.crows-item .ci-body > label:has(textarea) {
+  display: block;
+  border-bottom: 0;
+  margin-top: 10px;
+}
+.crows-item .ci-body textarea {
+  font-family: var(--crows-face-body);
+  font-size: var(--crows-sheet-text);
+  text-transform: none;
+  letter-spacing: 0;
+  width: 100%;
+  min-height: 110px;
+  margin-top: 5px;
+  padding: 7px 8px;
+  background: var(--crows-white);
+  border: 1px solid var(--crows-rule);
+  border-radius: var(--crows-radius-tight);
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.crows-item :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--crows-focus);
+  outline-offset: 1px;
+}
+
+/* Foundry's generic item placeholder is a pale bag SVG that reads as an
+   empty box at icon size. In a text row that just looks broken, so hide
+   it — traits and backgrounds still carry it until they get per-tree art.
+   On a card the sigil frame is left deliberately empty instead, which is
+   what the design system specifies when the artwork is missing. */
+.cc-item-icon[src$="item-bag.svg"] { display: none; }
+
+/* The slot label is Foundry chrome, not part of the card — de-emphasise
+   it so the card's own black header carries the weight, as in the book. */
+.cc-slot-header {
+  background: transparent;
+  border-bottom: 1px solid var(--crows-rule);
+  color: var(--crows-ink-dim);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-wide);
+}

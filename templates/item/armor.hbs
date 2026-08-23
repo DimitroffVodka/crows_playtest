@@ -1,9 +1,30 @@
-<form class="crows-item armor">
-  <input type="text" name="name" value="{{item.name}}" class="title">
-  <label>Armor type <select name="system.armorType">{{#each CROWS.armorTypes as |t|}}<option value="{{t}}" {{#if (eq t ../system.armorType)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
-  <label>AD <input type="number" name="system.ad" value="{{system.ad}}"></label>
-  <label>Worn <input type="checkbox" name="system.worn" {{#if system.worn}}checked{{/if}}></label>
-  <label>Quality <select name="system.qualityTier">{{#each CROWS.qualityTiers as |q|}}<option value="{{q}}" {{#if (eq q ../system.qualityTier)}}selected{{/if}}>{{q}}</option>{{/each}}</select></label>
-  {{> "systems/crows/templates/partials/physical-item.hbs"}}
-  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+<form class="crows-item armor ci-card">
+
+  {{#> "systems/crows/templates/partials/card-head.hbs" kw=system.armorType label="Wear"}}
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Quality</dt><dd>{{system.qualityTier}}</dd></div>
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Worn</dt><dd>{{#if system.worn}}Yes{{else}}No{{/if}}</dd></div>
+  {{/"systems/crows/templates/partials/card-head.hbs"}}
+
+  <div class="ci-stats">
+    <div class="ci-stat"><span class="ci-stat-label">Armor Defense</span><span class="ci-stat-value">{{system.ad}}</span></div>
+    <div class="ci-stat"><span class="ci-stat-label">Slots</span><span class="ci-stat-value">{{system.slots}}</span></div>
+    <div class="ci-stat"><span class="ci-stat-label">Cost</span><span class="ci-stat-value">{{system.cost}} gc</span></div>
+  </div>
+
+  <section class="ci-note">
+    <h2 class="ci-note-title">{{item.name}}</h2>
+    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
+  </section>
+
+  <details class="ci-more">
+    <summary>All fields</summary>
+    <div class="ci-body">
+      <label>Armor type <select name="system.armorType">{{#each CROWS.armorTypes as |t|}}<option value="{{t}}" {{#if (eq t ../system.armorType)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
+      <label>AD <input type="number" name="system.ad" value="{{system.ad}}"></label>
+      <label><input type="checkbox" name="system.worn" {{#if system.worn}}checked{{/if}}> Worn</label>
+      <label>Quality <select name="system.qualityTier">{{#each CROWS.qualityTiers as |q|}}<option value="{{q}}" {{#if (eq q ../system.qualityTier)}}selected{{/if}}>{{q}}</option>{{/each}}</select></label>
+      {{> "systems/crows/templates/partials/physical-item.hbs"}}
+    </div>
+  </details>
+
 </form>

@@ -1,11 +1,42 @@
-<form class="crows-item background">
-  <input type="text" name="name" value="{{item.name}}" class="title">
-  <label>Flavor <input type="text" name="system.flavor" value="{{system.flavor}}"></label>
-  <label>Char bonus <input type="text" name="system.characteristicBonus" value="{{system.characteristicBonus}}"></label>
-  <label>Stamina <input type="number" name="system.stamina" value="{{system.stamina}}"></label>
-  <label>Starting trait <input type="text" name="system.startingTrait" value="{{system.startingTrait}}"></label>
-  <div>Skills: {{#each system.skills as |s|}}{{s}} {{/each}}</div>
-  <div>Equipment: {{#each system.equipment as |e|}}{{e}} {{/each}}</div>
-  <div>Spellbooks: {{#each system.spellbooks as |sb|}}{{sb}} {{/each}}</div>
-  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+<form class="crows-item background ci-card">
+
+  {{#> "systems/crows/templates/partials/card-head.hbs" kw="background" label="Origin"}}
+    {{#if system.characteristicBonus}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9860;</span> Bonus</dt><dd>{{system.characteristicBonus}}</dd></div>
+    {{/if}}
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Stamina</dt><dd>{{system.stamina}}</dd></div>
+    {{#if system.startingTrait}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Trait</dt><dd>{{system.startingTrait}}</dd></div>
+    {{/if}}
+  {{/"systems/crows/templates/partials/card-head.hbs"}}
+
+  {{#if system.flavor}}<p class="ci-flavor">{{system.flavor}}</p>{{/if}}
+
+  <div class="ci-lists">
+    {{#if system.skills.length}}
+      <div class="ci-list"><h3>Skills</h3><p>{{#each system.skills as |s|}}{{s}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p></div>
+    {{/if}}
+    {{#if system.equipment.length}}
+      <div class="ci-list"><h3>Equipment</h3><p>{{#each system.equipment as |e|}}{{e}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p></div>
+    {{/if}}
+    {{#if system.spellbooks.length}}
+      <div class="ci-list"><h3>Spellbooks</h3><p>{{#each system.spellbooks as |sb|}}{{sb}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p></div>
+    {{/if}}
+  </div>
+
+  <section class="ci-note">
+    <h2 class="ci-note-title">{{item.name}}</h2>
+    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
+  </section>
+
+  <details class="ci-more">
+    <summary>All fields</summary>
+    <div class="ci-body">
+      <label>Flavor <input type="text" name="system.flavor" value="{{system.flavor}}"></label>
+      <label>Char bonus <input type="text" name="system.characteristicBonus" value="{{system.characteristicBonus}}"></label>
+      <label>Stamina <input type="number" name="system.stamina" value="{{system.stamina}}"></label>
+      <label>Starting trait <input type="text" name="system.startingTrait" value="{{system.startingTrait}}"></label>
+    </div>
+  </details>
+
 </form>

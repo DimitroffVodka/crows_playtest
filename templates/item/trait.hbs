@@ -1,10 +1,35 @@
-<form class="crows-item trait">
-  <input type="text" name="name" value="{{item.name}}" class="title">
-  <label>Tree <select name="system.tree">{{#each CROWS.traitTrees as |t|}}<option value="{{t}}" {{#if (eq t ../system.tree)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
-  <label>Tier <input type="number" name="system.tier" value="{{system.tier}}"></label>
-  <label>Column <input type="number" name="system.column" value="{{system.column}}"></label>
-  <label>Starting <input type="checkbox" name="system.isStarting" {{#if system.isStarting}}checked{{/if}}></label>
-  <label>Rest activity <input type="checkbox" name="system.restActivity" {{#if system.restActivity}}checked{{/if}}></label>
-  <div>XP cost: {{system.xpCost}}</div>
-  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+<form class="crows-item trait ci-card">
+
+  {{#> "systems/crows/templates/partials/card-head.hbs" kw=system.tree label="Perk"}}
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Tier</dt><dd>{{system.tier}} &middot; column {{system.column}}</dd></div>
+    {{#if system.restActivity}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Rest</dt><dd>Rest activity</dd></div>
+    {{/if}}
+    {{#if system.isStarting}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9860;</span> Grant</dt><dd>Starting trait</dd></div>
+    {{/if}}
+  {{/"systems/crows/templates/partials/card-head.hbs"}}
+
+  <div class="ci-stats">
+    <div class="ci-stat"><span class="ci-stat-label">Tree</span><span class="ci-stat-value">{{system.tree}}</span></div>
+    <div class="ci-stat"><span class="ci-stat-label">Tier</span><span class="ci-stat-value">{{system.tier}}</span></div>
+    <div class="ci-stat"><span class="ci-stat-label">XP cost</span><span class="ci-stat-value">{{system.xpCost}}</span></div>
+  </div>
+
+  <section class="ci-note">
+    <h2 class="ci-note-title">{{item.name}}</h2>
+    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
+  </section>
+
+  <details class="ci-more">
+    <summary>All fields</summary>
+    <div class="ci-body">
+      <label>Tree <select name="system.tree">{{#each CROWS.traitTrees as |t|}}<option value="{{t}}" {{#if (eq t ../system.tree)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
+      <label>Tier <input type="number" name="system.tier" value="{{system.tier}}"></label>
+      <label>Column <input type="number" name="system.column" value="{{system.column}}"></label>
+      <label><input type="checkbox" name="system.isStarting" {{#if system.isStarting}}checked{{/if}}> Starting</label>
+      <label><input type="checkbox" name="system.restActivity" {{#if system.restActivity}}checked{{/if}}> Rest activity</label>
+    </div>
+  </details>
+
 </form>

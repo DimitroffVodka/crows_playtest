@@ -1,24 +1,55 @@
-<form class="crows-item spellbook">
-  <input type="text" name="name" value="{{item.name}}" class="title">
+<form class="crows-item spellbook ci-card">
+
+  {{#> "systems/crows/templates/partials/card-head.hbs" kw=system.discipline label=system.castType}}
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Persist</dt><dd>{{#if system.duration}}{{system.duration}}{{else}}&mdash;{{/if}}</dd></div>
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Range</dt>
+      <dd>{{#if (eq system.range.kind "self")}}Self{{else}}{{system.range.kind}} {{system.range.value}}{{/if}}</dd></div>
+    {{#if system.target}}<div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9737;</span> Target</dt><dd>{{system.target}}</dd></div>{{/if}}
+    <div class="ci-attr"><span class="ci-sym" aria-hidden="true">&#9860;</span> + <span class="ci-chip">M</span>ind</div>
+  {{/"systems/crows/templates/partials/card-head.hbs"}}
+
   <div class="cast-bar">
-    <button type="button" data-action="castSpell" class="cast-btn" title="Cast {{item.name}}">⚡ Cast {{item.name}}</button>
-    <span class="cast-hint">2d10 + Mind + {{system.discipline}}{{#if system.usageDie.enabled}} · UD {{system.usageDie.udCurrent}}/{{system.usageDie.udMax}}{{/if}}</span>
+    <button type="button" data-action="castSpell" class="cast-btn" title="Cast {{item.name}}">&#9889; Cast {{item.name}}</button>
+    <span class="cast-hint">2d10 + Mind + {{system.discipline}}{{#if system.usageDie.enabled}} &middot; UD {{system.usageDie.udCurrent}}/{{system.usageDie.udMax}}{{/if}}</span>
   </div>
-  <label>Discipline <select name="system.discipline">{{#each CROWS.disciplines as |d|}}<option value="{{d}}" {{#if (eq d ../system.discipline)}}selected{{/if}}>{{d}}</option>{{/each}}</select></label>
-  <label>Rank <input type="number" name="system.rank" value="{{system.rank}}"></label>
-  <label>Cast type <select name="system.castType">{{#each CROWS.castTypes as |c|}}<option value="{{c}}" {{#if (eq c ../system.castType)}}selected{{/if}}>{{c}}</option>{{/each}}</select></label>
-  <label>Range kind <select name="system.range.kind">
-    <option value="self" {{#if (eq system.range.kind "self")}}selected{{/if}}>self</option>
-    <option value="melee" {{#if (eq system.range.kind "melee")}}selected{{/if}}>melee</option>
-    <option value="ranged" {{#if (eq system.range.kind "ranged")}}selected{{/if}}>ranged</option>
-  </select></label>
-  <label>Range <input type="number" name="system.range.value" value="{{system.range.value}}"></label>
-  <label>Target <input type="text" name="system.target" value="{{system.target}}"></label>
-  <label>Duration <input type="text" name="system.duration" value="{{system.duration}}"></label>
-  <label>Effect T1 <input type="text" name="system.effectBands.t1" value="{{system.effectBands.t1}}"></label>
-  <label>Effect T2 <input type="text" name="system.effectBands.t2" value="{{system.effectBands.t2}}"></label>
-  <label>Effect T3 <input type="text" name="system.effectBands.t3" value="{{system.effectBands.t3}}"></label>
-  {{> "systems/crows/templates/partials/usage-die.hbs"}}
-  {{> "systems/crows/templates/partials/physical-item.hbs"}}
-  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+
+  <div class="ci-tiers">
+    <div class="ci-tier miss">
+      <div class="ci-rail"><span>&ndash;</span><span>{{CROWS.tiers.t1Max}}</span></div>
+      <div class="ci-result"><input type="text" name="system.effectBands.t1" value="{{system.effectBands.t1}}" class="ci-band" aria-label="Tier 1 effect"></div>
+    </div>
+    <div class="ci-tier">
+      <div class="ci-rail"><span>{{add CROWS.tiers.t1Max 1}}</span><span>{{CROWS.tiers.t2Max}}</span></div>
+      <div class="ci-result"><input type="text" name="system.effectBands.t2" value="{{system.effectBands.t2}}" class="ci-band" aria-label="Tier 2 effect"></div>
+    </div>
+    <div class="ci-tier">
+      <div class="ci-rail"><span>{{add CROWS.tiers.t2Max 1}}</span><span>+</span></div>
+      <div class="ci-result"><input type="text" name="system.effectBands.t3" value="{{system.effectBands.t3}}" class="ci-band" aria-label="Tier 3 effect"></div>
+    </div>
+  </div>
+
+  <section class="ci-note">
+    <h2 class="ci-note-title">{{item.name}}</h2>
+    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
+  </section>
+
+  <details class="ci-more">
+    <summary>All fields</summary>
+    <div class="ci-body">
+      <label>Discipline <select name="system.discipline">{{#each CROWS.disciplines as |d|}}<option value="{{d}}" {{#if (eq d ../system.discipline)}}selected{{/if}}>{{d}}</option>{{/each}}</select></label>
+      <label>Rank <input type="number" name="system.rank" value="{{system.rank}}"></label>
+      <label>Cast type <select name="system.castType">{{#each CROWS.castTypes as |c|}}<option value="{{c}}" {{#if (eq c ../system.castType)}}selected{{/if}}>{{c}}</option>{{/each}}</select></label>
+      <label>Range kind <select name="system.range.kind">
+        <option value="self" {{#if (eq system.range.kind "self")}}selected{{/if}}>self</option>
+        <option value="melee" {{#if (eq system.range.kind "melee")}}selected{{/if}}>melee</option>
+        <option value="ranged" {{#if (eq system.range.kind "ranged")}}selected{{/if}}>ranged</option>
+      </select></label>
+      <label>Range <input type="number" name="system.range.value" value="{{system.range.value}}"></label>
+      <label>Target <input type="text" name="system.target" value="{{system.target}}"></label>
+      <label>Duration <input type="text" name="system.duration" value="{{system.duration}}"></label>
+      {{> "systems/crows/templates/partials/usage-die.hbs"}}
+      {{> "systems/crows/templates/partials/physical-item.hbs"}}
+    </div>
+  </details>
+
 </form>

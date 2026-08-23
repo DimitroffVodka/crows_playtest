@@ -218,13 +218,16 @@
           <div class="cc-slot-header">{{s.label}}</div>
           {{#if s.card}}
             <div class="cc-card">
-              <div class="cc-card-name" data-action="openItem" data-item-id="{{s.card.id}}" title="Open item sheet">
-                <img class="cc-item-icon" src="{{s.card.img}}" alt="">
-                {{s.card.name}}{{#if s.card.stack}} <span class="cc-card-stack">Stack {{s.card.stack}}</span>{{/if}}
+              <div class="cc-card-hd" data-action="openItem" data-item-id="{{s.card.id}}" title="Open item sheet">
+                <span class="cc-sigil"><img class="cc-sigil-img" src="{{s.card.img}}" alt=""></span>
+                <span class="cc-card-name">{{s.card.name}}</span>
+                <span class="cc-card-kw">{{s.card.type}}{{#if s.card.stack}} · {{s.card.stack}}{{/if}}</span>
               </div>
-              {{#each s.card.summary.lines as |line|}}
-                <div class="cc-card-line">{{line}}</div>
-              {{/each}}
+              <div class="cc-card-body">
+                {{#each s.card.summary.lines as |line|}}
+                  <div class="cc-card-line">{{line}}</div>
+                {{/each}}
+              </div>
               {{#if (eq s.card.type "weapon")}}
                 <button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{s.card.id}}" title="Roll attack with {{s.card.name}}">⚔ Attack</button>
               {{/if}}
@@ -258,10 +261,16 @@
             <div class="cc-slot-wound">&#10006; wound</div>
           {{else if cell.card}}
             <div class="cc-card" data-action="openItem" data-item-id="{{cell.card.id}}">
-              <div class="cc-card-name"><img class="cc-item-icon" src="{{cell.card.img}}" alt="">{{cell.card.name}}{{#if cell.card.stack}} <span class="cc-card-stack">Stack {{cell.card.stack}}</span>{{/if}}</div>
-              {{#each cell.card.summary.lines as |line|}}
-                <div class="cc-card-line">{{line}}</div>
-              {{/each}}
+              <div class="cc-card-hd">
+                <span class="cc-sigil"><img class="cc-sigil-img" src="{{cell.card.img}}" alt=""></span>
+                <span class="cc-card-name">{{cell.card.name}}</span>
+                <span class="cc-card-kw">{{cell.card.type}}{{#if cell.card.stack}} · {{cell.card.stack}}{{/if}}</span>
+              </div>
+              <div class="cc-card-body">
+                {{#each cell.card.summary.lines as |line|}}
+                  <div class="cc-card-line">{{line}}</div>
+                {{/each}}
+              </div>
               {{#if cell.card.cost}}<div class="cc-card-cost">{{cell.card.cost}} gc</div>{{/if}}
             </div>
           {{else}}

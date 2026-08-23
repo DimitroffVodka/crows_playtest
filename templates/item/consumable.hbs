@@ -1,16 +1,48 @@
-<form class="crows-item consumable">
-  <input type="text" name="name" value="{{item.name}}" class="title">
-  <label>Use action <select name="system.useAction">
-    <option value="action" {{#if (eq system.useAction "action")}}selected{{/if}}>action</option>
-    <option value="maneuver" {{#if (eq system.useAction "maneuver")}}selected{{/if}}>maneuver</option>
-  </select></label>
-  <label>Band T1 <input type="text" name="system.bands.t1" value="{{system.bands.t1}}"></label>
-  <label>Band T2 <input type="text" name="system.bands.t2" value="{{system.bands.t2}}"></label>
-  <label>Band T3 <input type="text" name="system.bands.t3" value="{{system.bands.t3}}"></label>
-  <label>Thrown attack <input type="checkbox" name="system.thrown.isAttack" {{#if system.thrown.isAttack}}checked{{/if}}></label>
-  <label>Thrown range <input type="number" name="system.thrown.range" value="{{system.thrown.range}}"></label>
-  <label>Duration <input type="text" name="system.duration" value="{{system.duration}}"></label>
-  {{> "systems/crows/templates/partials/usage-die.hbs"}}
-  {{> "systems/crows/templates/partials/physical-item.hbs"}}
-  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+<form class="crows-item consumable ci-card">
+
+  {{#> "systems/crows/templates/partials/card-head.hbs" kw="consumable" label=system.useAction}}
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Duration</dt><dd>{{#if system.duration}}{{system.duration}}{{else}}&mdash;{{/if}}</dd></div>
+    {{#if system.thrown.isAttack}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Thrown</dt><dd>Ranged {{system.thrown.range}}</dd></div>
+      <div class="ci-attr"><span class="ci-sym" aria-hidden="true">&#9860;</span> + <span class="ci-chip">A</span>gility</div>
+    {{else}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Range</dt><dd>Self</dd></div>
+    {{/if}}
+  {{/"systems/crows/templates/partials/card-head.hbs"}}
+
+  <div class="ci-tiers">
+    <div class="ci-tier miss">
+      <div class="ci-rail"><span>&ndash;</span><span>{{CROWS.tiers.t1Max}}</span></div>
+      <div class="ci-result"><input type="text" name="system.bands.t1" value="{{system.bands.t1}}" class="ci-band" aria-label="Tier 1 effect"></div>
+    </div>
+    <div class="ci-tier">
+      <div class="ci-rail"><span>{{add CROWS.tiers.t1Max 1}}</span><span>{{CROWS.tiers.t2Max}}</span></div>
+      <div class="ci-result"><input type="text" name="system.bands.t2" value="{{system.bands.t2}}" class="ci-band" aria-label="Tier 2 effect"></div>
+    </div>
+    <div class="ci-tier">
+      <div class="ci-rail"><span>{{add CROWS.tiers.t2Max 1}}</span><span>+</span></div>
+      <div class="ci-result"><input type="text" name="system.bands.t3" value="{{system.bands.t3}}" class="ci-band" aria-label="Tier 3 effect"></div>
+    </div>
+  </div>
+
+  <section class="ci-note">
+    <h2 class="ci-note-title">{{item.name}}</h2>
+    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
+  </section>
+
+  <details class="ci-more">
+    <summary>All fields</summary>
+    <div class="ci-body">
+      <label>Use action <select name="system.useAction">
+        <option value="action" {{#if (eq system.useAction "action")}}selected{{/if}}>action</option>
+        <option value="maneuver" {{#if (eq system.useAction "maneuver")}}selected{{/if}}>maneuver</option>
+      </select></label>
+      <label><input type="checkbox" name="system.thrown.isAttack" {{#if system.thrown.isAttack}}checked{{/if}}> Thrown attack</label>
+      <label>Thrown range <input type="number" name="system.thrown.range" value="{{system.thrown.range}}"></label>
+      <label>Duration <input type="text" name="system.duration" value="{{system.duration}}"></label>
+      {{> "systems/crows/templates/partials/usage-die.hbs"}}
+      {{> "systems/crows/templates/partials/physical-item.hbs"}}
+    </div>
+  </details>
+
 </form>

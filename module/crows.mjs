@@ -214,7 +214,9 @@ Hooks.once("init", () => {
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/chat/test-card.hbs"]);
   foundry.applications.handlebars.loadTemplates([
     "systems/crows/templates/partials/physical-item.hbs",
-    "systems/crows/templates/partials/usage-die.hbs"
+    "systems/crows/templates/partials/usage-die.hbs",
+    "systems/crows/templates/partials/item-header.hbs",
+    "systems/crows/templates/partials/card-head.hbs"
   ]);
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/monster.hbs"]);
 });

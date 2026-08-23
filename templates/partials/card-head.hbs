@@ -1,0 +1,28 @@
+{{!--
+  Shared card header, modelled on the printed item cards.
+
+  Block partial — call it as:
+
+    {{#> "systems/crows/templates/partials/card-head.hbs" kw="bashing" label="Attack"}}
+      <div class="ci-meta-row"><dt>…</dt><dd>…</dd></div>
+    {{/"systems/crows/templates/partials/card-head.hbs"}}
+
+  The block content becomes the meta rows under the action label. `kw` is
+  the keyword shown top-right; `label` is the action word (omit for items
+  that have no action).
+--}}
+<header class="ci-card-hd">
+  <input type="text" name="name" value="{{item.name}}" class="ci-title" aria-label="Name">
+  <div class="ci-kw">{{kw}}</div>
+  <div class="ci-action">
+    <span class="ci-glyph" data-action="editImage" data-edit="img" data-tooltip="Click to change icon">
+      <img src="{{item.img}}" alt="">
+    </span>
+    <div class="ci-action-main">
+      {{#if label}}<div class="ci-action-label">{{label}}</div>{{/if}}
+      <div class="ci-meta">
+        {{> @partial-block}}
+      </div>
+    </div>
+  </div>
+</header>

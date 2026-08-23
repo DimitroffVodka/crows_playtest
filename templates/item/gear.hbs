@@ -1,12 +1,40 @@
-<form class="crows-item gear">
-  <input type="text" name="name" value="{{item.name}}" class="title">
-  <label>Subtype <select name="system.subtype">{{#each CROWS.gearSubtypes as |s|}}<option value="{{s}}" {{#if (eq s ../system.subtype)}}selected{{/if}}>{{s}}</option>{{/each}}</select></label>
-  <label>Magic <input type="checkbox" name="system.isMagic" {{#if system.isMagic}}checked{{/if}}></label>
-  <label>Identified <input type="checkbox" name="system.identified" {{#if system.identified}}checked{{/if}}></label>
-  <label>Light bright <input type="number" name="system.light.bright" value="{{system.light.bright}}"></label>
-  <label>Light dim <input type="number" name="system.light.dim" value="{{system.light.dim}}"></label>
-  <label>Treasure value <input type="number" name="system.treasure.value" value="{{system.treasure.value}}"></label>
-  {{> "systems/crows/templates/partials/usage-die.hbs"}}
-  {{> "systems/crows/templates/partials/physical-item.hbs"}}
-  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+<form class="crows-item gear ci-card">
+
+  {{#> "systems/crows/templates/partials/card-head.hbs" kw=system.subtype label="Carry"}}
+    {{#if system.light.bright}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Light</dt><dd>Bright {{system.light.bright}} &middot; dim {{system.light.dim}}</dd></div>
+    {{/if}}
+    {{#if system.usageDie.enabled}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Usage die</dt><dd>{{system.usageDie.udCurrent}}/{{system.usageDie.udMax}}</dd></div>
+    {{/if}}
+    {{#if system.isMagic}}
+      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9860;</span> Magic</dt><dd>{{#if system.identified}}Identified{{else}}Unidentified{{/if}}</dd></div>
+    {{/if}}
+  {{/"systems/crows/templates/partials/card-head.hbs"}}
+
+  <div class="ci-stats">
+    <div class="ci-stat"><span class="ci-stat-label">Slots</span><span class="ci-stat-value">{{system.slots}}</span></div>
+    <div class="ci-stat"><span class="ci-stat-label">Stack</span><span class="ci-stat-value">{{system.quantity}}/{{system.stackMax}}</span></div>
+    <div class="ci-stat"><span class="ci-stat-label">Cost</span><span class="ci-stat-value">{{system.cost}} gc</span></div>
+  </div>
+
+  <section class="ci-note">
+    <h2 class="ci-note-title">{{item.name}}</h2>
+    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
+  </section>
+
+  <details class="ci-more">
+    <summary>All fields</summary>
+    <div class="ci-body">
+      <label>Subtype <select name="system.subtype">{{#each CROWS.gearSubtypes as |s|}}<option value="{{s}}" {{#if (eq s ../system.subtype)}}selected{{/if}}>{{s}}</option>{{/each}}</select></label>
+      <label><input type="checkbox" name="system.isMagic" {{#if system.isMagic}}checked{{/if}}> Magic</label>
+      <label><input type="checkbox" name="system.identified" {{#if system.identified}}checked{{/if}}> Identified</label>
+      <label>Light bright <input type="number" name="system.light.bright" value="{{system.light.bright}}"></label>
+      <label>Light dim <input type="number" name="system.light.dim" value="{{system.light.dim}}"></label>
+      <label>Treasure value <input type="number" name="system.treasure.value" value="{{system.treasure.value}}"></label>
+      {{> "systems/crows/templates/partials/usage-die.hbs"}}
+      {{> "systems/crows/templates/partials/physical-item.hbs"}}
+    </div>
+  </details>
+
 </form>

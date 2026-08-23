@@ -1,7 +1,28 @@
-<form class="crows-item ammunition">
-  <input type="text" name="name" value="{{item.name}}" class="title">
-  <label>Ammo for <input type="text" name="system.ammoFor" value="{{system.ammoFor}}"></label>
-  <label>Count/unit <input type="number" name="system.countPerUnit" value="{{system.countPerUnit}}"></label>
-  {{> "systems/crows/templates/partials/physical-item.hbs"}}
-  <label>Description <textarea name="system.description">{{system.description}}</textarea></label>
+<form class="crows-item ammunition ci-card">
+
+  {{#> "systems/crows/templates/partials/card-head.hbs" kw="ammunition" label="Load"}}
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Fits</dt><dd>{{#if system.ammoFor}}{{system.ammoFor}}{{else}}&mdash;{{/if}}</dd></div>
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Per unit</dt><dd>{{system.countPerUnit}}</dd></div>
+  {{/"systems/crows/templates/partials/card-head.hbs"}}
+
+  <div class="ci-stats">
+    <div class="ci-stat"><span class="ci-stat-label">Slots</span><span class="ci-stat-value">{{system.slots}}</span></div>
+    <div class="ci-stat"><span class="ci-stat-label">Stack</span><span class="ci-stat-value">{{system.quantity}}/{{system.stackMax}}</span></div>
+    <div class="ci-stat"><span class="ci-stat-label">Cost</span><span class="ci-stat-value">{{system.cost}} gc</span></div>
+  </div>
+
+  <section class="ci-note">
+    <h2 class="ci-note-title">{{item.name}}</h2>
+    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
+  </section>
+
+  <details class="ci-more">
+    <summary>All fields</summary>
+    <div class="ci-body">
+      <label>Ammo for <input type="text" name="system.ammoFor" value="{{system.ammoFor}}"></label>
+      <label>Count/unit <input type="number" name="system.countPerUnit" value="{{system.countPerUnit}}"></label>
+      {{> "systems/crows/templates/partials/physical-item.hbs"}}
+    </div>
+  </details>
+
 </form>
