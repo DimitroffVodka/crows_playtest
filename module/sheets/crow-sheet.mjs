@@ -1,11 +1,11 @@
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
-import { CROWS } from "../config.mjs";
+import { CROWS, ALL_EXPERTISES } from "../config.mjs";
 import { rollTest } from "../helpers/roll.mjs";
 import { applyBackground } from "../helpers/creation.mjs";
 import {
   bonusesEarned, nextBonusTXP, isTraitBuyable, bonusesAvailable,
-  purchaseTrait, gainXP, spendSkillBonus, spendCharBonus
+  purchaseTrait, gainXP, spendExpertiseBonus, spendCharBonus
 } from "../helpers/advancement.mjs";
 import { takeRest } from "../helpers/rest.mjs";
 import { endDungeonTurn, rollEncounterCheck } from "../helpers/dungeon-turn.mjs";
@@ -138,7 +138,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       buyTrait: CrowSheet._onBuyTrait,
       grantXp: CrowSheet._onGrantXp,
       attackWithWeapon: CrowSheet._onAttackWithWeapon,
-      spendSkillBonus: CrowSheet._onSpendSkillBonus,
+      spendExpertiseBonus: CrowSheet._onSpendExpertiseBonus,
       spendCharBonus: CrowSheet._onSpendCharBonus,
       toggleMiasma: CrowSheet._onToggleMiasma,
       rollMiasmaResist: CrowSheet._onRollMiasmaResist,
@@ -596,23 +596,24 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await attackWithWeapon(this.document, wp);
   }
 
-  static async _onSpendSkillBonus() {
+  static async _onSpendExpertiseBonus() {
     const DialogV2 = foundry.applications.api.DialogV2;
     const actor = this.document;
-    // Build skill <option> lists (skills not yet at +2)
-    const eligible = (CROWS.skills ?? []).filter(k => (actor.system.skills?.[k]?.bonus ?? 0) < 2);
-    const opts = eligible.map(k => `<option value="${k}">${k} (current +${actor.system.skills?.[k]?.bonus ?? 0})</option>`).join("");
+    const cap = actor.system.expertiseCap ?? 2;
+    const eligible = ALL_EXPERTISES.filter(k => (actor.system.expertises?.[k]?.max ?? 0) < cap);
+    const opts = eligible.map(k => `<option value="${k}">${k} (${actor.system.expertises?.[k]?.max ?? 0}/${cap} uses)</option>`).join("");
     const content = `<div class="crows adv-spend-form">
       <p>Choose ONE of the three advancement options:</p>
-      <div class="adv-opt"><label><input type="radio" name="opt" value="twoSkills" checked> <strong>Two skills +1</strong> (each capped at +2)</label>
+      <div class="adv-opt"><label><input type="radio" name="opt" value="uses" checked> <strong>Three expertise uses</strong> (distributed freely)</label>
         <div class="adv-skill-pair">
-          <label>Skill A: <select name="skillA">${opts}</select></label>
-          <label>Skill B: <select name="skillB">${opts}</select></label>
+          <label>Expertise A: <select name="expertiseA">${opts}</select></label>
+          <label>Expertise B: <select name="expertiseB">${opts}</select></label>
+          <label>Expertise C: <select name="expertiseC">${opts}</select></label>
         </div>
       </div>
-      <div class="adv-opt"><label><input type="radio" name="opt" value="stamina4"> <strong>Stamina max +4</strong></label></div>
-      <div class="adv-opt"><label><input type="radio" name="opt" value="skillStam"> <strong>One skill +1 and Stamina max +2</strong></label>
-        <div><label>Skill: <select name="skillC">${opts}</select></label></div>
+      <div class="adv-opt"><label><input type="radio" name="opt" value="stamina"> <strong>Stamina max +2</strong></label></div>
+      <div class="adv-opt"><label><input type="radio" name="opt" value="useAndStamina"> <strong>One expertise use and Stamina max +1</strong></label>
+        <div><label>Expertise: <select name="splitExpertise">${opts}</select></label></div>
       </div>
     </div>`;
     try {
@@ -623,16 +624,22 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           label: "Spend",
           callback: (event, button, dialog) => {
             const root = dialog.element ?? button?.form;
-            const opt = root?.querySelector?.('input[name="opt"]:checked')?.value;
-            const skillA = root?.querySelector?.('select[name="skillA"]')?.value;
-            const skillB = root?.querySelector?.('select[name="skillB"]')?.value;
-            const skill  = root?.querySelector?.('select[name="skillC"]')?.value;
-            return { opt, skillA, skillB, skill };
+            const option = root?.querySelector?.('input[name="opt"]:checked')?.value;
+            const keys = option === "uses"
+              ? ["expertiseA", "expertiseB", "expertiseC"].map(name => root?.querySelector?.(`select[name="${name}"]`)?.value)
+              : option === "useAndStamina"
+                ? [root?.querySelector?.('select[name="splitExpertise"]')?.value]
+                : [];
+            const distribution = keys.filter(Boolean).reduce((out, key) => {
+              out[key] = (out[key] ?? 0) + 1;
+              return out;
+            }, {});
+            return { option, distribution };
           }
         }
       });
       if (!choice) return;
-      await spendSkillBonus(actor, choice.opt, { skillA: choice.skillA, skillB: choice.skillB, skill: choice.skill });
+      await spendExpertiseBonus(actor, choice.option, { distribution: choice.distribution });
       this.render();
     } catch { /* dialog dismissed */ }
   }
