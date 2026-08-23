@@ -1,19 +1,128 @@
-<div class="crows test-card tier-{{tier}}">
-  <header class="band {{#if doom}}doom{{/if}} {{#if crit}}crit{{/if}}">
-    <span class="band-label">{{bandLabel}}</span>
-    {{#if doom}}<span class="badge doom">DOOM</span>{{/if}}
-    {{#if crit}}<span class="badge crit">CRIT</span>{{/if}}
-    {{#if tierForcedNote}}<span class="badge forced">tier-3 forced ({{tierForcedNote}})</span>{{/if}}
-  </header>
-  <div class="roll-line">
-    <span class="roll-total">{{total}}</span>
-    <span class="roll-detail">= 2d10({{rawSum}}){{#if char}} + {{char}} {{charVal}}{{/if}}{{#if skill}} + {{skill}} +{{skillBonus}}{{/if}}{{#each mods as |m|}} {{#if (gte m.value 0)}}+{{/if}}{{m.value}} ({{m.label}}){{/each}}</span>
-  </div>
-  {{#if attack}}
-    <div class="damage">
-      <button type="button" data-action="applyDamage" data-amount="{{attack.t2}}" data-piercing="{{#if attack.piercing}}true{{else}}false{{/if}}">Apply T2: {{attack.t2}}{{#if attack.piercing}} P{{/if}}</button>
-      <button type="button" data-action="applyDamage" data-amount="{{attack.t3}}" data-piercing="{{#if attack.piercing}}true{{else}}false{{/if}}">Apply T3: {{attack.t3}}{{#if attack.piercing}} P{{/if}}</button>
+<article class="crows chat-card test-card tier-{{tier}} {{#if doom}}is-doom{{/if}} {{#if crit}}is-crit{{/if}}"
+         data-test-state="{{state}}">
+  <header class="tc-head">
+    <div class="tc-sigil" aria-label="Raw 2d10 result {{rawSum}}">
+      <strong>{{rawSum}}</strong>
+      <span>2d10</span>
     </div>
-  {{/if}}
-  {{#if casting}}<div class="casting-note">Casting: rank {{casting.rank}} {{casting.discipline}}</div>{{/if}}
-</div>
+    <div class="tc-heading">
+      <span class="tc-kind">{{kind}}</span>
+      <strong class="tc-title">{{flavor}}</strong>
+      {{#if actorName}}<span class="tc-source">{{actorName}}{{#if itemName}} &middot; {{itemName}}{{/if}}</span>{{/if}}
+    </div>
+    <div class="tc-tier-block">
+      <span class="tc-tier-label">{{bandLabel}}</span>
+      {{#if doom}}<span class="tc-badge doom">DOOM</span>{{/if}}
+      {{#if crit}}<span class="tc-badge crit">CRIT</span>{{/if}}
+      {{#if tierForcedNote}}<span class="tc-badge forced">Forced: {{tierForcedNote}}</span>{{/if}}
+    </div>
+  </header>
+
+  <div class="tc-body">
+    <section class="tc-resolution" aria-label="Test resolution">
+      <div class="tc-total">
+        <strong>{{totalDisplay}}</strong>
+        <span>{{#if hasTotal}}resolved total{{else}}terminal result{{/if}}</span>
+      </div>
+      <div class="tc-breakdown">
+        <div class="tc-breakdown-row">
+          <span class="tc-breakdown-label">Raw 2d10</span>
+          <strong>{{rawSum}}</strong>
+        </div>
+        {{#if char}}
+          <div class="tc-breakdown-row">
+            <span class="tc-breakdown-label">{{charLabel}}</span>
+            <strong>{{#if (gte charVal 0)}}+{{/if}}{{charVal}}</strong>
+          </div>
+        {{/if}}
+        {{#each mods as |mod|}}
+          <div class="tc-breakdown-row tc-mod-row">
+            <span class="tc-breakdown-label">{{mod.label}}</span>
+            <strong>{{mod.sign}}{{mod.value}}</strong>
+          </div>
+        {{/each}}
+        <div class="tc-breakdown-row tc-tier-result">
+          <span class="tc-breakdown-label">Result</span>
+          <strong>{{tierLabel}}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="tc-edge-bane" aria-label="Edges and banes">
+      <header>
+        <strong>Edges &amp; Banes</strong>
+        <span>{{edgeBane.explanation}}</span>
+      </header>
+      <div class="tc-label-groups">
+        <div class="tc-label-group edges">
+          <span class="tc-label-title">Edges</span>
+          {{#each edgeBane.edges as |edge|}}<span class="tc-rule-chip">{{edge.label}}</span>{{else}}<span class="tc-none">None</span>{{/each}}
+        </div>
+        <div class="tc-label-group banes">
+          <span class="tc-label-title">Banes</span>
+          {{#each edgeBane.banes as |bane|}}<span class="tc-rule-chip">{{bane.label}}</span>{{else}}<span class="tc-none">None</span>{{/each}}
+        </div>
+      </div>
+    </section>
+
+    {{#if hasTargets}}
+      <section class="tc-targets" aria-label="Per-target outcomes">
+        <header><strong>Targets</strong><span>One roll, resolved per target</span></header>
+        {{#each targets as |target|}}
+          <div class="tc-target-row tier-{{target.tier}}">
+            <span class="tc-target-name">{{target.name}}</span>
+            <span class="tc-target-rules">
+              {{#each target.edges as |edge|}}<span class="tc-mini-chip edge">{{edge.label}}</span>{{/each}}
+              {{#each target.banes as |bane|}}<span class="tc-mini-chip bane">{{bane.label}}</span>{{/each}}
+              {{#if target.terminal}}<span class="tc-mini-chip terminal">{{target.terminal}}</span>{{/if}}
+            </span>
+            <strong class="tc-target-tier">{{target.tierLabel}}</strong>
+          </div>
+        {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if showExpertiseDecision}}
+      <section class="tc-expertise-actions" aria-label="Expertise decision">
+        <header><strong>Apply an Expertise?</strong><span>Improve this result by one tier.</span></header>
+        <div class="tc-expertise-buttons">
+          {{#each expertiseButtons as |expertise|}}
+            <button type="button" data-action="crows-spend-expertise" data-expertise="{{expertise.key}}"
+                    title="Spend one use of {{expertise.label}}">
+              {{expertise.label}} <span>{{expertise.remaining}} left</span>
+            </button>
+          {{else}}
+            <span class="tc-no-spends">No legal expertise uses remain.</span>
+          {{/each}}
+          <button type="button" data-action="crows-decline-expertise" class="tc-decline">Resolve as rolled</button>
+        </div>
+      </section>
+    {{else}}
+      {{#if awaitingOwner}}<div class="tc-pending-note">Waiting for the test owner to resolve expertise.</div>{{/if}}
+      {{#if expertiseSpentLabel}}<div class="tc-spent-note">Improved with {{expertiseSpentLabel}}.</div>{{/if}}
+    {{/if}}
+
+    {{#if attack}}
+      <div class="damage {{#unless canApplyOutcome}}is-pending{{/unless}}"
+           aria-hidden="{{#if canApplyOutcome}}false{{else}}true{{/if}}">
+        <button type="button" data-action="applyDamage" data-amount="{{attack.t2}}"
+                data-piercing="{{#if attack.piercing}}true{{else}}false{{/if}}"
+                {{#unless canApplyOutcome}}disabled{{/unless}}>
+          Apply T2: {{attack.t2}}{{#if attack.piercing}} P{{/if}}
+        </button>
+        <button type="button" data-action="applyDamage" data-amount="{{attack.t3}}"
+                data-piercing="{{#if attack.piercing}}true{{else}}false{{/if}}"
+                {{#unless canApplyOutcome}}disabled{{/unless}}>
+          Apply T3: {{attack.t3}}{{#if attack.piercing}} P{{/if}}
+        </button>
+      </div>
+    {{/if}}
+
+    {{#if casting}}
+      <div class="tc-casting-note">
+        <strong>{{casting.spellbookName}}</strong>
+        <span>Rank {{casting.rank}} &middot; {{casting.discipline}}{{#if casting.target.text}} &middot; {{casting.target.text}}{{/if}}</span>
+      </div>
+    {{/if}}
+  </div>
+</article>

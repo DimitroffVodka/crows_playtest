@@ -215,8 +215,8 @@ export function __resetCommitLedger() {
 // Foundry layer
 // ---------------------------------------------------------------------------
 
-function defaultGetActor(actorId) {
-  return globalThis.game?.actors?.get?.(actorId) ?? null;
+function defaultGetActor(actorId, message = null) {
+  return globalThis.game?.actors?.get?.(actorId) ?? message?.speakerActor ?? null;
 }
 
 function notify(msg) {
@@ -274,7 +274,7 @@ export async function applyExpertise(message, expertiseKey, {
   const id = message?.id ?? null;
   if (id && _inFlight.has(id)) return result;               // (2)
 
-  const actor = getActor(result.actorId);
+  const actor = getActor(result.actorId, message);
   if (!actor) {
     notify("This test's actor is no longer available.");
     return result;
@@ -322,7 +322,7 @@ export async function declineExpertise(message, {
   const id = message?.id ?? null;
   if (id && _inFlight.has(id)) return result;
 
-  const actor = getActor(result.actorId);
+  const actor = getActor(result.actorId, message);
   if (actor && actor.isOwner !== true) return result;
 
   const next = declineResult(result);
@@ -348,7 +348,9 @@ export async function declineExpertise(message, {
  *    one click spends two uses;
  *  - `html` is a native HTMLLIElement, NOT jQuery, so `html.find()` throws.
  */
-export function bindTestCardActions(message, html) {
+const _cardRenderState = new WeakMap();
+
+function bindExpertiseButtons(message, html) {
   if (!html?.querySelectorAll) return;
   for (const btn of html.querySelectorAll('[data-action^="crows-"][data-action$="-expertise"]')) {
     if (btn.dataset.crowsBound === "1") continue;
@@ -363,6 +365,110 @@ export function bindTestCardActions(message, html) {
       }
     });
   }
+}
+
+async function defaultRenderTestCard(data) {
+  return globalThis.foundry.applications.handlebars.renderTemplate(
+    "systems/crows/templates/chat/test-card.hbs",
+    data
+  );
+}
+
+/** Replace the card while preserving T2.3's already-bound damage controls. */
+function defaultReplaceTestCard(current, content) {
+  const template = globalThis.document.createElement("template");
+  template.innerHTML = String(content ?? "").trim();
+  const next = template.content.firstElementChild;
+  if (!next) return current;
+
+  // module/crows.mjs binds Apply Damage immediately after this helper returns.
+  // Our flag render finishes asynchronously, so replacing those buttons would
+  // discard T2.3's listeners. The attack payload never changes during an
+  // expertise spend, so carry the already-bound node into the fresh card.
+  const currentDamage = current.querySelector?.(".damage");
+  const nextDamage = next.querySelector?.(".damage");
+  if (currentDamage && nextDamage) {
+    currentDamage.className = nextDamage.className;
+    currentDamage.setAttribute("aria-hidden", nextDamage.getAttribute("aria-hidden"));
+    const currentButtons = currentDamage.querySelectorAll?.('[data-action="applyDamage"]') ?? [];
+    const nextButtons = nextDamage.querySelectorAll?.('[data-action="applyDamage"]') ?? [];
+    for (let i = 0; i < Math.min(currentButtons.length, nextButtons.length); i++) {
+      currentButtons[i].disabled = nextButtons[i].disabled;
+      currentButtons[i].dataset.amount = nextButtons[i].dataset.amount;
+      currentButtons[i].dataset.piercing = nextButtons[i].dataset.piercing;
+      currentButtons[i].textContent = nextButtons[i].textContent;
+    }
+    nextDamage.replaceWith(currentDamage);
+  }
+
+  current.replaceWith(next);
+  return next;
+}
+
+function defaultTargetName(tokenId, index) {
+  return globalThis.canvas?.tokens?.get?.(tokenId)?.name ?? `Target ${index + 1}`;
+}
+
+/**
+ * Bind actions AND re-render the test card from its authoritative message flag.
+ *
+ * The render hook fires twice on Foundry 14.367. The WeakMap coalesces both
+ * calls, while the signature/generation pair prevents a slow pending render
+ * from overwriting a newer committed flag after a fast click.
+ *
+ * The optional seams are additive and test-only; T2.3 continues to call this as
+ * `bindTestCardActions(message, html)` from its existing hook.
+ */
+export function bindTestCardActions(message, html, {
+  getActor = defaultGetActor,
+  renderTemplate = defaultRenderTestCard,
+  replaceCard = defaultReplaceTestCard,
+  resolveTargetName = defaultTargetName,
+  localize = (key) => globalThis.game?.i18n?.localize?.(key) ?? key
+} = {}) {
+  if (!html?.querySelectorAll) return null;
+  bindExpertiseButtons(message, html);
+
+  const card = html.querySelector?.(".crows.test-card");
+  const result = readTestFlag(message);
+  if (!card || !result) return null;
+
+  const signature = JSON.stringify(result);
+  const previous = _cardRenderState.get(html);
+  if (previous?.signature === signature) return previous.promise ?? Promise.resolve(card);
+
+  const state = {
+    signature,
+    generation: (previous?.generation ?? 0) + 1,
+    promise: null
+  };
+  const generation = state.generation;
+  state.promise = (async () => {
+    const { testCardData } = await import("./roll.mjs");
+    const actor = getActor(result.actorId, message);
+    const data = testCardData(result, {
+      flavor: message?.flavor ?? "Test",
+      actor,
+      actorName: actor?.name ?? message?.speaker?.alias ?? "",
+      localize,
+      resolveTargetName
+    });
+    const content = await renderTemplate(data);
+
+    const latest = _cardRenderState.get(html);
+    if (latest?.generation !== generation || latest?.signature !== signature) return null;
+    const rendered = replaceCard(card, content);
+    bindExpertiseButtons(message, html);
+    return rendered;
+  })().catch((error) => {
+    console.warn("crows | test card flag render failed", error);
+    return null;
+  }).finally(() => {
+    const latest = _cardRenderState.get(html);
+    if (latest === state) latest.promise = null;
+  });
+  _cardRenderState.set(html, state);
+  return state.promise;
 }
 
 /**

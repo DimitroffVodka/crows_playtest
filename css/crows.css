@@ -2340,3 +2340,636 @@
   font-size: var(--crows-text-micro);
   letter-spacing: var(--crows-track-wide);
 }
+
+/* ====================================================================
+   13. PLAYTEST 2 INTEGRATION — creature resources + interactive cards
+   ====================================================================
+   These extend the existing book constructions: creature controls stay on
+   the night palette; test cards use the printed black header / light body
+   anatomy with the TestCard component's semantic tier stripe.
+   ==================================================================== */
+
+/* -------- Creature: reactions, conditions, slots, X/Rest, expertises */
+.crows-monster .m-power-cell {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.crows-monster .m-power-cell > input { width: 48px; text-align: center; }
+.crows-monster .m-warning {
+  padding: 5px 8px;
+  background: var(--crows-blood-shadow);
+  color: var(--crows-rust-text);
+  border: 1px solid var(--crows-blood-rule);
+  border-left: 3px solid var(--crows-focus-night);
+  font-size: var(--crows-text-small);
+}
+.crows-monster .m-cond-toggles {
+  flex: 1 1 320px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.crows-monster .m-section-meta {
+  color: var(--crows-night-fade);
+  font-family: var(--crows-face-body);
+  font-size: var(--crows-text-tiny);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.crows-monster :is(.m-slots-panel, .m-xrest, .m-expertises) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.crows-monster .m-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(70px, 1fr));
+  gap: 5px;
+}
+.crows-monster .m-slot-cell {
+  min-height: 54px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--crows-night-soft);
+  color: var(--crows-night-fade);
+  border: 1px solid var(--crows-night-rule);
+  border-radius: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.crows-monster .m-slot-cell:hover { background: var(--crows-night-shade); }
+.crows-monster .m-slot-cell.wound {
+  background: var(--crows-wound);
+  color: var(--crows-white);
+  border-color: var(--crows-blood);
+}
+.crows-monster .m-slot-label {
+  width: 100%;
+  padding: 3px 5px;
+  background: var(--crows-night-raise);
+  border-bottom: 1px solid var(--crows-night-rule);
+  color: var(--crows-night-label);
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  font-weight: 700;
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+.crows-monster .m-slot-cell.wound .m-slot-label {
+  background: var(--crows-wound-header);
+  border-color: var(--crows-blood);
+  color: var(--crows-white);
+}
+.crows-monster .m-slot-state {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  font-size: var(--crows-text-small);
+  font-style: italic;
+}
+.crows-monster .m-slot-cell.wound .m-slot-state {
+  font-family: var(--crows-face-title);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+
+.crows-monster :is(.m-xrest-list, .m-expertise-list) {
+  display: grid;
+  gap: 5px;
+}
+.crows-monster :is(.m-xrest-row, .m-expertise-row) {
+  display: grid;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 7px;
+  background: var(--crows-night-soft);
+  border: 1px solid var(--crows-night-rule);
+  border-left: 3px solid var(--crows-gold);
+}
+.crows-monster .m-xrest-row { grid-template-columns: minmax(130px, 1fr) auto auto auto auto; }
+.crows-monster .m-expertise-row { grid-template-columns: minmax(150px, 1fr) auto auto auto; }
+.crows-monster .m-xrest-row.overused { border-left-color: var(--crows-danger); }
+.crows-monster .m-xrest-name { min-width: 0; font-weight: 700; }
+.crows-monster .m-xrest-name-readonly {
+  color: var(--crows-night-label);
+  font-family: var(--crows-face-title);
+  letter-spacing: 0.01em;
+}
+.crows-monster .m-inline-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--crows-night-fade);
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.crows-monster .m-inline-field input { width: 48px; text-align: center; }
+.crows-monster .m-use-tracker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--crows-night-text);
+  white-space: nowrap;
+}
+.crows-monster .m-use-tracker button {
+  width: var(--crows-touch-sm);
+  min-width: var(--crows-touch-sm);
+  height: var(--crows-touch-sm);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: var(--crows-night-raise);
+  color: var(--crows-night-warm);
+  border: 1px solid var(--crows-night-edge);
+  border-radius: var(--crows-radius-tight);
+  font-weight: 700;
+}
+.crows-monster .m-use-tracker button:hover:not(:disabled) { background: var(--crows-gold-deep); }
+.crows-monster .m-use-tracker button:disabled { opacity: 0.35; cursor: not-allowed; }
+.crows-monster .m-overused {
+  color: var(--crows-rust-text);
+  font-size: var(--crows-text-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.crows-monster .m-expertise-row > select { min-width: 0; width: 100%; }
+
+/* -------- Test card: flag-driven, owner-interactive ---------------- */
+.crows.test-card,
+.crows.test-card * { box-sizing: border-box; }
+.crows.test-card {
+  --tc-tier: var(--crows-gold);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--crows-paper-deep);
+  color: var(--crows-ink-soft);
+  border: 1px solid var(--crows-ink);
+  border-left: 4px solid var(--tc-tier);
+  font-family: var(--crows-face-body);
+  font-size: var(--crows-sheet-text);
+}
+.crows.test-card.tier-1 { --tc-tier: var(--crows-danger); background: var(--crows-blood-pale); }
+.crows.test-card.tier-2 { --tc-tier: var(--crows-gold); background: var(--crows-paper-deep); }
+.crows.test-card.tier-3 { --tc-tier: var(--crows-blessed); background: var(--crows-blessed-bg); }
+.crows.test-card.is-doom { --tc-tier: var(--crows-danger); background: var(--crows-danger-bg); }
+
+.crows.test-card .tc-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  background: var(--crows-ink);
+  color: var(--crows-white);
+}
+.crows.test-card .tc-sigil {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  border: 1px solid var(--crows-white);
+  transform: rotate(45deg);
+  margin: 7px;
+  line-height: 1;
+}
+.crows.test-card .tc-sigil > * { transform: rotate(-45deg); }
+.crows.test-card .tc-sigil strong {
+  font-family: var(--crows-face-figure);
+  font-size: var(--crows-text-lead);
+  font-variant-numeric: tabular-nums;
+}
+.crows.test-card .tc-sigil span {
+  margin-top: -4px;
+  color: var(--crows-night-fade);
+  font-family: var(--crows-face-title);
+  font-size: 8px;
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+.crows.test-card .tc-heading { min-width: 0; display: grid; gap: 1px; }
+.crows.test-card .tc-kind,
+.crows.test-card .tc-source {
+  overflow: hidden;
+  color: var(--crows-night-fade);
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-caps);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.crows.test-card .tc-title {
+  overflow-wrap: anywhere;
+  color: var(--crows-white);
+  font-family: var(--crows-face-display);
+  font-size: var(--crows-text-lead);
+  font-weight: 400;
+  letter-spacing: var(--crows-track-display);
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.crows.test-card .tc-tier-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.crows.test-card .tc-tier-label {
+  color: var(--crows-white);
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-mid);
+  font-weight: 700;
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+.crows.test-card .tc-badge {
+  padding: 1px 5px;
+  border: 1px solid currentColor;
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  font-weight: 700;
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+.crows.test-card .tc-badge.doom { color: var(--crows-danger-text); background: var(--crows-danger-deep); }
+.crows.test-card .tc-badge.crit { color: var(--crows-blessed-pale); background: var(--crows-blessed-deep); }
+.crows.test-card .tc-badge.forced { color: var(--crows-gold-bright); background: var(--crows-gold-deep); }
+
+.crows.test-card .tc-body { display: grid; gap: 7px; padding: 8px; color: var(--crows-ink-soft); }
+.crows.test-card .tc-resolution {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  background: var(--crows-white);
+  border: 1px solid var(--crows-ink);
+}
+.crows.test-card .tc-total {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  padding: 7px 4px;
+  border-right: 1px solid var(--crows-ink);
+  text-align: center;
+}
+.crows.test-card .tc-total strong {
+  font-family: var(--crows-face-figure);
+  font-size: var(--crows-text-display);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.crows.test-card .tc-total span {
+  color: var(--crows-ink-dim);
+  font-family: var(--crows-face-title);
+  font-size: 8px;
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+.crows.test-card .tc-breakdown { display: grid; }
+.crows.test-card .tc-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 7px;
+  border-bottom: 1px dotted var(--crows-rule);
+}
+.crows.test-card .tc-breakdown-row:last-child { border-bottom: 0; }
+.crows.test-card .tc-breakdown-label { overflow-wrap: anywhere; color: var(--crows-ink-mute); }
+.crows.test-card .tc-breakdown-row strong { font-family: var(--crows-face-figure); font-variant-numeric: tabular-nums; }
+.crows.test-card .tc-tier-result { background: color-mix(in srgb, var(--tc-tier) 15%, var(--crows-white)); }
+.crows.test-card .tc-tier-result strong { font-family: var(--crows-face-title); letter-spacing: var(--crows-track-caps); text-transform: uppercase; }
+
+.crows.test-card :is(.tc-edge-bane, .tc-targets, .tc-expertise-actions) {
+  background: var(--crows-white);
+  border: 1px solid var(--crows-rule-firm);
+}
+.crows.test-card :is(.tc-edge-bane, .tc-targets, .tc-expertise-actions) > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 7px;
+  padding: 4px 7px;
+  background: var(--crows-paper-slot);
+  border-bottom: 1px solid var(--crows-rule-firm);
+}
+.crows.test-card :is(.tc-edge-bane, .tc-targets, .tc-expertise-actions) > header strong {
+  font-family: var(--crows-face-title);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+.crows.test-card :is(.tc-edge-bane, .tc-targets, .tc-expertise-actions) > header span {
+  color: var(--crows-ink-dim);
+  font-size: var(--crows-text-tiny);
+  text-align: right;
+}
+.crows.test-card .tc-label-groups { display: grid; grid-template-columns: 1fr 1fr; }
+.crows.test-card .tc-label-group { display: flex; align-items: center; align-content: flex-start; gap: 3px; flex-wrap: wrap; padding: 5px 7px; }
+.crows.test-card .tc-label-group + .tc-label-group { border-left: 1px solid var(--crows-rule); }
+.crows.test-card .tc-label-title {
+  width: 100%;
+  color: var(--crows-ink-dim);
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+}
+.crows.test-card :is(.tc-rule-chip, .tc-mini-chip) {
+  padding: 1px 5px;
+  border: 1px solid var(--crows-rule-firm);
+  border-radius: var(--crows-radius);
+  background: var(--crows-paper-warm);
+  font-size: var(--crows-text-micro);
+}
+.crows.test-card .tc-label-group.edges .tc-rule-chip,
+.crows.test-card .tc-mini-chip.edge { border-color: var(--crows-blessed); background: var(--crows-blessed-pale); }
+.crows.test-card .tc-label-group.banes .tc-rule-chip,
+.crows.test-card .tc-mini-chip.bane { border-color: var(--crows-blood); background: var(--crows-blood-pale); }
+.crows.test-card .tc-mini-chip.terminal { border-color: var(--crows-gold); background: var(--crows-gold-pale); }
+.crows.test-card .tc-none { color: var(--crows-ink-fade); font-style: italic; font-size: var(--crows-text-tiny); }
+
+.crows.test-card .tc-target-row {
+  display: grid;
+  grid-template-columns: minmax(70px, 1fr) minmax(0, 2fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 7px;
+  border-bottom: 1px solid var(--crows-rule-soft);
+  border-left: 3px solid var(--crows-gold);
+}
+.crows.test-card .tc-target-row:last-child { border-bottom: 0; }
+.crows.test-card .tc-target-row.tier-1 { border-left-color: var(--crows-danger); }
+.crows.test-card .tc-target-row.tier-3 { border-left-color: var(--crows-blessed); }
+.crows.test-card .tc-target-name { overflow-wrap: anywhere; font-weight: 700; }
+.crows.test-card .tc-target-rules { display: flex; gap: 3px; flex-wrap: wrap; }
+.crows.test-card .tc-target-tier {
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-tiny);
+  letter-spacing: var(--crows-track-caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.crows.test-card .tc-expertise-actions { border-color: var(--crows-gold); }
+.crows.test-card .tc-expertise-buttons { display: flex; gap: 5px; flex-wrap: wrap; padding: 6px; }
+.crows.test-card .tc-expertise-buttons button {
+  flex: 1 1 120px;
+  min-height: var(--crows-touch-min);
+  padding: 4px 7px;
+  background: var(--crows-ink);
+  color: var(--crows-white);
+  border: 1px solid var(--crows-ink);
+  border-radius: var(--crows-radius-tight);
+  font-family: var(--crows-face-title);
+  font-weight: 700;
+  cursor: pointer;
+}
+.crows.test-card .tc-expertise-buttons button:hover { background: var(--crows-gold-deep); border-color: var(--crows-gold); }
+.crows.test-card .tc-expertise-buttons button span { display: block; color: var(--crows-night-fade); font-family: var(--crows-face-body); font-size: var(--crows-text-micro); font-weight: 400; }
+.crows.test-card .tc-expertise-buttons .tc-decline { background: var(--crows-paper-tab); color: var(--crows-ink); border-color: var(--crows-rule-firm); }
+.crows.test-card .tc-expertise-buttons .tc-decline:hover { background: var(--crows-gold-light); }
+.crows.test-card :is(.tc-pending-note, .tc-spent-note, .tc-no-spends) {
+  padding: 5px 7px;
+  color: var(--crows-ink-mute);
+  font-size: var(--crows-text-small);
+  font-style: italic;
+}
+.crows.test-card .tc-spent-note { background: var(--crows-blessed-pale); border-left: 3px solid var(--crows-blessed); }
+
+.crows.test-card .damage { display: flex; gap: 6px; }
+.crows.test-card .damage.is-pending { display: none; }
+.crows.test-card .damage button {
+  flex: 1;
+  min-height: var(--crows-touch-min);
+  padding: 4px 8px;
+  background: var(--crows-attack);
+  color: var(--crows-white);
+  border: 1px solid var(--crows-attack-hover);
+  border-radius: var(--crows-radius-tight);
+  font-weight: 700;
+  cursor: pointer;
+}
+.crows.test-card .damage button:hover { background: var(--crows-attack-hover); }
+.crows.test-card .tc-casting-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px 7px;
+  background: var(--crows-link-bg);
+  border-left: 3px solid var(--crows-link);
+  font-size: var(--crows-text-small);
+}
+.crows.test-card .tc-casting-note span { color: var(--crows-ink-dim); text-align: right; }
+.crows.test-card button:focus-visible { outline: 2px solid var(--crows-focus); outline-offset: 2px; }
+
+@media (max-width: 560px) {
+  .crows-monster .m-slot-grid { grid-template-columns: repeat(2, minmax(70px, 1fr)); }
+  .crows-monster :is(.m-xrest-row, .m-expertise-row) { grid-template-columns: 1fr; }
+  .crows-monster .m-cond-toggles { justify-content: flex-start; }
+  .crows.test-card .tc-head { grid-template-columns: auto minmax(0, 1fr); }
+  .crows.test-card .tc-tier-block { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: flex-end; }
+  .crows.test-card .tc-target-row { grid-template-columns: 1fr auto; }
+  .crows.test-card .tc-target-rules { grid-column: 1 / -1; }
+}
+
+/* ====================================================================
+   14. PLAYTEST 2 CROW PANELS
+   ====================================================================
+   T2.1 owns the markup for these panels; this is the shared visual
+   contract. They deliberately keep the cc-* card and slot constructions
+   above so equipment, magic, expertises and conditions read as one system.
+   ==================================================================== */
+
+.crows-crow :is(.cc-expertise-panel, .cc-belt-panel, .cc-magic-panel, .cc-condition-panel) {
+  min-width: 0;
+}
+
+/* -------- Expertise ledger -------- */
+.crows-crow .cc-expertise-hint {
+  margin: -2px 2px 7px;
+  color: var(--crows-ink-dim);
+  font-size: var(--crows-text-small);
+  font-style: italic;
+}
+.crows-crow .cc-expertise-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.crows-crow .cc-expertise-group {
+  min-width: 0;
+  border: 1px solid var(--crows-ink);
+  background: var(--crows-white);
+}
+.crows-crow .cc-expertise-group-title {
+  padding: 5px 8px;
+  background: var(--crows-ink);
+  color: var(--crows-white);
+  font-family: var(--crows-face-display);
+  font-size: var(--crows-text-small);
+  letter-spacing: var(--crows-track-display);
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.crows-crow .cc-expertise-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 4px 6px;
+  border-bottom: 1px dotted var(--crows-rule);
+}
+.crows-crow .cc-expertise-row:last-child { border-bottom: 0; }
+.crows-crow .cc-expertise-name {
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+.crows-crow .cc-expertise-pool {
+  color: var(--crows-ink-dim);
+  font-family: var(--crows-face-figure);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.crows-crow .cc-expertise-spend {
+  min-height: 26px;
+  padding: 2px 7px;
+  border: 1px solid var(--crows-ink);
+  border-radius: var(--crows-radius-tight);
+  background: var(--crows-ink);
+  color: var(--crows-white);
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  font-weight: 700;
+  letter-spacing: var(--crows-track-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.crows-crow .cc-expertise-spend:hover:not(:disabled) {
+  border-color: var(--crows-gold);
+  background: var(--crows-gold-deep);
+}
+.crows-crow .cc-expertise-spend:disabled { opacity: .42; cursor: not-allowed; }
+.crows-crow .cc-expertise-warning,
+.crows-crow .cc-inventory-warning {
+  padding: 5px 8px;
+  border: 1px solid var(--crows-blood-rule);
+  border-left: 3px solid var(--crows-focus-night);
+  background: var(--crows-blood-shadow);
+  color: var(--crows-rust-text);
+  font-size: var(--crows-text-small);
+}
+.crows-crow .cc-expertise-row > .cc-expertise-warning {
+  grid-column: 1 / -1;
+  margin-top: 1px;
+  padding: 2px 5px;
+  font-size: var(--crows-text-micro);
+}
+
+/* -------- Four-slot belt and magic slots -------- */
+.crows-crow .cc-belt-panel,
+.crows-crow .cc-magic-panel { margin-top: 10px; }
+.crows-crow .cc-belt-grid,
+.crows-crow .cc-magic-grid {
+  display: grid;
+  gap: 5px;
+  align-items: stretch;
+}
+.crows-crow .cc-belt-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.crows-crow .cc-magic-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.crows-crow :is(.cc-belt-grid, .cc-magic-grid) > .cc-slot {
+  min-width: 0;
+  min-height: var(--crows-slot-h);
+}
+.crows-crow .cc-slot-continuation {
+  position: relative;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0 7px,
+      color-mix(in srgb, var(--crows-gold) 14%, transparent) 7px 14px
+    ),
+    var(--crows-paper-slot);
+  color: var(--crows-ink-mute);
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-wide);
+  text-transform: uppercase;
+}
+
+/* -------- Six-condition strip -------- */
+.crows-crow .cc-condition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.crows-crow .cc-condition-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  min-width: 0;
+  min-height: 27px;
+  padding: 3px 6px;
+  border: 1px solid var(--crows-rule-firm);
+  background: var(--crows-white);
+  cursor: pointer;
+}
+.crows-crow .cc-condition-toggle:has(input:checked) {
+  border-color: var(--crows-gold);
+  background: var(--crows-ink);
+  color: var(--crows-white);
+}
+.crows-crow .cc-condition-toggle .cc-cond-label {
+  overflow: hidden;
+  font-family: var(--crows-face-title);
+  font-size: var(--crows-text-micro);
+  letter-spacing: var(--crows-track-wide);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.crows-crow .cc-condition-toggle input { flex: none; margin: 0; }
+
+/* -------- Wounds and inventory faults -------- */
+.crows-crow .cc-wound-toggle {
+  min-height: 24px;
+  padding: 2px 4px;
+  border-radius: var(--crows-radius-tight);
+  cursor: pointer;
+}
+.crows-crow .cc-wound-toggle:has(input:focus-visible),
+.crows-crow :is(.cc-expertise-spend, .cc-condition-toggle):focus-visible {
+  outline: 2px solid var(--crows-focus);
+  outline-offset: 2px;
+}
+.crows-crow .cc-wound-marker {
+  min-height: 72px;
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--crows-white) 12%, transparent) 0 28%, transparent 29%),
+    var(--crows-wound);
+  font-family: var(--crows-face-display);
+  letter-spacing: var(--crows-track-display);
+  text-transform: uppercase;
+}
+.crows-crow .cc-inventory-warning { margin: 5px 0; }
+
+@media (max-width: 820px) {
+  .crows-crow .cc-expertise-groups { grid-template-columns: 1fr; }
+  .crows-crow .cc-belt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .crows-crow .cc-magic-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .crows-crow .cc-condition-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .crows-crow .cc-magic-grid { grid-template-columns: 1fr; }
+  .crows-crow .cc-expertise-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .crows-crow .cc-expertise-spend { grid-column: 1 / -1; }
+}

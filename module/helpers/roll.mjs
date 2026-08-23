@@ -4,6 +4,8 @@ import {
   applyCritXRestRefund,
   emitTestCommitted,
   hasLegalSpend,
+  legalExpertiseSpends,
+  readExpertiseUses,
   EXPERTISE_API
 } from "./expertise.mjs";
 
@@ -353,7 +355,14 @@ export async function rollTest({
 
   const content = await foundry.applications.handlebars.renderTemplate(
     "systems/crows/templates/chat/test-card.hbs",
-    testCardData(result, { flavor })
+    testCardData(result, {
+      flavor,
+      actor,
+      actorName: actor?.name ?? "",
+      localize: (key) => game.i18n?.localize?.(key) ?? key,
+      resolveTargetName: (tokenId, index) =>
+        globalThis.canvas?.tokens?.get?.(tokenId)?.name ?? `Target ${index + 1}`
+    })
   );
   const message = await roll.toMessage(
     {
@@ -381,35 +390,98 @@ export async function rollTest({
 }
 
 /**
- * Shape a TestResult for the CURRENT chat card template.
+ * Shape a TestResult for the interactive chat card.
  *
- * T2.2 owns templates/chat/test-card.hbs and rewrites it against the TestResult
- * directly; until then this keeps the existing card renderable. `total` is null
- * on every terminal path, which the old template simply leaves blank.
+ * `total` is null on every terminal path, so the view carries an explicit
+ * display value rather than letting a doom, crit or unconscious target look
+ * like a zero. Legal expertise choices remain delegated to expertise.mjs.
  *
  * `attack` and `casting` come off the RESULT, not from the caller: the card has
  * to re-render identically for a client that only ever saw the flag.
  */
-export function testCardData(result, { flavor = "Test", attack = null, casting = null } = {}) {
-  const bandLabel = result.tier === 1 ? "≤11 (Tier 1)"
-    : result.tier === 2 ? "12–16 (Tier 2)"
-      : "17+ (Tier 3)";
+export function testCardData(result, {
+  flavor = "Test",
+  attack = null,
+  casting = null,
+  actor = null,
+  actorName = "",
+  localize = (key) => key,
+  resolveTargetName = (_tokenId, index) => `Target ${index + 1}`
+} = {}) {
+  const tr = (key, fallback) => {
+    const translated = localize?.(key);
+    return translated && translated !== key ? translated : fallback;
+  };
+  const titleCase = (key) => String(key ?? "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (c) => c.toUpperCase());
+  const expertiseLabel = (key) => tr(`CROWS.Expertise.${key}`, titleCase(key));
+  const tier = Number(result?.tier) || 1;
+  const edgeBane = result?.eb ?? { numeric: 0, tierShift: 0, edges: [], banes: [], explanation: "" };
+  const isOwner = actor?.isOwner === true;
+  const pending = result?.state === "pending";
+  const legal = isOwner && pending ? legalExpertiseSpends(result, actor) : [];
+  const resolvedAttack = attack ?? result?.attack ?? null;
+  const resolvedCasting = casting ?? result?.casting ?? null;
+  const targetRows = (result?.targets ?? []).map((target, index) => ({
+    ...target,
+    index,
+    name: resolveTargetName?.(target?.tokenId, index) ?? `Target ${index + 1}`,
+    tierLabel: tr(`CROWS.Tier.${target?.tier}`, `Tier ${target?.tier}`),
+    edges: target?.edges ?? [],
+    banes: target?.banes ?? []
+  }));
+  const expertiseButtons = legal.map((key) => ({
+    key,
+    label: expertiseLabel(key),
+    remaining: readExpertiseUses(actor, key).value
+  }));
   return {
     flavor,
-    tier: result.tier,
-    doom: result.doom,
-    crit: result.crit,
-    total: result.total,
-    rawSum: result.rawSum,
-    char: result.characteristic,
-    charVal: result.charVal,
+    actorName,
+    itemName: resolvedAttack?.weaponName ?? resolvedCasting?.spellbookName ?? "",
+    kind: result?.kind ?? "test",
+    tier,
+    tierLabel: tr(`CROWS.Tier.${tier}`, `Tier ${tier}`),
+    doom: result?.doom === true,
+    crit: result?.crit === true,
+    terminal: result?.terminal ?? null,
+    total: result?.total,
+    hasTotal: result?.total !== null && result?.total !== undefined,
+    totalDisplay: result?.total !== null && result?.total !== undefined ? result.total : "—",
+    rawSum: result?.rawSum,
+    char: result?.characteristic,
+    charLabel: result?.characteristic
+      ? tr(`CROWS.Characteristic.${result.characteristic}`, titleCase(result.characteristic))
+      : null,
+    charVal: result?.charVal,
     skill: null,
     skillBonus: 0,
-    mods: result.mods,
-    tierForcedNote: result.terminal === "unconscious" ? "target unconscious" : null,
-    attack: attack ?? result.attack ?? null,
-    casting: casting ?? result.casting ?? null,
-    bandLabel
+    mods: (result?.mods ?? []).map((mod) => ({
+      ...mod,
+      sign: (Number(mod?.value) || 0) >= 0 ? "+" : ""
+    })),
+    edgeBane: {
+      ...edgeBane,
+      edges: edgeBane.edges ?? [],
+      banes: edgeBane.banes ?? []
+    },
+    hasEdgesBanes: (edgeBane.edges?.length ?? 0) > 0 || (edgeBane.banes?.length ?? 0) > 0,
+    targets: targetRows,
+    hasTargets: targetRows.length > 0,
+    tierForcedNote: result?.terminal === "unconscious" ? "target unconscious" : null,
+    attack: resolvedAttack,
+    casting: resolvedCasting,
+    bandLabel: tr(`CROWS.Tier.${tier}`, `Tier ${tier}`),
+    state: result?.state ?? "committed",
+    commitReason: result?.commitReason ?? null,
+    pending,
+    showExpertiseDecision: pending && isOwner,
+    awaitingOwner: pending && !isOwner,
+    expertiseButtons,
+    expertiseSpent: result?.expertiseSpent ?? null,
+    expertiseSpentLabel: result?.expertiseSpent ? expertiseLabel(result.expertiseSpent) : null,
+    canApplyOutcome: result?.state === "committed"
   };
 }
 
