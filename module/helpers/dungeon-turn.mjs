@@ -28,7 +28,7 @@
  */
 
 import { CROWS } from "../config.mjs";
-import { rollUsageDie } from "./usage-die.mjs";
+import { rollUsageDie, resolveUsageDicePool } from "./usage-die.mjs";
 import { registerGreedSettings } from "./greed.mjs";
 
 const NS = "crows";
@@ -98,23 +98,20 @@ export function resolveEncounterCheck(roll, en) {
 }
 
 /**
- * Resolve a whole usage-die pool against R:200: roll ALL of the dice, and every
+ * Resolve a whole usage-die pool against R:562: roll ALL of the dice, and every
  * die showing a 1 or a 2 is removed. At 0 the effect ends.
  *
- * Note this is a POOL, not a single die. `helpers/usage-die.mjs` rolls exactly
- * one d6 per call regardless of how many dice an item has, so a 3-UD torch
- * decays at a third of the published rate — reported to the orchestrator; that
- * file is not T1.5's to change.
+ * MOVED to `helpers/usage-die.mjs`, which is where the rule belongs, and
+ * re-exported here so existing importers keep their path. T1.5 wrote this
+ * correctly and noted that `rollUsageDie` rolled a single d6 for any pool size
+ * — a third of the published decay rate — but the file was not T1.5's to
+ * change. It has since been fixed to share this function, so the rule now has
+ * exactly one implementation.
  *
- * @param {number[]} faces  one d6 result per die currently in the pool
- * @returns {{removed:number, remaining:number, depleted:boolean, faces:number[]}}
+ * The citation was R:200 here; that is the Tests chapter. Re-derived by
+ * content, not by offset.
  */
-export function resolveUsageDicePool(faces = []) {
-  const rolled = (faces ?? []).map(Number).filter(Number.isFinite);
-  const removed = rolled.filter(f => f <= 2).length;
-  const remaining = Math.max(0, rolled.length - removed);
-  return { removed, remaining, depleted: remaining === 0, faces: rolled };
-}
+export { resolveUsageDicePool };
 
 /**
  * A durational backlash (R:1561) carries its own usage dice, and rolling them at
@@ -294,7 +291,7 @@ export async function runEndOfDtEffects() {
         const res = await rollUsageDie(item);
         udRolls.push({
           actor: crow.name, item: item.name,
-          roll: res.roll, removed: res.removed,
+          rolls: res.rolls, removed: res.removed,
           udCurrent: res.udCurrent, depleted: res.depleted
         });
       }
@@ -364,7 +361,7 @@ export async function endDungeonTurn() {
 
   const udBlock = udRolls.length
     ? `<div><strong>Usage dice rolled (${udRolls.length}):</strong><ul>${udRolls.map(r =>
-        `<li>${r.actor} — ${r.item}: 1d6=${r.roll}${r.removed ? ` <em>(die removed; ${r.depleted ? "depleted" : `${r.udCurrent} left`})</em>` : ""}</li>`
+        `<li>${r.actor} — ${r.item}: ${r.rolls.length}d6=[${r.rolls.join(", ")}]${r.removed ? ` <em>(${r.removed === 1 ? "1 die" : `${r.removed} dice`} removed; ${r.depleted ? "depleted" : `${r.udCurrent} left`})</em>` : ""}</li>`
       ).join("")}</ul></div>`
     : `<div><em>No DT-expiry usage dice to roll.</em></div>`;
   const expiredBlock = expired.length
