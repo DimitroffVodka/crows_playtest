@@ -1,10 +1,10 @@
 <form class="crows-item spellbook ci-card">
 
-  {{#> "systems/crows/templates/partials/card-head.hbs" kw=system.discipline label=system.castType}}
-    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Persist</dt><dd>{{#if system.duration}}{{system.duration}}{{else}}&mdash;{{/if}}</dd></div>
+  {{#> "systems/crows/templates/partials/card-head.hbs" kw=system.discipline label=system.castingTime}}
+    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Persist</dt><dd>{{#if system.durationLabel}}{{system.durationLabel}}{{else}}&mdash;{{/if}}</dd></div>
     <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Range</dt>
       <dd>{{#if (eq system.range.kind "self")}}Self{{else}}{{system.range.kind}} {{system.range.value}}{{/if}}</dd></div>
-    {{#if system.target}}<div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9737;</span> Target</dt><dd>{{system.target}}</dd></div>{{/if}}
+    {{#if system.target.text}}<div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9737;</span> Target</dt><dd>{{system.target.text}}</dd></div>{{/if}}
     <div class="ci-attr"><span class="ci-sym" aria-hidden="true">&#9860;</span> + <span class="ci-chip">M</span>ind</div>
   {{/"systems/crows/templates/partials/card-head.hbs"}}
 
@@ -38,15 +38,40 @@
     <div class="ci-body">
       <label>Discipline <select name="system.discipline">{{#each CROWS.disciplines as |d|}}<option value="{{d}}" {{#if (eq d ../system.discipline)}}selected{{/if}}>{{d}}</option>{{/each}}</select></label>
       <label>Rank <input type="number" name="system.rank" value="{{system.rank}}"></label>
-      <label>Cast type <select name="system.castType">{{#each CROWS.castTypes as |c|}}<option value="{{c}}" {{#if (eq c ../system.castType)}}selected{{/if}}>{{c}}</option>{{/each}}</select></label>
+      <label>Casting time <select name="system.castingTime">
+        <option value="action" {{#if (eq system.castingTime "action")}}selected{{/if}}>action</option>
+        <option value="maneuver" {{#if (eq system.castingTime "maneuver")}}selected{{/if}}>maneuver</option>
+        <option value="reaction" {{#if (eq system.castingTime "reaction")}}selected{{/if}}>reaction</option>
+        <option value="outOfCombat" {{#if (eq system.castingTime "outOfCombat")}}selected{{/if}}>out of combat</option>
+      </select></label>
+      <label><input type="checkbox" name="system.isAttack" {{#if system.isAttack}}checked{{/if}}> Attack spell</label>
       <label>Range kind <select name="system.range.kind">
         <option value="self" {{#if (eq system.range.kind "self")}}selected{{/if}}>self</option>
         <option value="melee" {{#if (eq system.range.kind "melee")}}selected{{/if}}>melee</option>
         <option value="ranged" {{#if (eq system.range.kind "ranged")}}selected{{/if}}>ranged</option>
       </select></label>
       <label>Range <input type="number" name="system.range.value" value="{{system.range.value}}"></label>
-      <label>Target <input type="text" name="system.target" value="{{system.target}}"></label>
-      <label>Duration <input type="text" name="system.duration" value="{{system.duration}}"></label>
+      <label>Target text <input type="text" name="system.target.text" value="{{system.target.text}}"></label>
+      <label>Target kind <select name="system.target.kind">
+        <option value="" {{#if (eq system.target.kind "")}}selected{{/if}}>no target</option>
+        <option value="self" {{#if (eq system.target.kind "self")}}selected{{/if}}>self</option>
+        <option value="creature" {{#if (eq system.target.kind "creature")}}selected{{/if}}>creature</option>
+        <option value="object" {{#if (eq system.target.kind "object")}}selected{{/if}}>object</option>
+        <option value="target" {{#if (eq system.target.kind "target")}}selected{{/if}}>target</option>
+        <option value="ally" {{#if (eq system.target.kind "ally")}}selected{{/if}}>ally</option>
+        <option value="enemy" {{#if (eq system.target.kind "enemy")}}selected{{/if}}>enemy</option>
+        <option value="other" {{#if (eq system.target.kind "other")}}selected{{/if}}>other</option>
+      </select></label>
+      <label>Target count <input type="number" name="system.target.count" value="{{system.target.count}}" min="0"></label>
+      <label><input type="checkbox" name="system.target.all" {{#if system.target.all}}checked{{/if}}> All valid targets</label>
+      <label><input type="checkbox" name="system.target.summoned" {{#if system.target.summoned}}checked{{/if}}> Summoned target</label>
+      <label>Duration <select name="system.duration.kind">
+        <option value="instant" {{#if (eq system.duration.kind "instant")}}selected{{/if}}>instant</option>
+        <option value="dt" {{#if (eq system.duration.kind "dt")}}selected{{/if}}>end of DT</option>
+        <option value="ud" {{#if (eq system.duration.kind "ud")}}selected{{/if}}>usage dice</option>
+      </select></label>
+      <label>Duration UD <input type="number" name="system.duration.count" value="{{system.duration.count}}" min="0"></label>
+      <label>Duration note <input type="text" name="system.duration.note" value="{{system.duration.note}}"></label>
       {{> "systems/crows/templates/partials/usage-die.hbs"}}
       {{> "systems/crows/templates/partials/physical-item.hbs"}}
     </div>
