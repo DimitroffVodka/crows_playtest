@@ -27,3 +27,6 @@ system:
   quantity: 1
   cost: 1
   weightless: false
+  purse:
+    isPurse: true
+    held: 0

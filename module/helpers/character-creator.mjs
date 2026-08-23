@@ -188,11 +188,16 @@ export async function applyUniversalStarterItems(actor) {
     }
     const data = cloneEmbeddedItem(document, toCreate.length);
     if (wantedItem.quantity) data.system.quantity = wantedItem.quantity;
-    if (wantedItem.name === "Coin Purse") {
-      // Wave 1 found the shipped YAML has not yet stamped this contract field.
-      // Creation must still produce the promised empty, functional purse.
-      data.system.purse = { isPurse: true, held: 0, baseCapacity: 500 };
-    }
+    // NO purse special-case here. The shipped Coin Purse now carries
+    // `purse.isPurse: true` in the compendium itself, so the starting kit gets
+    // a working purse by cloning the item like everything else.
+    //
+    // What was here before name-matched "Coin Purse" and stamped the field at
+    // creation, because the YAML had no `purse:` block. That made a
+    // wizard-made purse work while a purse dragged in from the compendium
+    // silently held no coins — and probe p11 passed BECAUSE of the workaround,
+    // which is what hid it. Do not reintroduce a name match; if a second purse
+    // item ever ships, stamp its YAML.
     toCreate.push(data);
   }
 
