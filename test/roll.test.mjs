@@ -398,6 +398,42 @@ describe("canSpendExpertise — the gate (R:292)", () => {
     assert.equal(canSpendExpertise(attack, "elemental", caster), null);
   });
 
+  test("a casting accepts only its OWN discipline's expertise (R:1451, singular)", () => {
+    // Category alone is not enough: without the discipline gate an alteration
+    // caster could improve their result by spending necromancy, and it would be
+    // silent — the spend looks legal and the tier really does improve.
+    const alteration = pendingResult({ kind: "casting", casting: { discipline: "alteration", rank: 1 } });
+    const caster = fakeCrow({
+      expertises: { alteration: { value: 1, max: 1 }, necromancy: { value: 1, max: 1 } }
+    });
+    assert.equal(canSpendExpertise(alteration, "alteration", caster), null);
+    assert.equal(canSpendExpertise(alteration, "necromancy", caster), "wrong discipline");
+  });
+
+  test("the discipline gate covers spell ATTACKS too", () => {
+    // R:913 opens the weapon/spellcasting category on an attack, but it does not
+    // license picking any of the six.
+    const spellAttack = pendingResult({ kind: "attack", casting: { discipline: "elemental", rank: 1 } });
+    const caster = fakeCrow({
+      expertises: { elemental: { value: 1, max: 1 }, illusion: { value: 1, max: 1 }, bow: { value: 1, max: 1 } }
+    });
+    assert.equal(canSpendExpertise(spellAttack, "elemental", caster), null);
+    assert.equal(canSpendExpertise(spellAttack, "illusion", caster), "wrong discipline");
+    assert.equal(canSpendExpertise(spellAttack, "bow", caster), null, "a plain weapon spend is untouched");
+  });
+
+  test("the discipline gate is not the general/weapon gate's business", () => {
+    const alteration = pendingResult({ kind: "test", casting: { discipline: "alteration", rank: 1 } });
+    const crow = fakeCrow({ expertises: { athletics: { value: 1, max: 1 } } });
+    assert.equal(canSpendExpertise(alteration, "athletics", crow), null);
+  });
+
+  test("a non-casting result is unaffected — no discipline, no rule", () => {
+    const attack = pendingResult({ kind: "attack" });
+    const caster = fakeCrow({ expertises: { necromancy: { value: 1, max: 1 } } });
+    assert.equal(canSpendExpertise(attack, "necromancy", caster), null);
+  });
+
   test("a general expertise is refused on both attacks and castings", () => {
     assert.equal(categoryAllows("attack", "athletics"), false);
     assert.equal(categoryAllows("casting", "athletics"), false);
@@ -475,6 +511,27 @@ describe("A1 commit lifecycle — nothing downstream fires while pending", () =>
     const r = buildTestResult({ kind: "casting", rawSum: 12, actor: fakeCrow({ expertises: { athletics: { value: 5, max: 5 } } }) });
     assert.equal(r.state, "committed");
     assert.equal(r.commitReason, "no-legal-spend");
+  });
+
+  test("only WRONG-DISCIPLINE expertises -> committed, \"no-legal-spend\", never a stuck pending card", () => {
+    // The discipline gate feeds hasLegalSpend, so a caster holding six
+    // spellcasting expertises but not this spell's one commits immediately
+    // instead of stranding downstream effects behind a spend nobody can make.
+    const caster = fakeCrow({ expertises: { necromancy: { value: 3, max: 3 }, illusion: { value: 3, max: 3 } } });
+    const r = buildTestResult({
+      actorId: caster.id, kind: "casting", rawSum: 12,
+      casting: { discipline: "alteration", rank: 1 }, actor: caster
+    });
+    assert.equal(r.state, "committed");
+    assert.equal(r.commitReason, "no-legal-spend");
+
+    // ...and the matching discipline still opens the pending window.
+    caster.system.expertises.alteration = { value: 1, max: 1 };
+    const ok = buildTestResult({
+      actorId: caster.id, kind: "casting", rawSum: 12,
+      casting: { discipline: "alteration", rank: 1 }, actor: caster
+    });
+    assert.equal(ok.state, "pending");
   });
 
   test("a legal spend available -> PENDING, commitReason null", () => {

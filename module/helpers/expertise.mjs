@@ -1,4 +1,5 @@
 import { ALL_EXPERTISES, expertiseCategory } from "../config.mjs";
+import { castingExpertiseAllows } from "./spellcasting.mjs";
 
 /**
  * Expertise spending and the A1 COMMIT LIFECYCLE.
@@ -93,6 +94,13 @@ export function canSpendExpertise(result, key, actor) {
   if ((result?.tier ?? 0) >= 3) return "already tier 3";                // no-op burn
   if (result?.expertiseSpent) return "one expertise per test";          // R:292
   if (!categoryAllows(result?.kind ?? "test", key)) return "wrong expertise category";
+  // R:1451 is SINGULAR — the spell's discipline names THE expertise, not "any
+  // spellcasting one". The category gate alone lets an alteration caster spend
+  // necromancy: the spend looks legal and the tier really does improve. This
+  // covers spell ATTACKS too — R:913 opens the weapon/spellcasting category on
+  // an attack, but it does not license picking any of the six. T1.8 owns the
+  // rule; the discipline it reads is `result.casting.discipline`.
+  if (!castingExpertiseAllows(result, key)) return "wrong discipline";
   if (readExpertiseUses(actor, key).value < 1) return "no uses left";
   return null;
 }
