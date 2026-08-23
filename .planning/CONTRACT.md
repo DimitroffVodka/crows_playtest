@@ -295,6 +295,28 @@ Part 1.1 freezes `Layout.coin.purses[]` as `{id, held, cap}`, but **nothing owne
 
 ---
 
+## 4b. `TestResult` — amended by T1.1 during Wave 1
+
+Two fields were **added** after the freeze. Additive only: no existing field changed meaning and no signature moved.
+
+```js
+attack:  object | null,    // the attack context, if this test was one
+casting: object | null,    // the casting context, if this test was one
+```
+
+**Why it had to change.** `rollTest` was rendering the card with both and then discarding them, which broke the contract's own invariant — `API-NOTES.md` §4 requires the card to be a pure function of `message.flags.crows.test`, and a late-joining client could not render the Apply-T2/T3 buttons or name the spell from a flag that had dropped them. Two consumers were already reaching for them:
+
+- `spellcasting.mjs resolveCastContext()` reads `result.casting.castId` first and otherwise scans `_pendingCasts` by actorId — ambiguous the moment one caster has two casts in flight. It was silently on that fallback.
+- `combat.mjs onTestCommitted()` computes damage from `ctx.attack ?? {}`, and the hook path never supplied one.
+
+**The emit signature is `(result, message)`.** T1.8 matched it; T1.7 subscribed as `(result, ctx = {})`, so a ChatMessage lands in its `ctx` and `ctx.attack` never arrives. Fix relayed.
+
+**Also from T1.1, worth knowing before you read expertises anywhere:** a crow's `expertises` is a keyed object but a **creature's is an ARRAY** (§3). The frozen `canSpendExpertise` does `actor.system.expertises[key]?.value`, which refuses *every* monster spend as "no uses left". Use `readExpertiseUses(actor, key)`, which handles both shapes.
+
+`resolveTier` also gained an optional `autoDoom` flag for R:552 (an unconscious creature auto-dooms Agility and Strength tests). It **suppresses `crit`**, so a rule-mandated doom on a raw 19 does not also grant a crit's extra action.
+
+---
+
 ## 5b. Conditions — authority AND command flow
 
 `system.conditions` is **authoritative**; Foundry status effects mirror it for the token HUD. But "driven from the boolean, never the reverse" was too blunt and contradicted T1.7's brief, which says *bidirectional sync*. Taken literally, a Ref toggling a condition on the Token HUD would create a status effect the roll engine never sees. What is one-way is **authority**, not user intent:
