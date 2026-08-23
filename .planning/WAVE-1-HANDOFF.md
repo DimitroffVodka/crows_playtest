@@ -82,9 +82,23 @@ Two things that still hold from the original: the mirror's own write **must** pa
 
 ---
 
-## 4. Unowned — needs assigning before it drifts
+## 4. ~~Unowned~~ — all three assigned, 2026-08-23
 
-| Item | Detail |
+**Nothing in this section is unowned any more.** One closed, two dispatched.
+
+| Item | Owner | State |
+|---|---|---|
+| `helpers/usage-die.mjs` | orchestrator | **CLOSED `03049bd`** |
+| Pets (C:2429) | **T2.5** (`4ef6e99b`) | dispatched — rules + data only, no sheet UI |
+| `helpers/crypt.mjs` | **T2.4** (`ac87edba`) | dispatched |
+
+Scope notes made at dispatch, because both one-liners below understate their items:
+
+- **Pets is a subsystem, not an item.** C:2429 onward specifies ownership and transfer, a 2d10+Mind taming test with a full tier table, pet backpack slots that **take wounds like a PC's**, riding costing **6 slots**, daily feeding scaled by size (Large ×2 / Huge ×4 / "Holy Shit" ×8), and a barding table (Medium ×2/+0, Large ×4/+2, Huge ×8/+4). Nothing exists today: `spellcasting.mjs:163` credits "the pet machinery" to T1.6, but T1.6 only gated a stables purchase by power — that comment is a dangling reference. `actsAsPet` is consumed by **nothing**. T2.5 is scoped to model + rules + tests and must hand back a named UI field list, because T2.1 and T2.2 are live in every sheet a pet would touch. `MonsterData` already carries `size` and `power`, which is what barding and the Pet Shop need.
+- **The crypt "invisible" framing below is already false.** `crypt.mjs:45-51` models Boon of Disappearance as `applyTo: "narrative"` — it emits text and sets no condition. The real gap is that C:2925's duration (*"invisible for a number of **combat rounds** equal to the crypt's level"*) is tracked by nothing, and combat rounds are a different clock from the dungeon-turn expiry the conditions use. T2.4 decides narrative-with-a-reason vs real duration tracking.
+- **Also flagged to T2.4 as an MCDM question:** the book says *"you can **use** this boon"* for Disappearance and Flight but *"**expend**"* for the rest, while the preamble says expending removes it and Boon of Rescue explicitly grants multiple uses "before it is expended". Whether "use" consumes is genuinely ambiguous.
+
+| Original detail | |
 |---|---|
 | ~~**`helpers/usage-die.mjs`**~~ | **CLOSED `03049bd`.** Rolled **one** d6 regardless of pool size; R:**562** (not R:200 — that is the Tests chapter) says roll *all* and remove each showing 1-2, so a 3-UD torch decayed at **⅓** the published rate. Fixed by sharing `resolveUsageDicePool`, which the backlash path already had right — the rule now has one implementation, moved to `usage-die.mjs` and re-exported from `dungeon-turn.mjs`. 14 tests, mutation-verified. Also hardened that function's input filter: `Number(null)` is 0, finite and `<= 2`, so a null face silently removed a die. |
 | **Pets (C:2429)** | Nobody in Wave 1 owns them. T1.6 models only the stables gating purchase by power. T1.8's `summonBehaviour(system)` returns `{summons, actsAsPet, requiresCommandTest:false}` — trust `actsAsPet` **only** for `kind === "creature"`; a summoned object is not yours to drive. |
