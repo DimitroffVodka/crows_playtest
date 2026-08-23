@@ -334,26 +334,102 @@ export async function expendBoon(actor, { silent = false } = {}) {
   return { ok: true, boon, lvl, value: boon.value(lvl), usesLeft };
 }
 
+function _spentActiveBoon(snapshot) {
+  const spent = structuredClone(snapshot);
+  const usesLeft = (spent.usesLeft ?? 1) - 1;
+  if (usesLeft <= 0) {
+    spent.boonId = "";
+    spent.sourceCrowName = "";
+    spent.usesLeft = 0;
+  } else {
+    spent.usesLeft = usesLeft;
+  }
+  return spent;
+}
+
+function _sameActiveBoon(left, right) {
+  const leftKeys = Object.keys(left ?? {}).sort();
+  const rightKeys = Object.keys(right ?? {}).sort();
+  return leftKeys.length === rightKeys.length
+    && leftKeys.every((key, index) => key === rightKeys[index] && Object.is(left[key], right[key]));
+}
+
 /**
  * Helper for `damage` integration: peek the active boon and, if it's
  * Boon of Fury, roll the bonus dice and expend.
  * Returns { extra: number, rolledFormula?: string }.
+ *
+ * On failure, throws with `code = "fury-consumption-failed"` and a
+ * `rollback` status. Compensation restores the snapshot only while the
+ * current boon still matches this call's expected spent state; a concurrent
+ * change is left untouched and reported as `conflict`. Foundry document
+ * updates have no compare-and-swap primitive, so that guard is best-effort.
  */
 export async function consumeBoonOnDamage(actor) {
   const ab = actor?.system?.activeBoon;
   if (!ab?.boonId || ab.boonId !== "fury") return { extra: 0 };
-  const lvl = getCryptBoonLevel();
-  const dice = Math.max(1, lvl);
-  const r = await new Roll(`${dice}d6`).evaluate();
-  await expendBoon(actor, { silent: true });
-  await ChatMessage.create({
-    content: `<div class="crows crypt-expend">
-      <header><strong>${actor.name}</strong> expends <strong>Boon of Fury</strong></header>
-      <div>+${r.total} extra damage (${dice}d6 = ${r.terms?.[0]?.results?.map(x => x.result).join(", ") ?? r.total})</div>
-    </div>`,
-    speaker: ChatMessage.getSpeaker({ actor })
-  });
-  return { extra: r.total, rolledFormula: `${dice}d6=${r.total}` };
+  const snapshot = structuredClone(ab);
+  const spentState = _spentActiveBoon(snapshot);
+  let mutationAttempted = false;
+  let mutationCompleted = false;
+  let conflictObserved = false;
+
+  try {
+    const lvl = getCryptBoonLevel();
+    const dice = Math.max(1, lvl);
+    const r = await new Roll(`${dice}d6`).evaluate();
+    const beforeSpend = structuredClone(actor?.system?.activeBoon ?? {});
+    if (!_sameActiveBoon(beforeSpend, snapshot)) {
+      conflictObserved = true;
+      throw new Error("Active boon changed while Boon of Fury was rolling");
+    }
+    mutationAttempted = true;
+    const spent = await expendBoon(actor, { silent: true });
+    if (!spent?.ok) throw new Error(spent?.error ?? "Boon of Fury could not be expended");
+    mutationCompleted = true;
+    await ChatMessage.create({
+      content: `<div class="crows crypt-expend">
+        <header><strong>${actor.name}</strong> expends <strong>Boon of Fury</strong></header>
+        <div>+${r.total} extra damage (${dice}d6 = ${r.terms?.[0]?.results?.map(x => x.result).join(", ") ?? r.total})</div>
+      </div>`,
+      speaker: ChatMessage.getSpeaker({ actor })
+    });
+    return { extra: r.total, rolledFormula: `${dice}d6=${r.total}` };
+  } catch (cause) {
+    let rollback = conflictObserved ? "conflict" : "not-needed";
+    let rollbackError = null;
+    if (mutationAttempted) {
+      const current = structuredClone(actor?.system?.activeBoon ?? {});
+      if (_sameActiveBoon(current, spentState)) {
+        try {
+          await actor.update({ "system.activeBoon": snapshot });
+          const restored = structuredClone(actor?.system?.activeBoon ?? {});
+          if (!_sameActiveBoon(restored, snapshot)) {
+            throw new Error("Boon of Fury rollback did not restore the expected state");
+          }
+          rollback = "restored";
+        } catch (error) {
+          rollback = "failed";
+          rollbackError = error;
+        }
+      } else if (mutationCompleted && _sameActiveBoon(current, snapshot)) {
+        rollback = "restored";
+      } else if (_sameActiveBoon(current, snapshot)) {
+        rollback = "unknown";
+      } else {
+        // Foundry document updates have no compare-and-swap precondition. If
+        // another client changed the boon, restoring this snapshot would erase
+        // their newer state, so leave it untouched and surface the conflict.
+        rollback = "conflict";
+      }
+    }
+
+    const failure = new Error("Boon of Fury consumption failed", { cause });
+    failure.code = "fury-consumption-failed";
+    failure.rollback = rollback;
+    failure.rollbackError = rollbackError;
+    throw failure;
+  }
 }
 
 /**

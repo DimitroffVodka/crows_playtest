@@ -852,4 +852,324 @@ describe("Weapon attack assembly", () => {
       else globalThis.Roll = previousRoll;
     }
   });
+
+  async function furyFailure({
+    afterD6 = null,
+    beforeChatFailure = null,
+    failConsumption = false,
+    failD6 = false,
+    failChat = true,
+    failRestore = false,
+    skipRestore = false,
+    warnOnly = false
+  } = {}) {
+    const previousUi = globalThis.ui;
+    const previousRoll = globalThis.Roll;
+    const previousGame = globalThis.game;
+    const previousChatMessage = globalThis.ChatMessage;
+    const previousApplications = globalThis.foundry.applications;
+    const previousHooks = globalThis.Hooks;
+    const previousConsoleError = console.error;
+    const notifications = [];
+    const formulas = [];
+    const actorWrites = [];
+    let rollMessages = 0;
+    let furyChatCreates = 0;
+    let commitEvents = 0;
+
+    globalThis.ui = {
+      notifications: {
+        ...(warnOnly ? {} : { error: message => notifications.push(message) }),
+        warn: message => notifications.push(message)
+      }
+    };
+    globalThis.Roll = class FuryFailureRoll {
+      constructor(formula) {
+        this.formula = formula;
+        formulas.push(formula);
+        if (/d6$/i.test(formula)) {
+          this.total = 4;
+          this.dice = [{ faces: 6, results: [{ result: 4 }] }];
+          this.terms = [{ results: [{ result: 4 }] }];
+        } else {
+          this.total = 12;
+          this.dice = [{ faces: 10, results: [{ result: 6 }, { result: 6 }] }];
+          this.terms = [];
+        }
+      }
+      async evaluate() {
+        if (failD6 && /d6$/i.test(this.formula)) throw new Error("Fury d6 failed");
+        if (/d6$/i.test(this.formula)) await afterD6?.(attacker);
+        return this;
+      }
+      async toMessage() {
+        rollMessages += 1;
+        return { id: "Message.attack-should-not-exist" };
+      }
+    };
+    globalThis.game = {
+      i18n: { localize: key => key },
+      settings: { get: namespace => namespace === "core" ? "publicroll" : null },
+      user: { targets: new Set() }
+    };
+    globalThis.ChatMessage = {
+      getSpeaker: ({ actor: speaker } = {}) => ({ actor: speaker?.id ?? null }),
+      create: async () => {
+        furyChatCreates += 1;
+        await beforeChatFailure?.(attacker);
+        if (failChat) throw new Error("Fury chat write failed after actor update");
+        return { id: "Message.fury" };
+      }
+    };
+    globalThis.Hooks = {
+      callAll: name => { if (name === "crowsTestCommitted") commitEvents += 1; }
+    };
+    globalThis.foundry.applications = {
+      handlebars: { renderTemplate: async () => "<div>attack</div>" }
+    };
+
+    const activeBoon = {
+      boonId: "fury", sourceCrowName: "Mara", usesLeft: 1, prayedOnCycle: 3
+    };
+    const attacker = actor({ activeBoon: structuredClone(activeBoon) });
+    attacker.update = async data => {
+      actorWrites.push(structuredClone(data));
+      if (failConsumption && actorWrites.length === 1) {
+        throw new Error("Fury consumption write could not be confirmed");
+      }
+      if (failRestore && actorWrites.length === 2) {
+        throw new Error("Fury rollback write failed");
+      }
+      if (skipRestore && actorWrites.length === 2) return attacker;
+      for (const [path, value] of Object.entries(data)) {
+        foundry.utils.setProperty(attacker, path, structuredClone(value));
+      }
+      return attacker;
+    };
+    console.error = () => {};
+    const weapon = {
+      id: "w1", name: "Axe", type: "weapon",
+      system: {
+        attackStat: "strength", type: "chopping",
+        range: { melee: 1, ranged: 0 },
+        damage: { t2: "1 + S", t3: "2 + S" }
+      }
+    };
+
+    try {
+      const result = await attackWithWeapon(attacker, weapon, { targets: [] });
+      return {
+        refused: result.ok === false,
+        error: result.error ?? null,
+        rollback: result.rollback ?? null,
+        activeBoon: structuredClone(attacker.system.activeBoon),
+        initialBoon: activeBoon,
+        actorWrites: actorWrites.length,
+        furyRollAttempted: formulas.some(formula => /d6$/i.test(formula)),
+        consumptionAttempted: actorWrites.some(write =>
+          write["system.activeBoon.boonId"] === ""
+          || write["system.activeBoon"]?.boonId === ""),
+        furyChatCreates,
+        attackRolled: formulas.includes("2d10"),
+        attackCards: rollMessages,
+        commitEvents,
+        notifications,
+        ...(result.attack ? {
+          attackDamage: { t2: result.attack.t2, t3: result.attack.t3 },
+          state: result.state
+        } : {})
+      };
+    } finally {
+      if (previousUi === undefined) delete globalThis.ui;
+      else globalThis.ui = previousUi;
+      if (previousRoll === undefined) delete globalThis.Roll;
+      else globalThis.Roll = previousRoll;
+      if (previousGame === undefined) delete globalThis.game;
+      else globalThis.game = previousGame;
+      if (previousChatMessage === undefined) delete globalThis.ChatMessage;
+      else globalThis.ChatMessage = previousChatMessage;
+      if (previousApplications === undefined) delete globalThis.foundry.applications;
+      else globalThis.foundry.applications = previousApplications;
+      if (previousHooks === undefined) delete globalThis.Hooks;
+      else globalThis.Hooks = previousHooks;
+      console.error = previousConsoleError;
+    }
+  }
+
+  test("a post-mutation Fury failure restores the boon and refuses before the attack roll", async () => {
+    const observed = await furyFailure();
+    assert.deepEqual({ ...observed, notifications: observed.notifications.length }, {
+      refused: true,
+      error: "fury-consumption-failed",
+      rollback: "restored",
+      activeBoon: observed.initialBoon,
+      initialBoon: observed.initialBoon,
+      actorWrites: 2,
+      furyRollAttempted: true,
+      consumptionAttempted: true,
+      furyChatCreates: 1,
+      attackRolled: false,
+      attackCards: 0,
+      commitEvents: 0,
+      notifications: 1
+    });
+    assert.match(observed.notifications[0], /Fury.*attack was not rolled.*restored/i);
+  });
+
+  test("a successful Fury expenditure still rolls the attack with bonus damage", async () => {
+    const observed = await furyFailure({ failChat: false });
+
+    assert.deepEqual({ ...observed, notifications: observed.notifications.length }, {
+      refused: false,
+      error: null,
+      rollback: null,
+      activeBoon: {
+        boonId: "", sourceCrowName: "", usesLeft: 0, prayedOnCycle: 3
+      },
+      initialBoon: observed.initialBoon,
+      actorWrites: 1,
+      furyRollAttempted: true,
+      consumptionAttempted: true,
+      furyChatCreates: 1,
+      attackRolled: true,
+      attackCards: 1,
+      commitEvents: 1,
+      notifications: 0,
+      attackDamage: { t2: 8, t3: 9 },
+      state: "committed"
+    });
+  });
+
+  test("Fury rollback does not overwrite a concurrently changed boon", async () => {
+    const replacement = {
+      boonId: "vitality", sourceCrowName: "New Grave", usesLeft: 1, prayedOnCycle: 4
+    };
+    const observed = await furyFailure({
+      beforeChatFailure: attacker => {
+        attacker.system.activeBoon = structuredClone(replacement);
+      }
+    });
+
+    assert.deepEqual({ ...observed, notifications: observed.notifications.length }, {
+      refused: true,
+      error: "fury-consumption-failed",
+      rollback: "conflict",
+      activeBoon: replacement,
+      initialBoon: observed.initialBoon,
+      actorWrites: 1,
+      furyRollAttempted: true,
+      consumptionAttempted: true,
+      furyChatCreates: 1,
+      attackRolled: false,
+      attackCards: 0,
+      commitEvents: 0,
+      notifications: 1
+    });
+    assert.match(observed.notifications[0], /Fury.*attack was not rolled.*state changed.*Ref/i);
+  });
+
+  test("Fury refuses before expenditure when the active boon changes during its roll", async () => {
+    const replacement = {
+      boonId: "vitality", sourceCrowName: "New Grave", usesLeft: 1, prayedOnCycle: 4
+    };
+    const observed = await furyFailure({
+      afterD6: attacker => {
+        attacker.system.activeBoon = structuredClone(replacement);
+      }
+    });
+
+    assert.deepEqual({ ...observed, notifications: observed.notifications.length }, {
+      refused: true,
+      error: "fury-consumption-failed",
+      rollback: "conflict",
+      activeBoon: replacement,
+      initialBoon: observed.initialBoon,
+      actorWrites: 0,
+      furyRollAttempted: true,
+      consumptionAttempted: false,
+      furyChatCreates: 0,
+      attackRolled: false,
+      attackCards: 0,
+      commitEvents: 0,
+      notifications: 1
+    });
+    assert.match(observed.notifications[0], /Fury.*attack was not rolled.*state changed.*Ref/i);
+  });
+
+  test("a pre-mutation Fury roll failure refuses without touching the boon", async () => {
+    const observed = await furyFailure({ failD6: true });
+
+    assert.deepEqual({ ...observed, notifications: observed.notifications.length }, {
+      refused: true,
+      error: "fury-consumption-failed",
+      rollback: "not-needed",
+      activeBoon: observed.initialBoon,
+      initialBoon: observed.initialBoon,
+      actorWrites: 0,
+      furyRollAttempted: true,
+      consumptionAttempted: false,
+      furyChatCreates: 0,
+      attackRolled: false,
+      attackCards: 0,
+      commitEvents: 0,
+      notifications: 1
+    });
+    assert.match(observed.notifications[0], /Fury.*failed before.*attack was not rolled/i);
+  });
+
+  test("a Fury failure falls back to a visible warning when error notifications are unavailable", async () => {
+    const observed = await furyFailure({ failD6: true, warnOnly: true });
+
+    assert.equal(observed.refused, true);
+    assert.equal(observed.error, "fury-consumption-failed");
+    assert.equal(observed.attackRolled, false);
+    assert.equal(observed.notifications.length, 1);
+    assert.match(observed.notifications[0], /Fury.*failed before.*attack was not rolled/i);
+  });
+
+  test("an unconfirmed Fury update refuses and asks the Ref to inspect the boon", async () => {
+    const observed = await furyFailure({ failConsumption: true });
+
+    assert.deepEqual({ ...observed, notifications: observed.notifications.length }, {
+      refused: true,
+      error: "fury-consumption-failed",
+      rollback: "unknown",
+      activeBoon: observed.initialBoon,
+      initialBoon: observed.initialBoon,
+      actorWrites: 1,
+      furyRollAttempted: true,
+      consumptionAttempted: true,
+      furyChatCreates: 0,
+      attackRolled: false,
+      attackCards: 0,
+      commitEvents: 0,
+      notifications: 1
+    });
+    assert.match(observed.notifications[0], /Fury.*attack was not rolled.*could not be confirmed.*Ref/i);
+  });
+
+  test("a failed or ineffective Fury rollback still refuses and reports manual repair", async () => {
+    for (const options of [{ failRestore: true }, { skipRestore: true }]) {
+      const observed = await furyFailure(options);
+
+      assert.deepEqual({ ...observed, notifications: observed.notifications.length }, {
+        refused: true,
+        error: "fury-consumption-failed",
+        rollback: "failed",
+        activeBoon: {
+          boonId: "", sourceCrowName: "", usesLeft: 0, prayedOnCycle: 3
+        },
+        initialBoon: observed.initialBoon,
+        actorWrites: 2,
+        furyRollAttempted: true,
+        consumptionAttempted: true,
+        furyChatCreates: 1,
+        attackRolled: false,
+        attackCards: 0,
+        commitEvents: 0,
+        notifications: 1
+      });
+      assert.match(observed.notifications[0], /Fury.*attack was not rolled.*could not be restored.*Ref/i);
+    }
+  });
 });

@@ -204,7 +204,20 @@ export async function attackWithWeapon(actor, weapon, {
     try {
       const { consumeBoonOnDamage } = await import("./crypt.mjs");
       furyBonus = (await consumeBoonOnDamage(actor)).extra || 0;
-    } catch { /* crypt module not loaded */ }
+    } catch (error) {
+      const rollback = error?.rollback ?? "not-needed";
+      const message = ({
+        restored: "Boon of Fury failed. The attack was not rolled, and the boon was restored.",
+        failed: "Boon of Fury failed. The attack was not rolled, but the boon could not be restored; ask the Ref to repair it.",
+        conflict: "Boon of Fury failed. The attack was not rolled. Its state changed during the attempt, so it was left untouched; ask the Ref to inspect it.",
+        unknown: "Boon of Fury failed. The attack was not rolled, but the boon update could not be confirmed; ask the Ref to inspect it."
+      })[rollback] ?? "Boon of Fury failed before it could be applied. The attack was not rolled.";
+      const notifications = globalThis.ui?.notifications;
+      if (typeof notifications?.error === "function") notifications.error(message);
+      else notifications?.warn?.(message);
+      console.error("crows | Boon of Fury failed; attack cancelled", error, error?.rollbackError);
+      return { ok: false, error: "fury-consumption-failed", rollback };
+    }
   }
 
   const attack = weaponAttackPayload(actor, weapon, { isMelee, characteristic, furyBonus, situation });
