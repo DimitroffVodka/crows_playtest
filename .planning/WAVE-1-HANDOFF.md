@@ -478,7 +478,8 @@ unexamined.
 - **Nothing in Wave 3 content.** All eleven packs are transcribed, built and verified live.
   The 36-background sweep was run four times, finally against the complete content: 36/36 ok,
   zero stubs, zero trait failures, zero spellbook shortfalls, 4/4 pets bonded, console clean.
-- **Gate D is runnable but has never been run.** ~~no ZIP or release script exists~~ —
+- ~~**Gate D is runnable but has never been run.**~~ **RUN AND PASSED 2026-08-25** — see §11.
+  Original note kept for context: ~~no ZIP or release script exists~~ —
   `release.sh` landed this session (`npm run release`, `npm run release:check`). It gates on
   `verify.sh --strict` and `npm test`, **rebuilds the packs from `src/packs` every time**, and
   fails loudly if Foundry holds the LevelDB lock, so a release requires the world at Setup.
@@ -643,3 +644,79 @@ Module JS picked up changes every time; **only CSS went stale.**
 - Nothing. All ten commits are pushed and live-verified.
 - The `Test` crow in world `crow-test` has an Axe left on its **belt** (deliberately, to
   demonstrate the disabled state) and a combat sits at Round 1 unrolled, ready to drive.
+
+---
+
+## 11. Gate D — run and passed, 2026-08-25
+
+First time the gate has actually been executed. `npm run release` produced **`dist/crows.zip`,
+560K, 117 files, 517 documents**, and that artifact was installed into an **isolated data
+directory** and booted. The repo working copy was never overwritten.
+
+### What was verified, in order of how much it proves
+
+1. **The release script's own gates ran**: `verify.sh --strict`, `npm test` (1048), all 11
+   declared packs present, then a **full pack rebuild from `src/packs`** — 517 documents packed.
+2. **The archive carries today's work.** All of `module/documents/`, `module/applications/`,
+   `module/helpers/initiative.mjs` and `templates/sidebar/combat-tracker.hbs` are present, and
+   **no `test/`, `src/`, `docs/`, `.planning/` or `playtest-packet/` leaked in**. `system.json`
+   at the archive root. `lang/en.json` still 552 flat keys in the shipped copy.
+3. **The shipped packs are complete, not stale shells.** Every pack was unpacked back out of the
+   ZIP and compared to `src/packs` **by `_id`**: **517 vs 517, zero missing, zero extra,
+   identical document set.** This is the check that actually distinguishes a good release from
+   the recurring failure this project has — a LevelDB with stale content looks identical to a
+   fresh one.
+4. **A clean world booted from the artifact.** Second Foundry instance, `--dataPath` on a scratch
+   dir containing only the extracted ZIP and a hand-written `world.json`. Log reached
+   **`Launching World | Complete`**, `/join` returned 200, **all 11 `crows.crows-*` databases
+   opened**, and **zero errors**.
+
+### ⚠ Two methodology traps, both of which produced a false result first
+
+**Unpacking needs BOTH `-n <name>` and `--in <parent packs dir>`.** `--in packs/crows-rules`
+makes the tool look for `packs/crows-rules/crows-rules` and fail with
+`LEVEL_ITERATOR_NOT_OPEN`, which reads exactly like a corrupt archive. It is not. Eleven packs
+"failed" before the invocation was fixed.
+
+**`fvtt package unpack` writes FLAT, not one directory per pack.** A counter that sums
+per-pack subdirectories returns 0 for everything and looks like a totally empty archive.
+
+**And a false defect I nearly filed:** after the round-trip, the extracted tree contained
+`LOCK` and `LOG` files, which looked like `release.sh` failing to strip them. It is not —
+**LevelDB recreates them when a database is opened, and my own round-trip opened all eleven.**
+Checking `zipfile.namelist()` directly shows the archive has none. Verify against the artifact,
+never against a copy you have already touched.
+
+### Open question worth carrying — Foundry WRITES to shipped packs on first load
+
+The clean world migrated and **persisted** exactly two of 517 documents:
+
+```
+Migrated Item record [ctthie22intpack0] of database "crows.crows-traits".
+Persisting migrated Item record [ctthie32otfpack0] of database "crows.crows-traits".
+```
+
+`Into the Pack` (`thievery-t2-c2.yaml`) and `Out of the Pack` (`thievery-t3-c2.yaml`). Both are
+**structurally identical to their 274 unmigrated siblings** — same keys, same shape, nothing in
+our YAML explains why core singled them out. Not chased further: info-level, zero errors, and
+the gate passed.
+
+Two things follow regardless of the cause:
+
+- **A distributed install diverges from the artifact on first world launch.** The shipped packs
+  are not read-only. Any future "does the user's install match the release?" check must account
+  for that.
+- The pair is worth a look before a real release, because *two* documents is the suspicious
+  number — a systematic schema issue would hit all 276, and a content typo would hit one.
+
+### Gate D's wording still needs the scoping recorded in §9
+
+Its "zero unresolved HIGH findings" clause remains scoped to the **YAML-vs-rulebook reports**.
+H1/H2/H3 in `playtest-2-source-issues.md` are MCDM's bugs and cannot be closed from this side;
+as literally written, Gate D would block a release forever on someone else's book.
+
+### Cleanup
+
+Scratch directory removed, second instance stopped, the copied licence deleted from it. The
+main Foundry instance (pid 956, port 30000) was never touched. `dist/` is gitignored, so the
+artifact does not enter the repo.
