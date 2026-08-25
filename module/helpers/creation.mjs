@@ -9,18 +9,124 @@
  * matching trait Item by name in either the trait compendium or world items.
  */
 
+/**
+ * Fold a name to a comparison key: case, punctuation and spacing are noise.
+ *
+ * This is what bridges `gluepot` -> "Glue Pot" and both background spellings of
+ * `quill and inkpot` / `quill and ink pot` -> "Quill & Inkpot", generically,
+ * without a per-item special case.
+ */
+function comparisonKey(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+/**
+ * Cross-source naming conflicts that normalization genuinely cannot bridge.
+ *
+ * The background text and the item card are BOTH canonical MCDM and they
+ * disagree, so something has to reconcile them and it cannot be the content:
+ * T3.4a named items after their cards deliberately.
+ *
+ * This is NOT the Coin Purse anti-pattern (see the note in
+ * `character-creator.mjs`). That name match STAMPED A PROPERTY the data should
+ * have carried, so a compendium-dragged purse silently differed from a
+ * wizard-made one. This map only chooses WHICH shipped item to clone; every
+ * path produces the same document, and an entry that stops matching shows up
+ * as an unresolved string rather than as a silently wrong item.
+ *
+ * Keep it small, and record the conflict for each entry.
+ */
+const EQUIPMENT_ALIASES = new Map([
+  // Backgrounds say "quiver of arrows"; the ammunition card is "Quiver of 20
+  // Arrows". Normalization cannot bridge it because of the embedded count.
+  ["quiverofarrows", "Quiver of 20 Arrows"]
+]);
+
+const EQUIPMENT_PACKS = [
+  ["crows.crows-gear", "gear"],
+  ["crows.crows-weapons", "weapon"],
+  ["crows.crows-armor", "armor"],
+  ["crows.crows-consumables", "consumable"],
+  ["crows.crows-ammunition", "ammunition"]
+];
+
 async function _lookupItemByName(name, packKey, fallbackType) {
   if (!name) return null;
   // 1) Try the named compendium.
   const pack = packKey ? game.packs?.get(packKey) : null;
   if (pack) {
+    const wanted = comparisonKey(name);
     const idx = pack.index?.contents?.find(c => c.name === name)
-              ?? pack.index?.contents?.find(c => c.name?.toLowerCase() === name.toLowerCase());
+              ?? pack.index?.contents?.find(c => c.name?.toLowerCase() === name.toLowerCase())
+              ?? pack.index?.contents?.find(c => comparisonKey(c.name) === wanted);
     if (idx) return await pack.getDocument(idx._id);
   }
   // 2) Fallback: world item collection (handy for one-offs).
-  const wi = game.items?.find(i => i.name === name && (!fallbackType || i.type === fallbackType));
+  const wi = game.items?.find(i => i.name === name && (!fallbackType || i.type === fallbackType))
+          ?? game.items?.find(i => comparisonKey(i.name) === comparisonKey(name)
+                                && (!fallbackType || i.type === fallbackType));
   return wi ?? null;
+}
+
+/** Search every equipment pack for one name, in the documented order. */
+async function _lookupEquipment(name) {
+  for (const [packKey, type] of EQUIPMENT_PACKS) {
+    const doc = await _lookupItemByName(name, packKey, type);
+    if (doc) return doc;
+  }
+  const aliased = EQUIPMENT_ALIASES.get(comparisonKey(name));
+  if (!aliased) return null;
+  for (const [packKey, type] of EQUIPMENT_PACKS) {
+    const doc = await _lookupItemByName(aliased, packKey, type);
+    if (doc) return doc;
+  }
+  return null;
+}
+
+/**
+ * Split one background equipment string into what it actually asks for.
+ *
+ * PT2 overloads a trailing parenthetical with three unrelated meanings, and a
+ * leading "extra" with a fourth:
+ *
+ *   "animal feed (6)"           -> six of an item        (quantity)
+ *   "goat (pet)"                -> a live Actor          (NOT an Item)
+ *   "musical instrument (lute)" -> an item, specialised  (qualifier)
+ *   "extra knife"               -> another of a kit item (quantity)
+ *   "50 gold coins"             -> coins, not an item at all
+ *
+ * `raw` is preserved so callers can report exactly what failed to resolve.
+ */
+export function parseEquipmentEntry(input) {
+  const raw = String(input ?? "").trim();
+  const base = { raw, kind: "item", name: raw, quantity: 1, qualifier: "" };
+  if (!raw) return { ...base, kind: "empty" };
+
+  // "50 gold coins" / "50 extra gold coins" — not an item.
+  const gold = raw.match(/^(\d+)\s+(?:extra\s+)?gold\s+coins?$/i);
+  if (gold) return { ...base, kind: "gold", amount: Number(gold[1]), name: "" };
+
+  let name = raw;
+  let quantity = 1;
+  let qualifier = "";
+  let kind = "item";
+
+  const paren = name.match(/^(.*?)\s*\(([^()]+)\)\s*$/);
+  if (paren) {
+    const inner = paren[2].trim();
+    if (/^pet$/i.test(inner)) { kind = "pet"; name = paren[1].trim(); }
+    else if (/^\d+$/.test(inner)) { quantity = Number(inner); name = paren[1].trim(); }
+    else { qualifier = inner; name = paren[1].trim(); }
+  }
+
+  // "extra knife" is a second Knife alongside the universal kit's (C:36).
+  const extra = name.match(/^extra\s+(.*)$/i);
+  if (extra) name = extra[1].trim();
+
+  return { raw, kind, name, quantity, qualifier };
 }
 
 function _parseStartingTrait(s) {
@@ -61,22 +167,58 @@ export async function applyBackground(actor, bg) {
 
   const toCreate = [];
 
-  // Equipment → as gear by name (looked up in the gear compendium for full card data;
-  // falls back to a minimal stub so the slot still gets a card).
-  for (const name of sys.equipment ?? []) {
-    const eqDoc = await _lookupItemByName(name, "crows.crows-gear", "gear")
-              ?? await _lookupItemByName(name, "crows.crows-weapons", "weapon")
-              ?? await _lookupItemByName(name, "crows.crows-armor", "armor")
-              ?? await _lookupItemByName(name, "crows.crows-consumables", "consumable")
-              ?? await _lookupItemByName(name, "crows.crows-ammunition", "ammunition");
+  // Equipment. Each string is parsed before lookup, because PT2 overloads the
+  // trailing parenthetical (quantity / live pet / specialisation) and a stub
+  // named "goat (pet)" in the backpack is worse than no card at all.
+  //
+  // A resolvable name still falls back to a minimal stub so the slot gets a
+  // card — but the stub is now REPORTED, so "creation looked fine" and "every
+  // item resolved" stop being the same thing.
+  const bonusGold = [];
+  const pets = [];
+  const stubbed = [];
+
+  for (const entry of sys.equipment ?? []) {
+    const parsed = parseEquipmentEntry(entry);
+    if (parsed.kind === "empty") continue;
+
+    if (parsed.kind === "gold") {
+      bonusGold.push(parsed.amount);
+      continue;
+    }
+
+    // Try the string exactly as written FIRST. `lore book (historical lore)`
+    // resolves to the item of that name, so stripping the parenthetical before
+    // lookup would break the very case the four Lore Books were named for.
+    let eqDoc = await _lookupEquipment(parsed.raw);
+    if (!eqDoc && parsed.name !== parsed.raw) eqDoc = await _lookupEquipment(parsed.name);
+
+    if (parsed.kind === "pet") {
+      // A pet is an Actor with an ownership record, not a backpack card. The
+      // engine owns that write (`petOwnerUpdate`); creating world Actors during
+      // character creation is a separate decision, so report the request and
+      // deliberately create NOTHING here.
+      pets.push({ raw: parsed.raw, name: parsed.name, resolved: Boolean(eqDoc) });
+      continue;
+    }
+
     if (eqDoc) {
       const data = eqDoc.toObject();
       delete data._id; delete data._key;
       // Drop into the backpack so the slot grid picks it up.
       data.system = { ...(data.system ?? {}), location: { container: "backpack", index: 0, length: data.system?.slots ?? 1 } };
+      if (parsed.quantity > 1) data.system.quantity = parsed.quantity;
+      // A qualifier the item itself cannot hold ("musical instrument (lute)")
+      // is kept on the embedded copy's name. Safe because this document is a
+      // clone on the actor, so no compendium lookup depends on it.
+      if (parsed.qualifier) {
+        const label = parsed.qualifier.replace(/\b\w/g, (c) => c.toUpperCase());
+        data.name = `${data.name} (${label})`;
+      }
       toCreate.push(data);
     } else {
-      toCreate.push({ name, type: "gear", system: { location: { container: "backpack", index: 0, length: 1 } } });
+      stubbed.push(parsed.raw);
+      toCreate.push({ name: parsed.raw, type: "gear", system: { location: { container: "backpack", index: 0, length: 1 } } });
     }
   }
 
@@ -114,6 +256,14 @@ export async function applyBackground(actor, bg) {
     expertiseUses: Object.fromEntries(grants),
     startingTrait: parsed?.name ?? null,
     startingTraitEmbedded,
-    itemsCreated: toCreate.length
+    itemsCreated: toCreate.length,
+    // Coins the background grants on top of the universal 3d6 (C:36). Returned
+    // rather than written, because the purse is an Item the caller creates.
+    bonusGold: bonusGold.reduce((sum, n) => sum + n, 0),
+    // Live animals the background grants. NOT created here — see above.
+    pets,
+    // Equipment strings that produced a bare stub. Empty is the healthy state;
+    // anything here is a real gap between the backgrounds and the item packs.
+    stubbed
   };
 }
