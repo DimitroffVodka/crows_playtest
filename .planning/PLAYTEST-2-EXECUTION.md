@@ -1910,6 +1910,16 @@ Pack build reminder: Foundry holds exclusive LevelDB locks while a world is open
 
 ## Part 7 — Questions for MCDM
 
+> ⚠️ **This is the INTERNAL record. Do not submit it.** The survey-ready text is
+> `docs/MCDM-FEEDBACK.md`, reshaped 2026-08-25 for three constraints this section violates:
+> the survey **rejects typo reports** (so §B5 is omitted entirely), it **will not follow
+> links**, and **MCDM cannot resolve `R:`/`C:`/`IC:` citations** — those index our own text
+> extraction, not their book, and the ones in A1–A6, B1 and C1–C3 are additionally stale.
+> The submission quotes searchable rule text and names traits, spells and cards instead.
+>
+> Keep this section as the reasoning of record: it holds the *why* behind each shipped
+> default, which the submission deliberately compresses.
+
 Carry these into the playtest feedback channel. **Each states the reading we shipped**, so MCDM only has to confirm or correct rather than answer from scratch. Every default is one constant or one predicate — all are cheaply reversible.
 
 > ⚠️ **Citations in A1–A6, B1 and C1–C3 predate the 2026-08-25 book rebuild and are stale.**
