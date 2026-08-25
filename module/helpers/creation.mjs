@@ -194,8 +194,14 @@ export async function applyBackground(actor, bg) {
   // A resolvable name still falls back to a minimal stub so the slot gets a
   // card — but the stub is now REPORTED, so "creation looked fine" and "every
   // item resolved" stop being the same thing.
-  const bonusGold = [];
-  const pets = [];
+  // Read the declared grants FIRST. `bonusGold` and `pets` are their own schema
+  // fields now; the string-shaped forms below are a fallback for content that
+  // predates them (a world DataModel migrates on load, but a plain object
+  // fixture handed straight to this function does not).
+  const bonusGold = Number(sys.bonusGold) ? [Number(sys.bonusGold)] : [];
+  const pets = (sys.pets ?? []).map((name) => ({
+    raw: String(name), name: String(name), resolved: false, declared: true
+  }));
   const stubbed = [];
 
   for (const entry of sys.equipment ?? []) {
@@ -215,6 +221,9 @@ export async function applyBackground(actor, bg) {
     if (!eqDoc && parsed.name !== parsed.raw) eqDoc = await _lookupEquipment(parsed.name);
 
     if (parsed.kind === "pet") {
+      // Already declared in `system.pets`? Then this is the same grant reaching
+      // us twice and must not be doubled.
+      if (pets.some((p) => p.name.toLowerCase() === parsed.name.toLowerCase())) continue;
       // A pet is an Actor with an ownership record, not a backpack card. The
       // engine owns that write (`petOwnerUpdate`); creating world Actors during
       // character creation is a separate decision, so report the request and

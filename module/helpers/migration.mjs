@@ -1085,3 +1085,38 @@ export function buildMigrationReport(results = [], { mode = "report-only", title
  * The world setting T2.3 registers:
  *   crows.migrationExpertiseBudget: "report-only" (DEFAULT) | "enforce"
  * ========================================================================== */
+
+/**
+ * Move coins and animals out of a legacy `equipment` array into their own fields.
+ *
+ * Runs on every load, so content that still lists "50 gold coins" or
+ * "goat (pet)" as equipment keeps working — including a world built before the
+ * fields existed. Idempotent: a source that already carries `bonusGold` or
+ * `pets` is left alone rather than having the value doubled, which matters
+ * because migrateData can run more than once on the same source.
+ */
+export function liftGrantsOutOfEquipment(source) {
+  const equipment = source?.equipment;
+  if (!Array.isArray(equipment)) return source;
+
+  const kept = [];
+  let gold = 0;
+  const pets = [];
+  for (const entry of equipment) {
+    const raw = String(entry ?? "").trim();
+    const coins = raw.match(/^(\d+)\s+(?:extra\s+)?gold\s+coins?$/i);
+    if (coins) { gold += Number(coins[1]); continue; }
+    const pet = raw.match(/^(.*?)\s*\(\s*pet\s*\)$/i);
+    if (pet) { pets.push(pet[1].trim()); continue; }
+    kept.push(entry);
+  }
+  if (!gold && !pets.length) return source;
+
+  return {
+    ...source,
+    equipment: kept,
+    // Only fill a field the source left empty — never add to an explicit value.
+    bonusGold: Number(source.bonusGold) || gold,
+    pets: (Array.isArray(source.pets) && source.pets.length) ? source.pets : pets
+  };
+}

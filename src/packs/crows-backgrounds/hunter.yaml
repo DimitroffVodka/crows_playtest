@@ -20,6 +20,7 @@ system:
       uses: 1
     - key: bow
       uses: 2
-  equipment: ["animal feed (6)", "bear trap", "dog (pet)", "quiver of arrows", "shortbow", "torch"]
+  equipment: ["animal feed (6)", "bear trap", "quiver of arrows", "shortbow", "torch"]
+  pets: ["dog"]
   spellbooks: []
   startingGold: "3d6"

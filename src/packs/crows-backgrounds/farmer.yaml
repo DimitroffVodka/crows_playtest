@@ -18,6 +18,7 @@ system:
       uses: 1
     - key: natureLore
       uses: 1
-  equipment: ["11-foot pole", "animal feed (6)", "goat (pet)", "pot", "torch"]
+  equipment: ["11-foot pole", "animal feed (6)", "pot", "torch"]
+  pets: ["goat"]
   spellbooks: []
   startingGold: "3d6"

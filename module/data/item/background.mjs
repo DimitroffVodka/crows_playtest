@@ -1,7 +1,7 @@
 const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
 import { CROWS, ALL_EXPERTISES } from "../../config.mjs";
-import { migrateBackgroundSystem } from "../../helpers/migration.mjs";
+import { migrateBackgroundSystem, liftGrantsOutOfEquipment } from "../../helpers/migration.mjs";
 
 export class BackgroundData extends TypeDataModel {
   /**
@@ -14,7 +14,7 @@ export class BackgroundData extends TypeDataModel {
    * authoritative content comes from T3.1 re-transcription and overwrites this.
    */
   static migrateData(source) {
-    return super.migrateData(migrateBackgroundSystem(source));
+    return super.migrateData(liftGrantsOutOfEquipment(migrateBackgroundSystem(source)));
   }
 
   static defineSchema() {
@@ -54,7 +54,26 @@ export class BackgroundData extends TypeDataModel {
         uses: new fields.NumberField({ initial: 1, min: 1, integer: true })
       }), { initial: [] }),
 
+      // ITEMS ONLY. Coins and animals used to live in here too, because the
+      // book prints them on one Equipment line — and both had to be recovered
+      // by pattern-matching the string at creation time. That is precisely how
+      // the Noble's 50 gc was silently dropped and Nobles started poor: a grant
+      // hidden in an array of the wrong kind, recoverable only by a regex
+      // nobody was testing. They are separate fields now; `migrateData` lifts
+      // legacy strings out so old content still works.
       equipment: new fields.ArrayField(new fields.StringField()),
+
+      // Coins granted ON TOP of the universal `startingGold` roll. Two
+      // backgrounds use it — Merchant ("50 extra gold coins") and Noble
+      // ("50 gold coins"). Not equipment: coins go to `system.currency`.
+      bonusGold: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+
+      // Animals the background starts play owning, by card name — Farmer
+      // (goat), Hunter (dog), Knight and Noble (riding horse). A pet is an
+      // ACTOR that gets bonded to the crow, never a card in a backpack slot,
+      // so it cannot be an equipment string without a parser to rescue it.
+      pets: new fields.ArrayField(new fields.StringField(), { initial: [] }),
+
       spellbooks: new fields.ArrayField(new fields.StringField()),
 
       // C:36 — "Every PC has an empty coin purse, a knife, a rope, six rations,

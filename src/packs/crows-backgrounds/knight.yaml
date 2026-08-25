@@ -14,6 +14,7 @@ system:
       uses: 1
     - key: slashing
       uses: 1
-  equipment: ["animal feed (6)", "greatsword", "lantern", "light armor", "oil flask", "riding horse (pet)"]
+  equipment: ["animal feed (6)", "greatsword", "lantern", "light armor", "oil flask"]
+  pets: ["riding horse"]
   spellbooks: []
   startingGold: "3d6"

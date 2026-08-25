@@ -33,6 +33,8 @@ const shippedItemNames = () => {
 // The one alias creation.mjs carries. Restated here so a silent removal fails.
 const ALIASES = new Map([["quiverofarrows", "Quiver of 20 Arrows"]]);
 
+import { liftGrantsOutOfEquipment } from "../module/helpers/migration.mjs";
+
 describe("equipment entry parsing", () => {
   test("a plain name is an item of quantity 1", () => {
     assert.deepEqual(parseEquipmentEntry("torch"),
@@ -137,11 +139,18 @@ describe("background pets map to real stat blocks", () => {
       .map((f) => yaml.load(readFileSync(join("src/packs/crows-monsters", f), "utf8")));
     const statBlocks = new Set(monsters.map((m) => m.name));
 
+    // Pets are their own schema field. They used to be equipment strings ending
+    // in "(pet)", recoverable only by a regex — the same shape of defect that
+    // silently dropped the Noble's bonus gold.
     const granted = [];
     for (const bg of loadAll(BACKGROUNDS)) {
+      for (const name of bg.system?.pets ?? []) {
+        granted.push({ background: bg.name, raw: name, name });
+      }
+      // Nothing may still be hiding in equipment.
       for (const raw of bg.system?.equipment ?? []) {
-        const p = parseEquipmentEntry(raw);
-        if (p.kind === "pet") granted.push({ background: bg.name, raw, name: p.name });
+        assert.ok(!/\(\s*pet\s*\)$/i.test(raw),
+          `${bg.name}: "${raw}" is a pet living in the equipment array`);
       }
     }
 
@@ -192,14 +201,19 @@ describe("the real shipped corpus resolves", () => {
     assert.equal(backgrounds.length, 36, "guard: the real background corpus was loaded");
 
     const unresolved = [];
-    let strings = 0, pets = 0, gold = 0;
+    let strings = 0, pets = 0, goldGrants = 0;
 
     for (const bg of backgrounds) {
+      pets += (bg.system?.pets ?? []).length;
+      if (bg.system?.bonusGold) goldGrants++;
       for (const raw of bg.system?.equipment ?? []) {
         strings++;
         const p = parseEquipmentEntry(raw);
-        if (p.kind === "gold") { gold++; continue; }
-        if (p.kind === "pet") { pets++; continue; }
+        // equipment is ITEMS ONLY now — a gold or pet entry here is the bug.
+        assert.notEqual(p.kind, "gold", `${bg.name}: gold in the equipment array — "${raw}"`);
+        assert.notEqual(p.kind, "pet", `${bg.name}: a pet in the equipment array — "${raw}"`);
+        // The full string is tried BEFORE the qualifier is stripped, because
+        // "lore book (historical lore)" IS the card's name.
         const hit = names.has(key(p.raw))
                  || names.has(key(p.name))
                  || names.has(key(ALIASES.get(key(p.name)) ?? ""));
@@ -207,10 +221,10 @@ describe("the real shipped corpus resolves", () => {
       }
     }
 
-    assert.equal(strings, 166, "guard: the real equipment corpus was loaded");
-    assert.equal(gold, 2, "two gold strings");
+    assert.equal(strings, 160, "guard: the real equipment corpus was loaded");
+    assert.equal(goldGrants, 2, "Merchant and Noble each grant bonus coins");
     assert.equal(pets, 4, "four backgrounds start with a live animal");
-    assert.deepEqual(unresolved, [], "every remaining equipment string must resolve");
+    assert.deepEqual(unresolved, [], "every equipment string must resolve to a shipped card");
   });
 
   test("lore books resolve on the FULL string, before any stripping", () => {
@@ -220,6 +234,59 @@ describe("the real shipped corpus resolves", () => {
     // to prevent.
     for (const raw of ["lore book (historical lore)", "lore book (monster lore)", "lore book (nature lore)"]) {
       assert.ok(names.has(key(raw)), raw);
+    }
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Coins and animals moved OUT of the equipment array into their own fields.
+ *
+ * The lift still runs on load, so a world built before the fields existed keeps
+ * working. These pin the two ways that goes wrong: losing a grant, and applying
+ * it twice.
+ */
+describe("lifting grants out of a legacy equipment array", () => {
+  test("gold and pets are promoted, and the items are left alone", () => {
+    const out = liftGrantsOutOfEquipment({
+      equipment: ["lantern", "50 gold coins", "riding horse (pet)", "oil flask"]
+    });
+    assert.deepEqual(out.equipment, ["lantern", "oil flask"]);
+    assert.equal(out.bonusGold, 50);
+    assert.deepEqual(out.pets, ["riding horse"]);
+  });
+
+  test("'50 extra gold coins' counts too — Merchant's wording differs from Noble's", () => {
+    assert.equal(liftGrantsOutOfEquipment({ equipment: ["50 extra gold coins"] }).bonusGold, 50);
+  });
+
+  test("an explicit field is never overwritten or added to", () => {
+    // The lift can run more than once on the same source. If it added rather
+    // than deferred, a Noble would gain 50 gc on every load.
+    const out = liftGrantsOutOfEquipment({
+      equipment: ["50 gold coins", "goat (pet)"],
+      bonusGold: 50,
+      pets: ["goat"]
+    });
+    assert.equal(out.bonusGold, 50, "must not become 100");
+    assert.deepEqual(out.pets, ["goat"], "must not become two goats");
+  });
+
+  test("already-clean content is returned untouched", () => {
+    const src = { equipment: ["lantern"], bonusGold: 0, pets: [] };
+    assert.equal(liftGrantsOutOfEquipment(src), src, "same object — no needless churn");
+  });
+
+  test("survives junk rather than throwing", () => {
+    assert.deepEqual(liftGrantsOutOfEquipment({}), {});
+    assert.deepEqual(liftGrantsOutOfEquipment({ equipment: null }).equipment, null);
+  });
+
+  test("the shipped corpus needs no lifting — it already declares the fields", () => {
+    for (const bg of loadAll(BACKGROUNDS)) {
+      const lifted = liftGrantsOutOfEquipment(bg.system);
+      assert.equal(lifted, bg.system, `${bg.name} still has a grant hiding in equipment`);
     }
   });
 });
