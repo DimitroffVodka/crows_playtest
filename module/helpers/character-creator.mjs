@@ -7,6 +7,94 @@
  */
 
 import { applyBackground } from "./creation.mjs";
+import { petOwnerUpdate } from "./pets.mjs";
+
+/**
+ * Background pet strings -> the stat block that realises them.
+ *
+ * A third naming bridge, and it needs its own map for the same reason the
+ * equipment aliases do: both sides are canonical and they disagree. The
+ * background prints "riding horse (pet)" while the Ref Book stat block is
+ * "Horse, Riding" — normalization cannot reorder words.
+ *
+ * Deliberately explicit and tiny. A background naming an animal that is not
+ * here resolves to nothing and is REPORTED, never guessed at, because guessing
+ * would hand a player the wrong creature.
+ */
+export const BACKGROUND_PET_ACTORS = Object.freeze({
+  "goat": "Goat",
+  "dog": "Dog",
+  "riding horse": "Horse, Riding"
+});
+
+/** Which stat block a background's pet string asks for, or null. */
+export function petActorNameFor(petString) {
+  const key = String(petString ?? "").trim().toLowerCase();
+  return BACKGROUND_PET_ACTORS[key] ?? null;
+}
+
+/**
+ * Realise a background's granted animals as world Actors bonded to the crow.
+ *
+ * ONLY the wizard calls this. `applyBackground` deliberately does not: it also
+ * runs when a background Item is dropped on an existing sheet
+ * (`crow-sheet.mjs:_onDropItem`), and a drag-drop must not conjure a live
+ * animal into the world.
+ *
+ * The bond goes through the engine's `petOwnerUpdate` — the one write shape
+ * shared by purchase, taming, bonding and transfer. No second ownership path.
+ */
+export async function createBackgroundPets(actor, pets = []) {
+  const results = [];
+  if (!actor || !pets.length) return results;
+
+  const pack = game.packs?.get("crows.crows-monsters");
+  if (!pack) {
+    return pets.map((pet) => ({ ...pet, created: false, reason: "monster compendium not loaded" }));
+  }
+  if (!pack.index?.contents?.length) await pack.getIndex?.();
+
+  const ownerUuid = actor.uuid;
+
+  for (const pet of pets) {
+    const statBlock = petActorNameFor(pet.name);
+    if (!statBlock) {
+      results.push({ ...pet, created: false, reason: `no stat block mapped for "${pet.name}"` });
+      continue;
+    }
+    const entry = pack.index.contents.find((c) => c.name === statBlock);
+    if (!entry) {
+      results.push({ ...pet, created: false, reason: `stat block not in compendium: ${statBlock}` });
+      continue;
+    }
+
+    const source = await pack.getDocument(entry._id);
+    const data = source.toObject();
+    delete data._id;
+    delete data._key;
+    // Named for its owner so a sidebar with several crows stays legible. This
+    // is an instance, not content — the stat block keeps its own name.
+    data.name = `${actor.name}'s ${source.name}`;
+    // The player who owns the crow owns its pet, or they cannot use it.
+    data.ownership = foundry.utils.deepClone(actor.ownership ?? {});
+    if (actor.folder) data.folder = actor.folder.id ?? actor.folder;
+    // Bond at creation through the canonical shape.
+    foundry.utils.mergeObject(data, { system: {} });
+    for (const [path, value] of Object.entries(petOwnerUpdate(ownerUuid))) {
+      foundry.utils.setProperty(data, path, value);
+    }
+
+    const created = await Actor.create(data);
+    results.push({
+      ...pet,
+      created: Boolean(created),
+      actorId: created?.id ?? null,
+      actorName: created?.name ?? null,
+      statBlock
+    });
+  }
+  return results;
+}
 
 export const CHARACTERISTICS = Object.freeze(["agility", "mind", "strength"]);
 export const CREATION_SPREADS = Object.freeze({
@@ -251,7 +339,14 @@ export async function createCharacter(actor, opts = {}) {
   const bonusGold = backgroundResult.bonusGold ?? 0;
   await actor.update({ "system.currency": gold.total + bonusGold });
 
+  // Four backgrounds start play owning an animal (Farmer, Hunter, Knight,
+  // Noble). Realised HERE and not in applyBackground — see createBackgroundPets.
+  const pets = await createBackgroundPets(actor, backgroundResult.pets ?? []);
+
   const errors = universal.missing.map((name) => `starter item not found: ${name}`);
+  // A background that promises an animal and does not get one is a real failure,
+  // not a cosmetic one — the crow is short a granted possession.
+  for (const pet of pets) if (!pet.created) errors.push(`pet not created (${pet.raw}): ${pet.reason}`);
   await ChatMessage.create({
     content: `<div class="crows char-create">
       <header><strong>${esc(actor.name)}</strong> — character created</header>
@@ -262,6 +357,7 @@ export async function createCharacter(actor, opts = {}) {
         <li>Starting gold: <strong>${gold.total + bonusGold} gc</strong> (${esc(gold.formula)}${bonusGold ? ` + ${bonusGold} from background` : ""})</li>
         <li>Universal kit items added: <strong>${universal.added}</strong></li>
         <li>NPC connection: <strong>${esc(identity["system.npcConnection.name"] || "Not named")}</strong></li>
+        ${pets.length ? `<li>Pets bonded: <strong>${pets.filter(p => p.created).map(p => esc(p.actorName)).join(", ") || "none"}</strong>${pets.some(p => !p.created) ? ` — could not create: ${pets.filter(p => !p.created).map(p => esc(p.raw)).join(", ")}` : ""}</li>` : ""}
       </ul>
     </div>`,
     speaker: ChatMessage.getSpeaker({ actor })
@@ -273,7 +369,8 @@ export async function createCharacter(actor, opts = {}) {
     background: background.name,
     characteristics: characteristicResult,
     expertises: backgroundResult.expertiseUses,
-    gold: { formula: gold.formula, total: gold.total },
+    gold: { formula: gold.formula, roll: gold.total, bonus: bonusGold, total: gold.total + bonusGold },
+    pets,
     universal,
     connection: {
       name: identity["system.npcConnection.name"],

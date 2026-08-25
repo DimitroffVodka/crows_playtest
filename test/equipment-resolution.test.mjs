@@ -5,6 +5,7 @@ import { join } from "node:path";
 import yaml from "js-yaml";
 
 import { parseEquipmentEntry, embeddedItemName } from "../module/helpers/creation.mjs";
+import { petActorNameFor, BACKGROUND_PET_ACTORS } from "../module/helpers/character-creator.mjs";
 
 const BACKGROUNDS = "src/packs/crows-backgrounds";
 const ITEM_PACKS = [
@@ -125,6 +126,61 @@ describe("normalization bridges the background/card spelling conflicts", () => {
     const names = shippedItemNames();
     for (const target of ALIASES.values()) {
       assert.ok(names.has(key(target)), `alias points at a missing item: ${target}`);
+    }
+  });
+});
+
+describe("background pets map to real stat blocks", () => {
+  test("every pet string a background grants resolves to a shipped Actor", () => {
+    const monsters = readdirSync("src/packs/crows-monsters")
+      .filter((f) => f.endsWith(".yaml"))
+      .map((f) => yaml.load(readFileSync(join("src/packs/crows-monsters", f), "utf8")));
+    const statBlocks = new Set(monsters.map((m) => m.name));
+
+    const granted = [];
+    for (const bg of loadAll(BACKGROUNDS)) {
+      for (const raw of bg.system?.equipment ?? []) {
+        const p = parseEquipmentEntry(raw);
+        if (p.kind === "pet") granted.push({ background: bg.name, raw, name: p.name });
+      }
+    }
+
+    assert.equal(granted.length, 4, "four backgrounds start play owning an animal");
+
+    const unmapped = [];
+    for (const g of granted) {
+      const statBlock = petActorNameFor(g.name);
+      if (!statBlock) { unmapped.push(`${g.background}: no mapping for "${g.name}"`); continue; }
+      if (!statBlocks.has(statBlock)) unmapped.push(`${g.background}: "${statBlock}" not in crows-monsters`);
+    }
+    assert.deepEqual(unmapped, [], "every granted pet must resolve to a real stat block");
+  });
+
+  test("the mapping bridges word order that normalization cannot", () => {
+    // "riding horse" vs "Horse, Riding" — same words, different order. This is
+    // why the map exists rather than a normalized lookup.
+    assert.equal(petActorNameFor("riding horse"), "Horse, Riding");
+    assert.equal(petActorNameFor("goat"), "Goat");
+    assert.equal(petActorNameFor("dog"), "Dog");
+  });
+
+  test("an unmapped animal returns null rather than guessing", () => {
+    assert.equal(petActorNameFor("wolf"), null);
+    assert.equal(petActorNameFor(""), null);
+    assert.equal(petActorNameFor(undefined), null);
+  });
+
+  test("every mapped stat block is one a crow can actually use as a pet", () => {
+    const monsters = readdirSync("src/packs/crows-monsters")
+      .filter((f) => f.endsWith(".yaml"))
+      .map((f) => yaml.load(readFileSync(join("src/packs/crows-monsters", f), "utf8")));
+    for (const statBlock of Object.values(BACKGROUND_PET_ACTORS)) {
+      const doc = monsters.find((m) => m.name === statBlock);
+      assert.ok(doc, `${statBlock} missing`);
+      assert.equal(doc.system.creatureType, "animal", `${statBlock} must be an animal`);
+      // A 0-slot animal cannot carry pet inventory or take wounds in slots.
+      // Six shipped animals legitimately print 0; none of them are startable pets.
+      assert.ok(doc.system.slots > 0, `${statBlock} has no slots — unusable as a granted pet`);
     }
   });
 });
