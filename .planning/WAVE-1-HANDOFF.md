@@ -687,27 +687,45 @@ per-pack subdirectories returns 0 for everything and looks like a totally empty 
 Checking `zipfile.namelist()` directly shows the archive has none. Verify against the artifact,
 never against a copy you have already touched.
 
-### Open question worth carrying — Foundry WRITES to shipped packs on first load
+### ⚠ Foundry rewrites EVERY shipped document on first world load
 
-The clean world migrated and **persisted** exactly two of 517 documents:
+The clean world migrated and **persisted all 517 documents** — every record in all eleven packs:
 
-```
-Migrated Item record [ctthie22intpack0] of database "crows.crows-traits".
-Persisting migrated Item record [ctthie32otfpack0] of database "crows.crows-traits".
-```
+| Pack | Records | Type |
+|---|---|---|
+| `crows-traits` | 276 | Item |
+| `crows-monsters` | 71 | Actor |
+| `crows-gear` | 52 | Item |
+| `crows-backgrounds` | 36 | Item |
+| `crows-spellbooks` | 27 | Item |
+| `crows-weapons` | 19 | Item |
+| `crows-consumables` | 16 | Item |
+| `crows-loot` | 13 | Item |
+| `crows-armor` | 4 | Item |
+| `crows-ammunition` | 2 | Item |
+| `crows-rules` | 1 | JournalEntry |
+| **total** | **517 migrated, 517 persisted** | |
 
-`Into the Pack` (`thievery-t2-c2.yaml`) and `Out of the Pack` (`thievery-t3-c2.yaml`). Both are
-**structurally identical to their 274 unmigrated siblings** — same keys, same shape, nothing in
-our YAML explains why core singled them out. Not chased further: info-level, zero errors, and
-the gate passed.
+Because it is **uniform across every pack and every document type**, this is a version-stamp
+migration — core normalising a compendium whose recorded core version does not match the
+running one — not a content defect. Zero errors in 1239 log lines.
 
-Two things follow regardless of the cause:
+**The consequence that matters: a distributed install diverges from the artifact the first time
+the world is opened.** The shipped packs are not read-only. Any future "does this install match
+the release?" check must compare document *content*, never file bytes or checksums, and
+`SOURCE-*.sha256`-style pinning cannot be applied to `packs/`.
 
-- **A distributed install diverges from the artifact on first world launch.** The shipped packs
-  are not read-only. Any future "does the user's install match the release?" check must account
-  for that.
-- The pair is worth a look before a real release, because *two* documents is the suspicious
-  number — a systematic schema issue would hit all 276, and a content typo would hit one.
+> **⚠ CORRECTION.** This was first written up as "exactly two of 517 documents migrated —
+> `Into the Pack` and `Out of the Pack` — structurally identical to their 274 siblings, and two
+> is the suspicious number." **That was wrong, and wrong in an instructive way.** The log was
+> grepped through a narrow time filter and only its tail was read, so two trait records were
+> mistaken for the whole population. A second count then said 445, because
+> `grep -c "Migrated Item record"` silently excludes the 71 `Actor` and 1 `JournalEntry`
+> records. The real figure is 517/517.
+>
+> Both errors came from **measuring a filtered slice and reporting it as the total**. When a
+> number is going into a register as a finding, count the whole population and break it down by
+> category — a per-database table would have exposed either mistake immediately.
 
 ### Gate D's wording still needs the scoping recorded in §9
 
