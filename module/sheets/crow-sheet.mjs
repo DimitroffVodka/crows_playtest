@@ -595,6 +595,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _onRender(context, options) {
     super._onRender?.(context, options);
+    this.#bindDragFeedback();
     const tabs = this.element?.querySelectorAll?.('[role="tab"]');
     if (!tabs?.length) return;
     for (const tab of tabs) {
@@ -614,7 +615,80 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
   }
 
+  /**
+   * Paint every slot as a legal or illegal destination for the card being
+   * dragged.
+   *
+   * The highlight runs the SAME checks the drop runs — `dropRefusal` for
+   * container compatibility, then a trial `packItem` on a throwaway copy of the
+   * layout. Anything else and the colours would eventually disagree with what
+   * actually happens, which is worse than no highlight: it teaches a player a
+   * rule the game does not have.
+   *
+   * The item's own slots are freed first, because moving a card is not blocked
+   * by where it currently sits.
+   */
+  #markDropTargets(itemId) {
+    const root = this.element;
+    const item = this.document.items.get(itemId);
+    if (!root || !item) return;
+
+    const base = layoutFor(this.document);
+    unpackItem(base, item.id);
+    root.classList.add("cc-dragging");
+
+    for (const el of root.querySelectorAll("[data-container][data-index]")) {
+      const container = el.dataset.container;
+      const index = Number(el.dataset.index);
+      let ok = !dropRefusal(item, container);
+      if (ok) {
+        // packItem mutates, so every slot is tried against its own copy.
+        const trial = structuredClone(base);
+        ok = packItem(trial, item, container, index).ok;
+      }
+      el.classList.add(ok ? "cc-drop-ok" : "cc-drop-no");
+    }
+  }
+
+  #clearDropTargets() {
+    const root = this.element;
+    if (!root) return;
+    root.classList.remove("cc-dragging");
+    for (const el of root.querySelectorAll(".cc-drop-ok, .cc-drop-no, .cc-drop-over")) {
+      el.classList.remove("cc-drop-ok", "cc-drop-no", "cc-drop-over");
+    }
+  }
+
+  /**
+   * Pointer feedback during a drag.
+   *
+   * `dragend` fires on the source even when the drag is abandoned outside any
+   * slot, so it is the reliable place to clear — a `drop`-only reset would
+   * leave the sheet lit up after a cancelled drag.
+   */
+  #bindDragFeedback() {
+    const root = this.element;
+    if (!root || root.dataset.dragFeedbackBound === "1") return;
+    root.dataset.dragFeedbackBound = "1";
+
+    root.addEventListener("dragend", () => this.#clearDropTargets());
+    root.addEventListener("dragenter", (event) => {
+      const slot = event.target?.closest?.("[data-container][data-index]");
+      if (slot && root.classList.contains("cc-dragging")) slot.classList.add("cc-drop-over");
+    });
+    root.addEventListener("dragleave", (event) => {
+      const slot = event.target?.closest?.("[data-container][data-index]");
+      if (slot && !slot.contains(event.relatedTarget)) slot.classList.remove("cc-drop-over");
+    });
+  }
+
+  async _onDragStart(event) {
+    await super._onDragStart(event);
+    this.#markDropTargets(event.currentTarget?.dataset?.itemId);
+  }
+
   async _onDropItem(event, item) {
+    this.#clearDropTargets();
     if (item.type === "background") {
       await applyBackground(this.document, item);
       return null;

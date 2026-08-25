@@ -3100,3 +3100,35 @@
 
 .cc-card-remove:hover,
 .cc-card-remove:focus-visible { background: var(--crows-blood, #7c1c1c); }
+
+/* ── Drop-target feedback ──────────────────────────────────────────────────
+   Painted on dragstart by CrowSheet.#markDropTargets, which runs the same
+   checks the drop itself runs, so the colours cannot promise a move the rules
+   would refuse.
+
+   Colour alone is not the signal: legal slots also brighten and lift, illegal
+   ones desaturate and dim. That keeps the cue readable for the ~8% of men with
+   red/green colour blindness. */
+.cc-slot.cc-drop-ok {
+  border-color: var(--crows-ink);
+  box-shadow: inset 0 0 0 2px var(--crows-ink);
+  filter: brightness(1.04);
+}
+
+.cc-slot.cc-drop-no {
+  opacity: 0.4;
+  filter: grayscale(0.7);
+}
+
+/* The slot actually under the cursor. Strongest state, and only reachable on a
+   slot that is already legal. */
+.cc-slot.cc-drop-ok.cc-drop-over {
+  box-shadow: inset 0 0 0 3px var(--crows-ink), 0 0 6px rgba(0, 0, 0, 0.35);
+  filter: brightness(1.1);
+}
+
+/* Never dangle a "drop here" promise over a slot that would refuse. */
+.cc-slot.cc-drop-no.cc-drop-over { cursor: not-allowed; }
+
+/* Dim the card being dragged so its origin reads as vacated. */
+.cc-dragging .cc-card:active { opacity: 0.5; }
