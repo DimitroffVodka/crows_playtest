@@ -5,7 +5,7 @@ import { CROWS, ALL_EXPERTISES, expertiseCategory } from "../config.mjs";
 import { rollTest } from "../helpers/roll.mjs";
 import { rollTamingTest, rollPetCommandTest } from "../helpers/pets.mjs";
 import { petViewData, petViewReasonKey } from "../helpers/pet-view.mjs";
-import { applyBackground } from "../helpers/creation.mjs";
+import { applyBackground, backgroundSummary } from "../helpers/creation.mjs";
 import {
   advancementOptions, nextAdvancementTXP, traitPurchaseInfo, traitPoolState,
   purchaseTrait, gainXP, spendExpertiseBonus, spendCharBonus
@@ -429,6 +429,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.activeTab = this._activeTab;
     ctx.isGM = Boolean(game.user?.isGM);
     ctx.shift = 1;
+    ctx.background = await CrowSheet.#backgroundSummaryFor(actor);
     ctx.tabs = ["main", "equipment", "inventory", "pets", "advancement", "downtime", "bio"]
       .map(id => ({ id, label: t(`CROWS.Sheet.Crow.tab.${id}`) }));
 
@@ -1258,6 +1259,34 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    * question the slot rules ask (equipSlotType, and how many slots the card
    * needs).
    */
+  static #backgrounds = null;
+
+  /**
+   * Resolve the crow's background Item and shape it for display.
+   *
+   * Prefers `system.backgroundId`, which the wizard records, and falls back to
+   * matching `system.background` by name — the field is a free-text input, so a
+   * hand-typed or hand-edited actor still gets a summary.
+   *
+   * Returns null rather than throwing when the pack is absent or the name
+   * matches nothing; the Bio tab simply shows no panel.
+   */
+  static async #backgroundSummaryFor(actor) {
+    const id = actor.system?.backgroundId;
+    const name = actor.system?.background;
+    if (!id && !name) return null;
+    const pack = game.packs?.get("crows.crows-backgrounds");
+    if (!pack) return null;
+    if (!CrowSheet.#backgrounds) CrowSheet.#backgrounds = await pack.getDocuments();
+
+    const doc = (id && CrowSheet.#backgrounds.find((b) => b.id === id))
+      ?? (name && CrowSheet.#backgrounds.find(
+        (b) => b.name.toLowerCase() === String(name).trim().toLowerCase()));
+    if (!doc) return null;
+    const summary = backgroundSummary(doc.system, t);
+    return summary ? { ...summary, name: doc.name, matchedById: doc.id === id } : null;
+  }
+
   static #catalogue = null;
 
   static async #loadCatalogue() {

@@ -294,3 +294,57 @@ export async function applyBackground(actor, bg) {
     stubbed
   };
 }
+
+/**
+ * Shape a background Item for display on the crow sheet's Bio tab.
+ *
+ * Pure: it takes the background's `system` object and a localizer, and returns
+ * plain data. The sheet resolves the document; this decides what a player sees.
+ *
+ * WHY THIS EXISTS. The Bio tab showed the background as a free-text input and
+ * nothing else, so a player could read their character's origin as a word and
+ * learn nothing from it — not the expertise uses it granted, not the trait it
+ * started them with, not the animal it gave them. Every one of those is already
+ * on the sheet SOMEWHERE, mixed in with everything earned since; what was
+ * missing was provenance.
+ *
+ * @param {object} sys        A BackgroundData system object.
+ * @param {(key: string) => string} t   Localizer for expertise labels.
+ */
+export function backgroundSummary(sys, t = (k) => k) {
+  if (!sys) return null;
+  const expertises = (sys.expertises ?? [])
+    // `many` is precomputed rather than compared in the template: this project
+    // registers no `gt` helper, and shaping belongs here regardless.
+    .map((e) => ({
+      key: e.key, label: t(`CROWS.Expertise.${e.key}`),
+      uses: e.uses ?? 1, many: (e.uses ?? 1) > 1
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  // A background either FIXES the characteristic at 2 or offers a choice
+  // (C:28). Three shipped forms: one option, two, or all three ("any").
+  const options = sys.characteristicOptionsAt2 ?? [];
+  const characteristic = {
+    keys: options,
+    labels: options.map((k) => t(`CROWS.Characteristic.${k}`)),
+    // Joined here for the same reason — no `join` helper exists.
+    labelText: options.map((k) => t(`CROWS.Characteristic.${k}`)).join(", "),
+    isChoice: options.length > 1,
+    isAny: options.length >= 3
+  };
+
+  return {
+    flavor: sys.flavor ?? "",
+    stamina: sys.stamina ?? 5,
+    characteristic,
+    startingTrait: sys.startingTrait ?? "",
+    expertises,
+    totalUses: expertises.reduce((n, e) => n + e.uses, 0),
+    equipment: [...(sys.equipment ?? [])],
+    spellbooks: [...(sys.spellbooks ?? [])],
+    pets: [...(sys.pets ?? [])],
+    bonusGold: Number(sys.bonusGold) || 0,
+    startingGold: sys.startingGold ?? "3d6"
+  };
+}

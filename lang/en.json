@@ -550,5 +550,20 @@
   "CROWS.Combat.markSurprised": "Mark surprised",
   "CROWS.Combat.markNotSurprised": "Remove surprised",
   "CROWS.Combat.surprisedTag": "Surprised",
-  "CROWS.Combat.surprisedHint": "Surprised (R:704) — skipped in round 1, and attacks against them gain +1."
+  "CROWS.Combat.surprisedHint": "Surprised (R:704) — skipped in round 1, and attacks against them gain +1.",
+  "CROWS.Sheet.Crow.origin.title": "What your background gave you",
+  "CROWS.Sheet.Crow.origin.stamina": "Stamina",
+  "CROWS.Sheet.Crow.origin.charFixed": "Sets {list} to 2",
+  "CROWS.Sheet.Crow.origin.charChoice": "Sets one of {list} to 2 — your choice",
+  "CROWS.Sheet.Crow.origin.charAny": "Sets any one characteristic to 2",
+  "CROWS.Sheet.Crow.origin.trait": "Starting trait",
+  "CROWS.Sheet.Crow.origin.expertises": "Expertise uses granted ({total})",
+  "CROWS.Sheet.Crow.origin.equipment": "Equipment",
+  "CROWS.Sheet.Crow.origin.spellbooks": "Spellbooks",
+  "CROWS.Sheet.Crow.origin.pets": "Animal",
+  "CROWS.Sheet.Crow.origin.gold": "Starting gold",
+  "CROWS.Sheet.Crow.origin.goldBonus": "{formula} plus {bonus} gc from the background",
+  "CROWS.Sheet.Crow.origin.unmatched": "This name does not match a background in the compendium, so nothing below is shown.",
+  "CROWS.Sheet.Crow.origin.hint": "A record of what this background granted at creation. It does not change your character.",
+  "CROWS.Sheet.Crow.origin.characteristic": "Characteristic"
 }

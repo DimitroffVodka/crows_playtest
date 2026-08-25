@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import yaml from "js-yaml";
 
-import { parseEquipmentEntry, embeddedItemName } from "../module/helpers/creation.mjs";
+import { parseEquipmentEntry, embeddedItemName, backgroundSummary } from "../module/helpers/creation.mjs";
 import { petActorNameFor, BACKGROUND_PET_ACTORS } from "../module/helpers/character-creator.mjs";
 
 const BACKGROUNDS = "src/packs/crows-backgrounds";
@@ -288,5 +288,66 @@ describe("lifting grants out of a legacy equipment array", () => {
       const lifted = liftGrantsOutOfEquipment(bg.system);
       assert.equal(lifted, bg.system, `${bg.name} still has a grant hiding in equipment`);
     }
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The Bio tab's provenance panel.
+ *
+ * Everything it shows also lives elsewhere on the sheet, mixed in with what the
+ * character earned since. This is the only place that says which of it came
+ * from the background — so the shaping is pinned rather than eyeballed.
+ */
+describe("backgroundSummary", () => {
+  const t = (k) => k.split(".").pop();
+
+  test("shapes the whole shipped corpus without throwing, and totals the uses", () => {
+    for (const bg of loadAll(BACKGROUNDS)) {
+      const s = backgroundSummary(bg.system, t);
+      assert.ok(s, `${bg.name} produced no summary`);
+      assert.equal(s.totalUses, (bg.system.expertises ?? []).reduce((n, e) => n + (e.uses ?? 1), 0),
+        `${bg.name} total uses`);
+      assert.ok(s.stamina >= 1, `${bg.name} stamina`);
+      assert.equal(s.characteristic.keys.length, (bg.system.characteristicOptionsAt2 ?? []).length);
+    }
+  });
+
+  test("distinguishes a fixed characteristic from a choice from any", () => {
+    assert.equal(backgroundSummary({ characteristicOptionsAt2: ["mind"] }, t).characteristic.isChoice, false);
+    const two = backgroundSummary({ characteristicOptionsAt2: ["mind", "strength"] }, t).characteristic;
+    assert.equal(two.isChoice, true);
+    assert.equal(two.isAny, false);
+    assert.equal(two.labelText, "mind, strength");
+    const any = backgroundSummary({ characteristicOptionsAt2: ["agility", "mind", "strength"] }, t).characteristic;
+    assert.equal(any.isAny, true);
+  });
+
+  test("flags a multi-use grant so the template needs no comparison helper", () => {
+    const s = backgroundSummary({ expertises: [{ key: "stealth", uses: 1 }, { key: "bow", uses: 2 }] }, t);
+    assert.deepEqual(s.expertises.map((e) => [e.key, e.many]), [["bow", true], ["stealth", false]]);
+    assert.equal(s.totalUses, 3);
+  });
+
+  test("surfaces the promoted fields — this is what they were promoted FOR", () => {
+    const noble = loadAll(BACKGROUNDS).find((b) => b.name === "Noble");
+    const s = backgroundSummary(noble.system, t);
+    assert.equal(s.bonusGold, 50, "the Noble's 50 gc must be visible to the player");
+    assert.deepEqual(s.pets, ["riding horse"]);
+    assert.ok(!s.equipment.some((e) => /gold coins|\(pet\)/i.test(e)),
+      "equipment must no longer carry them");
+  });
+
+  test("returns null for nothing rather than a hollow panel", () => {
+    assert.equal(backgroundSummary(null), null);
+    assert.equal(backgroundSummary(undefined), null);
+  });
+
+  test("survives a background with no grants at all", () => {
+    const s = backgroundSummary({}, t);
+    assert.deepEqual([s.expertises, s.equipment, s.pets, s.spellbooks], [[], [], [], []]);
+    assert.equal(s.totalUses, 0);
+    assert.equal(s.startingGold, "3d6");
   });
 });

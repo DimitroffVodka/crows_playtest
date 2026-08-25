@@ -644,6 +644,54 @@
       <span class="cc-creator-hint"><em>{{localize "CROWS.Sheet.Crow.creator.summary"}}</em></span>
     </div>
     <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.background"}}</label><input type="text" name="system.background" value="{{system.background}}"></div>
+    {{#if background}}
+    <div class="cc-origin">
+      <div class="cc-origin-hd">
+        <span class="cc-origin-title">{{localize "CROWS.Sheet.Crow.origin.title"}}</span>
+        <span class="cc-origin-name">{{background.name}}</span>
+      </div>
+      {{#if background.flavor}}<p class="cc-origin-flavor">{{background.flavor}}</p>{{/if}}
+      <dl class="cc-origin-grid">
+        <dt>{{localize "CROWS.Sheet.Crow.origin.stamina"}}</dt>
+        <dd>{{background.stamina}}</dd>
+
+        <dt>{{localize "CROWS.Sheet.Crow.origin.characteristic"}}</dt>
+        <dd>{{#if background.characteristic.isAny}}{{localize "CROWS.Sheet.Crow.origin.charAny"}}{{else if background.characteristic.isChoice}}{{localize "CROWS.Sheet.Crow.origin.charChoice" list=background.characteristic.labelText}}{{else}}{{localize "CROWS.Sheet.Crow.origin.charFixed" list=background.characteristic.labelText}}{{/if}}</dd>
+
+        {{#if background.startingTrait}}
+        <dt>{{localize "CROWS.Sheet.Crow.origin.trait"}}</dt>
+        <dd>{{background.startingTrait}}</dd>
+        {{/if}}
+
+        {{#if background.expertises.length}}
+        <dt>{{localize "CROWS.Sheet.Crow.origin.expertises" total=background.totalUses}}</dt>
+        <dd><ul class="cc-origin-list">{{#each background.expertises}}<li>{{this.label}}{{#if this.many}} <strong>&times;{{this.uses}}</strong>{{/if}}</li>{{/each}}</ul></dd>
+        {{/if}}
+
+        {{#if background.equipment.length}}
+        <dt>{{localize "CROWS.Sheet.Crow.origin.equipment"}}</dt>
+        <dd><ul class="cc-origin-list">{{#each background.equipment}}<li>{{this}}</li>{{/each}}</ul></dd>
+        {{/if}}
+
+        {{#if background.spellbooks.length}}
+        <dt>{{localize "CROWS.Sheet.Crow.origin.spellbooks"}}</dt>
+        <dd><ul class="cc-origin-list">{{#each background.spellbooks}}<li>{{this}}</li>{{/each}}</ul></dd>
+        {{/if}}
+
+        {{#if background.pets.length}}
+        <dt>{{localize "CROWS.Sheet.Crow.origin.pets"}}</dt>
+        <dd><ul class="cc-origin-list">{{#each background.pets}}<li>{{this}}</li>{{/each}}</ul></dd>
+        {{/if}}
+
+        <dt>{{localize "CROWS.Sheet.Crow.origin.gold"}}</dt>
+        <dd>{{#if background.bonusGold}}{{localize "CROWS.Sheet.Crow.origin.goldBonus" formula=background.startingGold bonus=background.bonusGold}}{{else}}{{background.startingGold}}{{/if}}</dd>
+      </dl>
+      <p class="cc-origin-hint"><em>{{localize "CROWS.Sheet.Crow.origin.hint"}}</em></p>
+    </div>
+    {{else if system.background}}
+    <p class="cc-origin-hint"><em>{{localize "CROWS.Sheet.Crow.origin.unmatched"}}</em></p>
+    {{/if}}
+
     <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.feature"}}</label><textarea name="system.details.feature" rows="6">{{system.details.feature}}</textarea></div>
     <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.cryptBoon"}}</label><input type="text" name="system.cryptBoon" value="{{system.cryptBoon}}"></div>
     <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.currency"}}</label><input type="number" name="system.currency" value="{{system.currency}}"></div>

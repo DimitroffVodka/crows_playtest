@@ -3215,3 +3215,43 @@
   letter-spacing: 0.04em;
   vertical-align: middle;
 }
+
+/* ── Bio tab: what the background granted ──────────────────────────────────
+   A read-only record of provenance. Everything it lists also lives elsewhere
+   on the sheet, mixed in with what the character has earned since — this is
+   the only place that says which of it came from the background. Styled as a
+   quiet inset panel so it reads as history, not as editable state. */
+.cc-origin {
+  border: 1px solid var(--crows-rule);
+  border-radius: var(--crows-radius-tight);
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.cc-origin-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.cc-origin-title { font-size: var(--crows-text-tiny); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; }
+.cc-origin-name { font-weight: bold; }
+.cc-origin-flavor { margin: 0 0 8px; font-style: italic; opacity: 0.85; }
+
+.cc-origin-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px 12px;
+  margin: 0;
+}
+.cc-origin-grid dt { font-size: var(--crows-text-tiny); text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.7; }
+.cc-origin-grid dd { margin: 0; }
+
+.cc-origin-list { list-style: none; margin: 0; padding: 0; }
+.cc-origin-list li { display: inline; }
+.cc-origin-list li:not(:last-child)::after { content: ", "; }
+
+.cc-origin-hint { margin: 8px 0 0; font-size: var(--crows-text-tiny); opacity: 0.65; }
