@@ -225,7 +225,7 @@
             <div class="cc-slot-empty cc-slot-continuation">{{localize "CROWS.Sheet.Crow.inventory.continues" item=slot.continuationName}}</div>
           {{else}}
             {{#each slot.cards as |card|}}
-              <div class="cc-card" draggable="true" data-item-id="{{card.id}}">
+              <div class="cc-card draggable" draggable="true" data-item-id="{{card.id}}">
                 <div class="cc-card-hd" data-action="openItem" data-item-id="{{card.id}}">
                   <span class="cc-sigil"><img class="cc-sigil-img" src="{{card.img}}" alt=""></span>
                   <span class="cc-card-name">{{card.name}}</span>
@@ -256,7 +256,7 @@
               <div class="cc-slot-empty cc-slot-continuation">{{localize "CROWS.Sheet.Crow.inventory.continues" item=slot.continuationName}}</div>
             {{else}}
               {{#each slot.cards as |card|}}
-                <div class="cc-card" draggable="true" data-item-id="{{card.id}}">
+                <div class="cc-card draggable" draggable="true" data-item-id="{{card.id}}">
                   <div class="cc-card-hd" data-action="openItem" data-item-id="{{card.id}}">
                     <span class="cc-sigil"><img class="cc-sigil-img" src="{{card.img}}" alt=""></span>
                     <span class="cc-card-name">{{card.name}}</span>
@@ -285,7 +285,7 @@
             <div class="cc-slot {{#if slot.filled}}filled{{/if}}" data-container="{{slot.container}}" data-index="{{slot.index}}">
               <div class="cc-slot-header">{{group.label}}</div>
               {{#each slot.cards as |card|}}
-                <div class="cc-card" draggable="true" data-item-id="{{card.id}}">
+                <div class="cc-card draggable" draggable="true" data-item-id="{{card.id}}">
                   <div class="cc-card-hd" data-action="openItem" data-item-id="{{card.id}}">
                     <span class="cc-sigil"><img class="cc-sigil-img" src="{{card.img}}" alt=""></span>
                     <span class="cc-card-name">{{card.name}}</span>
@@ -329,7 +329,7 @@
             <div class="cc-slot-empty cc-slot-continuation">{{localize "CROWS.Sheet.Crow.inventory.continues" item=slot.continuationName}}</div>
           {{else}}
             {{#each slot.cards as |card|}}
-              <div class="cc-card" draggable="true" data-item-id="{{card.id}}">
+              <div class="cc-card draggable" draggable="true" data-item-id="{{card.id}}">
                 <div class="cc-card-hd" data-action="openItem" data-item-id="{{card.id}}">
                   <span class="cc-sigil"><img class="cc-sigil-img" src="{{card.img}}" alt=""></span>
                   <span class="cc-card-name">{{card.name}}</span>
@@ -363,7 +363,7 @@
           <div class="cc-slot filled">
             <div class="cc-slot-header">{{entry.reasonLabel}}</div>
             {{#if entry.card}}
-              <div class="cc-card" draggable="true" data-item-id="{{entry.card.id}}">
+              <div class="cc-card draggable" draggable="true" data-item-id="{{entry.card.id}}">
                 <div class="cc-card-hd" data-action="openItem" data-item-id="{{entry.card.id}}">
                   <span class="cc-sigil"><img class="cc-sigil-img" src="{{entry.card.img}}" alt=""></span>
                   <span class="cc-card-name">{{entry.card.name}}</span>
@@ -381,7 +381,7 @@
       <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.inventory.weightless"}}</div>
       <div class="cc-perks-list">
         {{#each inventory.weightless as |card|}}
-          <div class="cc-perk" draggable="true" data-action="openItem" data-item-id="{{card.id}}">
+          <div class="cc-perk draggable" draggable="true" data-action="openItem" data-item-id="{{card.id}}">
             <img class="cc-item-icon sm" src="{{card.img}}" alt=""><span class="cc-perk-name">{{card.name}}</span><span class="cc-perk-meta">{{card.typeLabel}}</span>
           </div>
         {{/each}}
