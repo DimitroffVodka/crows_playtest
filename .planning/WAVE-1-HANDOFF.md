@@ -478,10 +478,12 @@ unexamined.
 - **Nothing in Wave 3 content.** All eleven packs are transcribed, built and verified live.
   The 36-background sweep was run four times, finally against the complete content: 36/36 ok,
   zero stubs, zero trait failures, zero spellbook shortfalls, 4/4 pets bonded, console clean.
-- **Gate D cannot run yet, and not for scheduling reasons.** It requires importing "the
-  generated ZIP" into a clean world, and **no ZIP or release script exists** — `package.json`
-  has `pack`, `unpack`, `test` and `verify` and nothing that produces a distributable
-  artifact. Its "zero unresolved HIGH findings" wording also needs scoping: `SUMMARY.md`'s
+- **Gate D is runnable but has never been run.** ~~no ZIP or release script exists~~ —
+  `release.sh` landed this session (`npm run release`, `npm run release:check`). It gates on
+  `verify.sh --strict` and `npm test`, **rebuilds the packs from `src/packs` every time**, and
+  fails loudly if Foundry holds the LevelDB lock, so a release requires the world at Setup.
+  What remains is actually doing it: build the ZIP and install it into a clean world.
+  Its "zero unresolved HIGH findings" wording also needs scoping: `SUMMARY.md`'s
   eight are all resolved, but three HIGH entries remain in
   `playtest-2-source-issues.md` (H1, H2, H3) which are **MCDM's bugs, not ours** and cannot be
   closed from this side. As written, Gate D would block a release forever on someone else's
@@ -502,3 +504,142 @@ unexamined.
 - The **GearData `study` field** and the lore-book study mechanic — `lore-book-study-mechanic`.
 - `dev/` is still gitignored; the probes remain unversioned.
 - `CrowData.crafting.projects`, `stackKind` and `TraitData` purse capacity are unchanged.
+
+---
+
+## 10. Card handling and combat — 2026-08-25 (same day as §9)
+
+Ten commits, `361ecb7` → `74f175f`, all on `playtest-2` and pushed. Driven entirely by a
+player using the system and finding it unusable in two places: **"I have no way to rearrange my
+inventory or my equipment"** and **"Combat and Initiative does not seem to work at all."**
+
+Both complaints were correct, and neither was visible from the test suite.
+
+### The card UX was broken in five separate ways
+
+Cards are the core of Crows — the rules are literally printed on them (`R:384`) — and the sheet
+could barely manipulate them.
+
+| Commit | What was wrong |
+|---|---|
+| `361ecb7` | **Nothing was draggable.** `ActorSheetV2._dragDrop` binds `dragSelector: ".draggable"` (`client/applications/sheets/actor-sheet.mjs:83`) — a CSS **class**. The template had the HTML **attribute** `draggable="true"` and no class. Six elements fixed. |
+| `f7f0b53` | No way to remove a card at all. |
+| `83a1c96` | No feedback while dragging — every slot looked identical. |
+| `f76707f` | Empty slots could only be filled by dragging from a compendium. |
+| `03d36cb` | **Every occupied slot refused the drop** — which is most slots once a crow is kitted out. Now swaps. |
+
+**The swap is planned, not performed step by step.** `planSwap` unpacks BOTH cards on its own
+copy and reports ok only when both placements succeed. The return trip is the half that fails
+and the half that is easy to forget: dropping a one-slot torch onto a two-slot tent leaves the
+tent needing a contiguous pair the torch's origin may not have. Both locations are written in
+one `updateEmbeddedDocuments` call — two sequential `item.update()`s would leave both cards
+claiming one slot if the second failed, and the layout model cannot represent that.
+
+### ⚠ A nested lang key blanked the whole sheet, and the suite stayed green
+
+`lang/en.json` is **500+ FLAT dotted keys**. Two commits in this session added *nested*
+`CROWS: { Dialog: {...} }` objects. Foundry walks the object before trying the dotted key, so
+**one nested `CROWS` shadowed every flat `CROWS.*` sibling at once** — slot headers, "Empty",
+"Coin" and "Expertises" all rendered as raw key text on the live sheet. Fixed in `f76707f`.
+
+`test/i18n-keys.test.mjs` (`aed12fb`, 27 tests) now prevents it, and does three things:
+
+1. **Flatness** — any non-string value fails, plus no duplicate keys and no value equal to its key.
+2. **Literals** — every quoted `"CROWS.…"` resolves. The scan takes **string literals only**,
+   never bare property access, because `CROWS` is *also* the config object; a naive grep reports
+   `CROWS.weaponQualities` and 66 other config reads as missing translations.
+3. **Runtime-built keys** — all 16 `${}` shapes mapped to the vocabulary they interpolate over,
+   sourced from **config and the slot model, not from `en.json`**. Reading the answer out of the
+   file under test would assert nothing. An unclassified shape **fails** rather than passing.
+
+It earned its keep within the hour, catching the new wield vocabulary as inventory-drop reasons.
+
+### Attacking worked, but only if you already knew how — plus a rules bug
+
+The player could not find *any* way to attack. Diagnosis, verified live:
+
+- The Attack button rendered **only** for weapons in hand or belt slots; their crow had **zero
+  weapons**, so there was no button anywhere.
+- **`R:392` says an item must be in a hand slot to be wielded, and `R:762` says an attack must
+  be made with a wielded weapon — so the belt button was a rules bug**, handing out a free Draw
+  From Belt maneuver every round.
+- Targeting required Foundry's targeting tool and nothing said so, so an untargeted attack
+  rolled silently.
+
+`5e5ae42` renders the button on **every** weapon everywhere, disabled with a tooltip naming the
+slot it needs when not wielded (`wieldRefusal` in `slots.mjs` — rule in the slot model, wording
+in `en.json`), and re-checks the rule in the handler because *a disabled button is a hint, not a
+guard*. An untargeted attack now opens a picker that calls `setTarget`, so the existing pipeline
+sees the target exactly as the tool would — no second code path. A dismissed dialog returns a
+`CANCELLED` symbol, not null, so closing it cannot roll an attack nobody asked for.
+
+`374d245`: the disabled styling used `--crows-ink-soft` (`#2a2a2a`) against `--crows-ink`
+(`#222`). **An 8/255 difference reads as no difference.** Picked by name, assumed to be muted,
+wasn't. Now recedes via `opacity`, which cannot drift when the token layer is regenerated.
+
+### Side-based initiative — the fix was NOT setting a formula
+
+Rolling initiative threw `Unresolved StringTerm undefined`: the system never set
+`CONFIG.Combat.initiative.formula`. **Setting one would have been wrong.** `R:706` has no
+per-creature initiative at all — one 1d10 per round, 6+ the PCs and their NPC allies go first,
+≤5 the enemies do, re-rolled every round, order *within* a side chosen rather than rolled.
+
+Initiative stays `null` on every combatant forever; nothing depends on it (`Combat#started` is
+`round > 0`, `nextTurn` never reads it). Implemented by a Codex Luna-Max child (`bd6bdaa`) from
+a ticket carrying **verified v14 API facts read out of the unminified client**, then corrected
+by live verification.
+
+### ⚠ Four traps in this area, all confirmed by reading source or driving the UI
+
+1. **`Combat#setupTurns()` calls `.sort(this._sortCombatants)` UNBOUND** (`client/documents/combat.mjs:492`) —
+   `this` is `undefined` inside the comparator. Reach the Combat via `a.parent`. A
+   `this.getFlag(...)` there throws on first render and takes the tracker with it.
+2. **`hasPlayerOwner` is not "is a PC".** Sides were assigned from ownership and FRIENDLY
+   disposition. A Ref building an encounter solo owns every actor and sets no dispositions, so
+   both crow PCs arrived GM-owned and HOSTILE and **the entire party sorted onto the enemy
+   side**. Actor type `crow` is now the primary signal. Ownership means "a player has been
+   assigned", which is false for most of a Ref's own world.
+3. **A Combat FLAG drove the sort, and Foundry did not know.** `setupTurns` only re-runs when
+   *combatants* change. `rollSide` called it locally, so **the roller saw one turn order and
+   every other client saw the old one.** Fixed with `_onUpdate`. Signature to watch for: the
+   comparator called directly sorts correctly while `combat.turns` does not move.
+4. **ApplicationV2 requires ONE root element per PART.** The tracker template had two — the
+   side-roll banner and the list as siblings — so the combat tab **threw on every render**
+   (`74f175f`). 1048 green tests said nothing about it.
+
+**Surprised (`R:704`) is a combatant flag, not a seventh condition.** The six conditions mirror
+to token statuses and expire on the dungeon turn — the wrong lifetime. Round 1 skips them,
+round 2 ignores the flag entirely so nothing needs clearing, and attacks against them get a flat
++1 through the mod channel `targetLabels` already uses for range. The tracker row dims and
+carries a labelled tag: **a turn order that silently omits someone needs a reason on screen.**
+
+Also removed: Foundry's "Roll All" / "Roll NPCs", which call the now-neutered `rollInitiative`.
+Stripped from the DOM on render rather than by forking `header.hbs`, so a Foundry update cannot
+silently revert it or leave a stale copy to maintain.
+
+### Live verification caught five defects a green suite did not
+
+Two in §9's pattern, three more here: the belt attack button, every crow on the enemy side, the
+per-client stale turn order, the unreadable disabled button, and the tracker throwing outright.
+**Four of the five were invisible to 1048 passing tests**, because they live in rendering,
+multi-client sync, and computed style.
+
+Driven through the real controls: roll a round, walk both sides, round rolls over and re-rolls.
+Round 4 flipped to enemies-first without being forced.
+
+### ⚠ `hardReload` does not clear the HTTP cache
+
+Cost two rounds of false "the CSS isn't loading" diagnosis. `reload_foundry({hardReload: true})`
+clears the Cache API and service workers only. The recipe that actually works:
+
+```js
+await fetch("systems/crows/css/crows.css", { cache: "reload" });   // then reload
+```
+
+Module JS picked up changes every time; **only CSS went stale.**
+
+### Still open from this section
+
+- Nothing. All ten commits are pushed and live-verified.
+- The `Test` crow in world `crow-test` has an Axe left on its **belt** (deliberately, to
+  demonstrate the disabled state) and a combat sits at Round 1 unrolled, ready to drive.
