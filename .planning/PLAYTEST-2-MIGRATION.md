@@ -15,6 +15,25 @@ Citations below use a book prefix:
 
 Also referenced: `Crows Playtest Changelog.md` (MCDM's own PT1→PT2 delta), cited as "changelog".
 
+**Card prefixes — added 2026-08-25 (T3.0 / H4).** The four books above contain **no
+per-item stat blocks**. Spell tier bands, item costs, stack sizes and crafting recipes exist
+only on the inventory cards, which PT2 ships as PDF. Those are extracted and pinned in
+[`docs/source/`](../docs/source/README.md) — cite them with these prefixes, which all begin
+with `I` so they cannot collide with the four above:
+
+| Prefix | File in `docs/source/` | Pages | Lines |
+| --- | --- | ---: | ---: |
+| `IS:` | `IS-inventory-sheet.txt` | 1 | 21 |
+| `IC:` | `IC-inventory-cards.txt` — **the main deck** | 7 | 465 |
+| `IP:` | `IP-cards-by-profession.txt` | 36 | 1,878 |
+| `IL:` | `IL-cards-pois-dungeons.txt` | 6 | 268 |
+| `IA:` | `IA-cards-annotated.txt` | 7 | 461 |
+
+Unlike `R:`/`C:`/`F:`/`D:`, these **are** pinned to a commit, and `docs/source/extract-cards.sh --check`
+proves they still reproduce. Read the README before citing them: the cards are a grid, so
+one line spans several unrelated cards and a value must be read down a column, never across
+a row.
+
 > ## ⚠️ THERE ARE TWO COPIES OF THESE BOOKS. Only the path above is authoritative.
 >
 > A second, **stale** copy sits at `~/FoundryVTT-Projects/obsidian-memory/obsidian-memory/10-Active-Projects/Crows/`. It looks identical — same five filenames — and it is not.

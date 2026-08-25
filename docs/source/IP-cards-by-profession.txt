@@ -1,0 +1,1878 @@
+<!-- PDF page 1 -->
+Acolyte of the Gardner Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1       Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If        A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is        Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.         avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                            the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+          1 gc                                               2 gc
+                         Blacksmithing 1 | 1 iron bar | 5
+                                                                                    2 gc                        2 gc
+                                     10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                    Alchemy 1 | 1 hickory log | 5
+                                                                                                                2 gc
+          2 gc                        2 gc                   2 gc                   2 gc
+
+Holy Symbol Stack 2     Fire Hands Book R0 Spark Book                R0 Minor Healing Book R0
+A symbol of your god.   Stack 1 Elemental Attk. Stack 1 Elemental Attk. Stack 1 Benefaction Man.
+Can be worn in the      UD 1 (Rest; Activate) UD 1 (Rest; Activate) UD 1 (Rest; Activate)
+                                                                        Melee 1 Target 1 creat.
+neck slot, but isn’t    Melee 1                 Ranged 5
+                                                                        Dur. Instant
+magic.                     12-16        17+     Target 2 targets
+                                                                        Target regains Stamina
+                            4+M         8+M        12-16         17+    based on the casting.
+                                                    1+M          3+M
+                                                                           ≤11    12-16     17+
+                                                                           1+M    2+M       4+M
+
+
+
+                                                            250 gc                 250 gc
+                                     250 gc
+          15 gc
+<!-- PDF page 2 -->
+Acolyte of the Healer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1         Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If          A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is          Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.           avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                              the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+          1 gc                                               2 gc
+                         Blacksmithing 1 | 1 iron bar | 5
+                                                                                       2 gc                         2 gc
+                                     10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                        Alchemy 1 | 1 hickory log | 5
+                                                                                                                    2 gc
+          2 gc                        2 gc                   2 gc                      2 gc
+
+Holy Symbol Stack 2     Surgical Kit Stack 1 Minor Blessing Book R0 Minor Healing Book R0
+A symbol of your god.   UD: 1 (Useless; Activate) Stack 1 Benefaction Act. Stack 1 Benefaction Man.
+Can be worn in the      Scalpels, threads,        UD 1 (Rest; Activate)       UD 1 (Rest; Activate)
+neck slot, but isn’t    needles, and bandages Ranged 3 Target Varies Melee 1 Target 1 creat.
+                                                  Dur. Instant                Dur. Instant
+magic.                  made for closing
+                                                  Each target of the spell is Target regains Stamina
+                        wounds. You can use blessed. The targets are
+                                                                              based on the casting.
+                        this kit when you take creatures, the number of         ≤11      12-16    17+
+                        the Tend Wounds rest which depends on the               1+M      2+M      4+M
+                                                  casting.
+                        activity to have the
+                                                     ≤11     12-16       17+
+                        target lost 1 additional
+                                                      0         1          2
+                        wound.                                                           250 gc
+          15 gc                      100 gc                 250 gc
+<!-- PDF page 3 -->
+Acolyte of the Smith Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                    Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                     A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                     Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                      avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                         the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+          1 gc                                                         2 gc
+                         Blacksmithing 1 | 1 iron bar | 5
+                                                                                                  2 gc                          2 gc
+                                     10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                    Alchemy 1 | 1 hickory log | 5
+                                                                                                                                2 gc
+          2 gc                        2 gc                             2 gc                       2 gc
+
+Holy Symbol Stack 2     Blacksmith’s Tools                  Summon Object Book        R0 Minor Healing Book R0
+A symbol of your god.   Stack 1                             Stack 1 Conjuration Man. Stack 1 Benefaction Man.
+                                                            UD 1 (Rest; Activate)         UD 1 (Rest; Activate)
+Can be worn in the      Required to make
+                                                            Self        Dur. 1 UD         Melee 1 Target 1 creat.
+neck slot, but isn’t    crafting rolls for                  You create a mundane object
+                                                                                          Dur. Instant
+magic.                  blacksmithing items.                that appears in any open slot
+                                                                                          Target regains Stamina
+                                                            in your inventory of your
+                                                            choice and lasts for the
+                                                                                          based on the casting.
+                                                            duration. The value of the      ≤11      12-16    17+
+                                                            object in gc is based on the    1+M      2+M      4+M
+                                                            casting.
+                                                                ≤11     12-16      17+
+                                                                 10        50      100               250 gc
+          15 gc                       15 gc
+                                                                      250 gc
+<!-- PDF page 4 -->
+Acolyte of the Three Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                 Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                  A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                  Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                   avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                      the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+           1 gc                                                      2 gc
+                           Blacksmithing 1 | 1 iron bar | 5
+                                                                                                  2 gc                              2 gc
+                                       10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                        Alchemy 1 | 1 hickory log | 5
+                                                                                                                                    2 gc
+           2 gc                         2 gc                         2 gc                         2 gc
+
+Bone Capture Book R0 Minor Curse Book R0 Monster Sense Book                    R0 Axe          Stack 1
+Stack 1 Necromancy Attk. Stack 1 Necromancy Act. Stack 1 Necromancy Man. Melee 1
+UD 1 (Rest; Activate)    UD 1 (Rest; Activate)    UD 1 (Rest; Activate)
+                                                                                  Attack 2d10 + S
+Ranged 5 Target 1 creat. Melee 1 Target 1 creat. Self          Dur. 1 UD
+                                                  You know the exact location        12-16        17+
+    12-16         17+    Dur. Instant
+                                                  of creatures who aren’t             3+S         7+S
+    2+M           4+M      ≤11      12-16    17+
+                                                  humans or animals within a Chopping, Dismember
+                 prone      No      2 + M 4 + M number of squares of you
+                          effect dam         dam
+                                                  based on the casting. You
+                                             and
+                                                  can detect them through
+                                           weaken
+                                                  walls, floors, and ceilings.
+                                              ed
+                                                              ≤11   12-16    17+
+          250 gc
+                                                               1      5      10
+                                                                                    Blacksmithing 1 | 1 iron bar | 10
+                                       250 gc
+                                                                                                 12 gc
+                                                                    250 gc
+<!-- PDF page 5 -->
+Acolyte of the Warrior Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                   Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                    A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                    Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                     avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                        the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+          1 gc                                                         2 gc
+                         Blacksmithing 1 | 1 iron bar | 5
+                                                                                                2 gc                         2 gc
+                                     10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                 Alchemy 1 | 1 hickory log | 5
+                                                                                                                             2 gc
+          2 gc                         2 gc                            2 gc                     2 gc
+
+Holy Symbol Stack 2 Axe            Stack 1                   Minor Ward Book       R0 Minor Healing Book R0
+A symbol of your god. Melee 1                                Stack 1 Benefaction Man. Stack 1 Benefaction Man.
+Can be worn in the    Attack 2d10 + S                        UD 1 (Rest; Activate)    UD 1 (Rest; Activate)
+                                                             Melee 1 Target 1 creat. Melee 1 Target 1 creat.
+neck slot, but isn’t     12-16        17+
+                                                             Dur. Instant             Dur. Instant
+magic.                    3+S         7+S
+                                                             Target gains AD based on Target regains Stamina
+                      Chopping, Dismember
+                                                             the casting.             based on the casting.
+                                                                ≤11     12-16    17+    ≤11      12-16    17+
+                                                                No      1+M      3+M    1+M      2+M      4+M
+                                                               effect
+
+
+                                                                      250 gc                   250 gc
+                         Blacksmithing 1 | 1 iron bar | 10
+          15 gc                       12 gc
+<!-- PDF page 6 -->
+Alchemist Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1             Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If              A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is              Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.               avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                  the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+           1 gc                                                2 gc
+                          Blacksmithing 1 | 1 iron bar | 5
+                                                                                                2 gc                                   2 gc
+                                      10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Acid Vial           Stack 5
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. Maneuver: Pouring the
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       vial onto a surface
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get destroys up to 1 cubic
+                                                                                                    foot of mundane matter.
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+                                                                                                                        Action: You can make a
+                                                                                                                        ranged 5 attack with it
+                                                                                                                        using Agility.
+                                                                                                                            12-16        17+
+                                                                                                                            4+A          8+A
+
+                                                                                                                        Alchemy 1 | 1 monster part (any) |
+                                                                                                                                        5
+           2 gc                        2 gc                    2 gc                             2 gc                                  10 gc
+
+Alchemist’s Tools        Bucket           Stack 1 Lantern       Stack 2 Oil Flask        Stack 2                  Smoke Bomb Stack 2
+                                                                           Maneuver: Refuel lantern.
+Stack 1                  Can hold up to 3 gallons UD: 2 (Refuel w oil; DT) Maneuver: Spread over a 2 x 2          Maneuver: You throw
+Required to make         of liquid … also good Maneuver: Light 10/10 area of ground. Creature                     the bomb up to 10
+                                                                           entering must make an Agility
+crafting rolls for       for hiding your face!                                                                    squares. It explodes,
+                                                                               RR.
+alchemy items.                                                                     ≤11        12-16        17+    creating a 3-cube area
+                                                                                  Prone       Lose 2 No effect of heavy concealment.
+                                                                                             squares
+                                                                                           movemen                It becomes light
+                                                                                           t this turn            concealment in d6
+                                                                               The area is flammable. If lit, it
+                                                                               burns for 1d6 combat rounds. A combat rounds, then
+                                                                               creature in the fire at the end of dissipates in d6 rounds.
+                                                                               their turn takes 1d6 dam.                 Alchemy 1 | 1 demon part | 10
+                                                                                Alchemy 1 | 5 monster parts (any) | 5                50 gc
+          15 gc                        2 gc                    25 gc                           5 gc
+<!-- PDF page 7 -->
+Apprentice Mage Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1               Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                 avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                    the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+           1 gc                                                   2 gc
+                            Blacksmithing 1 | 1 iron bar | 5
+                                                                                             2 gc                       2 gc
+                                        10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Alteration StoneStack1
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. Choose one benefit
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       when you make the
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get stone. The creature
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest. carrying it gains it:
+                                                                                                    ●​You don’t need to eat
+                                                                                                      or drink to live.
+                                                                                                    ●​You don’t need to
+                                                                                                      breathe to live.
+                                                                                                    ●​The stone sheds light
+                                                                                                      5/5.
+           2 gc                          2 gc                     2 gc                       2 gc
+
+Jaunt Book            R0 Light Book                R0 Thunder Book           R0 Spark Book           R0 Take Shape Book            R0
+Stack 1 Conjuration Man. Stack 1       Illusion Man. Stack 1 Elemental Attk. Stack 1 Elemental Attk.    Stack 1       Alteration  Man.
+UD 1 (Rest; Activate)    UD 1 (Rest; Activate)                                                          UD 1 (Rest; Activate)
+                                                        UD 1 (Rest; Activate) UD 1 (Rest; Activate) Self Dur. 1 UD
+Self Dur. Instant        Melee 1          Target 1 obj.
+                         Dur. 1 UD                      Ranged 5                Ranged 5                You attempt to change your
+You teleport a number of
+                         The object sheds light. The      12-16         17+     Target 2 targets        form to match a creature.
+squares based on the
+                         brightness of the light           2+M          4+M        12-16         17+      ≤11       12-16        17+
+casting.                 depends on the casting.                                                           No     You  look   You  gain
+                                                          push 1       push 2       1+M          3+M
+   ≤11    12-16     17+     ≤11      12-16       17+                                                     effect  like them      their
+   No      5+M 10+M                                                                                               but gain      size,
+                            0/5       5/5      10/10
+  effect                                                                                                          no stats speed,
+                                                                                                                    other than and
+                                                                                                                     their size Stamina
+          250 gc                        250 gc                   250 gc                     250 gc
+                                                                                                                       250 gc
+<!-- PDF page 8 -->
+Archer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                    Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                     A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                     Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                      avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                         the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                          2 gc
+                                       Blacksmithing 1 | 1 iron bar | 5
+                                                                                                2 gc                        2 gc
+                                                   10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                Alchemy 1 | 1 hickory log | 5
+                                                                                                                            2 gc
+               2 gc                                   2 gc                    2 gc              2 gc
+
+Bear Trap Stack 1        Quiver of Arrows      Spyglass      Stack 2
+Maneuver: You can set UD 2 (activate; useless) Can be used to make
+this trap on the ground. Stack 1               things appear 3 times
+When a creature steps Ammunition for           closer.
+on the set trap, they    shortbows and
+take 1d6 dam, and if     longbows
+they are Large or
+smaller, they are
+grabbed by the trap. It
+has 10 Stamina.
+
+ Blacksmithing 2 | 2 iron bars | 50    Blacksmithing 1 | 1 hickory log | 5
+                                                     5 gc                    100 gc
+              250 gc
+
+Shortbow                               Stack 1
+Ranged 10                              Attack 2d10 + A
+       12-16                               17+
+       2+A                                4+A
+Bow, Cumbersome
+
+Blacksmithing +1 | 1 hickory log | 5                     10 gc
+<!-- PDF page 9 -->
+Assassin Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                                              Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                                               A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                                               Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                                                avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                                   the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+                1 gc                                                                      2 gc
+                                      Blacksmithing 1 | 1 iron bar | 5
+                                                                                                                          2 gc                        2 gc
+                                                  10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                                          Alchemy 1 | 1 hickory log | 5
+                                                                                                                                                      2 gc
+                2 gc                                 2 gc                                 2 gc                            2 gc
+
+Knife     Stack 2      Quiver of Arrows         Poison Vial Stack 5
+Melee 1/Ranged 5       UD 2 (activate; useless) Maneuver: Apply to a
+Attack 2d10 + A or S   Stack 1                  weapon or 1 ammo.
+   12-16         17+   Ammunition for           Next time it deals
+ 2 + A or S 4 + A or S shortbows and            damage to a creature
+Slashing, Light,       longbows                 before DT’s end, they
+Disengage, Parry 2                              make a Strength RR.
+                                                                               ≤11    12-16    17+
+                                                                             5 P dam 5 P dam No effect
+                                                                               and
+                                                                            weakened
+                                                                            Alchemy 1 | 1 monster par (any) |
+                                      Blacksmithing 1 | 1 hickory log | 5                   5
+  Blacksmithing 1 | 1 iron bar | 5
+                                                    5 gc                                  10 gc
+              10 gc
+
+Shortbow                              Stack 1
+Ranged 10                             Attack 2d10 + A
+       12-16                              17+
+       2+A                               4+A
+Bow, Cumbersome
+
+Blacksmithing 1 | 1 hickory log | 5                   10 gc
+<!-- PDF page 10 -->
+Beggar Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1            Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If             A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is             Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.              avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                 the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                    2 gc
+                                    Blacksmithing 1 | 1 iron bar | 5
+                                                                                            2 gc                              2 gc
+                                                10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                  Alchemy 1 | 1 hickory log | 5
+                                                                                                                              2 gc
+               2 gc                               2 gc                 2 gc                 2 gc
+
+Glue Pot       Stack 2    Padlock      Stack 3     String      Stack 1        Pot           Stack 1
+Glue for binding!         Iron padlock. Includes a 1,000 feet of string.      Iron pot for cooking.
+Maneuver: Spread over a key.                                                  Makes great scrambled
+2 x 2 area of ground.
+                                                                              eggs and soup! Comes
+Creatures entering make a
+                                                                              with a heavy lid.
+Strength RR.
+  ≤11        12-16   17+
+Grabbed      Speed No effect
+ by the     halved
+  glue      for this
+              turn
+Alchemy 1 | 2 monster part (any) |
+               25                  Blacksmithing 1 | 1 iron bar | 10
+             125 gc                                                            Blacksmithing 1 | 1 iron bar | 5
+                                                25 gc
+                                                                       1 gc                 5 gc
+
+
+Tent          Stack 1 (Occupies 2 Slots)
+This waterproof canvas tent sleeps up to
+4 humans comfortably. You can use this
+to wait out bad weather.
+
+                                                   100 gc
+<!-- PDF page 11 -->
+Blacksmith Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                                           Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                                            A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                                            Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                                             avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                                the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                                    2 gc
+                                      Blacksmithing 1 | 1 iron bar | 5
+                                                                                                                       2 gc                        2 gc
+                                                  10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                                       Alchemy 1 | 1 hickory log | 5
+                                                                                                                                                   2 gc
+               2 gc                                2 gc                                2 gc                            2 gc
+
+Bear Trap Stack 1        Blacksmith’s Tools                              Chain        Stack 1
+Maneuver: You can set Stack 1                                            A 10-foot length of iron
+this trap on the ground. Required to make                                chain.
+When a creature steps crafting rolls for
+on the set trap, they    blacksmithing items.
+take 1d6 dam, and if
+they are Large or
+smaller, they are
+grabbed by the trap. It
+has 10 Stamina.
+
+ Blacksmithing 2 | 2 iron bars | 50                                       Blacksmithing 1 | 1 iron bar | 5
+                                                   15 gc                               5 gc
+              250 gc
+
+Maul         Stack 1 (Occupies 2 Slots)
+Melee 1               Attack 2d10 + S
+       12-16               17+
+        4+S                8+S
+Bashing, Pummeling
+
+Blacksmithing 1 | 1 iron bar | 10                    15 gc
+<!-- PDF page 12 -->
+Bodyguard Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                            Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                             A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                             Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                              avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                 the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                          2 gc
+                                      Blacksmithing 1 | 1 iron bar | 5
+                                                                                                        2 gc                        2 gc
+                                                  10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                        Alchemy 1 | 1 hickory log | 5
+                                                                                                                                    2 gc
+               2 gc                                2 gc                       2 gc                      2 gc
+
+Sword      Stack 1                   Shield                Stack 1 Ball Bearings Stack 2
+Melee 1                              Armor                 AD: 5 A bag of 1,000.
+Attack 2d10 + S                                                    Maneuver: Spread over
+   12-16         17+                                               a 2 x 2 area of ground.
+    3+S         6+S                                                Creature entering must
+Slashing, Disengage                                                make an Agility RR.
+Parry 4                                                              ≤11 12-16 17+
+                                                                    Prone Prone No
+                                                                    and 4            effect
+                                                                     dam
+                                                                              5 gc
+ Blacksmithing 1 | 1 iron bar | 10   Blacksmithing 1 | 2 iron bars | 15
+              12 gc                               15 gc
+
+Light Armor           Stack 1 (Occupies 2 Slots)
+Armor                        AD 5
+
+
+
+
+Blacksmithing 1 | 20 animal parts | 10        50 gc
+<!-- PDF page 13 -->
+Cartographer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1            Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If             A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is             Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.              avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                 the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+           1 gc                                                       2 gc
+                               Blacksmithing 1 | 1 iron bar | 5
+                                                                                        2 gc                        2 gc
+                                           10 gc
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                        Alchemy 1 | 1 hickory log | 5
+                                                                                                                    2 gc
+           2 gc                               2 gc                    2 gc              2 gc
+
+Lantern       Stack 2 Oil Flask        Stack 2         Compass       Stack 3   Journal       Stack 1 Quill & Inkpot Stack 5
+                         Maneuver: Refuel lantern.
+UD: 2 (Refuel w oil; DT) Maneuver: Spread over a 2 x 2 When you make a test A bound journal of 200 For writing stuff down!
+Maneuver: Light 10/10 area of ground. Creature         related to the guide    pages that are blank.
+                         entering must make an Agility
+                                                       travel role and carry a Don’t worry, you’ll fill
+                         RR.
+                             ≤11     12-16       17+   compass, the test gains them!
+                           Prone     Lose 2 No effect a +1 bonus.
+                                           squares
+                                         movemen
+                                         t this turn
+                             The area is flammable. If lit, it
+                             burns for 1d6 combat rounds. A
+                             creature in the fire at the end of .
+                             their turn takes 1d6 dam.
+                              Alchemy 1 | 5 monster parts (any) | 5                                                 5 gc
+                                                                      10 gc
+           25 gc                             5 gc                                       2 gc
+
+Lore Book Stack 1
+This book relates to the
+Historical Lore
+expertise. Study this
+book as a rest activity
+and gain a 1 use of that
+expertise that lasts until
+your next rest.
+
+
+
+
+           50 gc
+<!-- PDF page 14 -->
+Conjurer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                           Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                            A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                            Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                             avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+              1 gc                                                          2 gc
+                                     Blacksmithing 1 | 1 iron bar | 5
+                                                                                                         2 gc                          2 gc
+                                                 10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                           Alchemy 1 | 1 hickory log | 5
+                                                                                                                                       2 gc
+              2 gc                                2 gc                       2 gc                        2 gc
+
+Chain        Stack 1     Teleport Object Book R0 Summon Object Book R0 Jaunt Book                R0
+A 10-foot length of iron Stack 1 Conjuration Man. Stack 1 Conjuration Man. Stack 1 Conjuration Man.
+                         UD 1 (Rest; Activate)    UD 1 (Rest; Activate)    UD 1 (Rest; Activate)
+chain.
+                                    Ranged 10 Target 1 Tiny obj. Self         Dur. 1 UD         Self Dur. Instant
+                                    Dur. Instant                  You create a mundane object
+                                                                                                You teleport a number of
+                                    You teleport the target a     that appears in any open slot
+                                                                                                squares based on the
+                                    number of squares based on in your inventory of your
+                                    the casting. You can teleport choice and lasts for the
+                                                                                                casting.
+                                    it into a willing creature’s  duration. The value of the      ≤11     12-16    17+
+                                    open hand slot, including     object in gc is based on the     No      5+M    10+M
+                                    yours.                        casting.                       effect
+                                        ≤11       12-16      17+     ≤11      12-16      17+
+                                     No effect 5+M          10+M      10         50      100               250 gc
+ Blacksmithing 1 | 1 iron bar | 5
+              5 gc                               250 gc                    250 gc
+<!-- PDF page 15 -->
+Cook Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1            Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If             A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is             Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.              avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                 the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+              1 gc                                                     2 gc
+                                    Blacksmithing 1 | 1 iron bar | 5
+                                                                                        2 gc                         2 gc
+                                                10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                         Alchemy 1 | 1 hickory log | 5
+                                                                                                                     2 gc
+              2 gc                               2 gc                  2 gc             2 gc
+
+Pot           Stack 1 Hearty Ration Stack 6 Hearty Ration Stack 6 Cook’s Utensils
+Iron pot for cooking. When you consume           When you consume           Stack 1
+Makes great scrambled this ration during a rest, this ration during a rest, Required for some
+eggs and soup! Comes you remove 1                you remove 1               special rest activities as
+with a heavy lid.     additional wound.          additional wound.          part of the Travel trait
+                                                                            tree. Lots of small
+                                                                            knifes, forks, and the
+                                                                            like.
+
+
+
+ Blacksmithing 1 | 1 iron bar | 5
+              5 gc                                                                      15 gc
+<!-- PDF page 16 -->
+Duelist Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                               Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                                A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                                Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                                 avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                    the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                               2 gc
+                                     Blacksmithing 1 | 1 iron bar | 5
+                                                                                                           2 gc                        2 gc
+                                                 10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                           Alchemy 1 | 1 hickory log | 5
+                                                                                                                                       2 gc
+               2 gc                               2 gc                            2 gc                     2 gc
+
+Lore Book Stack 1 Sword               Stack 1                           Mirror         Stack 2
+This book relates to the Melee 1                                        A hand mirror, useful
+Historical Lore            Attack 2d10 + S                              for looking around
+expertise. Study this         12-16         17+                         corners and at your
+book as a rest activity        3+S         6+S                          own mug.
+and gain a 1 use of that   Slashing, Disengage
+expertise that lasts until Parry 4
+your next rest.
+
+
+                                                                                 100 gc
+                                    Blacksmithing 1 | 1 iron bar | 10
+              50 gc
+                                                 12 gc
+
+Light Armor           Stack 1 (Occupies 2 Slots)
+Armor                        AD 5
+
+
+
+
+Blacksmithing 1 | 20 animal parts | 10       50 gc
+<!-- PDF page 17 -->
+Entertainer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1           Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If            A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is            Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.             avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+             1 gc                                                   2 gc
+                                 Blacksmithing 1 | 1 iron bar | 5
+                                                                                       2 gc                        2 gc
+                                             10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                       Alchemy 1 | 1 hickory log | 5
+                                                                                                                   2 gc
+             2 gc                             2 gc                   2 gc              2 gc
+
+Smoke Bomb Stack 2 Musical Instrument             Mirror         Stack 2
+Maneuver: You throw Stack 1                       A hand mirror, useful
+the bomb up to 10        This is a portable       for looking around
+squares. It explodes,    musical instrument, like corners and at your
+creating a 3-cube area a lute, lyre, mandolin, own mug.
+of heavy concealment. drum, or fife. To play it,
+It becomes light         the instrument must
+concealment in d6        occupy both your hand
+combat rounds, then slots.
+dissipates in d6 rounds.
+ Alchemy 1 | 1 demon part | 10                                      100 gc
+             50 gc
+                                             100 gc
+
+
+11-Foot Pole Stack 1 (Occupies 2 Slots)
+An 11-foot-long wooden pole. For poking.
+Also prodding! Tie some string on it to
+make a fishing rod!
+
+
+
+
+                                                5 gc
+<!-- PDF page 18 -->
+Executioner Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1              Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If               A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is               Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                   the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                      2 gc
+                                     Blacksmithing 1 | 1 iron bar | 5
+                                                                                             2 gc                     2 gc
+                                                 10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                          Alchemy 1 | 1 hickory log | 5
+                                                                                                                      2 gc
+               2 gc                                2 gc                  2 gc                2 gc
+
+Chain        Stack 1     Padlock      Stack 3
+A 10-foot length of iron Iron padlock. Includes a
+chain.                   key.
+
+
+
+
+                                     Blacksmithing 1 | 1 iron bar | 10
+  Blacksmithing 1 | 1 iron bar | 5                25 gc
+               5 gc
+
+
+Greataxe      Stack 1 (Occupies 2 Slots) Ladder        Stack 1 (Occupies 2 Slots)
+Melee 1                Attack 2d10 + S A collapsable ladder.
+       12-16                17+          Maneuver: The ladder expands 10 feet.
+        4+S                 9+S
+Chopping, Dismember
+
+Blacksmithing 1 | 1 iron bar | 10                    15 gc                           30 gc
+<!-- PDF page 19 -->
+Farmer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1            Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If             A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is             Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.              avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                 the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+              1 gc                                                     2 gc
+                                    Blacksmithing 1 | 1 iron bar | 5
+                                                                                        2 gc                        2 gc
+                                                10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                        Alchemy 1 | 1 hickory log | 5
+                                                                                                                    2 gc
+              2 gc                               2 gc                  2 gc             2 gc
+Pot           Stack 1 Animal Feed Stack 6 Animal Feed Stack 6 Animal Feed Stack 6 Animal Feed Stack 6
+Iron pot for cooking. A day’s worth of food A day’s worth of food A day’s worth of food A day’s worth of food
+Makes great scrambled for a pet. Must be    for a pet. Must be     for a pet. Must be     for a pet. Must be
+eggs and soup! Comes consumed during a rest consumed during a rest consumed during a rest consumed during a rest
+with a heavy lid.     to get the benefit of to get the benefit of  to get the benefit of  to get the benefit of
+                      resting.              resting.               resting.               resting.
+
+
+
+
+ Blacksmithing 1 | 1 iron bar | 5
+              5 gc
+                                                 1 gc                  1 gc             1 gc                        1 gc
+
+Animal Feed Stack 6 Animal Feed Stack 6
+A day’s worth of food A day’s worth of food
+for a pet. Must be     for a pet. Must be
+consumed during a rest consumed during a rest
+to get the benefit of  to get the benefit of
+resting.               resting.
+
+
+
+
+              1 gc                               1 gc
+<!-- PDF page 20 -->
+Gladiator Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                                    Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                                     A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                                     Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                                      avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                         the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                                  2 gc
+                                     Blacksmithing 1 | 1 iron bar | 5
+                                                                                                                2 gc                        2 gc
+                                                 10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                                Alchemy 1 | 1 hickory log | 5
+                                                                                                                                            2 gc
+               2 gc                               2 gc                               2 gc                       2 gc
+
+Mirror         Stack 2              Rage Potion Stack 5
+A hand mirror, useful               Maneuver: Consume to
+for looking around                  gain +5 AD and deal
+corners and at your                 additional 2 damage
+own mug.                            with melee attacks.
+                                    Lasts as long as you
+                                    keep making attacks
+                                    against creatures each
+                                    round.
+
+              100 gc                Alchemy 2 | 2 monster parts (any)
+                                                  | 50
+                                                 250 gc
+
+Pike       Stack 1 (Occupies 2 Slots)                        Light Armor           Stack 1 (Occupies 2 Slots)
+Melee 2                Attack 2d10 + S                       Armor                        AD 5
+       12-16                 17+
+        3+S                  7+S
+Stabbing, Brutal
+
+Blacksmithing 1 | 1 iron bar | 10                   15 gc    Blacksmithing 1 | 20 animal parts | 10   50 gc
+<!-- PDF page 21 -->
+Hunter Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                 A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                 Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                  avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                     the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+                                     Blacksmithing 1 | 1 iron bar | 5                       2 gc                        2 gc
+                                                                           2 gc
+              1 gc                               10 gc
+
+
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                            Alchemy 1 | 1 hickory log | 5
+                                                                                                                        2 gc
+              2 gc                                  2 gc                   2 gc             2 gc
+
+Bear Trap Stack 1        Quiver of Arrows      Animal Feed Stack 6 Animal Feed Stack 6 Animal Feed Stack 6
+Maneuver: You can set UD 2 (activate; useless) A day’s worth of food A day’s worth of food A day’s worth of food
+this trap on the ground. Stack 1               for a pet. Must be     for a pet. Must be     for a pet. Must be
+When a creature steps Ammunition for           consumed during a rest consumed during a rest consumed during a rest
+on the set trap, they    shortbows and         to get the benefit of  to get the benefit of  to get the benefit of
+take 1d6 dam, and if     longbows              resting.               resting.               resting.
+they are Large or
+smaller, they are
+grabbed by the trap. It
+has 10 Stamina.
+                                                                           1 gc             1 gc                        1 gc
+Blacksmithing 2 | 2 iron bars | 50   Blacksmithing 1 | 1 hickory log | 5
+                                                   5 gc
+             250 gc
+
+Animal Feed Stack 6 Animal Feed Stack 6 Animal Feed Stack 6
+A day’s worth of food A day’s worth of food A day’s worth of food
+for a pet. Must be     for a pet. Must be     for a pet. Must be
+consumed during a rest consumed during a rest consumed during a rest
+to get the benefit of  to get the benefit of  to get the benefit of
+resting.               resting.               resting.
+
+
+
+
+              1 gc                                  1 gc                   1 gc
+<!-- PDF page 22 -->
+Hydromancer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1             Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If              A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is              Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.               avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                  the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                     2 gc
+                                     Blacksmithing 1 | 1 iron bar | 5
+                                                                                         2 gc                        2 gc
+                                                 10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                         Alchemy 1 | 1 hickory log | 5
+                                                                                                                     2 gc
+               2 gc                               2 gc                  2 gc             2 gc
+
+Glue Pot       Stack 2    Journal       Stack 1 Quill & Inkpot Stack 5 Create Water Book R0 Stream Book             R0
+Glue for binding!         A bound journal of 200 For writing stuff down! Stack 1 Elemental Man. Stack 1 Elemental Attk.
+Maneuver: Spread over a pages that are blank.                            UD 1 (Rest; Activate) UD 1 (Rest; Activate)
+2 x 2 area of ground.
+                          Don’t worry, you’ll fill                       Ranged 10 Dur. Instant Line 5 x 1 within 1
+Creatures entering make a
+                          them!                                          You make water that Target All creatures
+Strength RR.
+  ≤11        12-16   17+
+                                                                               fills a vessel or falls  ≤11 12-16              17+
+Grabbed      Speed No effect                                                   from the air. The       0 dam 2+M               4+M
+ by the     halved                                                             amount you make is            dam               dam
+  glue      for this
+              turn                                                             based on the casting.
+Alchemy 1 | 2 monster part (any) |                                                ≤11 12-16 17+
+               25
+             125 gc                                                     5 gc      1 gal 5 gals 10 gals       250 gc
+                                                  2 gc                                  250 gc
+<!-- PDF page 23 -->
+Illusionist Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                      Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                       A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                       Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                        avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                           the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+            1 gc                                                          2 gc
+                             Blacksmithing 1 | 1 iron bar | 5
+                                                                                                  2 gc                       2 gc
+                                         10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Minor Phantasm Book R0
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. Stack 1               Illusion Man.
+                                                                                                    UD 1 (Rest; Activate)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to
+                                                                                                    Ranged 10           Dur. 1 UD
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get You create a silent phantom
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest. image of your choice for the
+                                                                                                                duration within a space
+                                                                                                                within range. The maximum
+                                                                                                                size of the image is based on
+                                                                                                                the casting.
+                                                                                                                   ≤11       12-16     17+
+                                                                                                                   Tiny      Small Medium
+
+                                                                                                                            250 gc
+            2 gc                          2 gc                            2 gc                    2 gc
+
+Cacophony Book         R0 Light Book                     R0     Whistle          Stack 5 Smoke Bomb Stack 2     Card Deck           Stack 5
+Stack 1        Illusion Man. Stack 1        Illusion Man. Maneuver: You create a Maneuver: You throw Standard deck of 54
+UD 1 (Rest; Activate)         UD 1 (Rest; Activate)
+                                                             loud noise that can be the bomb up to 10               playing cards, including
+Ranged 10           Dur. 1 UD Melee 1          Target 1 obj.
+You create a phantom noise Dur. 1 UD                         heard from 20 squares squares. It explodes,            2 jokers.
+of your choice for the        The object sheds light. The away.                     creating a 3-cube area
+duration that emanates from brightness of the light                                 of heavy concealment.
+a square within range. The depends on the casting.
+                                                                                    It becomes light
+distance at which it can be     ≤11       12-16      17+
+heard in squares is based on     0/5       5/5      10/10
+                                                                                    concealment in d6
+the casting.                                                                        combat rounds, then
+   ≤11       12-16      17+                                                         dissipates in d6 rounds.
+No effect 5+M          10+M               250 gc
+                                                                                      Alchemy 1 | 1 demon part | 10
+                                                                                                  50 gc                      1 gc
+                                                                          5 gc
+           250 gc
+<!-- PDF page 24 -->
+Keraunomancer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                    Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                     A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                     Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                      avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                         the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                      2 gc
+                                      Blacksmithing 1 | 1 iron bar | 5
+                                                                                                 2 gc                         2 gc
+                                                  10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                  Alchemy 1 | 1 hickory log | 5
+                                                                                                                              2 gc
+               2 gc                                2 gc                  2 gc                    2 gc
+
+Mace       Stack 1                   Net             Stack 1 Spark Book            R0 Thunder Book           R0
+Melee 1                              This fishing net unfurls Stack 1 Elemental Attk. Stack 1 Elemental Attk.
+Attack 2d10 + S                      when hurled. You can UD 1 (Rest; Activate) UD 1 (Rest; Activate)
+   12-16        17+                  hurl it at a Medium or Ranged 5                  Ranged 5
+    3+S         6+S                  smaller creature as part Target 2 targets           12-16          17+
+Bashing, Pummeling                   of the Grab maneuver,       12-16         17+        2+M           4+M
+                                     which gives you an           1+M          3+M       push 1        push 2
+                                     edge on the test, and
+                                     gives them a bane on
+                                     tests made to break the
+                                     grab. It has 5 Stamina.            250 gc                  250 gc
+ Blacksmithing 1 | 1 iron bar | 10
+                                                   5 gc
+              12 gc
+<!-- PDF page 25 -->
+Knight Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                 A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                 Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                  avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                     the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+                1 gc                                                       2 gc
+                                        Blacksmithing 1 | 1 iron bar | 5
+                                                                                            2 gc                     2 gc
+                                                    10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Lantern        Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 2 (Refuel w oil; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 10/10
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                2 gc                                 2 gc                  2 gc             2 gc                    25 gc
+Oil Flask       Stack 2            Animal Feed Stack 6 Animal Feed Stack 6 Animal Feed Stack 6 Animal Feed Stack 6
+Maneuver: Refuel lantern.
+Maneuver: Spread over a 2 x 2
+                                   A day’s worth of food A day’s worth of food A day’s worth of food A day’s worth of food
+area of ground. Creature           for a pet. Must be     for a pet. Must be     for a pet. Must be     for a pet. Must be
+entering must make an Agility
+                                   consumed during a rest consumed during a rest consumed during a rest consumed during a rest
+RR.
+    ≤11        12-16        17+    to get the benefit of  to get the benefit of  to get the benefit of  to get the benefit of
+   Prone       Lose 2 No effect resting.                  resting.               resting.               resting.
+              squares
+            movemen
+            t this turn
+The area is flammable. If lit, it
+burns for 1d6 combat rounds. A
+creature in the fire at the end of
+their turn takes 1d6 dam.                     1 gc                   1 gc                   1 gc                   1 gc
+Alchemy 1 | 5 monster parts (any) | 5
+               5 gc
+
+Animal Feed Stack 6 Animal Feed Stack 6
+A day’s worth of food A day’s worth of food
+for a pet. Must be     for a pet. Must be
+consumed during a rest consumed during a rest
+to get the benefit of  to get the benefit of
+resting.               resting.
+
+
+
+
+                1 gc                                 1 gc
+<!-- PDF page 26 -->
+Merchant Inventory Cards
+Coin Purse     Stack 1 Knife       Stack 2      Rope         Stack 1                 Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5         50 feet of rope. If                  A day’s worth of food. A day’s worth of food.
+Starts with 3d6 + 50 gc. Attack 2d10 + A or S   secured, no test is                  Can be consumed to       Can be consumed to
+                            12-16         17+   required to climb.                   avoid starvation and get avoid starvation and get
+                          2 + A or S 4 + A or S                                      the benefits of a rest. the benefits of a rest.
+                         Slashing, Light,
+                         Disengage, Parry 2
+
+
+
+
+                 1 gc                                                       2 gc
+                                         Blacksmithing 1 | 1 iron bar | 5
+                                                                                               2 gc                     2 gc
+                                                     10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Lantern        Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 2 (Refuel w oil; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 10/10
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                       25 gc
+
+                 2 gc                                 2 gc                  2 gc               2 gc
+
+Oil Flask       Stack 2            Journal       Stack 1 Quill & Inkpot Stack 5      Merchant’s Scales
+Maneuver: Refuel lantern.
+Maneuver: Spread over a 2 x 2
+                                   A bound journal  of 200 For writing stuff down!   Stack 1
+area of ground. Creature           pages that are blank.                             Used to determine the
+entering must make an Agility
+                                   Don’t worry, you’ll fill                          weight of Tiny objects
+RR.
+    ≤11        12-16        17+    them!                                             and Tiny creatures that
+   Prone       Lose 2 No effect                                                      sit still.
+              squares
+            movemen
+            t this turn
+The area is flammable. If lit, it
+burns for 1d6 combat rounds. A
+creature in the fire at the end of
+their turn takes 1d6 dam.
+ Alchemy 1 | 5 monster parts (any) | 5                                      5 gc
+                5 gc                                  2 gc                                     50 gc
+<!-- PDF page 27 -->
+Miner Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                       Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                        A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                        Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                         avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                            the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+                 1 gc                                                       2 gc
+                                         Blacksmithing 1 | 1 iron bar | 5
+                                                                                                       2 gc                 2 gc
+                                                     10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Lantern        Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 2 (Refuel w oil; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 10/10
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                           25 gc
+
+                 2 gc                                 2 gc                  2 gc                       2 gc
+
+Oil Flask       Stack 2            Chalk         Stack 5      Grappling Hook          Shovel            Stack 1
+Maneuver: Refuel lantern.
+Maneuver: Spread over a 2 x 2
+                                   UD:  1 (Useless; Activate) Stack 1                 Use  this  to  dig   holes!
+area of ground. Creature           A piece of chalk,          Can be added to rope Can also make a decent
+entering must make an Agility
+                                   available in blue, white, to create an item that crowbar in a pinch, but
+RR.
+    ≤11        12-16        17+    and yellow. Use it to      takes up 2 slots. Makes might break.
+   Prone       Lose 2 No effect mark your way or leave hurling and securing
+              squares
+            movemen                messages on stone.         rope easier.
+            t this turn
+The area is flammable. If lit, it
+burns for 1d6 combat rounds. A
+creature in the fire at the end of
+their turn takes 1d6 dam.                                                              Blacksmithing 1 | 1 iron bar | 5
+ Alchemy 1 | 5 monster parts (any) | 5                                                                10 gc
+                5 gc                                  1 gc                  10 gc
+
+
+Warpick       Stack 1 (Occupies 2 Slots)
+Melee 1                Attack 2d10 + S
+       12-16                17+
+        4+S                 9+S
+Stabbing, Brutal
+
+Blacksmithing 1 | 1 iron bar | 10                       15 gc
+<!-- PDF page 28 -->
+Noble Inventory Cards
+Coin Purse     Stack 1 Knife       Stack 2      Rope         Stack 1               Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5         50 feet of rope. If                A day’s worth of food. A day’s worth of food.
+Starts with 3d6 + 50 gc. Attack 2d10 + A or S   secured, no test is                Can be consumed to       Can be consumed to
+                            12-16         17+   required to climb.                 avoid starvation and get avoid starvation and get
+                          2 + A or S 4 + A or S                                    the benefits of a rest. the benefits of a rest.
+                         Slashing, Light,
+                         Disengage, Parry 2
+
+
+
+
+                1 gc                                                       2 gc
+                                        Blacksmithing 1 | 1 iron bar | 5
+                                                                                             2 gc                     2 gc
+                                                    10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Lantern        Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 2 (Refuel w oil; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 10/10
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                2 gc                                 2 gc                  2 gc              2 gc                    25 gc
+Oil Flask       Stack 2            Animal Feed Stack 6 Animal Feed Stack 6 Animal Feed Stack 6 Animal Feed Stack 6
+Maneuver: Refuel lantern.
+Maneuver: Spread over a 2 x 2
+                                   A day’s worth of food A day’s worth of food A day’s worth of food A day’s worth of food
+area of ground. Creature           for a pet. Must be     for a pet. Must be     for a pet. Must be     for a pet. Must be
+entering must make an Agility
+                                   consumed during a rest consumed during a rest consumed during a rest consumed during a rest
+RR.
+    ≤11        12-16        17+    to get the benefit of  to get the benefit of  to get the benefit of  to get the benefit of
+   Prone       Lose 2 No effect resting.                  resting.               resting.               resting.
+              squares
+            movemen
+            t this turn
+The area is flammable. If lit, it
+burns for 1d6 combat rounds. A
+creature in the fire at the end of
+their turn takes 1d6 dam.                     1 gc                   1 gc                   1 gc                   1 gc
+Alchemy 1 | 5 monster parts (any) | 5
+               5 gc
+
+Animal Feed Stack 6 Animal Feed Stack 6 Lore Book Stack 1
+A day’s worth of food A day’s worth of food This book relates to the
+for a pet. Must be     for a pet. Must be     Historical Lore
+consumed during a rest consumed during a rest expertise. Study this
+to get the benefit of  to get the benefit of  book as a rest activity
+resting.               resting.               and gain a 1 use of that
+                                              expertise that lasts until
+                                              your next rest.
+
+
+
+
+                1 gc                                 1 gc                  50 gc
+<!-- PDF page 29 -->
+Pugilist Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                 A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                 Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                  avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                     the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                     2 gc
+                                     Blacksmithing 1 | 1 iron bar | 5
+                                                                                              2 gc                          2 gc
+                                                 10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                Alchemy 1 | 1 hickory log | 5
+                                                                                                                            2 gc
+               2 gc                               2 gc                   2 gc                 2 gc
+
+Chalk         Stack 5     Lore Book Stack 1 Rage Potion Stack 5 Net                                  Stack 1
+UD: 1 (Useless; Activate) This book relates to the Maneuver: Consume to This fishing net unfurls
+A piece of chalk,         Monster Lore expertise. gain +5 AD and deal                when hurled. You can
+available in blue, white, Study this book as a     additional 2 damage               hurl it at a Medium or
+and yellow. Use it to     rest activity and gain a with melee attacks.               smaller creature as part
+mark your way or leave 1 use of that expertise Lasts as long as you                  of the Grab maneuver,
+messages on stone.        that lasts until your    keep making attacks               which gives you an
+                          next rest.               against creatures each edge on the test, and
+                                                   round.                            gives them a bane on
+                                                                                     tests made to break the
+                                                   Alchemy 2 | 2 monster parts (any) grab. It has 5 Stamina.
+                                                                         | 50
+               1 gc                               50 gc                                       5 gc
+                                                                        250 gc
+
+Light Armor           Stack 1 (Occupies 2 Slots)
+Armor                        AD 5
+
+
+
+
+Blacksmithing 1 | 20 animal parts | 10       50 gc
+<!-- PDF page 30 -->
+Pyromancer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                            Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                             A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                             Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                              avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                 the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+           1 gc                                                           2 gc
+                          Blacksmithing 1 | 1 iron bar | 5
+                                                                                                        2 gc                        2 gc
+                                      10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                        Alchemy 1 | 1 hickory log | 5
+                                                                                                                                    2 gc
+           2 gc                        2 gc                               2 gc                          2 gc
+
+Magnifying Glass         String      Stack 1                 Smoke Bomb Stack 2 Fire Hands Book R0 Fire Lance Book R0
+Stack 2                  1,000 feet of string.               Maneuver: You throw Stack 1 Elemental Attk. Stack 1 Elemental Attk.
+Can be used to better                                        the bomb up to 10        UD 1 (Rest; Activate) UD 1 (Rest; Activate)
+inspect the minute                                           squares. It explodes,    Melee 1               Ranged 10
+visual details of nearby                                     creating a 3-cube area     12-16         17+     12-16         17+
+creatures and objects.                                       of heavy concealment.       4+M          8+M      2+M          4+M
+                                                             It becomes light
+                                                             concealment in d6
+                                                             combat rounds, then
+                                                             dissipates in d6 rounds.
+                                                              Alchemy 1 | 1 demon part | 10
+                                                                          50 gc                        250 gc                     250 gc
+          100 gc                       1 gc
+<!-- PDF page 31 -->
+Sage Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1       Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If        A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is        Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.         avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                            the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+          1 gc                                              2 gc
+                         Blacksmithing 1 | 1 iron bar | 5
+                                                                                    2 gc                        2 gc
+                                     10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                    Alchemy 1 | 1 hickory log | 5
+                                                                                                                2 gc
+          2 gc                        2 gc                  2 gc                    2 gc
+
+Lore Book Stack 1 Lore Book Stack 1 Journal                     Stack 1 Quill & Inkpot Stack 5 Ball Bearings Stack 2
+This book relates to the This book relates to the A bound journal of 200 For writing stuff down! A bag of 1,000.
+Nature Lore expertise. Monster Lore expertise. pages that are blank.                             Maneuver: Spread over
+Study this book as a     Study this book as a     Don’t worry, you’ll fill                       a 2 x 2 area of ground.
+rest activity and gain a rest activity and gain a them!                                          Creature entering must
+1 use of that expertise 1 use of that expertise                                                  make an Agility RR.
+that lasts until your    that lasts until your                                                     ≤11 12-16 17+
+next rest.               next rest.                                                               Prone Prone No
+                                                                                                  and 4            effect
+                                                                                                   dam
+
+                                                                                    5 gc                        5 gc
+          50 gc                       50 gc                 2 gc
+<!-- PDF page 32 -->
+Soldier Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                                       Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                                        A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                                        Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                                         avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                            the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                                     2 gc
+                                     Blacksmithing 1 | 1 iron bar | 5
+                                                                                                                      2 gc                     2 gc
+                                                 10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                                   Alchemy 1 | 1 hickory log | 5
+                                                                                                                                               2 gc
+               2 gc                                 2 gc                                2 gc                          2 gc
+
+Spear          Stack 1 Quiver of Arrows
+Melee 1                UD 2 (activate; useless)
+Attack 2d10 + S        Stack 1
+   12-16         17+   Ammunition for
+    3+S         7+S    shortbows and
+Stabbing, Brutal       longbows
+
+
+
+
+                                     Blacksmithing 1 | 1 hickory log | 5
+                                                   5 gc
+ Blacksmithing 1 | 1 iron bar | 10
+              12 gc
+
+
+Light Armor           Stack 1 (Occupies 2 Slots) Shortbow                                            Stack 1
+Armor                        AD 5                Ranged 10                                           Attack 2d10 + A
+                                                        12-16                                            17+
+                                                        2+A                                             4+A
+                                                 Bow, Cumbersome
+
+Blacksmithing 1 | 20 animal parts | 10        50 gc            Blacksmithing 1 | 1 hickory log | 5            10 gc
+<!-- PDF page 33 -->
+Thief Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1             Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If              A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is              Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.               avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                  the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+              1 gc                                                     2 gc
+                                    Blacksmithing 1 | 1 iron bar | 5
+                                                                                              2 gc                                2 gc
+                                                10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                      Alchemy 1 | 1 hickory log | 5
+                                                                                                                                  2 gc
+              2 gc                               2 gc                  2 gc                   2 gc
+
+Knife     Stack 2      Crowbar         Stack 1 Grappling Hook          Lockpick Set Stack 1 Smoke Bomb Stack 2
+Melee 1/Ranged 5       An iron bar that can be Stack 1                 Without this, you take a Maneuver: You throw
+Attack 2d10 + A or S   used in prying.         Can be added to rope bane on tests made to the bomb up to 10
+   12-16         17+                           to create an item that pick locks.               squares. It explodes,
+ 2 + A or S 4 + A or S                         takes up 2 slots. Makes                          creating a 3-cube area
+Slashing, Light,                               hurling and securing                             of heavy concealment.
+Disengage, Parry 2                             rope easier.                                     It becomes light
+                                                                                                                    concealment in d6
+                                                                                                                    combat rounds, then
+                                                                                                                    dissipates in d6 rounds.
+                                                                                Blacksmithing 1 | 1 iron bar | 10    Alchemy 1 | 1 demon part | 10
+ Blacksmithing 1 | 1 iron bar | 5                                                            25 gc                               50 gc
+                                                 10 gc                 10 gc
+             10 gc
+<!-- PDF page 34 -->
+Tinkerer Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                              Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                               A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                               Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                                avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                   the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+          1 gc                                                            2 gc
+                         Blacksmithing 1 | 1 iron bar | 5
+                                                                                                              2 gc                               2 gc
+                                     10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                                     Alchemy 1 | 1 hickory log | 5
+                                                                                                                                                 2 gc
+          2 gc                        2 gc                                2 gc                                2 gc
+
+Alchemist’s Tools       Blacksmith’s Tools                  Handaxe     Stack 2    Lockpick Set Stack 1 Soap                Stack 3
+Stack 1                 Stack 1                             Melee 1/Ranged 5       Without this, you take a UD: 1 (Useless; Activate)
+Required to make        Required to make                    Attack 2d10 + A or S   bane on tests made to You can use this bar of
+crafting rolls for      crafting rolls for                     12-16        17+    pick locks.              soap to clean yourself
+alchemy items.          blacksmithing items.                 2 + A or S 5 + A or S                          or a mess, leave
+                                                            Chopping, Light,                                messages, whittle
+                                                            Dismember                                       shapes, or lubricate
+                                                                                                                                  locks, tools, or your
+                                                                                                                                  wrists when bound in
+                                                                                                                                  chains.
+                                                                                                 Blacksmithing 1 | 1 iron bar | 10 Alchemy 1 | 1 monster part (any) |
+                                                             Blacksmithing 1 | 1 iron bar | 5                 25 gc                               5
+          15 gc                       15 gc
+                                                                         10 gc                                                                   1 gc
+<!-- PDF page 35 -->
+Transmuter Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1             Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If              A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is              Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.               avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                  the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+           1 gc                                                    2 gc
+                           Blacksmithing 1 | 1 iron bar | 5
+                                                                                         2 gc                         2 gc
+                                       10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                          Alchemy 1 | 1 hickory log | 5
+                                                                                                                      2 gc
+           2 gc                         2 gc                       2 gc                  2 gc
+
+Chalk         Stack 5     Jaunt Book            R0 Animal Form Book R0 Repair Book                R0 Take Shape Book          R0
+                                                                                                     Stack 1      Alteration Man.
+UD: 1 (Useless; Activate) Stack 1 Conjuration Man. Stack 1 Alteration Man. Stack 1 Alteration Man.
+                          UD 1 (Rest; Activate)    UD 1 (Rest; Activate)                             UD 1 (Rest; Activate)
+A piece of chalk,                                                            UD 1 (Rest; Activate) Self Dur. 1 UD
+available in blue, white, Self Dur. Instant        Self            Dur. 1 UD
+                                                                             Melee 1 Target 1 obj. You attempt to change your
+                          You teleport a number of You gain the stats and
+and yellow. Use it to                                                        Dur. Instant            form to match a creature.
+                          squares based on the     form of an animal. Your
+mark your way or leave                                                       You touch a damaged       ≤11      12-16       17+
+                          casting.                 gear is assumed by your                              No    You look You gain
+messages on stone.           ≤11    12-16     17+ form. If you die, you
+                                                                             object and cause it to   effect like them their
+                             No      5+M 10+M revert back. Your animal regain Stamina based                    but gain    size,
+                            effect                                           on the casting.                   no stats speed,
+                                                   form’s maximum power is                                   other than and
+                                                   based on the casting.       ≤11 12-16 17+                  their size Stamina
+                                     250 gc           ≤11      12-16     17+   1+M 4+M 8+M
+                                                              0     2      4            250 gc                      250 gc
+           1 gc
+                                                                  250 gc
+<!-- PDF page 36 -->
+Village Watch Inventory Cards
+Coin Purse     Stack 1 Knife     Stack 2      Rope         Stack 1                                             Ration          Stack 6 Ration          Stack 6
+Holds up to 500 coins. Melee 1/Ranged 5       50 feet of rope. If                                              A day’s worth of food. A day’s worth of food.
+Starts with 3d6 gc.    Attack 2d10 + A or S   secured, no test is                                              Can be consumed to       Can be consumed to
+                          12-16         17+   required to climb.                                               avoid starvation and get avoid starvation and get
+                        2 + A or S 4 + A or S                                                                  the benefits of a rest. the benefits of a rest.
+                       Slashing, Light,
+                       Disengage, Parry 2
+
+
+
+
+               1 gc                                                                      2 gc
+                                     Blacksmithing 1 | 1 iron bar | 5
+                                                                                                                            2 gc                     2 gc
+                                                 10 gc
+
+Ration          Stack 6 Ration          Stack 6 Ration           Stack 6 Ration           Stack 6 Torch          Stack 2
+A day’s worth of food. A day’s worth of food. A day’s worth of food. A day’s worth of food. UD: 1 (Useless; DT)
+Can be consumed to       Can be consumed to       Can be consumed to       Can be consumed to       Maneuver: Light 5/5
+avoid starvation and get avoid starvation and get avoid starvation and get avoid starvation and get
+the benefits of a rest. the benefits of a rest. the benefits of a rest. the benefits of a rest.
+
+
+
+
+                                                                                                                                         Alchemy 1 | 1 hickory log | 5
+                                                                                                                                                     2 gc
+               2 gc                                  2 gc                                2 gc                               2 gc
+
+Lantern       Stack 2 Oil Flask        Stack 2         Chain        Stack 1     Whistle          Stack 5
+                         Maneuver: Refuel lantern.
+UD: 2 (Refuel w oil; DT) Maneuver: Spread over a 2 x 2 A 10-foot length of iron Maneuver: You create a
+Maneuver: Light 10/10 area of ground. Creature         chain.                   loud noise that can be
+                         entering must make an Agility
+                                                                                heard from 20 squares
+                         RR.
+                             ≤11     12-16       17+                            away.
+                                         Prone    Lose 2 No effect
+                                                 squares
+                                               movemen
+                                               t this turn
+                                   The area is flammable. If lit, it
+                                   burns for 1d6 combat rounds. A
+                                   creature in the fire at the end of
+                                   their turn takes 1d6 dam.
+                                    Alchemy 1 | 5 monster parts (any) | 5   Blacksmithing 1 | 1 iron bar | 5
+              25 gc                                5 gc                                  5 gc                               5 gc
+
+
+Light Armor           Stack 1 (Occupies 2 Slots) Pike       Stack 1 (Occupies 2 Slots)
+Armor                        AD 5                Melee 2                Attack 2d10 + S
+                                                        12-16                 17+
+                                                         3+S                  7+S
+                                                 Stabbing, Brutal
+
+Blacksmithing 1 | 20 animal parts | 10           50 gc          Blacksmithing 1 | 1 iron bar | 10                   15 gc

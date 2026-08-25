@@ -1,0 +1,268 @@
+<!-- PDF page 1 -->
+Collapsed Tower Cards
+Coin Purse    Stack 1
+Holds up to 500 coins.
+
+
+
+
+              1 gc
+
+
+
+
+Ruined Windmill Cards
+Steel Knife      Stack 2
+Melee 1/Ranged 5
+Attack 2d10 + A or S
+   12-16          17+
+ 3 + A or S 5 + A or S
+Slashing, Light,
+Disengage, Parry 2
+
+
+
+
+ Blacksmithing 1 | 1 iron bar | 5
+             510 gc
+<!-- PDF page 2 -->
+Blood Dungeon
+Magic Ring         Stack 10 Magic Wand Stack 2 Potion               Stack 5 Art Object, Tiny           Art Object, Tiny
+Try it on. It’ll feel like What does it do?         Just drink it. What’s the Stack 5                  Stack 5
+your big day!               C’mon just activate it. worst that could          A valuable treasure.     A valuable treasure.
+                            You know you wanna. happen?                       Specific work of art and Specific work of art and
+                                                                              value are determined value are determined
+                                                                              by the Ref.              by the Ref.
+
+
+
+
+Minor Telekinesis Ring       Lore Book Stack 1 Lore Book Stack 1 Lore Book Stack 1 Lore Book Stack 1
+Stack 10                     This book relates to the This book relates to the This book relates to the This book relates to the
+UD 1 (Rest; Activate)        Monster Lore expertise. Magic Lore expertise. Nature Lore expertise. Historical Lore
+Slot Ring
+                             Study this book as a     Study this book as a     Study this book as a     expertise. Study this
+Action: Pick an
+                             rest activity and gain a rest activity and gain a rest activity and gain a book as a rest activity
+unattended Small or
+                             1 use of that expertise 1 use of that expertise 1 use of that expertise and gain a 1 use of that
+smaller object within 10
+squares of you. You          that lasts until your    that lasts until your    that lasts until your    expertise that lasts until
+vertically slide that object next rest.               next rest.               next rest.               your next rest.
+up to 10 squares.
+Enchanting 2 | gem worth 100 gc |
+               100
+             500 gc
+                                             50 gc                       50 gc                         50 gc                         50 gc
+
+Shrink Book              R1         Healing Potion Stack 5 Poison Vial           Stack 5 Smoke Bomb Stack 2             Crafting Material, Bar
+Stack 1     Alteration Man. Maneuver: Consume to Maneuver: Apply to a Maneuver: You throw Stack 2
+UD 1 (Rest; Activate)
+                              regain 1d6 Stamina or weapon or 1 ammo.                              the bomb up to 10               A metal bar used in
+Melee 1       Target 1 creat.
+Dur. 1 UD                     remove 1 wound if                  Next time it deals                squares. It explodes,           crafting. The Ref
+The target and their          Stamina is already at damage to a creature creating a 3-cube area determines the nature
+equipment size are reduced maximum.                              before DT’s end, they of heavy concealment. of the crafting material.
+by a number of categories
+                                                                 make a Strength RR.               It becomes light
+and weapon attack damage
+                                                                    ≤11       12-16       17+      concealment in d6
+takes a penalty based on the                                      5 P dam 5 P dam No effect
+casting.                                                            and                            combat rounds, then
+   ≤11      12-16      17+    Alchemy 1 | 1 monster part (any) | weakened                          dissipates in d6 rounds.
+                                             20                  Alchemy 1 | 1 monster par (any) |
+   0/0       1/-2      2/-4                                                                          Alchemy 1 | 1 demon part | 10
+                                             100 gc                        5
+                                                                                                       50 gc
+                                                                         10 gc
+             500 gc
+<!-- PDF page 3 -->
+Crafting Material, Bar Crafting Material, Bar Crafting Material, Bar Crafting Material, Bar Monster Part
+Stack 2                   Stack 2                   Stack 2                   Stack 2                   Stack 5
+A metal bar used in       A metal bar used in       A metal bar used in       A metal bar used in       A piece of a monster.
+crafting. The Ref         crafting. The Ref         crafting. The Ref         crafting. The Ref
+determines the nature determines the nature determines the nature determines the nature
+of the crafting material. of the crafting material. of the crafting material. of the crafting material.
+
+
+
+
+Monster Part                        Monster Part            Corrupt Book          R1 Deadspeech Book         R1
+Stack 5                             Stack 5                 Stack 1 Necromancy Attk. Stack 1 Necromancy Man.
+                                                            UD 1 (Rest; Activate)    UD 1 (Rest; Activate)
+A piece of a monster.               A piece of a monster.
+                                                            Ranged 5 Target 1 creat. Melee 1      Target 1 corpse
+                                                                                     Dur. End of DT
+                                                                12-16         17+
+                                                                                     The target can speak and
+                                                              4+M dam 8+M dam;
+                                                                                     must answer a number of
+                                                                          vulnerable
+                                                                                      questions you ask based on
+                                                                                      the casting honestly. The
+                                                                                      target has the same intellect
+                                                                                      it had in life.
+                                                                                          ≤11       12-16    17+
+                                                                      500 gc
+                                                                                           1          3       5
+
+                                                                                                  500 gc
+
+Greatsword Stack 1 (Occupies 2 Slots) Exploding Greatsword Stack 1 (Occupies 2 Slots)
+Melee 1                Attack 2d10 + S Melee 1            Attack 2d10 + S
+
+       12-16                 17+                12-16                     17+
+        4+S                  8+S                4  + S                    8 +S
+Slashing, Disengage, Parry 6           Slashing, Disengage, Parry 6, Exploding
+                                       Enchantment
+                                                                                           2,0 15 gc
+Blacksmithing 1 | 1 iron bar | 10              15 gc
+<!-- PDF page 4 -->
+Floating Manor
+Magic Ring         Stack 10 Magic Wand Stack 2 Potion               Stack 5 Hurling Wand Stack 2 Coin Purse          Stack 1
+Try it on. It’ll feel like What does it do?         Just drink it. What’s the UD 1 (Useless; Activate) Holds up to 500 coins.
+your big day!               C’mon just activate it. worst that could          Maneuver: You target a
+                            You know you wanna. happen?                       creature within 15
+                                                                              squares of you. They
+                                                                              make a Strength RR.
+                                                                                ≤11 12-16 17+
+                                                                                 10       5      No
+                                                                              vertical vertical effect
+                                                                                slide slide
+                                                                            Enchanting 2 | gem worth 100 gc |            1 gc
+                                                                                           100
+                                                                                         500 gc
+
+Art Object, Tiny         Art Object, Tiny         Art Object, Tiny         Group Healing Book R1 Wound Closure Book R0
+Stack 5                  Stack 5                  Stack 5                  Stack 1 Benefaction Man. Stack 1 Benefaction Act.
+A valuable treasure.     A valuable treasure.     A valuable treasure.     UD 1 (Rest; Activate)    UD 1 (Rest; Activate)
+Specific work of art and Specific work of art and Specific work of art and Ranged 3 Target 3 creat. Melee 1 Target 1 creat.
+                                                                           Dur. Instant             Dur. Instant
+value are determined value are determined value are determined
+                                                                           Target regains Stamina   Target heals a number of
+by the Ref.              by the Ref.              by the Ref.
+                                                                            based on the casting.               wounds based on the
+                                                                              ≤11     12-16    17+              casting.
+                                                                              1+M     2+M      4+M                ≤11    12-16   17+
+                                                                                                                    0      1      2
+
+                                                                                                                        500 gc
+                                                                                         500 gc
+
+
+
+Steel Axe        Stack 1 Case of Crossbow Bolts Art Object, Small          Art Object, Small        Art Object, Small
+Melee 1                  UD 2 (activate; useless) Stack 1                  Stack 1                  Stack 1
+Attack 2d10 + S          Stack 1                  A valuable treasure.     A valuable treasure.     A valuable treasure.
+   12-16        17+      Ammunition for           Specific work of art and Specific work of art and Specific work of art and
+    4+S         8+S      crossbows                value are determined value are determined value are determined
+Chopping, Dismember                               by the Ref.              by the Ref.              by the Ref.
+
+
+
+
+                                     Blacksmithing 1 | 1 hickory log | 5
+                                                   5 gc
+ Blacksmithing 1 | 1 iron bar | 10
+             512 gc
+<!-- PDF page 5 -->
+Art Object, Small        Gem            Stack 5 Gem             Stack 5 Gem             Stack 5 Fine Coin Purse
+Stack 1                  A shiny rock. Exact gem A shiny rock. Exact gem A shiny rock. Exact gem Stack 1
+A valuable treasure.     type and value are      type and value are      type and value are      Holds up to 750 coins.
+Specific work of art and determined by the Ref. determined by the Ref. determined by the Ref.
+value are determined
+by the Ref.
+
+
+
+
+                                                                                                                                               500 gc
+
+
+Death Ring          Stack 10     Life Ring Stack 10     Coin Purse   Stack 1                            Art Object, Tiny         Art Object, Tiny
+UD 1 (Rest; Activate)
+Slot Ring
+                                 UD 1 (Rest; Activate) Holds up to 500 coins.                           Stack 5                  Stack 5
+Action: Choose an undead         Slot Ring                                                              A valuable treasure.     A valuable treasure.
+within 10 squares of you to
+                                 Maneuver: You regain                                                   Specific work of art and Specific work of art and
+make a M RR.
+     ≤11       12-16      17+ 1d6 Stamina, end a                                                        value are determined value are determined
+The undead You             You condition affecting you,                                                 by the Ref.              by the Ref.
+  teleports control control
+ next to you    the        the   or heal 1 wound.
+  and then undead undead
+can counter. for 1       til the
+              combat end of
+              round. the DT.
+Enchanting 2 | gem worth 200 gc                                                   1 gc
+                                Enchanting 2 | gem worth 100 gc |
+              |200
+                                               100
+           1,000 gc
+                                             500 gc
+Blood Concoction Stack 5 Acid Vial                 Stack 5 Poison Vial Stack 5 Alchemist’s Tools                                  Glue Pot       Stack 2
+Maneuver: You consume the Maneuver: Pouring the                                                                                   Glue for binding!
+                                                                 Maneuver: Apply to a Stack 1
+potion and must make a         vial onto a surface                                                                                Maneuver: Spread over a
+Strength RR.
+                                                                 weapon or 1 ammo.                  Required to make
+                               destroys up to 1 cubic                                                                             2 x 2 area of ground.
+    ≤11      12-16     17+                                       Next time it deals                 crafting rolls for
+                               foot of mundane matter.                                                                            Creatures entering make a
+    Your      You Your eyes                                      damage to a creature alchemy items.
+   lower      gain     are     Action: You can make a                                                                             Strength RR.
+                                                                 before DT’s end, they
+  body is both compound ranged 5 attack with it                                                                                     ≤11        12-16   17+
+  now a the tier and you using Agility.                          make a Strength RR.                                              Grabbed      Speed No effect
+ slug tail. 1 and 3 can see in                                       ≤11       12-16       17+                                     by the     halved
+    Your results. the dark.         12-16            17+           5 P dam 5 P dam No effect                                        glue      for this
+ speed is                           4+A             8+A              and                                                                        turn
+ reduced                                                          weakened                                                        Alchemy 1 | 2 monster part (any) |
+    by 2.                      Alchemy 1 | 1 monster part (any) | Alchemy 1 | 1 monster par (any) |                                              25
+                                                5                                   5                                                          125 gc
+                                              10 gc                               10 gc                           15 gc
+     Unique Item | XP: 500
+
+Art Object, Tiny         Whistle of Dog Summoning Necklace of Teeth                                     Gem            Stack 5
+                         Stack 5
+Stack 5                                                Stack 3                                          A shiny rock. Exact gem
+                         UD 1 (Rest; Activate)
+A valuable treasure.     Action: You blow this whistle
+                                                       Slot Neck                                        type and value are
+Specific work of art and and summon a dog who is While you wear this                                    determined by the Ref.
+value are determined your pet. The dog disappears ring, your unarmed
+by the Ref.              at the end of the DT or if    strikes deal an
+                         their Stamina drops to 0.
+                                                       additional 1 dam.
+
+
+                                                                    Enchanting 2 | gem worth 100 gc |
+                                 Enchanting 2 | gem worth 100 gc                   100
+                                               |100                              500 gc
+                                             500 gc
+<!-- PDF page 6 -->
+Art Object, Medium Stack 1 (Occupies 2 slots)    Art Object, Medium Stack 1 (Occupies 2 slots)        Art Object, Medium Stack 1 (Occupies 2 slots)
+A valuable treasure. Specific work of art A valuable treasure. Specific work of art A valuable treasure. Specific work of art
+and value are determined by the Ref.      and value are determined by the Ref.      and value are determined by the Ref.
+
+
+
+
+Art Object, Medium Stack 1 (Occupies 2 slots)    Art Object, Medium Stack 1 (Occupies 2 slots)
+                                                                                    Crossbow                                  Stack 1 (Occupies 2 Slots)
+A valuable treasure. Specific work of art A valuable treasure. Specific work of art Ranged 15                                           Attack 2d10 + A
+and value are determined by the Ref.      and value are determined by the Ref.             12-16                                            17+
+                                                                                           4+A                                             8+A
+                                                                                    Bow, Reload
+
+                                                                                                      Blacksmithing 1 | 1 hickory log | 10        15 gc
+
+Medium Armor Stack 1 (Occupies 3 Slots) Vicious Steel Flail Stack 1 (Occupies 2 Slots)
+Armor               AD 10               Melee 2             Attack 2d10 + S
+                                                 12-16                  17+
+                                                  4+S                   7+S
+                                        Bashing, Pummeling, Vicious
+                                        Enchantment
+                                                                                          1,0 15 gc
+Blacksmithing 1 | 4 iron bars | 30      150 gc

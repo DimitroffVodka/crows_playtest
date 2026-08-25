@@ -1,0 +1,21 @@
+<!-- PDF page 1 -->
+Hand 1          Hand 2
+Equipped        Equipped
+Not stackable   Not stackable
+
+
+
+
+Belt 1          Belt 2          Belt 3       Belt 4
+
+
+
+
+Backpack 1      Backpack 2      Backpack 3   Backpack 4   Backpack 5
+Wound ( )       Wound ( )       Wound ( )    Wound ( )    Wound ( )
+
+
+
+
+Backpack 6      Backpack 7      Backpack 8   Backpack 9   Backpack 10
+Wound ( )       Wound ( )       Wound ( )    Wound ( )    Wound ( )

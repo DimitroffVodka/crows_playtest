@@ -1,0 +1,465 @@
+<!-- PDF page 1 -->
+Hammer        Stack 2 Mace        Stack 1                                Knife     Stack 2      Sword      Stack 1                                  Handaxe     Stack 2
+Melee 1/Ranged 5       Melee 1                                           Melee 1/Ranged 5       Melee 1                                             Melee 1/Ranged 5
+Attack 2d10 + A or S   Attack 2d10 + S                                   Attack 2d10 + A or S   Attack 2d10 + S                                     Attack 2d10 + A or S
+   12-16        17+       12-16        17+                                  12-16         17+      12-16         17+                                   12-16        17+
+ 2 + A or S 4 + A or S     3+S         6+S                                2 + A or S 4 + A or S     3+S         6+S                                  2 + A or S 5 + A or S
+Bashing, Light,        Bashing, Pummeling                                Slashing, Light,       Slashing, Disengage                                 Chopping, Light,
+Pummeling                                                                Disengage, Parry 2     Parry 4                                             Dismember
+
+
+
+
+ Blacksmithing 1 | 1 iron bar | 5    Blacksmithing 1 | 1 iron bar | 10    Blacksmithing 1 | 1 iron bar | 5    Blacksmithing 1 | 1 iron bar | 10      Blacksmithing 1 | 1 iron bar | 5
+             10 gc                                12 gc                               10 gc                                12 gc                                 10 gc
+
+Axe          Stack 1                 Stiletto        Stack 2 Spear          Stack 1 Quiver of Arrows         Case of Crossbow Bolts
+Melee 1                              Melee 1/Ranged 5        Melee 1                UD 2 (activate; useless) UD 2 (activate; useless)
+Attack 2d10 + S                      Attack 2d10 + A or S    Attack 2d10 + S        Stack 1                  Stack 1
+   12-16        17+                      12-16        17+       12-16        17+    Ammunition for           Ammunition for
+    3+S         7+S                   2 + A or S 5 + A or S      3+S         7+S    shortbows and            crossbows
+Chopping, Dismember                  Stabbing, Light Brutal Stabbing, Brutal        longbows
+
+
+
+
+                                                                                                              Blacksmithing 1 | 1 hickory log | 5    Blacksmithing 1 | 1 hickory log | 5
+                                                                                                                            5 gc                                   5 gc
+ Blacksmithing 1 | 1 iron bar | 10                                       Blacksmithing 1 | 1 iron bar | 10
+                                      Blacksmithing 1 | 1 iron bar | 5
+              12 gc                                                                   12 gc
+                                                  10 gc
+
+Shield                 Stack 1 Acid Vial           Stack 5 Strong Acid Vial Stack 5 Alchemist’s Tools                        Alteration StoneStack1
+Armor                  AD: 5   Maneuver:      Pouring   the      Maneuver:      Pouring   the       Stack 1                  Choose one benefit
+                               vial onto a surface               vial onto a surface                Required to make         when you make the
+                               destroys up to 1 cubic            destroys up to 5 cubic feet
+                                                                                                    crafting rolls for       stone. The creature
+                               foot of mundane matter. of mundane matter.
+                                                                                                    alchemy items.           carrying it gains it:
+                               Action: You can make a Action: You can make a
+                                                                                                    Fine (500 gc): Alchemy ●​You don’t need to eat
+                               ranged 5 attack with it           ranged 5 attack with it
+                               using Agility.                    using Agility.                     crafting rolls gain a +1   or drink to live.
+                                    12-16            17+              12-16             17+         bonus.                   ●​You don’t need to
+                                    4+A             8+A                7+A            14 + A        Masterwork (1,000 gc): breathe to live.
+                                                                                                    Alchemy crafting rolls ●​The stone sheds light
+                               Alchemy 1 | 1 monster part (any) | Alchemy 2 | 2 monster parts (any)
+                                               5                                | 50                gain a +2 bonus.           5/5.
+Blacksmithing 1 | 2 iron bars | 15
+                                                   10 gc                              250 gc                                15 gc
+             15 gc
+
+Animal Feed Stack 6 Ball Bearings Stack 2 Bear Trap Stack 1           Blacksmith’s Tools     Block & Tackle Stack 1
+A day’s worth of food A bag of 1,000.           Maneuver: You can set Stack 1                Set of 2 hooked pulleys
+for a pet. Must be     Maneuver: Spread over this trap on the ground. Required to make       that can be used to lift
+consumed during a rest a 2 x 2 area of ground. When a creature steps crafting rolls for      up to 500 lbs. Rope sold
+to get the benefit of  Creatures entering       on the set trap, they blacksmithing items. separately.
+resting.               must make an Agility take 1d6 dam, and if      Fine (500 gc):         Fine (500 gc): Lifts up
+                       RR.                      they are Large or     Blacksmithing crafting to 1,000 lbs.
+                         ≤11 12-16 17+ smaller, they are              rolls gain a +1 bonus. Masterwork (1,000 gc):
+                        Prone Prone No grabbed by the trap. It Masterwork (1,000 gc): Lifts up to 1,500 lbs.
+                        and 4            effect has 10 Stamina.       Blacksmithing crafting
+                                                                                             Blacksmithing 1/2/3 | 2 iron bars |
+                         dam                                          rolls gain a +2 bonus.            20/100/200
+                                                                         Blacksmithing 2 | 2 iron bars | 50
+               1 gc                                                                                                         15 gc                                 100 gc
+                                                   5 gc                               250 gc
+<!-- PDF page 2 -->
+Blood Concoction Stack 5 Boom Wand Stack 2 Bucket                       Stack 1 Caltrops Stack 2          Candle         Stack 5
+Maneuver: You consume the
+                               UD 1 (Useless; Activate) Can hold up to 3 gallons A bag of 1,000.          UD: 1 (Useless; DT)
+potion and must make a
+Strength RR.
+                               Action: You create a 5 of liquid … also good Maneuver: Spread over Maneuver: Light 0/5
+    ≤11      12-16     17+     cube of fire within 15 for hiding your face!      a 2 x 2 area of ground.
+    Your      You Your eyes squares of you. Each                                 Creatures entering
+   lower      gain     are
+                               creature in the area                              make an Agility RR.
+  body is both compound
+  now a the tier and you must make an Agility                                      ≤11 12-16 17+
+ slug tail. 1 and 3 can see in RR.                                                4 dam 2 dam No
+    Your results. the dark.
+                                 ≤11 12-16 17+                                    and  -2          effect
+ speed is
+ reduced                       10 dam 5 dam 0 dam                                 speed
+    by 2.                      Enchanting 2 | gem worth 100 gc |                   until
+                                           100
+                                                                              2 gc                healed                 1 gc
+     Unique Item | XP: 500                500 gc                                                            5 gc
+
+Card Deck      Stack 5 Chain          Stack 1     Chalk         Stack 5     Coin Purse     Stack 1 Cold Weather Gear
+Standard deck of 54      A 10-foot length of iron UD: 1 (Useless; Activate) Holds up to 500 coins. Stack 1
+playing cards, including chain.                   A piece of chalk,         Fine (500 gc): Holds up Used to survive in cold
+2 jokers.                                         available in blue, white, to 750 gc.              snaps and blizzards.
+                                                  and yellow. Use it to     Masterwork (1,000 gc): Cold weather gear is
+                                                  mark your way or leave Holds up to 1,000 gc. considered worn if you
+                                                  messages on stone.                                want to wear it and it is
+                                                                                                    in a backpack slot.
+
+
+
+                              Blacksmithing 1 | 1 iron bar | 5
+             1 gc                                                                                           1 gc         10 gc
+                                           5 gc                               1 gc
+
+Compass       Stack 3   Cook’s Utensils            Crafting Material, Bar Crafting Material, Log Crowbar               Stack 1
+When you make a test Stack 1                       Stack 2                   Stack 1                   An iron bar that can be
+related to the guide    Required for some          A metal bar used in       A wood log used in        used in prying.
+travel role and carry a special rest activities as crafting. The Ref         crafting. The Ref         Fine (750 gc): Gives a
+compass, the test gains part of the Travel trait determines the nature determines the nature +1 bonus on tests that
+a +1 bonus.             tree. Lots of small        of the crafting material. of the crafting material. use the crowbar.
+Fine (1,000 gc): The    knifes, forks, and the                                                         Masterwork (1,500 gc):
+bonus rises to +2.      like.                                                                          Gives a +2 bonus on
+Masterwork (2,000 gc):                                                                                 tests that use the
+The bonus rises to +3.                                                                                 crowbar.
+
+             10 gc
+                                           15 gc                                                                         10 gc
+
+Death Ring          Stack 10     Enchanter’s Tools   Fire Bomb      Stack 2 Glue Pot           Stack 2           Grappling Hook
+UD 1 (Rest; Activate)
+                                 Stack 1             Action: You throw the    Glue  for binding!                 Stack 1
+Slot Ring
+Action: Choose an undead         Required to make    bomb up to 10 squares.   Maneuver:      Spread   over   a   Can be added to rope
+within 10 squares of you to                                                   2 x 2 area of ground.
+                                 crafting rolls for  It explodes in a 3 cube.                                    to create an item that
+make a M RR.                                                                  Creatures entering make a
+     ≤11       12-16      17+    enchanting   items. Each  creature in the                                       takes up 2 slots. Makes
+                                                                              Strength RR.
+The undead You             You Fine (500 gc):        cube must make an                                           hurling and securing
+  teleports control control                                                      ≤11       12-16       17+
+ next to you    the        the   Enchanting crafting Agility RR.              Grabbed Speed No effect rope easier.
+  and then undead undead rolls gain a +1 bonus.         ≤11 12-16 17+           by the halved
+can counter. for 1       til the                                                 glue     for this
+              combat end of Masterwork (1,000 gc): 10 dam 5 dam 0 dam                       turn
+              round. the DT.
+                             Enchanting crafting
+Enchanting 2 | gem worth 200 gc
+                                                                              Alchemy 1 | 2 monster part (any) |
+                                                                 Alchemy 1 | 3 demon parts | 50
+                                                                                                             25
+              |200              rolls gain a +2 bonus.                       250 gc
+                                                                                                           125 gc
+           1,000 gc                         15 gc                                                                        10 gc
+<!-- PDF page 3 -->
+Healing Potion Stack 5 Holy Symbol Stack 2                               Hurling Wand Stack 2 Journal           Stack 1 Lantern           Stack 2
+Maneuver: Consume to A symbol of your god.                               UD 1 (Useless; Activate) A bound journal of 200 UD: 2 (Refuel w oil; DT)
+regain 1d6 Stamina or Can be worn in the                                 Maneuver: You target a pages that are blank. Maneuver: Light 10/10
+remove 1 wound if      neck slot, but isn’t                              creature within 15       Don’t worry, you’ll fill Fine (1,000 gc): 3 UD
+Stamina is already at magic.                                             squares of you. They them!                        Masterwork (2,000 gc):
+maximum.                                                                 make a Strength RR.                               4 UD
+                                                                           ≤11 12-16 17+
+                                                                            10       5      No
+                                                                         vertical vertical effect
+Alchemy 1 | 1 monster part (any) |                                         slide slide
+               20                                                        Enchanting 2 | gem worth 100 gc |
+             100 gc                                                                     100
+                                                   15 gc                              500 gc                           2 gc                        25 gc
+
+Life Ring Stack 10               Lockpick Set Stack 1 Lore Book Stack 1 Magnifying Glass                               Merchant’s Scales
+UD 1 (Rest; Activate) Without this, you take a This book relates to an Stack 2                                         Stack 1
+Slot Ring                        bane on tests made to expertise. Study this                    Can be used to better Used to determine the
+Maneuver: You regain pick locks.                                     book as a rest activity inspect the minute        weight of Tiny objects
+1d6 Stamina, end a               Fine (750 gc): Grants a and gain a 1 use of that visual details of nearby and Tiny creatures that
+condition affecting you, +1 bonus on tests to                        expertise that lasts until creatures and objects. sit still.
+or heal 1 wound.                 pick locks.                         your next rest.
+                                 Masterwork (1,500 gc): Fine (1,000 gc): Gain 2
+                                 Grants a +2 bonus on uses.
+                                 tests to pick locks.                Masterwork (2,000 gc):
+Enchanting 2 | gem worth 100 gc | Blacksmithing 1/2/3 | 1 iron bar | Gain 3 uses.
+              100                              10/150/300
+                                                                                       50 gc                          100 gc                       50 gc
+             500 gc                               25 gc
+
+Miner’s Pick Stack 1                 Minor Telekinesis Ring       Mirror         Stack 2                     Musical Instrument         Necklace of Teeth
+Great for breaking                   Stack 10                     A hand mirror, useful                      Stack 1                    Stack 3
+stones and the                       UD 1 (Rest; Activate)        for looking around                         This is a portable         Slot Neck
+                                     Slot Ring
+occasional skull.                                                 corners and at your                        musical instrument, like While you wear this
+                                     Action: Pick an
+                                                                  own mug.                                   a lute, lyre, mandolin, ring, your unarmed
+                                     unattended Small or
+                                                                                                             drum, or fife. To play it, strikes deal an
+                                     smaller object within 10
+                                     squares of you. You                                                     the instrument must additional 1 dam.
+                                     vertically slide that object                                            occupy both your hand
+                                     up to 10 squares.                                                       slots.
+                                     Enchanting 2 | gem worth 100 gc |                                                               Enchanting 2 | gem worth 100 gc |
+                                                    100                                                                                             100
+ Blacksmithing 1 | 1 iron bar | 5                                                     100 gc
+                                                  500 gc                                                                                          500 gc
+             10 gc                                                                                                    100 gc
+
+Net             Stack 1 Oil Flask         Stack 2               Padlock           Stack 3          Pitons        Stack 2             Plague Mask Stack 1
+                         Maneuver: Refuel lantern.
+This fishing net unfurls Maneuver: Spread over a 2 x 2 Iron padlock. Includes a Iron spikes that can be Slot: Head
+when hurled. You can area of ground. Creature                   key.                               hammered into stone While you wear the
+                         entering must make an Agility
+hurl it at a Medium or                                          Fine (750 gc): Tests to and used to secure                           mask, you have a +2
+                         RR.
+smaller creature as part ≤11             12-16         17+      pick   or break    the    lock     ropes.  Come      in              bonus on Mind RRs
+of the Grab maneuver, Prone Lose 2 No effect take a -1 penalty.                                    multiples of 10.                  made to resist the
+                                        squares
+which gives you an                    movemen                   Masterwork (1,500 gc):                                               effects of the Miasma.
+edge on the test, and                 t this turn               Tests to pick or break
+                         The area is flammable. If lit, it
+gives them a bane on burns for 1d6 combat rounds. A the lock take a -2
+tests made to break the creature in the fire at the end of penalty.                                                                  Enchanting 1 | gem worth 100 gc |
+grab. It has 5 Stamina. their  turn takes 1d6 dam.
+                          Alchemy 1 | 5 monster parts (any) | 5
+                                                                 Blacksmithing 1/2/3 | 1 iron bar | Blacksmithing 1 | 1 iron bar | 5                100
+                                                                                   10/150/300                          5 gc                       500 gc
+               5 gc                                5 gc
+                                                                                      25 gc
+<!-- PDF page 4 -->
+Poison Vial Stack 5              Strong Poison Stack 5    Pot           Stack 1 Quill & Inkpot Stack 5 Rage Potion Stack 5
+Maneuver: Apply to a             Maneuver: Apply to a     Iron pot for cooking. For writing stuff down! Maneuver: Consume to
+weapon or 1 ammo.                weapon or 1 ammo.        Makes great scrambled                         gain +5 AD and deal
+Next time it deals               Next time it deals       eggs and soup! Comes                          additional 2 damage
+damage to a creature             damage to a creature     with a heavy lid.                             with melee attacks.
+before DT’s end, they            before DT’s end, they                                                  Lasts as long as you
+make a Strength RR.              make a Strength RR.                                                    keep making attacks
+   ≤11       12-16    17+       ≤11     12-16     17+                                                   against creatures each
+ 5 P dam    5 P dam No effect 10 P dam 10 P dam No effect
+   and                           and                                                                    round.
+weakened                          weakened
+Alchemy 1 | 1 monster par (any) | Alchemy 2 | 2 monster parts (any)
+                                                                                                                                             Alchemy 2 | 2 monster parts (any)
+                5                               | 50                  Blacksmithing 1 | 1 iron bar | 5                 5 gc
+                                                                                                                                                           | 50
+              10 gc                            250 gc                              5 gc
+                                                                                                                                                          250 gc
+
+Ration          Stack 6 Hearty Ration Stack 6 Rope                Stack 1                                Shovel        Stack 1   Smoke Bomb Stack 2
+A day’s worth of food. When you consume             50 feet of rope. If                                  Use this to dig holes! Maneuver: You throw
+Can be consumed to       this ration during a rest, secured, no test is                                  Can also make a decent the bomb up to 10
+avoid starvation and get you remove 1               required to climb.                                   crowbar in a pinch, but squares. It explodes,
+the benefits of a rest. additional wound.           Fine (500 gc): 100 feet                              might break.            creating a 3-cube area
+                                                    of strong, light rope.                                                       of heavy concealment.
+                                                    Fine (1,000 gc): 150                                                         It becomes light
+                                                    feet of strong, light                                                        concealment in d6
+                                                    rope.                                                                        combat rounds, then
+                                                                                                                                 dissipates in d6 rounds.
+                                                                                                          Blacksmithing 1 | 1 iron bar | 5    Alchemy 1 | 1 demon part | 10
+                                                                                                                      10 gc                               50 gc
+              2 gc
+                                                                                   2 gc
+
+Soap               Stack 3 Soothing Candy           Speed Potion Stack 5 Surgical Kit Stack 1 Spyglass                         Stack 2
+UD: 1 (Useless; Activate) Stack 10                  Maneuver: Consume to UD: 1 (Useless; Activate) Can be used to make
+You can use this bar of Maneuver: Consume a increase your speed by Scalpels, threads,                           things appear 3 times
+soap to clean yourself candy to remove 1            1.                                 needles, and bandages closer.
+or a mess, leave                   boned level from Duration: 1 UD                     made for closing         Fine (500 gc): Makes
+messages, whittle                  yourself.                                           wounds. You can use things appear 6 times
+shapes, or lubricate                                                                   this kit when you take closer.
+locks, tools, or your                                                                  the Tend Wounds rest Masterwork (1,000 gc):
+wrists when bound in                                                                   activity to have the     Makes things appear 10
+chains.                                             Alchemy 1 | 1 monster part (any) | target lost 1 additional times closer.
+                                                                    20
+Alchemy 1 | 1 monster part (any) |                                                     wound.
+                                                                  100 gc
+               5
+                                                                                                                      100 gc                              100 gc
+              1 gc
+
+String      Stack 1              Torch          Stack 2 Whistle        Stack 5 Whistle of Dog Summoning
+1,000 feet of string.            UD: 1 (Useless; DT)    Maneuver: You create a Stack 5
+                                                                               UD 1 (Rest; Activate)
+                                 Maneuver: Light 5/5 loud noise that can be Action: You blow this whistle
+                                 Fine (100 gc): 2 UD    heard from 20 squares and summon a dog who is
+                                 Masterwork (200 gc): 3 away.                  your pet. The dog disappears
+                                 UD                                            at the end of the DT or if
+                                                                                                         their Stamina drops to 0.
+
+
+
+
+                                                                                                         Enchanting 2 | gem worth 100 gc
+                                   Alchemy 1/2/3 | 1 hickory log |                                                     |100
+                                             5/20/40                                                                 500 gc
+              1 gc                                                                 5 gc
+                                               2 gc
+<!-- PDF page 5 -->
+Magic Ring         Stack 10 Magic Wand Stack 2 Potion               Stack 5 Art Object, Tiny           Art Object, Small
+Try it on. It’ll feel like What does it do?         Just drink it. What’s the Stack 5                  Stack 1
+your big day!               C’mon just activate it. worst that could          A valuable treasure.     A valuable treasure.
+                            You know you wanna. happen?                       Specific work of art and Specific work of art and
+                                                                              value are determined value are determined
+                                                                              by the Ref.              by the Ref.
+
+
+
+
+                            Gem            Stack 5 Monster Part               Animal Form Book R0 Repair Book               R0
+                            A shiny rock. Exact gem Stack 5                   Stack 1 Alteration Man. Stack 1 Alteration Man.
+                            type and value are      A piece of a monster.     UD 1 (Rest; Activate)    UD 1 (Rest; Activate)
+                                                                              Self           Dur. 1 UD
+                            determined by the Ref.                                                     Melee 1 Target 1 obj.
+                                                                              You gain the stats and
+                                                                                                       Dur. Instant
+                                                                              form of an animal. Your
+                                                                                                       You touch a damaged
+                                                                              gear is assumed by your
+                                                                              form. If you die, you    object and cause it to
+                                                                              revert back. Your animal regain Stamina based
+                                                                              form’s maximum power is on the casting.
+                                                                              based on the casting.      ≤11 12-16 17+
+                                                                                 ≤11     12-16    17+     1+M      4+M     8+M
+                                                                                  0        2       4              250 gc
+                                                                                        250 gc
+Take Shape Book          R0 Minor Blessing Book R0 Minor Healing Book R0 Minor Ward Book               R0 Jaunt Book            R0
+Stack 1      Alteration Man. Stack 1 Benefaction Act. Stack 1 Benefaction Man. Stack 1 Benefaction Man. Stack 1 Conjuration Man.
+UD 1 (Rest; Activate)        UD 1 (Rest; Activate)       UD 1 (Rest; Activate)   UD 1 (Rest; Activate)    UD 1 (Rest; Activate)
+Self Dur. 1 UD
+                             Ranged 3 Target Varies Melee 1 Target 1 creat. Melee 1 Target 1 creat. Self Dur. Instant
+You attempt to change your
+                             Dur. Instant                Dur. Instant            Dur. Instant             You teleport a number of
+form to match a creature.
+                             Each target of the spell is Target regains Stamina  Target gains AD based on squares based on the
+  ≤11      12-16       17+
+                             blessed. The targets are    based on the casting.   the casting.             casting.
+   No    You look You gain
+ effect like them their creatures, the number of           ≤11      12-16    17+    ≤11     12-16    17+     ≤11    12-16     17+
+          but gain    size, which depends on the           1+M      2+M      4+M    No      1+M      3+M     No     5+M 10+M
+          no stats speed, casting.                                                 effect                   effect
+        other than and          ≤11     12-16       17+
+         their size Stamina
+                               0       1         2
+                                                              250 gc                    250 gc                    250 gc
+          250 gc
+                                     250 gc
+
+Teleport Object Book   R0   Summon Object Book   R0   Create Water Book R0 Fire Hands Book         R0 Fire Lance Book       R0
+Stack 1 Conjuration Man. Stack 1 Conjuration Man. Stack 1 Elemental Man. Stack 1 Elemental Attk. Stack 1 Elemental Attk.
+UD 1 (Rest; Activate)         UD 1 (Rest; Activate)
+                                                            UD 1 (Rest; Activate) UD 1 (Rest; Activate) UD 1 (Rest; Activate)
+Ranged 10 Target 1 Tiny obj. Self         Dur. 1 UD
+Dur. Instant                  You create a mundane object Ranged 10 Dur. Instant Melee 1                Ranged 10
+You teleport the target a     that appears in any open slot You   make  water   that 12-16        17+     12-16         17+
+number of squares based on in your inventory of your        fills a vessel or falls  4+M          8+M      2+M          4+M
+the casting. You can teleport choice and lasts for the
+                                                            from the air. The
+it into a willing creature’s  duration. The value of the
+open hand slot, including     object in gc is based on the
+                                                            amount you make is
+yours.                        casting.                      based on the casting.
+    ≤11       12-16      17+     ≤11      12-16      17+       ≤11 12-16 17+
+ No effect 5+M          10+M      10         50      100       1 gal 5 gals 10 gals
+                                                              250 gc                    250 gc                    250 gc
+          250 gc                     250 gc
+<!-- PDF page 6 -->
+Spark Book           R0 Stream Book          R0 Thunder Book         R0 Cacophony Book            R0 Light Book                R0
+Stack 1 Elemental Attk. Stack 1 Elemental Attk. Stack 1 Elemental Attk. Stack 1       Illusion Man. Stack 1        Illusion Man.
+                                                                        UD 1 (Rest; Activate)        UD 1 (Rest; Activate)
+UD 1 (Rest; Activate) UD 1 (Rest; Activate) UD 1 (Rest; Activate)
+                                                                        Ranged 10          Dur. 1 UD Melee 1          Target 1 obj.
+Ranged 5                Line 5 x 1 within 1     Ranged 5                You create a phantom noise Dur. 1 UD
+Target 2 targets        Target All creatures       12-16       17+      of your choice for the       The object sheds light. The
+   12-16         17+      ≤11 12-16 17+             2+M        4+M      duration that emanates from brightness of the light
+    1+M          3+M     0 dam 2+M 4+M             push 1     push 2 a square within range. The depends on the casting.
+                                   dam dam                              distance at which it can be     ≤11      12-16      17+
+                                                                                          heard in squares is based on           0/5           5/5     10/10
+                                                                                          the casting.
+                                                                                             ≤11       12-16     17+
+                                                                             250 gc       No effect 5+M         10+M                          250 gc
+              250 gc                        250 gc
+                                                                                                        250 gc
+Minor Phantasm Book             R0 Bone Capture BookR0 Minor Curse Book R0                Monster Sense Book R0 Shrink Book            R1
+Stack 1        Illusion Man. Stack 1 Necromancy Attk. Stack 1 Necromancy Act. Stack 1 Necromancy Man. Stack 1                Alteration Man.
+UD 1 (Rest; Activate)         UD 1 (Rest; Activate)    UD 1 (Rest; Activate)    UD  1 (Rest; Activate)          UD  1 (Rest; Activate)
+Ranged 10           Dur. 1 UD Ranged 5 Target 1 creat. Melee 1 Target 1 creat. Self          Dur. 1 UD          Melee 1       Target 1 creat.
+You create a silent phantom                                                     You know the exact location Dur. 1 UD
+                                 12-16          17+    Dur. Instant
+image of your choice for the                                                    of creatures who aren’t         The target and their
+                                  2+M           4+M      ≤11      12-16    17+
+duration within a space                                                         humans or animals within a equipment size are reduced
+                                               prone     No       2 + M 4 + M number of squares of you by a number of categories
+within range. The maximum
+                                                        effect dam         dam
+size of the image is based on                                                   based on the casting. You       and weapon attack damage
+                                                                           and
+the casting.                                                                    can detect them through         takes a penalty based on the
+                                                                         weaken
+   ≤11       12-16      17+                                                     walls, floors, and ceilings.    casting.
+                                                                            ed
+   Tiny       Small     Medium                                                              ≤11         12-16       17+         ≤11           12-16    17+
+                                            250 gc
+                                                                                             1            5         10          0/0            1/-2    2/-4
+              250 gc
+                                                                             250 gc
+                                                                                                        250 gc                                500 gc
+Stubborn Object Book R1       Group Healing Book R1 Wound Closure Book R0                 Corrupt Book          R1           Deadspeech Book
+                                                                                                                                           R1
+Stack 1 Alteration Man.       Stack 1 Benefaction Man. Stack 1 Benefaction Act.           Stack 1 Necromancy Attk. Stack 1 Necromancy Man.
+UD 1 (Rest; Activate)         UD 1 (Rest; Activate)    UD 1 (Rest; Activate)              UD 1 (Rest; Activate)    UD 1 (Rest; Activate)
+Melee 1 Target 1 object
+                              Ranged 3 Target 3 creat. Melee 1 Target 1 creat.            Ranged 5 Target 1 creat. Melee 1      Target 1 corpse
+Dur. 1 UD                                                                                                          Dur. End of DT
+                              Dur. Instant             Dur. Instant                           12-16         17+
+The target is fixed in space,                                                                                      The target can speak and
+and can’t fall or be moved by
+                              Target regains  Stamina  Target heals a number of             4+M dam 8+M dam;
+                                                                                                                   must answer a number of
+                                                                                                        vulnerable
+any effect except a creature based on the casting.     wounds based on the                                                   questions you ask based on
+with a Strength equal to or     ≤11      12-16     17+ casting.                                                              the casting honestly. The
+higher than a number based 1+M           2+M      4+M    ≤11      12-16    17+                                               target has the same intellect
+on the casting.                                            0        1        2                                               it had in life.
+   ≤11      12-16        17+                                                                                                     ≤11       12-16    17+
+    2           3         4                                       500 gc
+                                         500 gc                                                         500 gc
+                                                                                                                                  1          3       5
+
+              500 gc                                                                                                                          500 gc
+
+Flail        Stack 1 (Occupies 2 Slots) Maul         Stack 1 (Occupies 2 Slots) Glaive          Stack 1 (Occupies 2 Slots)
+Melee 2               Attack 2d10 + S Melee 1                 Attack 2d10 + S Melee 2                   Attack 2d10 + S
+       12-16               17+                 12-16               17+                 12-16                 17+
+        3+S                6+S                 4+S                 8+S                  3+S                  6+S
+Bashing, Pummeling                      Bashing, Pummeling                      Slashing, Disengage, Parry 6
+
+Blacksmithing 1 | 1 iron bar | 10             15 gc   Blacksmithing 1 | 1 iron bar | 10         15 gc     Blacksmithing 1 | 1 iron bar | 10                    15 gc
+<!-- PDF page 7 -->
+Greatsword Stack 1 (Occupies 2 Slots) Halberd        Stack 1 (Occupies 2 Slots) Greataxe      Stack 1 (Occupies 2 Slots)
+Melee 1                Attack 2d10 + S Melee 2                Attack 2d10 + S Melee 1                  Attack 2d10 + S
+       12-16                 17+              12-16                17+                 12-16                17+
+        4+S                  8+S               3+S                 7+S                 4+S                  9+S
+Slashing, Disengage, Parry 6           Chopping, Dismember                      Chopping, Dismember
+
+Blacksmithing 1 | 1 iron bar | 10          15 gc   Blacksmithing 1 | 1 iron bar | 10           15 gc    Blacksmithing 1 | 1 iron bar | 10                  15 gc
+
+Pike       Stack 1 (Occupies 2 Slots)              Warpick       Stack 1 (Occupies 2 Slots) Shortbow                                          Stack 1
+Melee 2                Attack 2d10 + S             Melee 1                Attack 2d10 + S Ranged 10                                           Attack 2d10 + A
+       12-16                 17+                          12-16                17+                 12-16                                          17+
+        3+S                  7+S                           4+S                 9+S                 2+A                                           4+A
+Stabbing, Brutal                                   Stabbing, Brutal                         Bow, Cumbersome
+
+Blacksmithing 1 | 1 iron bar | 10          15 gc   Blacksmithing 1 | 1 iron bar | 10           15 gc    Blacksmithing 1 | 1 hickory log | 5                10 gc
+
+Longbow                Stack 1 (Occupies 2 Slots) Crossbow                 Stack 1 (Occupies 2 Slots) Light Armor              Stack 1 (Occupies 2 Slots)
+Ranged 20                        Attack 2d10 + A Ranged 15                           Attack 2d10 + A Armor                            AD 5
+      12-16                          17+                 12-16                           17+
+       3+A                          6+A                  4+A                            8+A
+Bow                                               Bow, Reload
+
+Blacksmithing 1 | 1 hickory log | 10       12 gc Blacksmithing 1 | 1 hickory log | 10          15 gc Blacksmithing 1 | 20 animal parts | 10        50 gc
+
+Medium Armor Stack 1 (Occupies 3 Slots) Heavy Armor Stack 1 (Occupies 4 Slots) Ladder          Stack 1 (Occupies 2 Slots)
+Armor               AD 10               Armor               AD 15              A collapsable ladder.
+                                                                               Maneuver: The ladder expands 10 feet.
+                                                                               Fine (500 gc): The ladder expands 20 feet.
+                                                                               Masterwork (1,000 gc): The ladder
+                                                                               expands 30 feet.
+Blacksmithing 1 | 4 iron bars | 30       150 gc    Blacksmithing 1 | 9 iron bars | 80         400 gc                                                       30 gc
+
+11-Foot Pole Stack 1 (Occupies 2 Slots) Tent          Stack 1 (Occupies 2 Slots) Art Object, Medium Stack 1 (Occupies 2 slots)
+An 11-foot-long wooden pole. For poking. This waterproof canvas tent sleeps up to A valuable treasure. Specific work of art
+Also prodding! Tie some string on it to  4 humans comfortably. You can use this and value are determined by the Ref.
+make a fishing rod!                                to wait out bad weather.
+
+                                                                                               100 gc
+
+
+
+                                           5 gc

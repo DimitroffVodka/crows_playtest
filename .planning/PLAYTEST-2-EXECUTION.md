@@ -1550,6 +1550,16 @@ breaks every reference to it in the compendium and in existing worlds.
 Build with: npm run pack:<name>
 Log every source-vs-YAML divergence to docs/discrepancies/<pack>.md using the
 existing HIGH/MED/LOW/INFO severity format.
+
+CITING CARD DATA (added 2026-08-25, T3.0): the four books contain NO per-item
+stat blocks. Spell tier bands, costs, stack sizes and crafting recipes live only
+on the inventory cards. Cite those with the I-prefixes against the pinned text in
+docs/source/ — IC: is the main deck. Read docs/source/README.md first: the cards
+are a GRID, so one line spans several unrelated cards and a value must be read
+down its column, never across the row. Reading across a row is what produced all
+8 HIGH findings in the Playtest 1 pass.
+Do NOT cite R:/C:/F:/D: for a card value — those books do not contain it, and a
+passing mention of an item name is not its stat block.
 ```
 
 **Before anything else in Wave 3:** `docs/discrepancies/SUMMARY.md` records **8 unresolved HIGH-severity findings** from the Playtest 1 pass — `bone-capture` and `minor-curse` have literally swapped tier effects, `minor-healing` is wrong on all three tiers, Rage Potion is priced 5× off. **T3.0 confirms these were fixed before anyone re-validates against Playtest 2**, or they get baked into v0.2.0.
