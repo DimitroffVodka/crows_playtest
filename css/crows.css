@@ -806,10 +806,16 @@
    a tooltip saying which slot it needs. */
 .cc-attack-btn.cc-attack-blocked {
   background: transparent;
-  color: var(--crows-ink-soft);
+  color: var(--crows-ink);
   border: 1px dashed var(--crows-rule);
   cursor: not-allowed;
   font-weight: normal;
+  /* Recede via opacity, not a paler ink. `--crows-ink-soft` is #2a2a2a against
+     `--crows-ink` #222 — an 8/255 difference that reads as no difference at all,
+     so a disabled label kept full contrast and fought the enabled button next to
+     it. Opacity dims text and border together and cannot drift when the token
+     layer is regenerated. */
+  opacity: 0.55;
 }
 .cc-attack-btn.cc-attack-blocked:hover { background: transparent; }
 
