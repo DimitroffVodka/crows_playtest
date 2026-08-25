@@ -548,5 +548,7 @@
   "CROWS.Combat.moveUp": "Move combatant up",
   "CROWS.Combat.moveDown": "Move combatant down",
   "CROWS.Combat.markSurprised": "Mark surprised",
-  "CROWS.Combat.markNotSurprised": "Remove surprised"
+  "CROWS.Combat.markNotSurprised": "Remove surprised",
+  "CROWS.Combat.surprisedTag": "Surprised",
+  "CROWS.Combat.surprisedHint": "Surprised (R:704) — skipped in round 1, and attacks against them gain +1."
 }

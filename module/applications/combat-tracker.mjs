@@ -77,7 +77,7 @@ export class CrowsCombatTracker extends CombatTrackerBase {
     tracker: {
       ...(CombatTrackerBase.PARTS?.tracker ?? {}),
       template: "systems/crows/templates/sidebar/combat-tracker.hbs",
-      scrollable: [""]
+      scrollable: ["ol.combat-tracker"]
     }
   };
 
@@ -146,6 +146,25 @@ export class CrowsCombatTracker extends CombatTrackerBase {
       await combatant.setFlag("crows", "surprised", surprised);
     } else {
       await combatant.update?.({ "flags.crows.surprised": surprised });
+    }
+  }
+
+  /**
+   * Strip Foundry's bulk initiative controls.
+   *
+   * "Roll All" and "Roll NPCs" live in the stock `header` part, gated only on
+   * isGM, and both call rollInitiative — which in Crows is a no-op that warns.
+   * Offering a Ref two buttons whose entire behaviour is to explain themselves
+   * is worse than not offering them: there is no per-creature initiative here,
+   * so the side roll is the only control that should exist.
+   *
+   * Removed from the DOM rather than by overriding header.hbs, so a Foundry
+   * update to that template cannot silently revert this or fork it stale.
+   */
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    for (const action of ["rollAll", "rollNPC"]) {
+      this.element?.querySelector?.(`[data-action="${action}"]`)?.remove();
     }
   }
 
