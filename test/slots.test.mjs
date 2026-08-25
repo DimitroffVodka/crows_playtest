@@ -8,7 +8,7 @@ import {
   DEFAULT_WOUND_SPEED_RULE, WOUND_SPEED_RULES, currentWoundSpeedRule,
   slotsNeeded, quantityOf, stackKindOf, stackLimitFor, canStack,
   collectSlotGrants, emptyLayout, slotAt, layoutFor,
-  placeAt, packItem, unpackItem, occupancy,
+  placeAt, packItem, unpackItem, occupancy, planSwap, occupantsOfSpan,
   speedPenaltyFromWounds, applyWoundSpeedPenalty,
   retrieveFromBackpack, magicOverloadFor,
   BURSTING_PURSE_ID, hasBurstingPurse, purseEntriesFor,
@@ -602,5 +602,125 @@ describe("misc invariants", () => {
     assert.equal(l.actorId, "");
     assert.equal(l.slots.length, 22);
     assert.deepEqual(l.coin, { loose: 0, purses: [] });
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  Swapping two cards                                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Dropping a card onto an occupied slot trades the two rather than refusing.
+ *
+ * The rule these pin is that a swap is only offered when BOTH halves are legal.
+ * The return trip is the one that fails, and it fails silently if you only
+ * check the outbound move — so every test here that expects a refusal is
+ * refusing on the way BACK.
+ */
+describe("planSwap", () => {
+  const at = (id, container, index, slots = 1) =>
+    mkItem({ id, slots, container, index, stackMax: 1 });
+
+  test("two one-slot cards trade places", () => {
+    const a = at("a", "backpack", 0);
+    const b = at("b", "backpack", 3);
+    const l = layoutFor(mkActor({ items: [a, b] }));
+
+    const res = planSwap(l, a, b, { container: "backpack", index: 3 }, a.system.location);
+    assert.equal(res.ok, true);
+    assert.deepEqual(res.moving, { container: "backpack", index: 3, length: 1 });
+    assert.deepEqual(res.occupant, { container: "backpack", index: 0, length: 1 });
+  });
+
+  test("swaps across containers", () => {
+    const a = at("a", "belt", 1);
+    const b = at("b", "backpack", 7);
+    const l = layoutFor(mkActor({ items: [a, b] }));
+
+    const res = planSwap(l, a, b, { container: "backpack", index: 7 }, a.system.location);
+    assert.equal(res.ok, true);
+    assert.equal(res.moving.container, "backpack");
+    assert.equal(res.occupant.container, "belt");
+  });
+
+  test("refuses when the occupant cannot fit the origin — the return trip is what fails", () => {
+    // A two-slot tent at backpack 0-1, a one-slot torch at 5, and 6 taken.
+    // The torch reaches 0 fine; the tent has nowhere contiguous to go back to.
+    const tent = at("tent", "backpack", 0, 2);
+    const torch = at("torch", "backpack", 5);
+    const blocker = at("blocker", "backpack", 6);
+    const l = layoutFor(mkActor({ items: [tent, torch, blocker] }));
+
+    const res = planSwap(l, torch, tent, { container: "backpack", index: 0 }, torch.system.location);
+    assert.equal(res.ok, false);
+    assert.equal(res.reason, "swap-back-occupied");
+  });
+
+  test("the same pair DOES swap when the origin can hold the wider card", () => {
+    const tent = at("tent", "backpack", 0, 2);
+    const torch = at("torch", "backpack", 5);
+    const l = layoutFor(mkActor({ items: [tent, torch] }));
+
+    const res = planSwap(l, torch, tent, { container: "backpack", index: 0 }, torch.system.location);
+    assert.equal(res.ok, true);
+    assert.deepEqual(res.occupant, { container: "backpack", index: 5, length: 2 });
+  });
+
+  test("refuses a card with no recorded origin — there is nowhere to send the occupant", () => {
+    const a = mkItem({ id: "a" });          // never placed
+    const b = at("b", "backpack", 3);
+    const l = layoutFor(mkActor({ items: [b] }));
+
+    assert.equal(planSwap(l, a, b, { container: "backpack", index: 3 }, null).reason, "no-origin");
+    assert.equal(planSwap(l, a, b, { container: "backpack", index: 3 }, a.system.location).reason,
+                 "no-origin");
+  });
+
+  test("refuses to swap a card with itself", () => {
+    const a = at("a", "backpack", 0);
+    const l = layoutFor(mkActor({ items: [a] }));
+    assert.equal(planSwap(l, a, a, { container: "backpack", index: 0 }, a.system.location).reason,
+                 "same-item");
+  });
+
+  test("does not mutate the layout it was given — a rejected swap must leave nothing moved", () => {
+    const tent = at("tent", "backpack", 0, 2);
+    const torch = at("torch", "backpack", 5);
+    const blocker = at("blocker", "backpack", 6);
+    const l = layoutFor(mkActor({ items: [tent, torch, blocker] }));
+    const before = structuredClone(l);
+
+    planSwap(l, torch, tent, { container: "backpack", index: 0 }, torch.system.location);
+    assert.deepEqual(l, before);
+  });
+});
+
+describe("occupantsOfSpan", () => {
+  const at = (id, container, index, slots = 1) =>
+    mkItem({ id, slots, container, index, stackMax: 1 });
+
+  test("reports the span owner from a continuation slot", () => {
+    // The tent's second slot holds an entry for the tent; landing on backpack 1
+    // must name the tent, not report an empty slot.
+    const tent = at("tent", "backpack", 0, 2);
+    const l = layoutFor(mkActor({ items: [tent] }));
+    assert.deepEqual(occupantsOfSpan(l, at("x", "backpack", 4), "backpack", 1), ["tent"]);
+  });
+
+  test("never reports the moving card itself, even when its span overlaps the target", () => {
+    // Sliding a two-slot card one slot along overlaps its own second slot.
+    const tent = at("tent", "backpack", 0, 2);
+    const l = layoutFor(mkActor({ items: [tent] }));
+    unpackItem(l, "tent");
+    assert.deepEqual(occupantsOfSpan(l, tent, "backpack", 1), []);
+  });
+
+  test("reports both when a wide card would land across two different cards", () => {
+    // Two occupants means no single partner to trade with — the sheet refuses.
+    const a = at("a", "backpack", 2);
+    const b = at("b", "backpack", 3);
+    const l = layoutFor(mkActor({ items: [a, b] }));
+    const wide = at("wide", "backpack", 8, 2);
+    assert.deepEqual(occupantsOfSpan(l, wide, "backpack", 2).sort(), ["a", "b"]);
   });
 });

@@ -3130,6 +3130,22 @@
 /* Never dangle a "drop here" promise over a slot that would refuse. */
 .cc-slot.cc-drop-no.cc-drop-over { cursor: not-allowed; }
 
+/* Occupied, but the two cards can trade places. Legal — so it brightens like
+   cc-drop-ok rather than dimming — but DASHED, because releasing here moves a
+   second card the player did not pick up. The border style carries that
+   difference, not a second colour. */
+.cc-slot.cc-drop-swap {
+  outline: 2px dashed var(--crows-ink);
+  outline-offset: -2px;
+  filter: brightness(1.04);
+}
+
+.cc-slot.cc-drop-swap.cc-drop-over {
+  outline-width: 3px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
+  filter: brightness(1.1);
+}
+
 /* Dim the card being dragged so its origin reads as vacated. */
 .cc-dragging .cc-card:active { opacity: 0.5; }
 

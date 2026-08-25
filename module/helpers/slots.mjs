@@ -375,6 +375,62 @@ export function packItem(layout, item, container, index) {
   return placeAt(layout, item, refs);
 }
 
+/**
+ * Plan a two-card swap: `moving` goes to `target`, whatever sits there goes to
+ * `origin`.
+ *
+ * Pure and non-mutating — it works on its own copy and returns the two
+ * locations to write, so a half-completed swap can never be persisted. Both
+ * placements are validated BEFORE either is reported as ok, because the return
+ * trip is the one that fails: dropping a 1-slot torch onto a 2-slot greatsword
+ * leaves the greatsword needing a contiguous pair the torch's single origin
+ * slot cannot give it.
+ *
+ * @returns {{ok: true, moving: object, occupant: object}|{ok: false, reason: string}}
+ */
+export function planSwap(layout, moving, occupant, target, origin) {
+  if (!layout || !moving || !occupant) return { ok: false, reason: "bad-arguments" };
+  const movingId = itemId(moving);
+  const occupantId = itemId(occupant);
+  if (!movingId || !occupantId) return { ok: false, reason: "no-item-id" };
+  if (movingId === occupantId) return { ok: false, reason: "same-item" };
+  if (!origin || !Number.isInteger(Number(origin.index))) return { ok: false, reason: "no-origin" };
+
+  const trial = structuredClone(layout);
+  unpackItem(trial, movingId);
+  unpackItem(trial, occupantId);
+
+  const there = packItem(trial, moving, target.container, Number(target.index));
+  if (!there.ok) return { ok: false, reason: there.reason };
+  const back = packItem(trial, occupant, origin.container, Number(origin.index));
+  if (!back.ok) return { ok: false, reason: `swap-back-${back.reason}` };
+
+  return {
+    ok: true,
+    moving: { container: target.container, index: Number(target.index), length: slotsNeeded(moving) },
+    occupant: { container: origin.container, index: Number(origin.index), length: slotsNeeded(occupant) }
+  };
+}
+
+/**
+ * Which item ids occupy the span an item would claim at `container:index`?
+ * Includes span owners, so a slot that is the tail of a two-slot weapon
+ * reports that weapon rather than nothing.
+ */
+export function occupantsOfSpan(layout, item, container, index) {
+  const need = Math.max(1, slotsNeeded(item));
+  const start = Number(index);
+  const ids = new Set();
+  for (let k = 0; k < need; k++) {
+    const slot = slotAt(layout, container, start + k);
+    if (!slot) continue;
+    for (const entry of slot.items) ids.add(entry.id);
+    if (slot.spanId) ids.add(slot.spanId);
+  }
+  ids.delete(itemId(item));
+  return [...ids];
+}
+
 /** Remove every trace of an item from the layout. Returns the slots it vacated. */
 export function unpackItem(layout, id) {
   const vacated = [];

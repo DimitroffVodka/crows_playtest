@@ -16,7 +16,7 @@ import {
 import { endDungeonTurn, rollEncounterCheck } from "../helpers/dungeon-turn.mjs";
 import { attackWithWeapon } from "../helpers/attack.mjs";
 import {
-  layoutFor, packItem, unpackItem, slotsNeeded, coinSummary,
+  layoutFor, packItem, unpackItem, slotsNeeded, coinSummary, planSwap, occupantsOfSpan,
   applyWoundSpeedPenalty, CARRY_CONTAINERS, MAGIC_CONTAINERS
 } from "../helpers/slots.mjs";
 import {
@@ -641,13 +641,16 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     for (const el of root.querySelectorAll("[data-container][data-index]")) {
       const container = el.dataset.container;
       const index = Number(el.dataset.index);
-      let ok = !dropRefusal(item, container);
-      if (ok) {
+      let cls = "cc-drop-no";
+      if (!dropRefusal(item, container)) {
         // packItem mutates, so every slot is tried against its own copy.
         const trial = structuredClone(base);
-        ok = packItem(trial, item, container, index).ok;
+        if (packItem(trial, item, container, index).ok) cls = "cc-drop-ok";
+        // An occupied slot is still a legal target when the two cards can trade
+        // places, so it must not read as forbidden.
+        else if (this.#swapPlan(item, container, index, base)) cls = "cc-drop-swap";
       }
-      el.classList.add(ok ? "cc-drop-ok" : "cc-drop-no");
+      el.classList.add(cls);
     }
   }
 
@@ -655,8 +658,8 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const root = this.element;
     if (!root) return;
     root.classList.remove("cc-dragging");
-    for (const el of root.querySelectorAll(".cc-drop-ok, .cc-drop-no, .cc-drop-over")) {
-      el.classList.remove("cc-drop-ok", "cc-drop-no", "cc-drop-over");
+    for (const el of root.querySelectorAll(".cc-drop-ok, .cc-drop-no, .cc-drop-swap, .cc-drop-over")) {
+      el.classList.remove("cc-drop-ok", "cc-drop-no", "cc-drop-swap", "cc-drop-over");
     }
   }
 
@@ -686,6 +689,60 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _onDragStart(event) {
     await super._onDragStart(event);
     this.#markDropTargets(event.currentTarget?.dataset?.itemId);
+  }
+
+  /**
+   * Can the dragged card trade places with whatever sits at container:index?
+   *
+   * `vacated` is the layout with the dragged item already unpacked, so the
+   * occupants it reports never include the card being moved back onto itself —
+   * which matters when a two-slot card slides one slot along and overlaps itself.
+   *
+   * Pure: it decides, it does not write. Both the drag highlighting and the drop
+   * handler go through it so the colour a slot shows and what actually happens
+   * on release can never disagree.
+   *
+   * @returns {{plan: object, occupant: Item}|null}
+   */
+  #swapPlan(item, container, index, vacated) {
+    const occupants = occupantsOfSpan(vacated, item, container, index);
+    // Exactly one other card. A span covering two different cards has no single
+    // partner to trade places with, so that stays a refusal.
+    if (occupants.length !== 1) return null;
+
+    const occupant = this.document.items.get(occupants[0]);
+    if (!occupant) return null;
+    const origin = item.system?.location;
+    if (!origin?.container || !Number.isInteger(Number(origin.index))) return null;
+
+    // The occupant has to be legal in the origin container too — a sword must
+    // not reach the amulet slot just because a card was dragged out of it.
+    if (dropRefusal(occupant, origin.container)) return null;
+
+    const plan = planSwap(layoutFor(this.document), item, occupant, { container, index }, origin);
+    return plan.ok ? { plan, occupant } : null;
+  }
+
+  /**
+   * Both cards are written in ONE updateEmbeddedDocuments call. Two sequential
+   * item.update()s would leave the sheet with both cards in the same slot if the
+   * second failed, and the slot model has no way to represent that.
+   *
+   * @returns {Promise<boolean>} true if the swap happened.
+   */
+  async #trySwap(item, container, index, vacated) {
+    const swap = this.#swapPlan(item, container, index, vacated);
+    if (!swap) return false;
+
+    await this.document.updateEmbeddedDocuments("Item", [
+      { _id: item.id, "system.location": swap.plan.moving },
+      { _id: swap.occupant.id, "system.location": swap.plan.occupant }
+    ]);
+    notify("info", "CROWS.Dialog.InventoryDrop.swapped", {
+      item: item.name,
+      other: swap.occupant.name
+    });
+    return true;
   }
 
   async _onDropItem(event, item) {
@@ -720,6 +777,12 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (isEmbedded) unpackItem(layout, item.id);
     const result = packItem(layout, item, container, index);
     if (!result.ok) {
+      // The slot is taken — try to SWAP rather than refuse. Only a card already
+      // on this sheet can swap: a compendium drop has no origin slot to send the
+      // occupant back to. If the exchange does not validate in both directions,
+      // fall through to the original refusal, which is the accurate message.
+      const swapped = isEmbedded ? await this.#trySwap(item, container, index, layout) : null;
+      if (swapped) return item;
       notify("warn", `CROWS.Dialog.InventoryDrop.${result.reason}`, {
         item: item.name,
         slot: slotLabel(container, index),

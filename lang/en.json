@@ -519,6 +519,7 @@
   "CROWS.Dialog.RemoveItem.title": "Remove Card",
   "CROWS.Dialog.RemoveItem.body": "Remove <strong>{item}</strong> from this crow? This cannot be undone.",
   "CROWS.Dialog.InventoryDrop.not-owner": "You do not own this crow, so you cannot remove {item}.",
+  "CROWS.Dialog.InventoryDrop.swapped": "{item} and {other} traded places.",
   "CROWS.Dialog.AddToSlot.title": "Add Card",
   "CROWS.Dialog.AddToSlot.body": "Choose a card for <strong>{slot}</strong>. Only cards that fit this slot are listed.",
   "CROWS.Dialog.AddToSlot.filter": "Search…",
