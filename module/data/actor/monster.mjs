@@ -131,6 +131,19 @@ export class MonsterData extends TypeDataModel {
       })),
       colloquialNames: new fields.ArrayField(new fields.StringField()),
 
+      // Humans in creature stat blocks can rest in the Miasma too (R:1127).
+      // Keep the same Miasma-owned resource shape as CrowData. It is not a
+      // condition: cruelty is an accumulating integer and conditions cannot
+      // have a second instance (R:443).
+      miasma: new fields.SchemaField({
+        cruelty: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        effects: new fields.ArrayField(
+          new fields.NumberField({ min: 1, max: 12, integer: true }), { initial: [] }
+        ),
+        permanentNPC: new fields.BooleanField({ initial: false }),
+        lastTestOn: new fields.NumberField({ initial: 0, min: 0, integer: true })
+      }),
+
       // Same six PT2 conditions a crow can have, plus `defeated` (0 Stamina,
       // F:698). CONTRACT: `boned` deleted here too.
       conditions: new fields.SchemaField({

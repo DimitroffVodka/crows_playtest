@@ -159,6 +159,25 @@ export const SKILL_TO_EXPERTISE = Object.freeze({
 export const DROPPED_CONDITION_KEYS = Object.freeze(["boned", "hidden", "invisible"]);
 
 /**
+ * Read dropped PT1 condition values before layer (a) removes them.
+ *
+ * `source` may be a raw system object or an Actor-shaped raw source. The
+ * DataModel transform itself remains pure and returns only schema data; this
+ * companion is what a migration journal can call while the old value is still
+ * available. In a loaded PT2 Actor the value is normally already gone, so the
+ * caller should pass `actor._source` (or the raw source captured by the import
+ * boundary) when Foundry exposes it.
+ */
+export function droppedConditionsFromSource(source) {
+  const system = isObject(source?.system) ? source.system : source;
+  const conditions = system?.conditions;
+  if (!isObject(conditions)) return [];
+  return DROPPED_CONDITION_KEYS
+    .filter(key => Object.prototype.hasOwnProperty.call(conditions, key))
+    .map(key => ({ key, value: conditions[key] }));
+}
+
+/**
  * Assign `count` wounds to backpack slot indices (R:524).
  *
  * EMPTY SLOTS FIRST, lowest index first, and only then occupied ones. Playtest
@@ -888,6 +907,13 @@ export function migrateActorDocument(actor, options = {}) {
   const expertises = reconcileActorExpertises(actor, options);
   const slots = migrateActorSlots(actor);
 
+  // Layer (a) has already dropped these from a live DataModel. Prefer an
+  // explicitly supplied raw source, then Foundry's source snapshot, and only
+  // finally the actor itself for test/import adapters that still expose PT1
+  // fields. Never turn a missing value into a synthetic zero.
+  const rawSource = options.source ?? actor?._source ?? actor;
+  const droppedConditions = droppedConditionsFromSource(rawSource);
+
   // A world holding a deleted status effect (`boned`, `hidden`, `invisible`)
   // should be told, not silently cleaned — conditions.mjs owns that list.
   const statuses = [];
@@ -901,6 +927,7 @@ export function migrateActorDocument(actor, options = {}) {
     type: actor?.type ?? null,
     expertises,
     slots,
+    droppedConditions,
     removedStatuses: [...new Set(statuses)],
     updates: { ...slots.updates, ...expertises.updates }
   };
@@ -933,6 +960,7 @@ export function buildMigrationReport(results = [], { mode = "report-only", title
   const withForced = rows.filter((r) => r.slots?.wounds?.forcedOntoOccupied?.length);
   const withOrphans = rows.filter((r) => r.slots?.wounds?.orphaned?.length);
   const withStatuses = rows.filter((r) => r.removedStatuses?.length);
+  const withDroppedConditions = rows.filter((r) => r.droppedConditions?.length);
 
   const parts = [];
   parts.push(`<h2>Summary</h2><ul>`);
@@ -941,6 +969,7 @@ export function buildMigrationReport(results = [], { mode = "report-only", title
     mode === "enforce" ? " — trims below were WRITTEN." : " — nothing was written; the trims below are what enforcing WOULD do."}</li>`);
   parts.push(`<li>${overBudget.length} actor(s) over the expertise budget.</li>`);
   parts.push(`<li>${unresolved.length} actor(s) whose background could not be resolved — <strong>budget skipped, not assumed zero</strong>.</li>`);
+  parts.push(`<li>${withDroppedConditions.length} actor(s) carried dropped PT1 condition state — <strong>conditions.boned is reported with its value and is never converted to cruelty</strong>.</li>`);
   parts.push(`<li>Belt capacity widened 2 &rarr; 4 (R:428). A widening cannot invalidate an existing placement; no item was moved for it.</li>`);
   parts.push(`</ul>`);
 
@@ -995,6 +1024,16 @@ export function buildMigrationReport(results = [], { mode = "report-only", title
     parts.push(`<h2>Deleted status effects</h2><ul>`);
     for (const r of withStatuses) {
       parts.push(`<li><strong>${esc(r.actorName)}</strong> — ${r.removedStatuses.map(esc).join(", ")}. <em>boned</em> has no Playtest 2 equivalent and was NOT converted to Weakened (different duration, different semantics); hiding is a test now (R:408), not a condition.</li>`);
+    }
+    parts.push(`</ul>`);
+  }
+
+  if (withDroppedConditions.length) {
+    parts.push(`<h2>Dropped PT1 condition state</h2>`);
+    parts.push(`<p><em>conditions.boned</em> has no Playtest 2 equivalent. It was mixed-source state (including poison, spells, and backlash), so it is dropped rather than reclassified as Miasma cruelty. The values below are for Ref re-adjudication.</p><ul>`);
+    for (const r of withDroppedConditions) {
+      const values = r.droppedConditions.map(d => `${esc(d.key)}: ${esc(d.value)}`).join(", ");
+      parts.push(`<li><strong>${esc(r.actorName)}</strong> — ${values}</li>`);
     }
     parts.push(`</ul>`);
   }

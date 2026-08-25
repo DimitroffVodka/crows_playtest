@@ -344,8 +344,15 @@ export async function rollTest({
 
   const kind = casting ? "casting" : attack ? "attack" : "test";
   const conditions = actor?.system?.conditions ?? {};
+  const characteristicValue = characteristic
+    ? actor?.system?.characteristics?.[characteristic]
+    : null;
+  // CrowData stores `{value}`, while MonsterData stores stat-block
+  // characteristics as bare numbers. Both are valid actors for a human
+  // Miasma RR (R:1127); normalize at the roll boundary so a human stat block's
+  // Mind is not silently read as zero.
   const charVal = characteristic
-    ? Number(actor?.system?.characteristics?.[characteristic]?.value ?? 0)
+    ? Number(characteristicValue?.value ?? characteristicValue ?? 0)
     : 0;
 
   const self = selfEdgesBanes({ conditions, characteristic, kind, attack });

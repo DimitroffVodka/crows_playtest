@@ -62,7 +62,7 @@ export class CrowData extends TypeDataModel {
     // {value, max} also matches `stamina` in this same schema, so the rest/
     // refresh idiom reads the same way for both.
     //   rest (R:628)              -> value = max
-    //   rest in Miasma (R:1375)   -> leave value alone, everything else applies
+    //   rest in Miasma (R:1125)   -> leave value alone, everything else applies
     //   advancement (C:615)       -> raise max, and value with it
     const expertises = {};
     for (const key of ALL_EXPERTISES) {
@@ -164,11 +164,15 @@ export class CrowData extends TypeDataModel {
         setOn: new fields.StringField({ blank: true, initial: "" })
       }),
 
-      // CONTRACT: `effects` held a d10+boned roll in PT1. `boned` is gone, so
-      // the roll's shape is a Wave 1 question (T1.6 owns miasma). The stored
-      // range is unchanged so no data is lost; only the roll that produces it
-      // needs revisiting.
+      // PT2's accumulating Miasma resource. This is deliberately a plain
+      // integer in the Miasma namespace, not a condition or Active Effect:
+      // conditions cannot stack, while cruelty explicitly does (R:443,
+      // R:1130, R:1134).
       miasma: new fields.SchemaField({
+        cruelty: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        // Effects retain their persisted bucket representation so PT1 worlds
+        // do not lose their table rolls. The helper resolves each bucket to a
+        // PT2 first/second pair; both records are gained from one bucket.
         effects: new fields.ArrayField(
           new fields.NumberField({ min: 1, max: 12, integer: true }), { initial: [] }
         ),
