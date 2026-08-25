@@ -18,8 +18,8 @@ system:
   duration: instant
   effectBands:
     t1: "No effect"
-    t2: "Boned"
-    t3: "Twice Boned"
+    t2: "2+M damage"
+    t3: "4+M damage and weakened"
   usageDie:
     enabled: true
     udMax: 1

@@ -4,7 +4,7 @@ name: Soothing Candy
 img: icons/consumables/food/candy-bar.webp
 type: consumable
 system:
-  description: "<p>Consume a candy to remove 1 boned level from yourself.</p><p><em>Note: no printed gc cost on the playtest card (Ref-distributed loot, like gems and art objects).</em></p>"
+  description: "<p>Consume a candy to remove either the weakened or vulnerable condition from yourself. You choose which.</p><p><em>Source note: the Playtest 2 card (IC:249) still reads &quot;remove 1 boned level&quot;, but boned was deleted in PT2 and replaced by two conditions, weakened and vulnerable — and PT2 conditions have no levels (R:528). MCDM did not update this card; the poison cards, which changed for the same reason, were updated. Shipped as a player choice between the two successor conditions rather than guessing one, because the card names neither. See H3 in docs/discrepancies/playtest-2-source-issues.md. No printed gc cost on the card, in either playtest — Ref-distributed loot, like gems and art objects.</em></p>"
   useAction: maneuver
   bands:
     t1: ""

@@ -7,8 +7,8 @@ system:
   description: "<p>Apply to a weapon or 1 piece of ammo. The next time it deals damage to a creature before the end of the DT, they make a Strength RR.</p>"
   useAction: maneuver
   bands:
-    t1: "Twice Boned"
-    t2: "Boned"
+    t1: "5 poison damage and weakened"
+    t2: "5 poison damage"
     t3: "No effect"
   thrown:
     isAttack: false

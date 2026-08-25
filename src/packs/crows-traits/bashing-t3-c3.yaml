@@ -3,7 +3,7 @@ _key: "!items!ctbash33bnebrkr0"
 name: Bone Breaker
 type: trait
 system:
-  description: "<p>When you hit a prone, grappled, or target with a boned level of 2 or higher with a bashing weapon attack, you deal additional damage equal to your Strength.</p>"
+  description: "<p>When you hit a grappled, prone, vulenarble, or weakened with a bashing weapon attack, you deal additional damage equal to your Strength.</p>"
   tree: bashing
   tier: 3
   column: 3
