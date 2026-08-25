@@ -1560,6 +1560,14 @@ down its column, never across the row. Reading across a row is what produced all
 8 HIGH findings in the Playtest 1 pass.
 Do NOT cite R:/C:/F:/D: for a card value — those books do not contain it, and a
 passing mention of an item name is not its stat block.
+
+SOURCE FIDELITY (added 2026-08-25, measured across all 276 traits): the BOOK
+markdown silently corrects MCDM's typos — ~33 times in 276 documents, and zero
+fabrications. Use it for structure and for what a rule MEANS. Take anything you
+ship as quoted prose or as a NAME from the PDF via `pdftotext -layout`.
+The CARD text (IC:/IP:/IL:/IA:/IS:) is pdftotext output and IS faithful — quote
+it freely. Same directory, different trust level. Full rule and per-ticket
+guidance: see "Source fidelity" below.
 ```
 
 **Before anything else in Wave 3:** `docs/discrepancies/SUMMARY.md` records **8 unresolved HIGH-severity findings** from the Playtest 1 pass — `bone-capture` and `minor-curse` have literally swapped tier effects, `minor-healing` is wrong on all three tiers, Rage Potion is priced 5× off. **T3.0 confirms these were fixed before anyone re-validates against Playtest 2**, or they get baked into v0.2.0.
@@ -1679,6 +1687,81 @@ markdown and the PDF disagree, the PDF wins.
 
 Equipment-side Pets is now **`C:2126–2176`**, not `C:2429`. Vehicles `C:2177`, Hirelings
 `C:2195`.
+
+---
+
+## Source fidelity — WHICH pinned source to trust for WHAT
+
+Measured across all 276 traits by the four T3.2 agents, 2026-08-25. This is not a guess.
+
+| Group | Traits | Markdown silently CORRECTED MCDM | Markdown INTRODUCED an error |
+|---|---:|---:|---:|
+| A Alchemy–Blacksmithing | 84 | 11 | **0** |
+| B Camping–Enchantment | 60 | 3 clear + 1 likely | **0** |
+| C Illusion–Pets | 60 | 6 | **0** |
+| D Reputation–Unarmed | 72 | 12 | **0** |
+| **Total** | **276** | **~33** | **0** |
+
+### The rule
+
+**The book markdown never fabricates, but it silently repairs.** Roughly one document in
+eight. So:
+
+| What you need | Source | Why |
+|---|---|---|
+| Structure — tree/tier/column, ordering, which section a thing is in | **`R:`/`C:`/`F:`/`D:` markdown** | Never fabricates, and the rebuild made structure *better* |
+| What a rule **means** | **markdown** | Meaning is reliable; it corrects toward the intended sense |
+| Anything shipped as **quoted prose or a name** | **the PDF**, via `pdftotext -layout` | The markdown will have quietly repaired it |
+
+### The two pinned sources in `docs/source/` do NOT have the same fidelity
+
+This is the part that catches people, because they sit in one directory:
+
+- **`R-`/`C-`/`F-`/`D-*.md`** are **OCR/build pipeline** output. They correct MCDM. Trust for
+  structure and meaning, **not** for verbatim text.
+- **`IC-`/`IP-`/`IL-`/`IA-`/`IS-*.txt`** are **`pdftotext -layout`** output — a direct text
+  extraction with no repair pass. **Faithful.** Card text can be quoted verbatim.
+
+### The corrections are not all cosmetic
+
+Assuming "typo repair" would be a mistake. Confirmed cases change grammatical number and
+phrasing, which changes how a Ref reads the rule:
+
+- `attack` → `attacks against` (Pets, Dungeon Critter)
+- `against target in darkness` → `against targets` (Chopping, Hurl in the Dark)
+- `one the same turn` → `on the same turn` (Unrelenting Death)
+- `Blackmsithing` → `Blacksmithing`, `vulenarble` → `vulnerable`, `wile` → `while`
+
+Six canonical typos are now pinned by `test/trait-corpus.test.mjs`, so re-transcribing any
+of them from the markdown fails the suite rather than silently diverging.
+
+**Lexical vs encoding are different axes.** The PDF governs *words* — typos, singular/plural,
+missing articles. The repo's ASCII apostrophe convention governs *encoding*, because
+name-based lookup depends on it. Following the PDF's curly quote to "preserve" it would break
+lookups while preserving nothing that matters.
+
+**Not every delta is a finding.** `non-weapon` vs `nonweapon` is hyphenation, not a
+correction. Log it INFO and move on.
+
+### ⚠️ Anything transcribed BEFORE 2026-08-25 07:44 has the opposite problem
+
+The **previous** extraction generation *introduced* errors rather than correcting them —
+column bleed across card grids, and mangled multi-word italics (`_repair take_ , _shape_`
+where the book prints `*repair*, *take shape*`). Different generation, opposite failure mode.
+Content transcribed from a pre-rebuild file should be re-derived, not spot-checked.
+
+### Per-ticket
+
+- **T3.3** — weapons/armor/ammunition are mostly structured numbers, so the markdown is fine
+  for stats and costs. **Item names and weapon/armor quality names ship as text**: take those
+  from the PDF.
+- **T3.6** — the least exposed ticket. Per-spell stat blocks live only on the **cards**, and
+  the card text is `pdftotext` output, so it is already faithful. Quote `IC:` freely. Only
+  `R:1174–1330` (the spellcasting system) is markdown.
+- **T3.7** — **the most exposed ticket in Wave 3.** The rules journal ships the book's prose
+  verbatim to players. Take every quoted line from the PDF. Using the markdown here would
+  ship a rules reference that disagrees with the book players are reading at the table, in
+  ways they cannot see.
 
 **Background line starts** for T3.1 (note the source is not strictly alphabetical).
 

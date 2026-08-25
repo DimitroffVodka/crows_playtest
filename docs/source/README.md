@@ -110,6 +110,34 @@ finds a passing mention and mistakes it for the stat block.
 The concrete proof: **Soothing Candy appears in none of the four PT2 books**, but has a card
 (`IC:249`). Markdown-only validation concludes the item was cut from Playtest 2. It wasn't.
 
+## ⚠️ The two pinned sources here do NOT have the same fidelity
+
+They sit in one directory and are produced by different pipelines:
+
+| | Produced by | Faithful to the PDF? |
+|---|---|---|
+| `R-`/`C-`/`F-`/`D-*.md` — the books | OCR/build pipeline | **No.** Silently corrects MCDM's typos |
+| `IC-`/`IP-`/`IL-`/`IA-`/`IS-*.txt` — the cards | `pdftotext -layout` | **Yes.** Direct extraction, no repair pass |
+
+Measured across all 276 trait documents on 2026-08-25: the book markdown corrected MCDM
+**~33 times** and introduced an error **zero times**. So it never fabricates — structure and
+meaning are reliable — but it is **not a verbatim authority**.
+
+Some corrections change grammatical number or phrasing, not just spelling (`attack` →
+`attacks against`, `against target in darkness` → `against targets`), so they are not safely
+ignorable.
+
+**Rule:** markdown for structure and for what a rule *means*; the **PDF** for anything shipped
+as quoted prose or as a name; **card text is already faithful** and can be quoted directly.
+
+Six canonical typos are pinned by `test/trait-corpus.test.mjs` — `vulenarble`, `Sieze`,
+`wile`, `one the same turn`, `car for`, `a two expertises` — so re-transcribing one from the
+markdown fails the suite instead of silently diverging.
+
+Per-ticket guidance for the remaining Wave 3 work is in
+[`.planning/PLAYTEST-2-EXECUTION.md`](../../.planning/PLAYTEST-2-EXECUTION.md) under "Source
+fidelity".
+
 ## Citation prefixes
 
 These extend the book-prefix scheme in [`.planning/PLAYTEST-2-MIGRATION.md`](../../.planning/PLAYTEST-2-MIGRATION.md).
