@@ -4,9 +4,14 @@ name: Pugilist
 type: background
 system:
   flavor: "You made a living battling it out with bare knuckles."
-  characteristicBonus: "agility or strength"
+  characteristicOptionsAt2: ["agility", "strength"]
   stamina: 9
   startingTrait: "Unarmed: Pack a Punch"
-  skills: [climb, jump, unarmed]
-  equipment: [chalk, "light armor", "lore book (monsters)", "rage potion", torch]
+  expertises:
+    - key: athletics
+      uses: 1
+    - key: unarmed
+      uses: 2
+  equipment: ["chalk", "light armor", "lore book (monster lore)", "net", "rage potion", "torch"]
   spellbooks: []
+  startingGold: "3d6"

@@ -4,9 +4,16 @@ name: Executioner
 type: background
 system:
   flavor: "You carried out capital punishment."
-  characteristicBonus: strength
+  characteristicOptionsAt2: ["strength"]
   stamina: 9
   startingTrait: "Chopping: Chop 'Em Down"
-  skills: [lift, chopping, unarmed]
-  equipment: [chain, greataxe, ladder, lock, torch]
+  expertises:
+    - key: lift
+      uses: 1
+    - key: chopping
+      uses: 1
+    - key: unarmed
+      uses: 1
+  equipment: ["chain", "greataxe", "ladder", "padlock", "torch"]
   spellbooks: []
+  startingGold: "3d6"

@@ -4,9 +4,16 @@ name: Knight
 type: background
 system:
   flavor: "You were a knight in the service of a noble or a hedge knight in service to no one other than yourself."
-  characteristicBonus: strength
+  characteristicOptionsAt2: ["strength"]
   stamina: 9
   startingTrait: "Slashing: Swordplay"
-  skills: [handleAnimal, historicalLore, slashing]
-  equipment: ["animal feed (6)", greatsword, "horse (pet)", lantern, "light armor", "oil flask"]
+  expertises:
+    - key: handlePet
+      uses: 1
+    - key: historicalLore
+      uses: 1
+    - key: slashing
+      uses: 1
+  equipment: ["animal feed (6)", "greatsword", "lantern", "light armor", "oil flask", "riding horse (pet)"]
   spellbooks: []
+  startingGold: "3d6"

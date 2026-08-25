@@ -4,9 +4,20 @@ name: Hydromancer
 type: background
 system:
   flavor: "You learned how to cast elemental spells that create and harness water."
-  characteristicBonus: mind
+  characteristicOptionsAt2: ["mind"]
   stamina: 7
   startingTrait: "Elemental: Water Shield"
-  skills: [alchemy, enchanting, magicLore, swim, elemental]
-  equipment: [journal, "quill and inkpot", torch]
-  spellbooks: ["create water", stream]
+  expertises:
+    - key: alchemy
+      uses: 1
+    - key: athletics
+      uses: 1
+    - key: enchanting
+      uses: 1
+    - key: magicLore
+      uses: 1
+    - key: elemental
+      uses: 2
+  equipment: ["gluepot", "journal", "quill and inkpot", "torch"]
+  spellbooks: ["create water", "stream"]
+  startingGold: "3d6"

@@ -4,9 +4,22 @@ name: Tinkerer
 type: background
 system:
   flavor: "You created magic and mechanical inventions."
-  characteristicBonus: mind
+  characteristicOptionsAt2: ["mind"]
   stamina: 5
   startingTrait: "Knowledge: Improvised Equipment"
-  skills: [alchemy, blacksmithing, enchanting, pickLock, sabotage, search, chopping]
-  equipment: ["alchemist's tools", "blacksmith's tools", handaxe, "lockpick set", torch]
+  expertises:
+    - key: alchemy
+      uses: 2
+    - key: blacksmithing
+      uses: 2
+    - key: enchanting
+      uses: 1
+    - key: search
+      uses: 1
+    - key: thievery
+      uses: 2
+    - key: chopping
+      uses: 1
+  equipment: ["alchemist's tools", "blacksmith's tools", "handaxe", "lockpick set", "soap", "torch"]
   spellbooks: []
+  startingGold: "3d6"

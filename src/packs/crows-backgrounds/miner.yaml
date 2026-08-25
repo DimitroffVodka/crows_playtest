@@ -4,9 +4,20 @@ name: Miner
 type: background
 system:
   flavor: "You worked in mines, digging and hauling ore."
-  characteristicBonus: strength
+  characteristicOptionsAt2: ["strength"]
   stamina: 7
-  startingTrait: "Scavenging: Lasting Light"
-  skills: [climb, endurance, lift, navigate, stabbing]
-  equipment: [chalk, "grappling hook", lantern, "oil flask", pickaxe, shovel]
+  startingTrait: "Leverage: Lasting Light"
+  expertises:
+    - key: athletics
+      uses: 1
+    - key: endurance
+      uses: 2
+    - key: lift
+      uses: 1
+    - key: navigate
+      uses: 1
+    - key: stabbing
+      uses: 1
+  equipment: ["chalk", "grappling hook", "lantern", "oil flask", "shovel", "warpick"]
   spellbooks: []
+  startingGold: "3d6"

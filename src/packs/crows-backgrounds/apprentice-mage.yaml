@@ -4,9 +4,24 @@ name: Apprentice Mage
 type: background
 system:
   flavor: "You studied several magic disciplines under a more experienced tutor."
-  characteristicBonus: mind
+  characteristicOptionsAt2: ["mind"]
   stamina: 5
   startingTrait: "Alteration: Alteration Stone"
-  skills: [enchanting, magicLore, monsterLore, alteration, conjuration, elemental, illusion]
-  equipment: []
-  spellbooks: ["acid spit", jaunt, light, "take shape", thunder]
+  expertises:
+    - key: enchanting
+      uses: 1
+    - key: magicLore
+      uses: 1
+    - key: monsterLore
+      uses: 1
+    - key: alteration
+      uses: 2
+    - key: conjuration
+      uses: 1
+    - key: elemental
+      uses: 2
+    - key: illusion
+      uses: 1
+  equipment: ["alteration stone"]
+  spellbooks: ["jaunt", "light", "spark", "take shape", "thunder"]
+  startingGold: "3d6"

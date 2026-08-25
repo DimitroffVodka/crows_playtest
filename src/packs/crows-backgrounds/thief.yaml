@@ -4,9 +4,20 @@ name: Thief
 type: background
 system:
   flavor: "You burgled places for money, either on your own or as part of a guild."
-  characteristicBonus: agility
+  characteristicOptionsAt2: ["agility"]
   stamina: 5
   startingTrait: "Thievery: Stealthy"
-  skills: [gymnastics, hide, pickLock, sabotage, search, sleightOfHand, sneak]
-  equipment: [crowbar, "grappling hook", "knife (extra)", "lockpick set", torch]
+  expertises:
+    - key: athletics
+      uses: 1
+    - key: gymnastics
+      uses: 2
+    - key: search
+      uses: 2
+    - key: stealth
+      uses: 2
+    - key: thievery
+      uses: 2
+  equipment: ["crowbar", "extra knife", "grappling hook", "lockpick set", "smoke bomb", "torch"]
   spellbooks: []
+  startingGold: "3d6"

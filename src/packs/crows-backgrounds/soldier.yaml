@@ -4,9 +4,16 @@ name: Soldier
 type: background
 system:
   flavor: "You served as a soldier in an army dedicated to protecting others from the threats of the wilderness."
-  characteristicBonus: strength
+  characteristicOptionsAt2: ["strength"]
   stamina: 9
   startingTrait: "Armor: Stalwart"
-  skills: [endurance, bow, stabbing]
-  equipment: ["light armor", "quiver of 20 arrows", shortbow, spear, torch]
+  expertises:
+    - key: endurance
+      uses: 1
+    - key: bow
+      uses: 1
+    - key: stabbing
+      uses: 1
+  equipment: ["light armor", "quiver of arrows", "shortbow", "spear", "torch"]
   spellbooks: []
+  startingGold: "3d6"

@@ -4,9 +4,20 @@ name: Cook
 type: background
 system:
   flavor: "You worked as a cook at a tavern or organization."
-  characteristicBonus: any
+  characteristicOptionsAt2: ["agility", "mind", "strength"]
   stamina: 7
   startingTrait: "Camping: Hearty Meals"
-  skills: [alchemy, endurance, lift, natureLore, slashing]
-  equipment: ["cook's utensils", "hearty ration (2)", pot, torch]
+  expertises:
+    - key: alchemy
+      uses: 1
+    - key: endurance
+      uses: 1
+    - key: lift
+      uses: 1
+    - key: natureLore
+      uses: 2
+    - key: slashing
+      uses: 1
+  equipment: ["cook's utensils", "hearty ration (2)", "pot", "torch"]
   spellbooks: []
+  startingGold: "3d6"

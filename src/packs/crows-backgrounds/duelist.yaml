@@ -4,9 +4,16 @@ name: Duelist
 type: background
 system:
   flavor: "You dedicated your youth to fencing in noble courts."
-  characteristicBonus: agility
+  characteristicOptionsAt2: ["agility"]
   stamina: 9
   startingTrait: "Slashing: Finesse the Blade"
-  skills: [gymnastics, historicalLore, slashing]
-  equipment: ["light armor", "lore book (historical)", mirror, sword, torch]
+  expertises:
+    - key: gymnastics
+      uses: 1
+    - key: historicalLore
+      uses: 1
+    - key: slashing
+      uses: 1
+  equipment: ["light armor", "lore book (historical lore)", "mirror", "sword", "torch"]
   spellbooks: []
+  startingGold: "3d6"

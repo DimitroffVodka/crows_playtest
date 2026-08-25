@@ -4,9 +4,24 @@ name: Alchemist
 type: background
 system:
   flavor: "You crafted and sold acids, potions, and bombs."
-  characteristicBonus: mind
+  characteristicOptionsAt2: ["mind"]
   stamina: 5
   startingTrait: "Alchemy: Midnight Oil"
-  skills: [alchemy, enchanting, magicLore, monsterLore, sabotage, search, bow]
-  equipment: ["acid vial", "alchemist's tools", bucket, "healing potion", lantern, "oil flask"]
+  expertises:
+    - key: alchemy
+      uses: 2
+    - key: enchanting
+      uses: 1
+    - key: magicLore
+      uses: 1
+    - key: monsterLore
+      uses: 1
+    - key: natureLore
+      uses: 1
+    - key: search
+      uses: 1
+    - key: thievery
+      uses: 2
+  equipment: ["acid vial", "alchemist's tools", "bucket", "healing potion", "lantern", "oil flask", "smoke bomb"]
   spellbooks: []
+  startingGold: "3d6"

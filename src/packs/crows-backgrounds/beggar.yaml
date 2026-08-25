@@ -4,9 +4,18 @@ name: Beggar
 type: background
 system:
   flavor: "You relied on the kindness of strangers to scrape together enough coins to live."
-  characteristicBonus: any
+  characteristicOptionsAt2: ["agility", "mind", "strength"]
   stamina: 7
-  startingTrait: "Scavenging: More for Less"
-  skills: [endurance, hide, lift, search, sneak]
-  equipment: [lock, pot, string, tent, torch]
+  startingTrait: "Leverage: More for Less"
+  expertises:
+    - key: endurance
+      uses: 1
+    - key: lift
+      uses: 1
+    - key: search
+      uses: 2
+    - key: stealth
+      uses: 2
+  equipment: ["gluepot", "padlock", "pot", "string", "tent", "torch"]
   spellbooks: []
+  startingGold: "3d6"

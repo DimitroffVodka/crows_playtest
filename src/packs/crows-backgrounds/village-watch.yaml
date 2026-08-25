@@ -3,10 +3,17 @@ _key: "!items!crowsbgvlgwatch1"
 name: Village Watch
 type: background
 system:
-  flavor: "You were a member of an organized law enforcement body that kept a settlement safe."
-  characteristicBonus: strength
+  flavor: "You kept a settlement safe."
+  characteristicOptionsAt2: ["strength"]
   stamina: 9
-  startingTrait: "Polearm: Begone"
-  skills: [jump, search, stabbing]
-  equipment: [chain, lantern, "light armor", "oil flask", pike, whistle]
+  startingTrait: "Armor: Stand Strong"
+  expertises:
+    - key: athletics
+      uses: 1
+    - key: search
+      uses: 1
+    - key: stabbing
+      uses: 1
+  equipment: ["chain", "lantern", "light armor", "oil flask", "padlock", "pike", "whistle"]
   spellbooks: []
+  startingGold: "3d6"

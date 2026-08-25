@@ -4,9 +4,16 @@ name: Acolyte of the Warrior
 type: background
 system:
   flavor: "You served the god of war."
-  characteristicBonus: "mind or strength"
+  characteristicOptionsAt2: ["mind", "strength"]
   stamina: 9
   startingTrait: "Benefaction: First Responder"
-  skills: [religiousLore, benefaction, chopping]
-  equipment: [axe, "holy symbol", torch]
+  expertises:
+    - key: religiousLore
+      uses: 1
+    - key: benefaction
+      uses: 1
+    - key: chopping
+      uses: 1
+  equipment: ["axe", "holy symbol", "torch"]
   spellbooks: ["minor healing", "minor ward"]
+  startingGold: "3d6"

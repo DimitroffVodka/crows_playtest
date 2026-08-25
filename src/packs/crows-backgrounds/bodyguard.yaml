@@ -4,9 +4,16 @@ name: Bodyguard
 type: background
 system:
   flavor: "You protected a person of importance."
-  characteristicBonus: strength
+  characteristicOptionsAt2: ["strength"]
   stamina: 9
   startingTrait: "Armor: Interposing Arm"
-  skills: [endurance, hide, slashing]
-  equipment: ["ball bearings", "light armor", shield, sword, torch]
+  expertises:
+    - key: endurance
+      uses: 1
+    - key: search
+      uses: 1
+    - key: slashing
+      uses: 1
+  equipment: ["ball bearings", "light armor", "shield", "sword", "torch"]
   spellbooks: []
+  startingGold: "3d6"

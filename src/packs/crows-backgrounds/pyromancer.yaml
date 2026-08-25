@@ -4,9 +4,20 @@ name: Pyromancer
 type: background
 system:
   flavor: "You learned how to cast elemental spells that create and harness fire."
-  characteristicBonus: mind
+  characteristicOptionsAt2: ["mind"]
   stamina: 5
-  startingTrait: "Elemental: Make It Burn!"
-  skills: [alchemy, enchanting, magicLore, swim, elemental]
-  equipment: ["magnifying glass", string, torch]
+  startingTrait: "Elemental: Burn Baby"
+  expertises:
+    - key: alchemy
+      uses: 1
+    - key: enchanting
+      uses: 1
+    - key: historicalLore
+      uses: 1
+    - key: magicLore
+      uses: 2
+    - key: elemental
+      uses: 2
+  equipment: ["magnifying glass", "smoke bomb", "string", "torch"]
   spellbooks: ["fire hands", "fire lance"]
+  startingGold: "3d6"

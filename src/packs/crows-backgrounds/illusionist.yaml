@@ -3,10 +3,23 @@ _key: "!items!crowsbgillusnt01"
 name: Illusionist
 type: background
 system:
-  flavor: "You studied illusion magic either on your own or with a teacher."
-  characteristicBonus: mind
+  flavor: "You studied illusion magic."
+  characteristicOptionsAt2: ["mind"]
   stamina: 5
   startingTrait: "Illusion: Lasting Illusion"
-  skills: [hide, magicLore, monsterLore, pickLock, search, sneak, illusion]
-  equipment: ["card deck", whistle]
-  spellbooks: [cacophony, light, "minor phantasm"]
+  expertises:
+    - key: magicLore
+      uses: 2
+    - key: monsterLore
+      uses: 1
+    - key: search
+      uses: 1
+    - key: stealth
+      uses: 2
+    - key: thievery
+      uses: 1
+    - key: illusion
+      uses: 2
+  equipment: ["card deck", "smoke bomb", "whistle"]
+  spellbooks: ["cacophony", "light", "minor phantasm"]
+  startingGold: "3d6"

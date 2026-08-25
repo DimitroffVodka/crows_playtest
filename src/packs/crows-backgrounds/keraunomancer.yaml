@@ -4,9 +4,20 @@ name: Keraunomancer
 type: background
 system:
   flavor: "You learned how to cast elemental spells that create and harness lightning and thunder."
-  characteristicBonus: mind
+  characteristicOptionsAt2: ["mind"]
   stamina: 7
   startingTrait: "Elemental: Hurl the Storm"
-  skills: [blacksmithing, enchanting, magicLore, elemental, bashing]
-  equipment: [mace, mirror, torch]
-  spellbooks: [spark, thunder]
+  expertises:
+    - key: blacksmithing
+      uses: 1
+    - key: enchanting
+      uses: 1
+    - key: magicLore
+      uses: 2
+    - key: elemental
+      uses: 2
+    - key: bashing
+      uses: 1
+  equipment: ["mace", "net", "torch"]
+  spellbooks: ["spark", "thunder"]
+  startingGold: "3d6"

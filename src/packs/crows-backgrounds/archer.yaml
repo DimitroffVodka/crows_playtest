@@ -4,9 +4,18 @@ name: Archer
 type: background
 system:
   flavor: "You served as a soldier or member of the watch who was specially trained with a bow."
-  characteristicBonus: agility
+  characteristicOptionsAt2: ["agility"]
   stamina: 7
   startingTrait: "Archery: Point Blank"
-  skills: [climb, hide, sneak, bow, unarmed]
-  equipment: ["quiver of 20 arrows", shortbow, spyglass, torch, whistle]
+  expertises:
+    - key: athletics
+      uses: 1
+    - key: stealth
+      uses: 2
+    - key: bow
+      uses: 2
+    - key: unarmed
+      uses: 1
+  equipment: ["bear trap", "quiver of arrows", "shortbow", "spyglass", "torch"]
   spellbooks: []
+  startingGold: "3d6"

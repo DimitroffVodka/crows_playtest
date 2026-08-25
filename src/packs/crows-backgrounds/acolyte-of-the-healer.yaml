@@ -4,9 +4,18 @@ name: Acolyte of the Healer
 type: background
 system:
   flavor: "You served the god of healing."
-  characteristicBonus: mind
+  characteristicOptionsAt2: ["mind"]
   stamina: 7
   startingTrait: "Benefaction: Enhanced Healing"
-  skills: [alchemy, lift, religiousLore, benefaction, bashing]
-  equipment: ["holy symbol", lantern, mace, "oil flask"]
+  expertises:
+    - key: alchemy
+      uses: 1
+    - key: lift
+      uses: 1
+    - key: religiousLore
+      uses: 2
+    - key: benefaction
+      uses: 2
+  equipment: ["holy symbol", "surgical kit", "torch"]
   spellbooks: ["minor blessing", "minor healing"]
+  startingGold: "3d6"

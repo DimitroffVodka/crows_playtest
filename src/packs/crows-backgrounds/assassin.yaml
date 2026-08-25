@@ -4,9 +4,22 @@ name: Assassin
 type: background
 system:
   flavor: "You were a killer who either worked paid contracts or served a higher purpose in a shady organization."
-  characteristicBonus: agility
+  characteristicOptionsAt2: ["agility"]
   stamina: 5
-  startingTrait: "Thievery: Seize the Advantage"
-  skills: [climb, gymnastics, hide, pickLock, sneak, bow, slashing]
-  equipment: ["extra knife", "poison vial", "quiver of 20 arrows", shortbow, torch]
+  startingTrait: "Thievery: Sieze the Advantage"
+  expertises:
+    - key: athletics
+      uses: 1
+    - key: gymnastics
+      uses: 1
+    - key: stealth
+      uses: 2
+    - key: thievery
+      uses: 1
+    - key: bow
+      uses: 2
+    - key: slashing
+      uses: 2
+  equipment: ["extra knife", "poison vial", "quiver of arrows", "shortbow", "torch"]
   spellbooks: []
+  startingGold: "3d6"

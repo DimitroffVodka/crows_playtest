@@ -4,9 +4,20 @@ name: Acolyte of the Three
 type: background
 system:
   flavor: "You served the god of death, greed, and knowledge."
-  characteristicBonus: "mind or strength"
+  characteristicOptionsAt2: ["mind", "strength"]
   stamina: 7
   startingTrait: "Necromancy: Soul Absorption"
-  skills: [magicLore, monsterLore, religiousLore, necromancy, chopping]
-  equipment: [axe, torch]
+  expertises:
+    - key: magicLore
+      uses: 1
+    - key: monsterLore
+      uses: 1
+    - key: religiousLore
+      uses: 1
+    - key: necromancy
+      uses: 2
+    - key: chopping
+      uses: 1
+  equipment: ["axe", "torch"]
   spellbooks: ["bone capture", "minor curse", "monster sense"]
+  startingGold: "3d6"

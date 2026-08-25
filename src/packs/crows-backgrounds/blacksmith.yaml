@@ -4,9 +4,20 @@ name: Blacksmith
 type: background
 system:
   flavor: "You forged and sold items made from metal."
-  characteristicBonus: strength
+  characteristicOptionsAt2: ["strength"]
   stamina: 7
   startingTrait: "Smithing: Double Duty"
-  skills: [blacksmithing, endurance, lift, sabotage, bashing]
-  equipment: [bell, chain, maul, "smith's tools", torch]
+  expertises:
+    - key: blacksmithing
+      uses: 2
+    - key: endurance
+      uses: 1
+    - key: lift
+      uses: 1
+    - key: thievery
+      uses: 1
+    - key: bashing
+      uses: 1
+  equipment: ["bear trap", "blacksmith's tools", "chain", "maul", "torch"]
   spellbooks: []
+  startingGold: "3d6"

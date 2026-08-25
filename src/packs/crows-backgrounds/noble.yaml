@@ -4,9 +4,20 @@ name: Noble
 type: background
 system:
   flavor: "You grew up in a family that had wealth and power."
-  characteristicBonus: "agility or mind"
+  characteristicOptionsAt2: ["agility", "mind"]
   stamina: 7
   startingTrait: "Reputation: Call Daddy"
-  skills: [handleAnimal, historicalLore, religiousLore, sneak, bow]
-  equipment: ["animal feed (6)", "horse (pet)", lantern, "lore book (historical)", "oil flask", "50 gold coins"]
+  expertises:
+    - key: handlePet
+      uses: 1
+    - key: historicalLore
+      uses: 2
+    - key: religiousLore
+      uses: 1
+    - key: stealth
+      uses: 1
+    - key: bow
+      uses: 1
+  equipment: ["animal feed (6)", "lantern", "lore book (historical lore)", "oil flask", "riding horse (pet)", "50 gold coins"]
   spellbooks: []
+  startingGold: "3d6"

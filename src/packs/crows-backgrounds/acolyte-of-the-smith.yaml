@@ -4,9 +4,20 @@ name: Acolyte of the Smith
 type: background
 system:
   flavor: "You served the god of creativity."
-  characteristicBonus: mind
+  characteristicOptionsAt2: ["mind"]
   stamina: 7
   startingTrait: "Enchantment: Hands for Tools"
-  skills: [alchemy, blacksmithing, enchanting, religiousLore, benefaction]
-  equipment: ["holy symbol", "magnifying glass", torch]
+  expertises:
+    - key: alchemy
+      uses: 1
+    - key: blacksmithing
+      uses: 2
+    - key: enchanting
+      uses: 1
+    - key: religiousLore
+      uses: 1
+    - key: benefaction
+      uses: 1
+  equipment: ["blacksmith's tools", "holy symbol", "torch"]
   spellbooks: ["minor healing", "summon object"]
+  startingGold: "3d6"

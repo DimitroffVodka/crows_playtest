@@ -4,9 +4,22 @@ name: Entertainer
 type: background
 system:
   flavor: "You were an acrobat, dancer, and/or musician."
-  characteristicBonus: agility
+  characteristicOptionsAt2: ["agility"]
   stamina: 5
   startingTrait: "Camping: Song of Rest"
-  skills: [climb, endurance, gymnastics, handleAnimal, historicalLore, jump, sleightOfHand]
-  equipment: ["10-foot pole", chalk, mirror, "musical instrument (lute)", torch]
+  expertises:
+    - key: athletics
+      uses: 2
+    - key: endurance
+      uses: 1
+    - key: gymnastics
+      uses: 2
+    - key: handlePet
+      uses: 1
+    - key: historicalLore
+      uses: 1
+    - key: thievery
+      uses: 2
+  equipment: ["11-foot pole", "mirror", "musical instrument (lute)", "smoke bomb", "torch"]
   spellbooks: []
+  startingGold: "3d6"

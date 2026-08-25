@@ -4,9 +4,22 @@ name: Hunter
 type: background
 system:
   flavor: "You tracked animals in the wild and foraged for food."
-  characteristicBonus: agility
+  characteristicOptionsAt2: ["agility"]
   stamina: 5
   startingTrait: "Travel: Foraging Expert"
-  skills: [handleAnimal, hide, natureLore, navigate, sneak, swim, bow]
-  equipment: ["animal feed (6)", "dog (pet)", "quiver of 20 arrows", shortbow, torch]
+  expertises:
+    - key: athletics
+      uses: 1
+    - key: handlePet
+      uses: 2
+    - key: natureLore
+      uses: 2
+    - key: navigate
+      uses: 1
+    - key: stealth
+      uses: 1
+    - key: bow
+      uses: 2
+  equipment: ["animal feed (6)", "bear trap", "dog (pet)", "quiver of arrows", "shortbow", "torch"]
   spellbooks: []
+  startingGold: "3d6"
