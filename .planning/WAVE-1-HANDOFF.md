@@ -308,7 +308,7 @@ Every significant defect had the same signature: **no error, no red test, a conf
 
 | Found by | Defect |
 |---|---|
-| T1.8 | `summonBehaviour` matched **0 of 25** shipped spellbooks — including *Summon Object* |
+| T1.8 | `summonBehaviour` matched **0 of 25** shipped spellbooks — including *Summon Object*. **Phrasing corrected 2026-08-25:** it is **0 of 27** now, and "including Summon Object" implies that spell should satisfy `actsAsPet`. It should satisfy **`summons`** — it summons an *object*, so `actsAsPet` is correctly false. `actsAsPet` is unreachable because PT2 ships **no creature-summoning spell at all**, which is dormant capability rather than a defect. Pinned by `test/spellbook-corpus.test.mjs`; see the `summon-behaviour-inert` ticket before touching the parser. |
 | T1.8 | Any of six spellcasting expertises passed on any casting (R:1459 names *the* discipline) |
 | T1.7 | Edges double-counted at the seam — they clamp at 2, so one duplicate is a whole tier shift |
 | T1.2 | `schema.mjs` boot blocker — the shim never imports data models, so that tree is untested by construction |
@@ -447,9 +447,14 @@ pets bonded, console clean.
 
 - **T3.7** in flight; `crows-loot` untouched this session.
 - **`summonBehaviour` matches 0 of 27** — but `actsAsPet` is *correctly* unreachable, because
-  PT2 ships no creature-summoning spell. Do not "fix" it by loosening the parser. See the
-  `summon-behaviour-inert` ticket; this file's "including Summon Object" phrasing is
-  misleading and should read `summons`, not `actsAsPet`.
+  PT2 ships no creature-summoning spell. Do not "fix" it by loosening the parser; §7's phrasing
+  is corrected above. Now **pinned by `test/spellbook-corpus.test.mjs`**, which asserts both
+  `summons` and `actsAsPet` are empty across all 27 and explains why in a comment. Both
+  assertions are mutation-verified against the two most plausible wrong "fixes" — treating
+  conjuration spells as summons, and treating any creature-target spell as a pet.
+  Still open on MCDM: should Summon Object's target line read `1 Summoned object`? Note the
+  spell's own description never uses the word "summon" — it says "you **create** a mundane
+  object" — so there is no honest prose-based detection either. See `summon-behaviour-inert`.
 - The **GearData `study` field** and the lore-book study mechanic — `lore-book-study-mechanic`.
 - `dev/` is still gitignored; the probes remain unversioned.
 - `CrowData.crafting.projects`, `stackKind` and `TraitData` purse capacity are unchanged.

@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { readFileSync, readdirSync } from "node:fs";
 import YAML from "js-yaml";
 
-import { migrateSpellbookSystem, targetNeedsReview } from "../module/helpers/spellcasting.mjs";
+import { migrateSpellbookSystem, targetNeedsReview, summonBehaviour } from "../module/helpers/spellcasting.mjs";
 
 const SPELLBOOK_DIR = new URL("../src/packs/crows-spellbooks/", import.meta.url).pathname;
 
@@ -100,5 +100,55 @@ describe("shipped Playtest 2 spellbook corpus", () => {
     assert.deepEqual(byName.get("Wound Closure").effectBands, {
       t1: "0 wounds healed", t2: "1 wound healed", t3: "2 wounds healed"
     });
+  });
+});
+
+describe("summonBehaviour is inert against PT2 content — deliberately", () => {
+  /**
+   * READ THIS BEFORE "FIXING" summonBehaviour.
+   *
+   * It matches 0 of 27 shipped spellbooks, which reads like a broken detector
+   * and invites loosening the parser until something matches. Do not.
+   *
+   * Two separate facts produce the zero, and only the first is a defect:
+   *
+   * 1. `summons` is false for Summon Object, which demonstrably summons one.
+   *    Its card prints target `Self`, and `Summoned` — a keyword the rules
+   *    DEFINE at R:1215 — appears in ZERO target lines across all five card
+   *    decks. That is MCDM disagreeing with itself, and it is an MCDM question,
+   *    not licence to edit the content or infer a summon from description prose.
+   *
+   * 2. `actsAsPet` is unreachable, and that is CORRECT. It requires
+   *    `kind === "creature"`, and PT2 ships no creature-summoning spell — the
+   *    only spell that summons anything summons an OBJECT. R:1255 anticipates
+   *    summoned creatures ("they function like pets in combat except that you
+   *    don't need to make a test"), which is what `requiresCommandTest: false`
+   *    already encodes. The machinery is correct and dormant.
+   *
+   * Loosening the parser would hand pet mechanics to a summoned object, which
+   * `petCombatProfile` guards against precisely because it must not happen.
+   *
+   * This test will fail the day MCDM ships a creature summon. That is the point.
+   */
+  test("no shipped spellbook acts as a pet, and none is detected as a summon", () => {
+    const spellbooks = corpus();
+    assert.equal(spellbooks.length, 27, "guard: the real shipped corpus was loaded");
+
+    const actsAsPet = spellbooks.filter(({ system }) => summonBehaviour(system).actsAsPet)
+      .map(({ document }) => document.name);
+    assert.deepEqual(actsAsPet, [],
+      "PT2 ships no creature-summoning spell; a hit here means the parser was loosened");
+
+    const summons = spellbooks.filter(({ system }) => summonBehaviour(system).summons)
+      .map(({ document }) => document.name);
+    assert.deepEqual(summons, [],
+      "no card prints `Summoned` in a target line; a hit means content was edited to satisfy the parser");
+  });
+
+  test("the rule that summoned creatures skip the command test is still encoded", () => {
+    // R:1255. Unreachable today, but it must not silently flip when content arrives.
+    for (const { document, system } of corpus()) {
+      assert.equal(summonBehaviour(system).requiresCommandTest, false, document.name);
+    }
   });
 });
