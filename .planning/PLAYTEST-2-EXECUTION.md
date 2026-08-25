@@ -1586,6 +1586,65 @@ passing mention of an item name is not its stat block.
 
 T3.8 and T3.9 both target `crows-adventures`. Give them separate subdirectories under `src/packs/crows-adventures/` and have one agent add the pack to `system.json` — or simpler, give each its own pack and merge later.
 
+---
+
+## ⚠️ EVERY CITATION IN THE TABLES ABOVE IS STALE — re-derived 2026-08-25
+
+The books were rebuilt that morning (Rules 1,736→1,388, Characters 3,179→2,678, Ref
+2,122→1,727, Dungeons 1,167→832). **The numbers in the Wave 3 tables above predate that and
+point into the wrong chapters.** `T3.9`'s `D:577–1168` runs past the end of a file that is
+now 832 lines.
+
+The books are now pinned in [`docs/source/`](../docs/source/README.md), so these numbers are
+tied to a commit and `docs/source/sync-books.sh --check` detects drift. **Cite the pinned
+copies.** Everything below was derived by content — never by offset, because the drift is
+not constant.
+
+| Ticket | Was | **Now** | Verified |
+|---|---|---|---|
+| T3.1 backgrounds | `C:89–602` | **`C:81–374`** | 36 headings, 8 lines apart |
+| T3.2 traits | `C:707–1878` | **`C:428–1692`** | 23 trees |
+| T3.3 weapons/armor/ammo | `C:1997–2404` | **`C:1797–2102`** | Armor 1797, Armor Ench. 1888, Weapons 1944, Weapon Ench. 2045 |
+| T3.4 gear/consumables/loot | `C:1883–1996`, `C:2405–2428` | **`C:1697–1796`** + **`C:2103–2125`** | Inventory Cards 1697, Gear 1722; Crafting Materials 2103, Treasure 2122 |
+| T3.5 monsters | `F:688–2123` | **`F:653–1727`** | Creature Stats 653, Animals 685, Humans 1047, Monsters 1401 |
+| T3.6 spellbooks | `R:1445–1664` | **`R:1174–1330`** + the cards | see the warning below |
+| T3.7 rules journal | — | **`R:12–1388`** | 26 H1 chapters |
+| T3.8 Blood Library | `D:193–576` | **`D:141–405`** | **8 numbered rooms** — matches the plan |
+| T3.9 Floating Manor | `D:577–1168` | **`D:406–833`** | **15 numbered rooms** — matches the plan |
+| T3.10 POIs/Gadwick/hooks | `D:12–192` | **`D:10–140`** | Gadwick 10, Hooks 38, Ruined Tower 49, Ruined Windmill 78 |
+| T3.11 travel tables | `F:10–687` | **`F:6–652`** | all nine tables present |
+
+### T3.6 — the spellbook citation was wrong in kind, not just in number
+
+`R:1174–1330` is the spellcasting **system** — rank, discipline, the chaos roll. It contains
+**no per-spell stat blocks**. Every spell's tier bands, range, target and cost live only on
+the inventory cards. Cite `IC:` for those; T3.0 established the prefixes. The old
+`R:1445–1664` pointed at a chapter that never held what T3.6 needs.
+
+### T3.10 — "awarding treasures" is a callout, not a section
+
+It is a `> [!tip] Awarding Treasures` block at **`D:28`**, inside Village: Gadwick. Do not go
+looking for a chapter.
+
+### T3.11 — the nine travel tables
+
+Any Monster `F:27`, Bad Weather `F:45`, Merchant `F:118`, Miasma-Touched `F:179`, Monster
+from Nearby `F:246`, Strong Miasma `F:254`, Traveler `F:264`, Wild Animal `F:334`,
+Interesting Things `F:504`. The section ends at Creature Stats (`F:653`), which is T3.5's.
+
+### T3.2 — check the "Blackmsithing" typo before preserving it
+
+The note above records a source typo at the old `C:957`. The rebuilt extraction reads
+**`Blacksmithing` at `C:792`**, correctly spelled. Establish from the **PDF** whether the
+typo was MCDM's or an artifact of the old extraction before preserving it — the same check
+that confirmed `vulenarble` (canonical, kept) and rejected `_repair take_ , _shape_`
+(artifact, corrected).
+
+### Pets moved chapters
+
+Equipment-side Pets is now **`C:2126–2176`**, not `C:2429`. Vehicles `C:2177`, Hirelings
+`C:2195`.
+
 **Background line starts** for T3.1 (note the source is not strictly alphabetical).
 
 > ### ⚠️ CORRECTED 2026-08-25 — the numbers here were in the DEAD `L####` SCHEME
