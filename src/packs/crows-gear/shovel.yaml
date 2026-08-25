@@ -1,10 +1,10 @@
-_id: crowsgear0lrebok
-_key: "!items!crowsgear0lrebok"
-name: Lore Book (Monster Lore)
-img: icons/sundries/books/book-backed-blue-gold.webp
+_id: crowsgear0shovel
+_key: "!items!crowsgear0shovel"
+name: Shovel
+img: icons/tools/hand/shovel.webp
 type: gear
 system:
-  description: "<p>This book relates to the Monster Lore expertise. Study this book as a rest activity and gain a 1 use of that expertise that lasts until your next rest.</p>"
+  description: "<p>Use this to dig holes! Can also make a decent crowbar in a pinch, but might break.</p><p>Blacksmithing 1 | 1 iron bar | 5</p>"
   subtype: tool
   light:
     enabled: false
@@ -25,5 +25,5 @@ system:
   slots: 1
   stackMax: 1
   quantity: 1
-  cost: 50
+  cost: 10
   weightless: false

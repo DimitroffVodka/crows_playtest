@@ -1,0 +1,29 @@
+_id: crowsgear0soap01
+_key: "!items!crowsgear0soap01"
+name: Soap
+img: icons/commodities/materials/slime-green.webp
+type: gear
+system:
+  description: "<p>UD: 1 (Useless; Activate)</p><p>You can use this bar of soap to clean yourself or a mess, leave messages, whittle shapes, or lubricate locks, tools, or your wrists when bound in chains.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 3
+  quantity: 1
+  cost: 1
+  weightless: false

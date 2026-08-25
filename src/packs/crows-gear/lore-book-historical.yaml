@@ -1,10 +1,10 @@
-_id: crowsgear0lrebok
-_key: "!items!crowsgear0lrebok"
-name: Lore Book (Monster Lore)
+_id: crowsgear0lrehis
+_key: "!items!crowsgear0lrehis"
+name: Lore Book (Historical Lore)
 img: icons/sundries/books/book-backed-blue-gold.webp
 type: gear
 system:
-  description: "<p>This book relates to the Monster Lore expertise. Study this book as a rest activity and gain a 1 use of that expertise that lasts until your next rest.</p>"
+  description: "<p>This book relates to the Historical Lore expertise. Study this book as a rest activity and gain a 1 use of that expertise that lasts until your next rest.</p>"
   subtype: tool
   light:
     enabled: false

@@ -1,0 +1,29 @@
+_id: crowsgear0net001
+_key: "!items!crowsgear0net001"
+name: Net
+img: icons/tools/fishing/net.webp
+type: gear
+system:
+  description: "<p>This fishing net unfurls when hurled. You can hurl it at a Medium or smaller creature as part of the Grab maneuver, which gives you an edge on the test, and gives them a bane on tests made to break the grab. It has 5 Stamina.</p>"
+  subtype: utility
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 5
+  weightless: false

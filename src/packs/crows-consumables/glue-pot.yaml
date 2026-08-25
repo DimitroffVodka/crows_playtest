@@ -1,0 +1,25 @@
+_id: crowsconsgluepot
+_key: "!items!crowsconsgluepot"
+name: Glue Pot
+img: icons/containers/jars/jar-glass-corked-purple.webp
+type: consumable
+system:
+  description: "<p>Glue for binding! Maneuver: Spread over a 2 x 2 area of ground. Creatures entering make a Strength RR.</p>"
+  useAction: maneuver
+  bands:
+    t1: "Grabbed by the glue"
+    t2: "Speed halved for this turn"
+    t3: "No effect"
+  thrown:
+    isAttack: false
+    range: 0
+  duration: ""
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 125

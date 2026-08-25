@@ -1,0 +1,25 @@
+_id: crowsconssmokeb1
+_key: "!items!crowsconssmokeb1"
+name: Smoke Bomb
+img: icons/weapons/ammunition/bomb-smoke.webp
+type: consumable
+system:
+  description: "<p>Maneuver: You throw the bomb up to 10 squares. It explodes, creating a 3-cube area of heavy concealment. It becomes light concealment in d6 combat rounds, then dissipates in d6 rounds.</p>"
+  useAction: maneuver
+  bands:
+    t1: ""
+    t2: ""
+    t3: ""
+  thrown:
+    isAttack: false
+    range: 10
+  duration: "d6 combat rounds, then dissipates in d6 rounds"
+  usageDie:
+    enabled: false
+    udMax: 0
+    udCurrent: 0
+    expiry: useless
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 50

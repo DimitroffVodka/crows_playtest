@@ -1,0 +1,29 @@
+_id: crowsgear0surgkt
+_key: "!items!crowsgear0surgkt"
+name: Surgical Kit
+img: icons/tools/medical/scissors.webp
+type: gear
+system:
+  description: "<p>UD: 1 (Useless; Activate)</p><p>Can be used to make Scalpels, threads, needles, and bandages made for closing wounds. You can use this kit when you take the Tend Wounds rest activity to have the target lose 1 additional wound.</p>"
+  subtype: tool
+  light:
+    enabled: false
+    bright: 0
+    dim: 0
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: useless
+    refuelWith: ""
+  isMagic: false
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 100
+  weightless: false
