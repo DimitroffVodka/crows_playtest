@@ -17,7 +17,7 @@
  *    Only advancement (C:615) raises `max`.
  *
  * 2. THE MIASMA SUPPRESSES THE EXPERTISE REFRESH AND NOTHING ELSE.
- *    R:1375: resting in the Miasma does not restore expertise uses; every other
+ *    R:1125: resting in the Miasma does not restore expertise uses; every other
  *    effect of the rest applies normally. `value` is left EXACTLY as it is —
  *    not zeroed, not partially restored. This rule is the proof that the
  *    two-field model was mandatory: with a single mutable count there is no
@@ -29,7 +29,7 @@
  *    C:921 (benefaction, Mind), C:1361 (knowledge, Mind), C:1501 (necromancy,
  *    Mind) and C:1739 (armor, AGILITY, the one an earlier count missed). Every
  *    one says "regaining all uses when you finish a rest", and NOTHING ELSE in
- *    the system resets them. R:1375 names expertises only, so a trait pool
+ *    the system resets them. R:1125 names expertises only, so a trait pool
  *    refreshes in the Miasma.
  *
  *    `used` is stored, not `remaining`, because the pool SIZE is derived from a
@@ -102,7 +102,7 @@ export function activityLabel(activity) {
   return REST_ACTIVITIES[activity]?.label ?? activity;
 }
 
-// --- pure: expertise refresh (R:628, R:1375) --------------------------------
+// --- pure: expertise refresh (R:628, R:1125) --------------------------------
 
 /**
  * The update paths that restore expertise uses.
@@ -160,7 +160,7 @@ export function traitPoolState(usePool = {}, characteristics = {}) {
 /**
  * Embedded-item updates that reset every trait use pool (R:628).
  *
- * NOT gated on the Miasma — R:1375 names expertises and nothing else.
+ * NOT gated on the Miasma — R:1125 names expertises and nothing else.
  *
  * `used` is only ever written to 0, and only when it is not already 0. That is
  * the sole direction this function moves it in: a pool whose owner's
@@ -699,7 +699,8 @@ export async function takeRest(actor, {
   const stamMax = sys.stamina?.max ?? 0;
 
   const expertiseUpdates = expertiseRefreshUpdates(sys.expertises, { inMiasma });
-  const woundCount = woundRemovalCount(sess, actor.id);
+  const baseWoundCount = woundRemovalCount(sess, actor.id);
+  const woundCount = await _miasmaRestWoundCount(actor, baseWoundCount, inMiasma);
   const candidates = layout
     ? woundCandidatesFromLayout(layout)
     : [...(sys.woundSlots ?? [])].map(Number).sort((a, b) => a - b);
@@ -722,12 +723,17 @@ export async function takeRest(actor, {
     ...expertiseUpdates
   });
 
-  // Trait pools reset on EVERY rest, Miasma or not (R:1375 names expertises).
+  // Trait pools reset on EVERY rest, Miasma or not (R:1125 names expertises).
   const poolUpdates = traitPoolResetUpdates(actor.items);
   if (poolUpdates.length) await actor.updateEmbeddedDocuments("Item", poolUpdates);
   const overused = _overusedPools(actor);
 
   const restored = await restoreSpellbookUds(actor);
+
+  // R:1134 — a completed rest somewhere without Miasma clears every cruelty
+  // level. This is deliberately after the normal rest writes and is a no-op
+  // when the counter is already zero.
+  const miasmaCruelty = !inMiasma ? await _clearMiasmaCruelty(actor) : null;
 
   sess = markRested(sess, actor.id);
   if (useShared) _session = sess;
@@ -744,7 +750,7 @@ export async function takeRest(actor, {
     activity, inTown, inMiasma, secludeCamp,
     stamina: { before: stamBefore, after: stamMax },
     expertiseCount: Object.keys(expertiseUpdates).length,
-    wounds, poolsReset: poolUpdates.length, overused,
+    wounds, poolsReset: poolUpdates.length, overused, miasmaCruelty,
     restoredUds: restored.restored, ecResults, halfwayEffects
   });
 
@@ -756,6 +762,7 @@ export async function takeRest(actor, {
     expertisesRefreshed: Object.keys(expertiseUpdates).length,
     expertiseRefreshSuppressed: inMiasma,
     wounds: { removed: wounds.removed, remaining: wounds.remaining, autoChosen: wounds.autoChosen, count: woundCount },
+    miasmaCruelty,
     traitPoolsReset: poolUpdates.length, overusedPools: overused,
     restoredUds: restored.restored,
     encounters: ecResults,
@@ -890,6 +897,24 @@ async function _inMiasma(inTown) {
     return !!getInMiasma();
   } catch {
     return false;
+  }
+}
+
+async function _miasmaRestWoundCount(actor, baseCount, inMiasma) {
+  try {
+    const { miasmaRestWoundCount } = await import("./miasma.mjs");
+    return miasmaRestWoundCount(actor, baseCount, { inMiasma });
+  } catch {
+    return baseCount;
+  }
+}
+
+async function _clearMiasmaCruelty(actor) {
+  try {
+    const { clearCruelty } = await import("./miasma.mjs");
+    return await clearCruelty(actor, { announce: false, reason: "restOutsideMiasma" });
+  } catch {
+    return null;
   }
 }
 
@@ -1108,8 +1133,14 @@ async function _resolveActivity(actor, activity, data = null, { restCompleted = 
 
 async function _postRestCard(actor, r) {
   const expertiseLine = r.inMiasma
-    ? `<li><strong>Expertise uses NOT restored</strong> — resting in the Miasma (R:1375). Every other benefit applies.</li>`
+    ? `<li><strong>Expertise uses NOT restored</strong> — resting in the Miasma (R:1125). Every other benefit applies.</li>`
     : `<li>Expertise uses restored: <strong>${r.expertiseCount}</strong> expertise(s) back to their owned maximum</li>`;
+
+  const crueltyLine = r.inMiasma
+    ? ""
+    : r.miasmaCruelty?.cleared
+      ? `<li>Miasma cruelty cleared: <strong>${r.miasmaCruelty.cleared}</strong> level${r.miasmaCruelty.cleared === 1 ? "" : "s"}</li>`
+      : "";
 
   const woundLine = r.wounds.removed.length
     ? `<li>Wounds removed from backpack slot ${r.wounds.removed.join(", ")}${r.wounds.autoChosen ? " <em>(auto-picked — no choice was supplied)</em>" : ""}</li>`
@@ -1133,6 +1164,7 @@ async function _postRestCard(actor, r) {
   <ul>
     <li>Stamina: ${r.stamina.before} → <strong>${r.stamina.after}</strong></li>
     ${expertiseLine}
+    ${crueltyLine}
     ${woundLine}
     ${poolLine}
     ${overusedLine}

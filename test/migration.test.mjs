@@ -9,7 +9,8 @@ import {
   buildBackgroundIndex, resolveBackground,
   expertiseBudgetForTxp, reconcileExpertiseBudget, reconcileActorExpertises,
   expertiseOverBudget, migrateActorSlots, migrateActorDocument,
-  buildMigrationReport, RECONCILED_FLAG, BACKGROUND_USES_FLAG
+  buildMigrationReport, droppedConditionsFromSource,
+  RECONCILED_FLAG, BACKGROUND_USES_FLAG
 } from "../module/helpers/migration.mjs";
 import { ALL_EXPERTISES, CROWS } from "../module/config.mjs";
 
@@ -904,6 +905,19 @@ describe("migrateBackgroundSystem — best-effort shape, overwritten by T3.1", (
 
 /* ========================================================================== */
 describe("migrateActorDocument + the GM report — nothing disappears silently", () => {
+  test("source-aware migration records boned's exact dropped value", () => {
+    assert.deepEqual(
+      droppedConditionsFromSource({ conditions: { boned: 3, hidden: true } }),
+      [{ key: "boned", value: 3 }, { key: "hidden", value: true }]
+    );
+    const actor = migratedFixtureActor({
+      _source: { system: { conditions: { boned: 3 } } }
+    });
+    const r = migrateActorDocument(actor, { backgrounds: THIEF_INDEX });
+    assert.deepEqual(r.droppedConditions, [{ key: "boned", value: 3 }]);
+    assert.equal(actor.system.conditions.boned, undefined);
+  });
+
 /* ========================================================================== */
 
   test("one call per actor merges both layers' updates", () => {
@@ -935,6 +949,17 @@ describe("migrateActorDocument + the GM report — nothing disappears silently",
     assert.match(html, /budget skipped, not assumed zero/);
     assert.match(html, /Budgeted/);
     assert.match(html, /report-only/);
+  });
+
+  test("the report records dropped boned values without converting them to cruelty", () => {
+    const actor = migratedFixtureActor({
+      _source: { system: { conditions: { boned: 3 } } }
+    });
+    const r = migrateActorDocument(actor, { backgrounds: THIEF_INDEX });
+    const html = buildMigrationReport([r]).pages[0].text.content;
+    assert.match(html, /Dropped PT1 condition state/);
+    assert.match(html, /boned: 3/);
+    assert.match(html, /never converted to cruelty/);
   });
 
   test("the report says trims were WRITTEN only under enforce", () => {
