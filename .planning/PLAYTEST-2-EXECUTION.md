@@ -1632,13 +1632,48 @@ Any Monster `F:27`, Bad Weather `F:45`, Merchant `F:118`, Miasma-Touched `F:179`
 from Nearby `F:246`, Strong Miasma `F:254`, Traveler `F:264`, Wild Animal `F:334`,
 Interesting Things `F:504`. The section ends at Creature Stats (`F:653`), which is T3.5's.
 
-### T3.2 — check the "Blackmsithing" typo before preserving it
+### T3.2 — "Blackmsithing" is CANONICAL. Checked 2026-08-25.
 
-The note above records a source typo at the old `C:957`. The rebuilt extraction reads
-**`Blacksmithing` at `C:792`**, correctly spelled. Establish from the **PDF** whether the
-typo was MCDM's or an artifact of the old extraction before preserving it — the same check
-that confirmed `vulenarble` (canonical, kept) and rejected `_repair take_ , _shape_`
-(artifact, corrected).
+**Verdict: preserve it.** The Characters Book PDF, page 13, prints the tree heading as
+**`Blackmsithing`** over "For creating armor and weapons". It occurs exactly once in the
+whole PDF against 28 correct `Blacksmithing`, which is the signature of a real one-off
+authoring typo rather than an extraction fault.
+
+### ⚠️ AND THE MARKDOWN SILENTLY CORRECTS SOME TYPOS — this is the bigger finding
+
+The pinned markdown reads `## Blacksmithing` at `C:792`. **The extraction fixed MCDM's typo
+without saying so**, and it does this inconsistently:
+
+| Typo | In the PDF | In the markdown | |
+|---|---:|---:|---|
+| `Blackmsithing` | 1 | **0** | silently corrected |
+| `vulenarble` | 1 | **0** | silently corrected |
+| `wile` (Seeing Things) | 1 | **0** | silently corrected |
+| `Sieze` | 2 | 3 | preserved |
+| `Stabathon` | 1 | 2 | preserved |
+
+**Three of five canonical typos are gone from the markdown.** So the rebuilt extraction is
+structurally better — no column bleed, regular records — but **less faithful for verbatim
+prose** than the version it replaced.
+
+**Consequences for T3.2, which owns 276 trait documents and is where the
+preserve-canonical-typos policy actually bites:**
+
+- Use the markdown for **structure and navigation** — headings, ordering, which trait sits
+  in which tree and tier.
+- Use `pdftotext -layout` on the PDF as the authority for **verbatim prose and names**.
+  Anything that looks like a typo must be checked there before it is normalised *or*
+  preserved, because the markdown will have quietly picked one.
+- A trait *name* is the highest-risk case: a silently corrected name ships the wrong string
+  and breaks name-based lookup, which is how this system resolves items.
+
+This also retroactively validates `bashing-t3-c3` (Bone Breaker), transcribed with
+`vulenarble` intact on 2026-08-25 **because it was checked against the PDF**. Had it been
+taken from the current markdown it would have shipped `vulnerable` and lost the canonical
+text.
+
+Same method that rejected `_repair take_ , _shape_` as an extraction artifact: when the
+markdown and the PDF disagree, the PDF wins.
 
 ### Pets moved chapters
 
