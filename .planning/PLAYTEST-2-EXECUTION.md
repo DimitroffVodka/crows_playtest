@@ -1586,8 +1586,34 @@ passing mention of an item name is not its stat block.
 
 T3.8 and T3.9 both target `crows-adventures`. Give them separate subdirectories under `src/packs/crows-adventures/` and have one agent add the pack to `system.json` — or simpler, give each its own pack and merge later.
 
-**Background line starts** for T3.1 (note the source is not strictly alphabetical):
-Acolyte of the Gardner 1845, Healer 1859, Smith 1873, Three 1887, Warrior 1893, Alchemist 1903, Apprentice Mage 1917, Archer 1931, Assassin 1957, Beggar 1971, Cartographer 1985, Conjurer 1999, Cook 2013, Blacksmith 2015, Duelist 2041, Bodyguard 2043, Entertainer 2073, Executioner 2087, Hunter 2091, Hydromancer 2105, Farmer 2119, Illusionist 2135, Gladiator 2149, Keraunomancer 2171, Knight 2189, Pugilist 2201, Pyromancer 2211, Merchant 2213, Sage 2239, Miner 2241, Noble 2255, Soldier 2281, Thief 2299, Tinkerer 2313, Transmuter 2327, Village Watch 2341.
+**Background line starts** for T3.1 (note the source is not strictly alphabetical).
+
+> ### ⚠️ CORRECTED 2026-08-25 — the numbers here were in the DEAD `L####` SCHEME
+>
+> This list was never converted when the rest of the plans moved to `Book:Line` form. Every
+> value was a master-concatenation offset needing **−1752** for the Characters Book, exactly
+> as the migration plan warns. Taken literally they land in the *traits and equipment
+> chapters* — `1845` is an improvised-weapon trait, `1859` is "Bashing Benefits", `2341` is a
+> gash weapon rule. All plausible-looking game text, none of it a background. An agent
+> following the old numbers would have transcribed 36 backgrounds' worth of the wrong
+> chapter without anything erroring.
+>
+> The values below are **re-derived by content** — every one lands on a
+> `### **<Name>**` heading — and verified to match the old list minus 1752 exactly.
+
+Acolyte of the Gardner **C:93**, Acolyte of the Healer **C:107**, Acolyte of the Smith **C:121**,
+Acolyte of the Three **C:135**, Acolyte of the Warrior **C:141**, Alchemist **C:151**,
+Apprentice Mage **C:165**, Archer **C:179**, Assassin **C:205**, Beggar **C:219**,
+Cartographer **C:233**, Conjurer **C:247**, Cook **C:261**, Blacksmith **C:263**,
+Duelist **C:289**, Bodyguard **C:291**, Entertainer **C:321**, Executioner **C:335**,
+Hunter **C:339**, Hydromancer **C:353**, Farmer **C:367**, Illusionist **C:383**,
+Gladiator **C:397**, Keraunomancer **C:419**, Knight **C:437**, Pugilist **C:449**,
+Pyromancer **C:459**, Merchant **C:461**, Sage **C:487**, Miner **C:489**, Noble **C:503**,
+Soldier **C:529**, Thief **C:547**, Tinkerer **C:561**, Transmuter **C:575**,
+Village Watch **C:589**.
+
+The chapter runs `C:89`–`C:602`, which is what the T3.1 row above already said — the two
+were inconsistent, and the row was the correct one.
 
 ---
 
