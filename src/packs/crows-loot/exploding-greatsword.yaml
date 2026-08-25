@@ -1,0 +1,18 @@
+_id: crowsloot0explgs
+_key: "!items!crowsloot0explgs"
+name: Exploding Greatsword
+type: weapon
+img: icons/weapons/swords/greatsword-crossguard-steel.webp
+system:
+  description: "<p>A massive two-handed sword. Disengage, Parry 6.</p><p>Exploding Enchantment.</p>"
+  type: slashing
+  range: { melee: 1, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "4 + S", t3: "8 + S" }
+  qualities: [disengage, parry]
+  parryValue: 6
+  enchantment: Exploding
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 2015

@@ -1,0 +1,26 @@
+_id: crowsloot0deathr
+_key: "!items!crowsloot0deathr"
+name: Death Ring
+img: icons/equipment/finger/ring-ball-gold-pink.webp
+type: gear
+system:
+  description: "<p><strong>Stack</strong> 10 | <strong>UD</strong> 1 (Rest; Activate)</p><p><strong>Action:</strong> Choose an undead within 10 squares of you to make a M RR.</p><table><thead><tr><th>≤11</th><th>12-16</th><th>17+</th></tr></thead><tbody><tr><td>The undead teleports next to you and then can counter.</td><td>You control the undead for 1 combat round.</td><td>You control the undead til the end of the DT.</td></tr></tbody></table><p><em>Enchanting 2 | gem worth 200 gc | 200</em></p>"
+  subtype: ring
+  light:
+    enabled: false
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  isMagic: true
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 10
+  quantity: 1
+  cost: 1000

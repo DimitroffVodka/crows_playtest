@@ -1,0 +1,26 @@
+_id: crowsloot0hurlwd
+_key: "!items!crowsloot0hurlwd"
+name: Hurling Wand
+img: icons/weapons/staves/staff-simple-blue.webp
+type: gear
+system:
+  description: "<p><strong>Stack</strong> 2 | <strong>UD</strong> 1 (Useless; Activate)</p><p><strong>Maneuver:</strong> You target a creature within 15 squares of you. They make a Strength RR.</p><table><thead><tr><th>≤11</th><th>12-16</th><th>17+</th></tr></thead><tbody><tr><td>10 vertical slide</td><td>5 vertical slide</td><td>No effect</td></tr></tbody></table><p><em>Enchanting 2 | gem worth 100 gc | 100</em></p>"
+  subtype: wand
+  light:
+    enabled: false
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: useless
+    refuelWith: ""
+  isMagic: true
+  mystery: false
+  identified: true
+  treasure:
+    size: ""
+    value: 0
+  slots: 1
+  stackMax: 2
+  quantity: 1
+  cost: 500

@@ -1,0 +1,18 @@
+_id: crowsloot0vflail
+_key: "!items!crowsloot0vflail"
+name: Vicious Steel Flail
+type: weapon
+img: icons/weapons/maces/mace-round-spiked-black.webp
+system:
+  description: "<p>A two-handed flail with extended reach. Bashing, Pummeling.</p><p>Upgrade: Steel. Vicious Enchantment.</p>"
+  type: bashing
+  range: { melee: 2, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "4 + S", t3: "7 + S" }
+  qualities: [pummeling]
+  parryValue: 0
+  enchantment: Vicious
+  qualityTier: standard
+  slots: 2
+  stackMax: 1
+  cost: 1015

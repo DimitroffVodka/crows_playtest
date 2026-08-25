@@ -1,0 +1,18 @@
+_id: crowsloot0stlknf
+_key: "!items!crowsloot0stlknf"
+name: Steel Knife
+type: weapon
+img: icons/weapons/daggers/dagger-curved-green.webp
+system:
+  description: "<p>A light blade that can be thrown or used up close. Parry 2.</p><p>Upgrade: Steel.</p><p>Blacksmithing 1 | 1 iron bar | 5</p>"
+  type: slashing
+  range: { melee: 1, ranged: 5 }
+  attackStat: either
+  damage: { t2: "3 + A or S", t3: "5 + A or S" }
+  qualities: [light, disengage, parry]
+  parryValue: 2
+  enchantment: ""
+  qualityTier: standard
+  slots: 1
+  stackMax: 2
+  cost: 510

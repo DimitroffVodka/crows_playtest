@@ -1,0 +1,18 @@
+_id: crowsloot0stlaxe
+_key: "!items!crowsloot0stlaxe"
+name: Steel Axe
+type: weapon
+img: icons/weapons/axes/axe-battle-worn.webp
+system:
+  description: "<p>A heavy one-handed chopping axe. Dismember.</p><p>Upgrade: Steel.</p><p>Blacksmithing 1 | 1 iron bar | 10</p>"
+  type: chopping
+  range: { melee: 1, ranged: 0 }
+  attackStat: strength
+  damage: { t2: "4 + S", t3: "8 + S" }
+  qualities: [dismember]
+  parryValue: 0
+  enchantment: ""
+  qualityTier: standard
+  slots: 1
+  stackMax: 1
+  cost: 512
