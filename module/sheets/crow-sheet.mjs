@@ -3,6 +3,8 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 
 import { CROWS, ALL_EXPERTISES, expertiseCategory } from "../config.mjs";
 import { rollTest } from "../helpers/roll.mjs";
+import { rollTamingTest, rollPetCommandTest } from "../helpers/pets.mjs";
+import { petViewData, petViewReasonKey } from "../helpers/pet-view.mjs";
 import { applyBackground } from "../helpers/creation.mjs";
 import {
   advancementOptions, nextAdvancementTXP, traitPurchaseInfo, traitPoolState,
@@ -308,6 +310,32 @@ function characteristicDisabledReason(view) {
   return "";
 }
 
+function actorDocuments(collection) {
+  if (Array.isArray(collection?.contents)) return [...collection.contents];
+  if (collection && typeof collection.values === "function") return [...collection.values()];
+  if (collection && typeof collection[Symbol.iterator] === "function") return [...collection];
+  return [];
+}
+
+function findActorByPetKey(key) {
+  const value = String(key ?? "").trim();
+  if (!value) return null;
+  const collection = globalThis.game?.actors;
+  return collection?.get?.(value)
+    ?? actorDocuments(collection).find(actor => actor?.uuid === value || actor?.id === value)
+    ?? null;
+}
+
+function petWorldTime() {
+  const value = globalThis.game?.time?.worldTime;
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+function petFailureNotification(result) {
+  if (result?.ok !== false) return;
+  notify("warn", petViewReasonKey(result.reason));
+}
+
 export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["crows", "sheet", "crow"],
@@ -331,6 +359,9 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       toggleMiasma: CrowSheet._onToggleMiasma,
       rollMiasmaResist: CrowSheet._onRollMiasmaResist,
       clearMiasmaSelf: CrowSheet._onClearMiasmaSelf,
+      tamePet: CrowSheet._onTamePet,
+      commandPet: CrowSheet._onCommandPet,
+      testCommandPet: CrowSheet._onTestCommandPet,
       cryptPray: CrowSheet._onCryptPray,
       cryptExpend: CrowSheet._onCryptExpend,
       cryptInter: CrowSheet._onCryptInter,
@@ -382,8 +413,14 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.activeTab = this._activeTab;
     ctx.isGM = Boolean(game.user?.isGM);
     ctx.shift = 1;
-    ctx.tabs = ["main", "equipment", "inventory", "advancement", "downtime", "bio"]
+    ctx.tabs = ["main", "equipment", "inventory", "pets", "advancement", "downtime", "bio"]
       .map(id => ({ id, label: t(`CROWS.Sheet.Crow.tab.${id}`) }));
+
+    ctx.pets = petViewData(actor, actorDocuments(game.actors), {
+      now: petWorldTime(),
+      isOwner: actor.isOwner === true,
+      localize: (key) => game.i18n?.localize?.(key) ?? key
+    });
 
     ctx.nextAdvancement = nextAdvancementTXP(system.xp?.txp ?? 0);
     ctx.expertiseGroups = expertiseGroups(system);
@@ -1001,6 +1038,67 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async _onClearMiasmaSelf() {
     await clearMiasma(this.document);
     this.render();
+  }
+
+  static async _onTamePet(event, target) {
+    event?.stopPropagation?.();
+    if (this.document.isOwner !== true) return;
+    const animal = findActorByPetKey(target?.dataset?.petId ?? target?.dataset?.petUuid);
+    if (!animal) {
+      notify("warn", petViewReasonKey("invalid-animal-uuid"));
+      return;
+    }
+
+    let confirmed;
+    try {
+      confirmed = await DialogV2.prompt({
+        window: { title: t("CROWS.Sheet.Crow.pets.tameTitle", { animal: animal.name }) },
+        content: `<div class="crows pet-tame-form"><p>${esc(t(
+          "CROWS.Sheet.Crow.pets.tameAssertion", { animal: animal.name }
+        ))}</p></div>`,
+        ok: {
+          label: t("CROWS.Sheet.Crow.pets.tameConfirm"),
+          callback: () => true
+        }
+      });
+    } catch {
+      return;
+    }
+    if (!confirmed) return;
+
+    const result = await rollTamingTest(animal, this.document, {
+      friendly: true,
+      flavor: t("CROWS.Sheet.Crow.pets.tameFlavor", { animal: animal.name })
+    });
+    petFailureNotification(result);
+    this.render();
+  }
+
+  static async _runPetCommand(target, needsTest) {
+    if (this.document.isOwner !== true) return;
+    const animal = findActorByPetKey(target?.dataset?.petId ?? target?.dataset?.petUuid);
+    if (!animal) {
+      notify("warn", petViewReasonKey("invalid-animal-uuid"));
+      return;
+    }
+    const result = await rollPetCommandTest(animal, this.document, {
+      needsTest,
+      flavor: t(needsTest
+        ? "CROWS.Sheet.Crow.pets.commandTestFlavor"
+        : "CROWS.Sheet.Crow.pets.commandFlavor", { animal: animal.name })
+    });
+    petFailureNotification(result);
+    this.render();
+  }
+
+  static async _onCommandPet(event, target) {
+    event?.stopPropagation?.();
+    await this._runPetCommand(target, false);
+  }
+
+  static async _onTestCommandPet(event, target) {
+    event?.stopPropagation?.();
+    await this._runPetCommand(target, true);
   }
 
   static async _onCryptPray() {

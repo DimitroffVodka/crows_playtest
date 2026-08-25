@@ -515,6 +515,97 @@
 .cc-tab { display: none; padding: 8px 4px; }
 .cc-tab.active { display: block; }
 
+/* -------- Pets tab ------------------------------------------------ */
+
+.cc-pets.active {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cc-pets-hint {
+  margin: 0;
+  color: var(--crows-ink-dim);
+  font-size: var(--crows-text-small);
+  font-style: italic;
+}
+.cc-pet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cc-pet-card {
+  border: 1px solid var(--crows-rule-firm);
+  background: var(--crows-white);
+  padding: 6px;
+}
+.cc-pet-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cc-pet-header .cc-item-icon { margin-right: 0; }
+.cc-pet-identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.cc-pet-meta,
+.cc-pet-owner {
+  color: var(--crows-ink-dim);
+  font-size: var(--crows-text-tiny);
+}
+.cc-pet-status {
+  color: var(--crows-gold-dark);
+  font-size: var(--crows-text-small);
+  font-weight: bold;
+  text-align: right;
+}
+.cc-pet-ownedByOther .cc-pet-status,
+.cc-pet-followingOther .cc-pet-status {
+  color: var(--crows-ink-dim);
+}
+.cc-pet-owner { margin: 2px 0 0 34px; }
+.cc-pet-slots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 5px 0 0 34px;
+  font-size: var(--crows-text-small);
+}
+.cc-pet-capacity {
+  flex: 1;
+  height: 7px;
+  border: 1px solid var(--crows-rule);
+  background: var(--crows-paper-grey);
+  overflow: hidden;
+}
+.cc-pet-capacity-fill {
+  height: 100%;
+  background: var(--crows-gold);
+}
+.cc-pet-no-slots { color: var(--crows-ink-fade); font-style: italic; }
+.cc-pet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 6px 0 0 34px;
+}
+.cc-pet-action {
+  background: var(--crows-paper-tab);
+  border: 1px solid var(--crows-ink);
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: var(--crows-text-tiny);
+}
+.cc-pet-action:hover:not(:disabled) { background: var(--crows-gold-light); }
+.cc-pet-action:disabled {
+  color: var(--crows-ink-fade);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+.cc-pet-command-test { border-color: var(--crows-attack); }
+
 /* -------- MAIN tab: Perks + Skills ------------------------------ */
 
 /* Main tab — Skills horizontal on top, Perks below.

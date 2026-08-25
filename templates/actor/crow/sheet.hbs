@@ -389,6 +389,65 @@
     {{/if}}
   </section>
 
+  <section class="cc-tab cc-pets {{#if (eq activeTab 'pets')}}active{{/if}}"
+           role="tabpanel" id="panel-pets" aria-labelledby="tab-pets"
+           {{#unless (eq activeTab 'pets')}}hidden{{/unless}}>
+    <div class="cc-section-title">{{localize "CROWS.Sheet.Crow.pets.title"}}</div>
+    <p class="cc-pets-hint">{{localize "CROWS.Sheet.Crow.pets.hint"}}</p>
+    {{#if pets.animals.length}}
+      <div class="cc-pet-list">
+        {{#each pets.animals as |pet|}}
+          <article class="cc-pet-card cc-pet-{{pet.statusKey}}">
+            <header class="cc-pet-header">
+              {{#if pet.img}}<img class="cc-item-icon" src="{{pet.img}}" alt="">{{/if}}
+              <div class="cc-pet-identity">
+                <strong>{{pet.name}}</strong>
+                <span class="cc-pet-meta">{{pet.sizeLabel}} · {{localize "CROWS.Sheet.Crow.pets.power" power=pet.power}}</span>
+              </div>
+              <span class="cc-pet-status">{{pet.statusLabel}}</span>
+            </header>
+            {{#if pet.ownerName}}
+              <div class="cc-pet-owner">{{localize "CROWS.Sheet.Crow.pets.owner" owner=pet.ownerName}}</div>
+            {{/if}}
+            <div class="cc-pet-slots">
+              <span>{{localize "CROWS.Sheet.Crow.pets.slots" occupied=pet.slots.occupied capacity=pet.slots.capacity free=pet.slots.free}}</span>
+              {{#if pet.slots.hasCapacity}}
+                <div class="cc-pet-capacity" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{pet.slots.percent}}">
+                  <div class="cc-pet-capacity-fill" style="width: {{pet.slots.percent}}%"></div>
+                </div>
+              {{else}}
+                <span class="cc-pet-no-slots">{{localize "CROWS.Sheet.Crow.pets.noSlots"}}</span>
+              {{/if}}
+            </div>
+            {{#if pets.canAct}}
+              {{#if pet.actions.visible}}
+                <div class="cc-pet-actions">
+                  <button type="button" class="cc-pet-action" data-action="tamePet" data-pet-id="{{pet.id}}"
+                          {{#unless pet.actions.tame.enabled}}disabled{{/unless}}
+                          data-tooltip="{{pet.actions.tame.reasonLabel}}">
+                    {{localize "CROWS.Sheet.Crow.pets.tame"}}
+                  </button>
+                  <button type="button" class="cc-pet-action" data-action="commandPet" data-pet-id="{{pet.id}}"
+                          {{#unless pet.actions.command.enabled}}disabled{{/unless}}
+                          data-tooltip="{{pet.actions.command.reasonLabel}}">
+                    {{localize "CROWS.Sheet.Crow.pets.command"}}
+                  </button>
+                  <button type="button" class="cc-pet-action cc-pet-command-test" data-action="testCommandPet" data-pet-id="{{pet.id}}"
+                          {{#unless pet.actions.commandTest.enabled}}disabled{{/unless}}
+                          data-tooltip="{{pet.actions.commandTest.reasonLabel}}">
+                    {{localize "CROWS.Sheet.Crow.pets.commandTest"}}
+                  </button>
+                </div>
+              {{/if}}
+            {{/if}}
+          </article>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="cc-empty">{{localize "CROWS.Sheet.Crow.pets.empty"}}</p>
+    {{/if}}
+  </section>
+
   <section class="cc-tab cc-advancement {{#if (eq activeTab 'advancement')}}active{{/if}}"
            role="tabpanel" id="panel-advancement" aria-labelledby="tab-advancement"
            {{#unless (eq activeTab 'advancement')}}hidden{{/unless}}>
