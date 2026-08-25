@@ -4,14 +4,30 @@
 **Re-cited:** 2026-08-20 — all line refs converted from the deleted concatenated master to `Book:Line` form. No claims changed.
 **Source of truth:** `~/FoundryVTT-Projects/TTRPG Hub/Crows/MCDM Crows Public Playtest August-Sept 2026/Crows Playtest 2 Markdown/`
 
+> ## ✅ THE BOOKS ARE NOW PINNED IN THE REPO — 2026-08-25
+>
+> `R:`/`C:`/`F:`/`D:` now address the copies in [`docs/source/`](../docs/source/README.md),
+> not the Hub. **Cite those.** `docs/source/sync-books.sh --check` reports whether they still
+> match the packet. This closes **L1** and makes the two-copies warning below moot — but read
+> it anyway, because it explains the failure mode.
+>
+> **Every citation in this file and its siblings predates the 2026-08-25 rebuild and is
+> stale.** All four books were regenerated between 07:44 and 07:59 that day: Rules
+> 1,736→1,388, Characters 3,179→2,678, Ref 2,122→1,727, Dungeons 1,167→832. The line counts
+> in the table below are the *pre-rebuild* numbers, kept as the audit trail.
+>
+> **Re-derive by content; never by offset.** The drift is not constant — the Miasma section
+> moved 104 lines while the Conditions chapter moved 85.
+
 Citations below use a book prefix:
 
-| Prefix | File | Lines |
-| --- | --- | --- |
-| `R:` | `01 Crows The Rules Book for Playtest 2.md` | 1,735 |
-| `C:` | `02 Crows Characters Book for Playtest 2.md` | 3,178 |
-| `F:` | `03 Crows The Ref Book for Playtest 2.md` | 2,122 |
-| `D:` | `04 Crows Dungeons Book for Playtest 2.md` | 1,167 |
+| Prefix | Pinned file in `docs/source/` | Lines now | Lines before rebuild |
+| --- | --- | ---: | ---: |
+| `R:` | `R-rules-book.md` | 1,388 | 1,735 |
+| `C:` | `C-characters-book.md` | 2,678 | 3,178 |
+| `F:` | `F-ref-book.md` | 1,727 | 2,122 |
+| `D:` | `D-dungeons-book.md` | 832 | 1,167 |
+| `X:` | `X-changelog.md` | 149 | 149 |
 
 Also referenced: `Crows Playtest Changelog.md` (MCDM's own PT1→PT2 delta), cited as "changelog".
 
@@ -49,7 +65,14 @@ a row.
 >
 > **The drift is NOT a constant, so never bulk-fix by adding an offset.** Rest activities shift by 66 (`R:580-590` → `R:646-654`) while the crafting chapter shifts by 133 (`R:1532-1580` → `R:1665-1713`). An offset that fixes one lands in the wrong section for the other. Re-derive each citation by content.
 >
-> `C:`, `F:` and `D:` citations are safe in either copy — those three books are byte-identical.
+> ~~`C:`, `F:` and `D:` citations are safe in either copy — those three books are byte-identical.~~
+>
+> **No longer true, and there is a THIRD copy.** The 2026-08-25 rebuild rewrote all four
+> books, so no citation is safe in any unpinned copy. A third Rules Book also sits at the
+> **packet root** (`…/MCDM Crows Public Playtest August-Sept 2026/01 …md`, 1,887 lines,
+> stale since Aug 20) and was never documented here. Three divergent copies, all plausible.
+>
+> Pinning removes the question entirely: read `docs/source/`.
 
 > **Why this changed.** The first draft cited a single `Crows Playtest 2 - Master.md` (8,379 lines), a concatenation of the four books behind a 14-line preamble. That file no longer exists and cannot be reproduced exactly. Every original citation was nevertheless *correct* — they resolve under a constant per-book offset (Rules −14, Characters −1752, Ref −4933), and all 76 were verified against the real text before conversion. If you meet an old `L####` ref in a sibling doc, subtract the offset for its book.
 

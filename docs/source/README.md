@@ -1,3 +1,97 @@
+# Playtest 2 pinned source
+
+Two things live here: the **four rulebooks** (plus MCDM's changelog), and the **inventory
+card text**. Both are pinned so `R:`/`C:`/`F:`/`D:` and `IC:`/`IP:`/`IL:`/`IA:`/`IS:` are
+stable addresses tied to a commit.
+
+---
+
+# The four books — pinned 2026-08-25, closing L1
+
+| Prefix | File | Lines |
+| --- | --- | ---: |
+| `R:` | `R-rules-book.md` | 1,388 |
+| `C:` | `C-characters-book.md` | 2,678 |
+| `F:` | `F-ref-book.md` | 1,727 |
+| `D:` | `D-dungeons-book.md` | 832 |
+| `X:` | `X-changelog.md` — MCDM's own PT1→PT2 delta | 149 |
+
+**Cite against the files in this directory, not against the Hub copies.**
+
+```sh
+./sync-books.sh          # re-copy from the packet and record source hashes
+./sync-books.sh --check  # do the pinned copies still match the packet?
+```
+
+## Why this exists — it cost three rounds of rework in one day
+
+The books are **generated artifacts** from an OCR/build pipeline outside the repo. On
+2026-08-25 that produced three separate failures in a single session:
+
+1. T3.1's background line starts were still in the dead `L####` scheme and pointed into the
+   traits chapter — plausible game text, wrong content, nothing erroring.
+2. Hours after that was corrected, **the pipeline regenerated every book** (07:44–07:59),
+   invalidating the correction and every other citation in the repo.
+3. An agent working in a git worktree concluded the Miasma effects table *did not exist* —
+   because the books were not in the repo — and was about to invent placeholder mechanics.
+
+## A `--check` failure is not corruption
+
+It means the pipeline regenerated the books and **every citation needs re-deriving by
+content**.
+
+**Never fix citations by applying an offset.** The drift is not constant. In the
+2026-08-25 rebuild the Miasma section moved 104 lines while the Conditions chapter moved 85.
+An earlier draft of the Miasma artifact applied one section's offset to another and produced
+a citation pointing into the wrong chapter.
+
+## There are THREE divergent copies of the Rules Book on disk
+
+Only the first is authoritative:
+
+| Copy | Lines | Status |
+| --- | ---: | --- |
+| `…/Crows Playtest 2 Markdown/` — what `sync-books.sh` reads | 1,388 | **authoritative** |
+| `…/MCDM Crows Public Playtest August-Sept 2026/01 …md` (packet root) | 1,887 | stale, Aug 20 |
+| `…/obsidian-memory/…/Crows/` | 1,603 | stale, long known |
+
+`.planning/PLAYTEST-2-MIGRATION.md` warns about the obsidian copy. The **packet-root copy was
+not previously documented anywhere.** Pinning removes the whole class of problem: read this
+directory and the question of which copy never arises.
+
+## The 2026-08-25 rebuild changed every book
+
+| Book | Before | After |
+| --- | ---: | ---: |
+| Rules | 1,736 | 1,388 |
+| Characters | 3,179 | 2,678 |
+| Ref | 2,122 | 1,727 |
+| Dungeons | 1,167 | 832 |
+
+**Every `R:`, `C:`, `F:` and `D:` citation written before this date is stale.** Earlier notes
+in this repo claim `F:` and `D:` were unaffected — that was measured **mid-rebuild**, before
+those two files were rewritten, and is wrong.
+
+Known relocations, re-derived by content:
+
+| Was | Now | What |
+| --- | --- | --- |
+| `R:526` | `R:441` | Conditions chapter |
+| `R:528` | `R:443` | "can't gain a second instance of a condition" |
+| `R:1225`–`R:1256` | `R:1121`–`R:1148` | Miasma |
+| `C:89`–`C:602` | `C:81`–`C:372` | Backgrounds |
+| `F:1296`–`F:1298` | `F:1157`–`F:1160` | Cultist stat block / Knock Prone |
+
+The Dungeons book is now **832 lines**, so the execution plan's `D:577`–`D:1168` for T3.9
+runs past the end of the file. Re-derive before dispatching T3.8–T3.11.
+
+**The rebuild improved the extraction.** Records are more regular, and the old version
+mangled multi-word italic tokens — Transmuter's spellbooks read `_repair take_ , _shape_`
+where the book means `*repair*, *take shape*`. Content transcribed from a pre-rebuild file
+should be re-derived.
+
+---
+
 # Playtest 2 inventory cards — pinned source text
 
 **Added:** 2026-08-25, resolving **H4** in [`../discrepancies/playtest-2-source-issues.md`](../discrepancies/playtest-2-source-issues.md).
@@ -89,9 +183,8 @@ is one line of five different cards' effect tables. Two consequences:
 An attack spell prints only `12-16` and `17+`; an action/maneuver spell prints all three
 bands including `≤11`. A card with two bands is not a truncated extraction.
 
-## Scope — the four books are still unpinned
+## Scope
 
-This resolves H4 for cards only. **L1 remains open:** the four book markdown files still
-live outside the repo, so `R:`/`C:`/`F:`/`D:` line numbers are not pinned to any commit, and
-there are two divergent copies of the Rules Book. See the warning at the top of
-`.planning/PLAYTEST-2-MIGRATION.md` before trusting an `R:` citation.
+~~This resolves H4 for cards only. **L1 remains open.**~~ **L1 is now closed too** — the four
+books were pinned on 2026-08-25; see the top of this file. Both halves of the source are now
+addressable by commit.

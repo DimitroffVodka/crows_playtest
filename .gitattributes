@@ -19,3 +19,16 @@ src/packs/**/*.yaml text eol=lf
 *.md text eol=lf
 *.mjs text eol=lf
 *.json text eol=lf
+
+# Pinned upstream source — VERBATIM copies of MCDM's books and card text.
+#
+# These carry trailing whitespace from the OCR/build pipeline that produced
+# them. Do NOT strip it: docs/source/sync-books.sh --check and
+# extract-cards.sh --check compare these byte-for-byte against the packet, and
+# any "cleanup" makes a pinned copy that no longer reproduces — which is exactly
+# the drift detection they exist to provide.
+#
+# -whitespace exempts them from `git diff --check` for that reason.
+# linguist-vendored keeps ~7,000 lines of rules text out of the language stats.
+docs/source/*.md -whitespace linguist-vendored
+docs/source/*.txt -whitespace linguist-vendored

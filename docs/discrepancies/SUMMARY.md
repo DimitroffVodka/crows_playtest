@@ -28,7 +28,7 @@ this is what `8f1f311` discovered when a PDF check reversed an earlier "fix".
 
 | # | Item | PT1 fix landed? | Still right under PT2? | Evidence |
 |---|---|---|---|---|
-| 1 | `bone-capture` | ✅ | ✅ | Card: `Ranged 5`, 12-16 `2+M`, 17+ `4+M` + prone. Corroborated independently by the Cultist stat block (`F:1296-1298`), whose *Knock Prone* trait fires on a tier 3 bone capture. |
+| 1 | `bone-capture` | ✅ | ✅ | Card: `Ranged 5`, 12-16 `2+M`, 17+ `4+M` + prone. Corroborated independently by the Cultist stat block (`F:1157-1160` in the pinned Ref Book; was `F:1296-1298` before the 2026-08-25 rebuild), whose *Knock Prone* trait fires on a tier 3 bone capture. |
 | 2 | `minor-curse` | ✅ | ❌ **superseded** | Card now reads ≤11 `No effect` / 12-16 `2+M dam` / 17+ `4+M dam and weakened`. YAML still has PT1's `Boned` / `Twice Boned`. |
 | 3 | `minor-healing` | ✅ | ✅ | Card: `1+M` / `2+M` / `4+M`, Benefaction Man., Melee 1. |
 | 4 | `repair` | ✅ | ✅ | Card: `1+M` / `4+M` / `8+M`, Alteration Man., Melee 1, Target 1 obj. |
