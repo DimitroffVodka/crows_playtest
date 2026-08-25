@@ -239,18 +239,18 @@ Scope notes made at dispatch, because both one-liners below understate their ite
 - **`coin-purse.yaml` does not set `purse.isPurse: true`** — no shipped purse is a purse yet. **Confirmed live on 2026-08-23** against the booted world: the compendium Coin Purse reads `{isPurse: false, held: 0, baseCapacity: 500}`, and `src/packs/crows-gear/coin-purse.yaml` has **no `purse:` block at all**, so the value is only the schema default. Nothing else in `crows-gear` claims `isPurse`.
   **This is a live player-facing bug, not just missing content.** `character-creator.mjs:191` name-matches `wantedItem.name === "Coin Purse"` and stamps `{isPurse: true, held: 0, baseCapacity: 500}` at creation, so a **wizard-made crow gets a working purse while a purse dragged in from the compendium does not** — it silently holds no coins. The name match also means a renamed purse, or any second purse item, gets nothing.
   p11 passes *because* of the workaround and therefore hides the bug — the same "green on the happy path, wrong on the other path" shape as §7. Fix: stamp the YAML, repack, then delete the creation-time special case. Do not add a second name match anywhere.
-- **`targetNeedsReview` flags 5 of 25 spellbooks** — Summon Object, Cacophony, Create Water, Deadspeech, Minor Phantasm. Transcribe PT2 target lines using R:1467's vocabulary and the `Summoned` keyword.
-- **Backgrounds are re-transcribed, not migrated** (C:89–602). Until then, H5's budget reports "skipped" for every actor — correct by design.
+- ~~**`targetNeedsReview` flags 5 of 25 spellbooks** — Summon Object, Cacophony, Create Water, Deadspeech, Minor Phantasm. Transcribe PT2 target lines using R:1467's vocabulary and the `Summoned` keyword.~~ **SUPERSEDED 2026-08-25 (T3.6).** Now **6 of 27** — Minor Blessing joined (its card prints target `Varies`, a count the schema cannot express) and two spells were added. Summon Object stays flagged deliberately; see the summonBehaviour ticket.
+- ~~**Backgrounds are re-transcribed, not migrated** (C:89–602). Until then, H5's budget reports "skipped" for every actor — correct by design.~~ **CLOSED 2026-08-25 (T3.1).** All 36 transcribed against the regenerated Characters Book; H5's budget is live.
 - **`CrowData.crafting.projects`** still carries PT1's `prereqBonus`/`hasRecipe` and has no field for the PT2 prerequisite (expertise **+ uses**, R:1540). T1.6 validates at project start and does not persist it.
 - **`stackKind` has no home in `physicalItemFields()`** — T1.2 resolves it, then falls back to `type:subtype:stackMax`.
 - **`TraitData` cannot declare "grants purse capacity"** — T1.2 matches Bursting Purse by compendium id `ctthie42brstprs0` with a name fallback.
 
 Added 2026-08-23 from T2.2 and T2.5, both by counting the real corpus rather than inspecting a fixture:
 
-- **Bear, Rat and Wolf are `animal` with `slots: 0`.** Found independently by both agents. They cannot carry pet inventory or take pet wounds, and they trip the contract's `suspectMissingSlots`. **4 of 7 shipped animals are usable as pets.** Neither agent patched the stat blocks to go green — this is content work.
-- **All 11 source monster YAMLs omit `reactions`, `expertises` and `xRest`.** The sheet renders them; there is nothing to render.
-- **Ring Collector encodes Vanish as trait `uses: "1/Rest"`** instead of `system.xRest`, so the X/Rest machinery cannot see it.
-- **The pet trait tree is stale PT1 content** — Tricks / Extra Tricks still name removed PT1 skills (Climb, Hide, Jump, Sneak) while PT2's tree uses expertise vocabulary. Re-transcribe by book content.
+- ~~**Bear, Rat and Wolf are `animal` with `slots: 0`.** Found independently by both agents. They cannot carry pet inventory or take pet wounds, and they trip the contract's `suspectMissingSlots`. **4 of 7 shipped animals are usable as pets.** Neither agent patched the stat blocks to go green — this is content work.~~ **RESOLVED 2026-08-25 (T3.5), and the premise was two-thirds wrong.** Bear (book 10) and Wolf (book 5) were OUR transcription errors. Rat's 0 is CANONICAL, and five more animals legitimately print 0 — Chicken, Crow, Hawk, Snake Venomous, Spider. No rule derives it (Cat is Tiny with 1 slot, Hawk is Small with 0), so `suspectMissingSlots` was removed rather than patched.
+- ~~**All 11 source monster YAMLs omit `reactions`, `expertises` and `xRest`.** The sheet renders them; there is nothing to render.~~ **CLOSED 2026-08-25 (T3.5).** The bestiary is now **71** stat blocks, not 11: 32 animals, 27 humans, 12 monsters.
+- ~~**Ring Collector encodes Vanish as trait `uses: "1/Rest"`** instead of `system.xRest`, so the X/Rest machinery cannot see it.~~ **CLOSED 2026-08-25 (T3.5).** Moved to `system.xRest`; the actor is now `Ring Collector (Namlin)` with `reactions: 4`.
+- ~~**The pet trait tree is stale PT1 content** — Tricks / Extra Tricks still name removed PT1 skills (Climb, Hide, Jump, Sneak) while PT2's tree uses expertise vocabulary. Re-transcribe by book content.~~ **CLOSED 2026-08-25 (T3.2-C).** Tricks and Extra Tricks now use PT2 expertise vocabulary.
 - **`Animal Feed` does exist** (`crows-consumables/animal-feed.yaml`, cost 1, stackMax 6), so pet feeding has real content to consume.
 
 ### Pet integration obligations outside T2.5's ownership
@@ -323,3 +323,133 @@ Every significant defect had the same signature: **no error, no red test, a conf
 **What actually caught them:** running code against the **real corpus** rather than a fixture; reading the **source book** rather than reasoning from first principles; and **mutation-testing the guard** — T1.2 broke its own boot test three ways to prove it could fail.
 
 **What did not catch them:** four rounds of adversarial contract review, 42 passing tests, and `verify.sh`.
+
+---
+
+## 9. Wave 3 content pass and PT2 code catch-up — 2026-08-25
+
+A single long session. Every content pack except `crows-loot` was transcribed against
+Playtest 2, four PT1-era code defects were fixed, and both source-pinning gaps closed.
+
+### The finding that should change how you read every other line in this file
+
+**The book markdown silently corrects MCDM's typos. The card text does not.** They sit in
+one directory and have different fidelity:
+
+| | Produced by | Faithful? |
+|---|---|---|
+| `docs/source/R-`/`C-`/`F-`/`D-*.md` | OCR/build pipeline | **No** — repairs the book |
+| `docs/source/IC-`/`IP-`/`IL-`/`IA-`/`IS-*.txt` | `pdftotext -layout` | **Yes** |
+
+Measured across all 276 traits by four independent agents: **~33 corrections, 0 fabrications.**
+So the markdown never invents, and structure and meaning are reliable — but it is **not a
+verbatim authority**. Some corrections change grammatical number and phrasing, not just
+spelling (`attack` → `attacks against`, `against target in darkness` → `against targets`).
+
+**Rule:** markdown for structure and for what a rule *means*; the **PDF** for anything shipped
+as quoted prose or as a name; card text quotable directly. Six canonical typos are pinned by
+`test/trait-corpus.test.mjs` so re-transcribing one fails the suite.
+
+**The previous extraction generation had the OPPOSITE failure** — it *introduced* errors
+(column bleed, `_repair take_ , _shape_` for `*repair*, *take shape*`). Anything transcribed
+before 2026-08-25 07:44 needs re-deriving, not spot-checking.
+
+### Both source gaps are closed — H4 and L1
+
+`docs/source/` now pins the five card decks (`IC:`/`IP:`/`IL:`/`IA:`/`IS:`) **and** the four
+books plus changelog (`R:`/`C:`/`F:`/`D:`/`X:`), each with a `--check` script.
+
+**Every citation written before this date is stale.** All four books were regenerated between
+07:44 and 07:59: Rules 1,736→1,388, Characters 3,179→2,678, Ref 2,122→1,727, Dungeons
+1,167→832. Earlier notes claiming `F:` and `D:` were unaffected were measured *mid-rebuild*.
+**Never fix a citation by offset** — the drift is not constant (Miasma moved 104 lines,
+Conditions 85). There were also **three** divergent Rules Book copies on disk, not the two
+this file warned about. Every Wave 3 citation was re-derived by content in
+`.planning/PLAYTEST-2-EXECUTION.md`.
+
+### Content landed
+
+| Ticket | Result |
+|---|---|
+| T3.0 | 8 HIGH audited: 7 survive PT2, `minor-curse` superseded, `soothing-candy` cost resolved (no printed cost in either playtest) |
+| — | `boned` removal across 9 documents; **`weakened` and `vulnerable` are NOT interchangeable** — the book picks per effect |
+| T3.1 | 36 backgrounds |
+| T3.2 | 276 traits, split 4 ways |
+| T3.3 | 19 weapons / 4 armor / 2 ammunition; "Mace (Polearm)" is PT2's **Flail** |
+| T3.4a | 8 new gear/consumables, 4 Lore Books, Ten-Foot → **11-Foot Pole** |
+| T3.5 | **71** stat blocks, up from 11 |
+| T3.6 | **27** spellbooks, up from 25 — Group Healing and Wound Closure had never been transcribed |
+| T3.7 | rules journal — **in flight**, the last `boned` holdout |
+
+### Three content findings worth carrying forward
+
+**Dangling `connectsTo` edges existed in every trait group.** `connectsTo` is **ours** — the
+graph was never diffed against the book because the markdown has no visible edges, so a
+column-aligned default was assumed. When PT2 renamed a trait, inbound edges kept the old
+name: `Alchemy Bell`→`Belt`, `Stop Chopping`→`Stop`, `Crit`→`Chopping Crit`,
+`Groundroll`→`Stacks on Stacks`, four more in Travel and Unarmed. None failed a test, none
+looked wrong in the YAML. Now zero, pinned by `test/trait-corpus.test.mjs`.
+
+**PT1 column-bleed contamination was still shipping.** Deadspeech and Shrink carried *Blood
+Concoction* text — a slug tail, compound eyes — from a **consumable** card, merged during the
+original PT1 transcription. Same defect class as the original 8 HIGH findings, undetected
+until T3.6 compared each spell to its own card.
+
+**Renames need their id repurposed in place, not recreated.** Three this session —
+`Groundroll`→`Stacks on Stacks` (`ctleve42grndrl00`), `Mace (Polearm)`→`Flail`
+(`crowsweap0mace02`), `Ten-Foot`→`11-Foot Pole` (`crowsgear0tenfpo`). Delete-and-recreate
+orphans any world linking the document, while PCs hold embedded clones that are unaffected
+either way. Log that the id slug no longer describes its document.
+
+### Code defects fixed — all four were invisible to a green suite
+
+**`miasma.mjs` was entirely Playtest 1.** It wrote `system.conditions.boned`, a field the PT2
+schema deletes, so Foundry dropped the write and **tier 1 and 2 Miasma resists did nothing**
+in a real world, with rows above 10 of the effects table unreachable. PT2 replaced the whole
+mechanic: `boned` → an integer **`cruelty`**, tier 2 is now **no effect**, tier 3 clears all,
+and effects come in **pairs** with the second a benefit.
+
+> **The test suite could not have caught this.** `test/miasma.test.mjs` built its actor as a
+> plain object whose `update()` accepts any path. **Any fixture that is not bound to the real
+> DataModel cannot detect a schema mismatch.** The rewrite added a schema-bound runner; use
+> that pattern for anything that writes to an actor.
+
+**`creation.mjs` silently stubbed 45 of 166 background equipment strings** across 15 of 36
+backgrounds — right name, no cost, no slots — so creation looked successful while handing out
+empty cards. PT2 overloads a trailing parenthetical with three meanings (quantity, live pet,
+specialisation) plus a leading "extra". Now **zero** stubs, verified live across all 36.
+
+**`bonusGold` was dropped on the floor** — every Noble ever created started 50gc poor.
+
+**`wearsSilentArmor` read `system.qualities`, which `ArmorData` never defines.** That branch
+was **unreachable**, so only the item-name fallback could fire and correctly-enchanted armor
+was invisible. Silent is an *enchantment* (`C:1908`), and `ArmorData.enchantment` holds it —
+§6's entry was wrong on both counts and is now corrected.
+
+Also: `suspectMissingSlots` removed (its premise was false), the `onBonedCleared` alias
+dropped (it preserved a name whose meaning had changed), and `verify.sh` plus both
+`docs/source/` scripts were tracked **non-executable** — `core.fileMode` is `false` here, so
+`./verify.sh` failed from any fresh clone while every gate specifies it.
+
+### Live verification earned its keep three times
+
+Everything above was exercised in the running world, and **three defects survived a green
+suite and were caught only live**: `Lore Book (Historical Lore) (Historical Lore)` from a
+doubled qualifier, the dropped bonus gold, and the stale `onBonedCleared` name on the public
+facade. The node tests check whether a name *resolves*; they cannot reach the
+item-*construction* path or enumerate a live API surface.
+
+A three-times-run sweep creating **one crow of every background** is the cheapest full-corpus
+check available: 36/36 ok, zero stubs, zero trait failures, zero spellbook shortfalls, 4/4
+pets bonded, console clean.
+
+### Still open
+
+- **T3.7** in flight; `crows-loot` untouched this session.
+- **`summonBehaviour` matches 0 of 27** — but `actsAsPet` is *correctly* unreachable, because
+  PT2 ships no creature-summoning spell. Do not "fix" it by loosening the parser. See the
+  `summon-behaviour-inert` ticket; this file's "including Summon Object" phrasing is
+  misleading and should read `summons`, not `actsAsPet`.
+- The **GearData `study` field** and the lore-book study mechanic — `lore-book-study-mechanic`.
+- `dev/` is still gitignored; the probes remain unversioned.
+- `CrowData.crafting.projects`, `stackKind` and `TraitData` purse capacity are unchanged.
