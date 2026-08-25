@@ -1882,7 +1882,25 @@ T0.1 (branch/api) ──┬─> T0.2 (CONTRACT) ══FREEZE══┬─> Wave 1
 - Active Effects: actor-level and transferred item-level, toggle, token bars.
 - Sheets as a read-only user.
 
-**Gate D — after Wave 3.** All 11+ packs build via `npm run pack`. Import every pack from the generated ZIP into a clean world. `docs/discrepancies/SUMMARY.md` regenerated with zero unresolved HIGH findings.
+**Gate D — after Wave 3.** All 11+ packs build via `npm run pack`. Import every pack from the generated ZIP into a clean world. Zero unresolved HIGH findings **in the YAML-vs-rulebook reports** — `docs/discrepancies/SUMMARY.md` and the per-pack `crows-*.md` files.
+
+> **Scoping clarified 2026-08-25.** "Zero unresolved HIGH" means **our content disagreeing
+> with the book**. It does **not** include `docs/discrepancies/playtest-2-source-issues.md`,
+> which records places **the book disagrees with itself** — that file says so in its own
+> header, and its findings are MCDM's to fix, not ours.
+>
+> Three are open there right now (H1 chaos count, H2 Elemental Mastery, H3 Soothing Candy),
+> all shipped with documented readings and all in the Part 7 question list. **Counting them
+> would block a release indefinitely on someone else's book**, which is not a quality bar —
+> it is an unfalsifiable one.
+>
+> The right posture for a source-side HIGH is: ship a reading, record it, ask MCDM, move on.
+> The gate should fail only when *we* have transcribed something wrongly.
+>
+> **Prerequisite not yet met:** the gate references "the generated ZIP" and **no ZIP or
+> release script exists** — `package.json` has `pack`, `unpack`, `test` and `verify` and
+> nothing that produces a distributable artifact. Gate D is unrunnable until that is written,
+> independently of any finding count.
 
 **Gate E — release.** Only then set `verified: 14`, on the exact artifact you tested.
 
