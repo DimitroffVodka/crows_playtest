@@ -605,8 +605,19 @@ export async function expireDungeonTurnConditions(actor) {
 export function wearsSilentArmor(actor) {
   for (const i of actor?.items ?? []) {
     if (i.type !== "armor" || !i.system?.worn) continue;
-    const qualities = i.system?.qualities ?? [];
-    if (qualities.some?.(q => String(q).toLowerCase() === "silent")) return true;
+    // Silent is an armor ENCHANTMENT (C:1908, table row at C:1933), and
+    // `ArmorData.enchantment` is a blank-allowed StringField with no `choices`,
+    // so it can hold this today. Read it first.
+    if (String(i.system?.enchantment ?? "").trim().toLowerCase() === "silent") return true;
+    // The old first check read `system.qualities`, which ArmorData DOES NOT
+    // DEFINE — only weapons carry qualities. It was unreachable: the field is
+    // permanently undefined for armor, so that branch could never return true.
+    // Removed rather than left as decoration.
+    //
+    // The name match stays as a fallback for hand-built armor a GM named rather
+    // than enchanted. It is the weaker signal and must not be the ONLY one —
+    // that is the Coin Purse bug, where a name match stood in for data the
+    // document should have carried.
     if (/\bsilent\b/i.test(i.name ?? "")) return true;
   }
   return false;

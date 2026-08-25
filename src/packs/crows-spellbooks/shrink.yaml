@@ -4,7 +4,7 @@ name: Shrink
 img: icons/magic/control/debuff-energy-hold-blue-yellow.webp
 type: spellbook
 system:
-  description: "<p>The target and their equipment size are reduced by a number of categories based on the casting. Your lower body is now a slug tail. Your speed is reduced by 2.</p>"
+  description: "<p>The target and their equipment size are reduced by a number of categories and weapon attack damage takes a penalty based on the casting.</p>"
   discipline: alteration
   rank: 1
   castType: maneuver

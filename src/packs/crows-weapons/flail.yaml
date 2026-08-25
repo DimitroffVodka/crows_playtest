@@ -1,10 +1,10 @@
 _id: crowsweap0mace02
 _key: "!items!crowsweap0mace02"
-name: Mace (Polearm)
+name: Flail
 type: weapon
 img: icons/weapons/maces/mace-round-spiked-black.webp
 system:
-  description: "<p>A two-handed polearm mace with extended reach. Bashing, Pummeling.</p>"
+  description: "<p>A two-handed flail with extended reach. Bashing, Pummeling.</p>"
   type: bashing
   range: { melee: 2, ranged: 0 }
   attackStat: strength

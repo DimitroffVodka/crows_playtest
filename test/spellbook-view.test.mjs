@@ -35,9 +35,9 @@ function shippedSpellbooks() {
 }
 
 describe("spellbook sheet PT2 fields", () => {
-  test("all 25 shipped PT1 spellbooks migrate to fields the template renders", () => {
+  test("all 27 shipped spellbooks migrate to fields the template renders", () => {
     const spellbooks = shippedSpellbooks();
-    assert.equal(spellbooks.length, 25, "guard: the real shipped corpus was loaded");
+    assert.equal(spellbooks.length, 27, "guard: the real shipped corpus was loaded");
 
     for (const spellbook of spellbooks) {
       assert.ok(["action", "maneuver", "reaction", "outOfCombat"].includes(spellbook.system.castingTime), spellbook.name);
@@ -48,12 +48,21 @@ describe("spellbook sheet PT2 fields", () => {
     }
   });
 
-  test("the five known ambiguous target lines stay visible and reviewable", () => {
+  test("the six known ambiguous target lines stay visible and reviewable", () => {
     const flagged = shippedSpellbooks()
       .filter(({ name, system }) => targetNeedsReview(system, { name }))
       .map(({ name }) => name)
       .sort();
-    assert.deepEqual(flagged, ["Cacophony", "Create Water", "Deadspeech", "Minor Phantasm", "Summon Object"]);
+    // Minor Blessing joined the list in T3.6: PT2 prints its target as "Varies"
+    // (IC:311-329), a variable count the schema cannot express. A flag lit for a
+    // real reason is the correct outcome — the reporting pattern exists so these
+    // get listed rather than guessed at.
+    //
+    // Summon Object stays flagged DELIBERATELY. Its card prints "Self" while the
+    // spell summons an object, and `Summoned` appears in zero target lines across
+    // all five card decks. Encoding "1 Summoned object" to satisfy the parser
+    // would have diverged from the source AND silently switched on summonBehaviour.
+    assert.deepEqual(flagged, ["Cacophony", "Create Water", "Deadspeech", "Minor Blessing", "Minor Phantasm", "Summon Object"]);
   });
 
   test("the sheet no longer reads or writes the deleted scalar fields", () => {

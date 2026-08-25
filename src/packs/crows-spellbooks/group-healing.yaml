@@ -1,0 +1,32 @@
+_id: crowsspellgrphe1
+_key: "!items!crowsspellgrphe1"
+name: Group Healing
+img: icons/magic/life/heart-area-circle-red-green.webp
+type: spellbook
+system:
+  description: "<p>Target regains Stamina based on the casting.</p>"
+  discipline: benefaction
+  rank: 1
+  castType: maneuver
+  range:
+    kind: ranged
+    value: 3
+  target: "3 creatures"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "1+M Stamina regained"
+    t2: "2+M Stamina regained"
+    t3: "4+M Stamina regained"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 500

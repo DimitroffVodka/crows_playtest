@@ -1,0 +1,32 @@
+_id: crowsspellwndcl1
+_key: "!items!crowsspellwndcl1"
+name: Wound Closure
+img: icons/magic/life/heart-area-circle-red-green.webp
+type: spellbook
+system:
+  description: "<p>Target heals a number of wounds based on the casting.</p>"
+  discipline: benefaction
+  rank: 0
+  castType: action
+  range:
+    kind: melee
+    value: 1
+  target: "1 creature"
+  aoe:
+    shape: ""
+    size: ""
+  duration: instant
+  effectBands:
+    t1: "0 wounds healed"
+    t2: "1 wound healed"
+    t3: "2 wounds healed"
+  usageDie:
+    enabled: true
+    udMax: 1
+    udCurrent: 1
+    expiry: rest
+    refuelWith: ""
+  slots: 1
+  stackMax: 1
+  quantity: 1
+  cost: 500

@@ -17,7 +17,7 @@ system:
     size: ""
   duration: instant
   effectBands:
-    t1: "No effect"
+    t1: ""
     t2: "2+M damage"
     t3: "4+M damage; prone"
   usageDie:

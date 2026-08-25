@@ -4,22 +4,22 @@ name: Minor Blessing
 img: icons/magic/holy/angel-winged-humanoid-blue.webp
 type: spellbook
 system:
-  description: "<p>You touch a creature and grant them a blessing based on the casting.</p>"
+  description: "<p>Each target of the spell is blessed. The targets are creatures, the number of which depends on the casting.</p>"
   discipline: benefaction
   rank: 0
   castType: action
   range:
-    kind: melee
-    value: 1
-  target: "1 creature"
+    kind: ranged
+    value: 3
+  target: "Varies"
   aoe:
     shape: ""
     size: ""
   duration: instant
   effectBands:
-    t1: "No effect"
-    t2: "Blessed"
-    t3: "Blessed Twice"
+    t1: "0"
+    t2: "1"
+    t3: "2"
   usageDie:
     enabled: true
     udMax: 1

@@ -1,113 +1,93 @@
-# Spellbook YAML Cross-Validation Report
+# Spellbooks against Playtest 2
 
-**Generated:** 2026-05-26  
-**Scope:** 25 spellbook YAMLs vs canonical markdown sources  
-**Sources:**
-- PRIMARY R0: `MCDM_Crows_Annotated_Inventory_Cards_for_May_June_2026_Playtest.md`
-- CROSSCHECK R0: `05_MCDM_Crows_Inventory_Cards_for_May_June_2026_Playtest.md`
-- PRIMARY R1: `06_MCDM_Crows_Dungeon_Loot_Cards_for_May_June_2026_Playtest.md`
+**Audited:** 2026-08-25
+**Scope:** 27 spellbook YAMLs in src/packs/crows-spellbooks/
+**Primary source:** the pinned pdftotext -layout card deck (IC:), with the spellcasting vocabulary from R:1174-1330.
 
----
+The cards are a grid. Each value below was read down the column established by the card's title, never across a row. The book markdown is used for vocabulary only; per-spell stats are card-only, as documented in docs/source/README.md.
 
-## Summary
+## Inventory
 
-| Severity | Count |
-|----------|-------|
-| HIGH     | 5     |
-| MEDIUM   | 3     |
-| LOW      | 5     |
-| INFO     | 1     |
-| **TOTAL**| **14**|
+The card-derived spell names, with no Monster Part artifact and with Deadspeech's rank recovered from its wrapped title, are:
 
-**Headline findings:**
-- `bone-capture` and `minor-curse` have their tier effects **swapped** — game-breaking for both spells.
-- `minor-healing` has wrong values at all three tiers (agent-flagged suspicion confirmed: layout scramble during extraction).
-- `repair` is missing its correct tier progression; all three tiers are wrong.
-- `light` uses an M-scaled formula that does not match the fixed `bright/dim` values on the card.
+| Card range | Spells |
+|---|---|
+| IC:294-310 | Animal Form, Repair |
+| IC:311-331 | Take Shape, Minor Blessing, Minor Healing, Minor Ward, Jaunt |
+| IC:333-350 | Teleport Object, Summon Object, Create Water, Fire Hands, Fire Lance |
+| IC:352-367 | Spark, Stream, Thunder, Cacophony, Light |
+| IC:368-391 | Minor Phantasm, Bone Capture, Minor Curse, Monster Sense, Shrink |
+| IC:392-414 | Stubborn Object, Group Healing, Wound Closure, Corrupt, Deadspeech |
 
----
+The source inventory is therefore 27 documents. The two additions in this pass are Group Healing (R1) and Wound Closure (R0), both from IC:392-414.
 
-## HIGH Severity
+## Corrections made
 
-| Spell | Field | YAML Value | MD Canonical | Evidence |
-|-------|-------|-----------|--------------|----------|
-| `bone-capture` | `effectBands.t1` | `"No effect"` | *(empty — attack spell, no ≤11 band)* | Annotated MD line 284 col28-44: attack spell, tier row starts at 12-16 |
-| `bone-capture` | `effectBands.t2` | `"Boned"` | `"2+M damage"` | Annotated MD line 284 col32: `2+M`; col38: `Target 1 creat.`; col40: `17+` |
-| `bone-capture` | `effectBands.t3` | `"Boned Twice"` | `"4+M damage, prone"` | Annotated MD line 284 col42-44: `4+M / prone` |
-| `minor-curse` | `effectBands.t1` | `"No effect"` | `"No effect"` ✓ | Matches — col55-57 |
-| `minor-curse` | `effectBands.t2` | `"Prone"` | `"Boned"` | Annotated MD line 284 col59: `Boned` |
-| `minor-curse` | `effectBands.t3` | `"2+M damage; prone"` | `"Twice Boned"` | Annotated MD line 284 col61-63: `Twice Boned` |
-| `minor-healing` | `effectBands.t1` | `"No effect"` | `"1+M Stamina regained"` | Annotated MD line 236 col: `1+M` under ≤11 header |
-| `minor-healing` | `effectBands.t2` | `"1+M Stamina regained"` | `"2+M Stamina regained"` | Annotated MD line 236: `2+M` under 12-16 header |
-| `minor-healing` | `effectBands.t3` | `"2+M Stamina regained"` | `"4+M Stamina regained"` | Annotated MD line 236: `4+M` under 17+ header |
-| `repair` | `effectBands.t1` | `"No effect"` | `"1+M Stamina regained"` | Annotated MD line 239: `1+M` under ≤11 (Repair column) |
-| `repair` | `effectBands.t2` | `"1+M Stamina regained"` | `"4+M Stamina regained"` | Annotated MD line 239: `4+M` under 12-16 |
-| `repair` | `effectBands.t3` | `"4+M Stamina regained"` | `"8+M Stamina regained"` | Annotated MD line 239: `8+M` under 17+ |
-| `light` | `effectBands.t1` | `""` (empty) | `"0 bright / 5 dim squares"` | Annotated MD line 285 col1-5: `0/5 \| 5/5 \| 10/10` |
-| `light` | `effectBands.t2` | `"2+M radius (dim)"` | `"5 bright / 5 dim squares"` | MD shows fixed paired values, not M-scaled formula |
-| `light` | `effectBands.t3` | `"4+M radius (bright)"` | `"10 bright / 10 dim squares"` | MD card shows fixed `10/10`; YAML formula does not match |
+| Severity | Spell | Finding | Result | Evidence |
+|---|---|---|---|---|
+| HIGH | Minor Blessing | The shipped PT1-shaped entry was Melee 1 / one creature / No effect, Blessed, Blessed Twice. The PT2 card is Ranged 3 / Target Varies, with bands 0, 1, 2; Blessed Twice is also invalid under PT2's non-stacking condition rule. | Corrected range, target text, description, and bands. Varies remains an explicit review flag because the schema's target count is an integer. | IC:311-331; R:443 |
+| HIGH | Teleport Object | 1 obj. dropped the card's Tiny qualifier and widened what the spell can move. | Corrected to 1 Tiny obj.; the qualifier remains in the target text. | IC:333-350 |
+| HIGH | Bone Capture | The card is an attack with only 12-16 and 17+ bands. t1: No effect was an invented third band. | Corrected effectBands.t1 to empty; retained Ranged 5, 2+M, and 4+M; prone. | IC:368-377 |
+| HIGH | Deadspeech | “Your eyes are both compound and you can see in the dark” is not Deadspeech text. It is Blood Concoction text that bled across the card grid during the old transcription. | Removed the contaminated sentence. | IC:392-414; contaminant IC:67-81 |
+| HIGH | Shrink | “Your lower body is now a slug tail. Your speed is reduced by 2” is Blood Concoction text, not Shrink text. | Removed the contaminated sentences. | IC:368-391; contaminant IC:67-81 |
+| INFO | Attack-band shape | Fire Hands, Fire Lance, Spark, Thunder, Corrupt, and Bone Capture print two bands, but Stream genuinely prints ≤11 0 dam / 12-16 2+M / 17+ 4+M. The pattern is not a rule to apply mechanically. | Transcribed each card's bands independently; Stream keeps its printed 0 damage tier. | IC:333-367; IC:351-355 |
 
-**Notes on HIGH items:**
+The Deadspeech and Shrink contamination is a HIGH source-fidelity defect, not a cosmetic prose difference: Blood Concoction's body transformations were copied into two spellbooks and could grant unrelated mechanics.
 
-**bone-capture / minor-curse swap:** The two spells' tier bands are entirely swapped relative to MD. `bone-capture` is a Necromancy Attack spell — its MD tiers are damage values (`2+M`, `4+M + prone`), matching a damage-dealing attack. `minor-curse` is a Necromancy Action spell — its MD tiers apply the `Boned` condition. Whoever entered the data placed each spell's effect in the other spell's YAML.
+## New spellbooks
 
-**minor-healing (agent-flagged):** Confirmed layout scramble. The annotated MD table places Minor Healing adjacent to Minor Blessing and Minor Ward in a multi-column row. YAML picked up `No effect / 1+M / 2+M` (which are Minor Healing ≤11=1+M → shifted down by one tier, plus minor-ward's ≤11 `No effect` in t1). Correct values: `≤11=1+M`, `12-16=2+M`, `17+=4+M`.
+Both documents have new, unique 16-character IDs and matching _key values:
 
-**light:** YAML was encoded as an M-based formula (2+M dim, 4+M bright) matching how other spells scale. MD card shows fixed paired values `0/5`, `5/5`, `10/10` (bright_squares/dim_squares format). The formulaic interpretation does not align with the published card values. Recommend verifying with design intent — if the card values are final, all three bands need replacing.
+| Spell | Rank | Card values |
+|---|---:|---|
+| Group Healing | 1 | Benefaction Maneuver; UD 1 (Rest; Activate); Ranged 3; target 3 creatures; Instant; 1+M / 2+M / 4+M; 500 gc |
+| Wound Closure | 0 | Benefaction Action; UD 1 (Rest; Activate); Melee 1; target 1 creature; Instant; 0 / 1 / 2; 500 gc |
 
----
+creat. is normalized to the parser's PT2 vocabulary (creatures / creature) where a card abbreviation would otherwise be reported as an unclassifiable noun.
 
-## MEDIUM Severity
+## Target reporting and summon behavior
 
-| Spell | Field | YAML Value | MD Canonical | Notes |
-|-------|-------|-----------|--------------|-------|
-| `stream` | `system.aoe.size` | `"L 5 x W 1"` | `"5 x 1"` (compact) | Same dimensions, different notation. YAML verbose form. Not a functional error — confirm preferred format. |
-| `monster-sense` | `system.aoe.size` | `"1"` (static) | Not stated as aoe; detection range is tier-based (1/5/10 via casting) | YAML encodes a static aoe.size of 1. The dynamic range is represented in effectBands t1/t2/t3. The `aoeSize="1"` is either the ≤11 radius (which is redundant with t1) or a mismodel. Recommend clarification. |
-| `jaunt` | `effectBands` | `t1="No effect"; t2="5+M squares"; t3="10+M squares"` | ≤11=No effect; 12-16=5+M; 17+=10+M | **MATCHES** — flagged previously was a false alarm. Verified from annotated MD lines 253-254. No discrepancy. Listed MED for traceability only. |
+SpellbookData.prepareDerivedData computes targetNeedsReview; there is no stored field to toggle. The corpus test names all six deliberate flags:
 
----
+| Spell | Target text | Why it remains flagged |
+|---|---|---|
+| Cacophony | 1 square | A square is not one of the R:1206 target kinds; the effect is placed at a square described in prose. |
+| Create Water | 1 vessel or area | A vessel/area is not a single R:1206 target kind, and the card describes creation rather than a discrete target. |
+| Deadspeech | 1 corpse | Corpse is not the card vocabulary's creature/object/target kind; guessing would change the target semantics. |
+| Minor Blessing | Varies | The card's count varies by casting, but the schema can store only an integer count. The verbatim line is retained in target.text. |
+| Minor Phantasm | 1 space | A space is not a R:1206 target kind; the card puts the image within a space in its prose. |
+| Summon Object | Self | The card prints Self, while the spell's description creates an object in an inventory slot. Replacing it with 1 Summoned object would invent source text, silently change summon behavior, and erase the diagnostic. |
 
-## LOW Severity
+No pinned card target line uses the Summoned keyword. Consequently summonBehaviour(system) still matches 0 of 27 spellbooks, including Summon Object. That is a code/vocabulary reachability finding for the owner of module/helpers/spellcasting.mjs; this ticket preserves the card text and does not edit that module.
 
-*(Prose verbosity differences only — same mechanical meaning)*
+The target vocabulary used here is the one at R:1206, with the Summoned definition at R:1215 and the spellbook field anchors at R:1182, R:1186, R:1197, R:1219, R:1223, R:1237, R:1245, R:1249, and R:1253.
 
-| Spell | Field | YAML | MD | Notes |
-|-------|-------|------|----|-------|
-| `cacophony` | `t2`, `t3` | `"Heard up to 5+M squares away"` / `"10+M..."` | `"5+M"` / `"10+M"` | YAML expands compact card label. |
-| `animal-form` | `t1`, `t2`, `t3` | `"Tier 0/2/4 animal form"` | `"0"` / `"2"` / `"4"` | YAML adds "Tier N animal form" label around the number. |
-| `deadspeech` | `t1`, `t2`, `t3` | `"Target answers 1/3/5 questions honestly"` | `"1"` / `"3"` / `"5"` | YAML expands question-count into sentence. |
-| `shrink` | `t1`, `t2`, `t3` | `"Reduced 0 categories / weapon attack damage +0/+0"` etc. | `"0/0"` / `"1/-2"` / `"2/-4"` | Same values; YAML verbose, MD compact. |
-| `stubborn-object` | `t1`, `t2`, `t3` | `"Fixed; immovable by Strength 2/3/4 or higher"` | `"2"` / `"3"` / `"4"` | YAML expands Strength threshold into sentence. |
+## Previously corrected entries
 
----
+All six uniquely named corrections in the handoff remain correct against the cards; Minor Curse appears in both the earlier T3.0 swap and the PT2 boned removal, which accounts for the handoff's “seven” correction references:
 
-## INFO
+- Bone Capture — Ranged 5; empty attack t1; 2+M / 4+M damage; prone (IC:368-377).
+- Minor Healing — 1+M / 2+M / 4+M Stamina (IC:311-325).
+- Repair — 1+M / 4+M / 8+M Stamina (IC:294-309).
+- Light — 0/5 / 5/5 / 10/10 bright/dim (IC:352-362).
+- Minor Curse — No effect / 2+M damage / 4+M damage and weakened (IC:368-385).
+- Corrupt — 4+M damage / 8+M damage; vulnerable (IC:392-411).
 
-| Spell | Field | Notes |
-|-------|-------|-------|
-| `jaunt` | `effectBands` (verification) | Agent-flagged as unverifiable. Now verified: **no discrepancy**. See MED row above. |
+The PT2 boned replacement is not interchangeable: Minor Curse uses weakened, while Corrupt uses vulnerable, exactly as the cards print.
 
----
+## Remaining representation notes
 
-## Spells with No Discrepancies (all fields match)
-
-The following 16 spells had no HIGH, MED, or LOW discrepancies beyond those listed above:
-
-`animal-form` (LOW only), `bone-capture`* (HIGH), `cacophony` (LOW only), `corrupt` ✓, `create-water` ✓, `deadspeech` (LOW only), `fire-hands` ✓, `fire-lance` ✓, `jaunt` ✓, `light`* (HIGH), `minor-blessing` ✓, `minor-curse`* (HIGH), `minor-healing`* (HIGH), `minor-phantasm` ✓, `minor-ward` ✓, `monster-sense` (MED only), `repair`* (HIGH), `shrink` (LOW only), `spark` ✓, `stream` (MED only), `stubborn-object` (LOW only), `summon-object` ✓, `take-shape` ✓, `teleport-object` ✓, `thunder` ✓
-
-*(asterisk = has HIGH severity item)*
-
-**Clean spells (no issues at any severity):** `corrupt`, `create-water`, `fire-hands`, `fire-lance`, `jaunt`, `minor-blessing`, `minor-phantasm`, `minor-ward`, `spark`, `summon-object`, `take-shape`, `teleport-object`, `thunder` (13 of 25).
-
----
-
-## Special Checks (Agent-Flagged)
-
-### minor-healing
-**Verdict: CONFIRMED discrepancy.** All three tier values are wrong due to column bleed during PDF-to-markdown extraction. The annotated MD table places Minor Healing next to Minor Blessing and Minor Ward, and the ≤11 tier row for Minor Healing (`1+M Stamina`) was shifted to t2, with `No effect` (from an adjacent column) landing in t1. Correct YAML values:
-- `t1: "1+M Stamina regained"`
-- `t2: "2+M Stamina regained"`
-- `t3: "4+M Stamina regained"`
-
-### minor-curse
-**Verdict: CONFIRMED discrepancy — and it pairs with bone-capture.** The tier effects for `minor-curse` and `bone-capture` are swapped in the YAMLs. Minor Curse (Necromancy **Action**) applies the `Boned` condition; it is not a damage spell. Bone Capture (Necromancy **Attack**) deals `2+M` or `4+M` damage (with prone at t3). Both spells are mechanically wrong as entered.
+- MEDIUM — Monster Sense's card supplies a dynamic 1 / 5 / 10 detection radius in
+  its three bands, not a static Area of Effect line. The existing aura size 1 is
+  redundant schema representation of the first band; the dynamic values remain in
+  effectBands and no mechanical value was changed in this pass.
+- LOW — Stream's card says Line 5 x 1 within 1; the YAML's line size L 5 x W 1 is
+  the same dimensions, with the within-1 range held separately in range.value.
+- LOW — Several bands expand compact card labels into explanatory prose (for
+  example Animal Form's Tier 0/2/4 animal form and Cacophony's heard-up-to text).
+  These are semantically equivalent, unlike the corrected stale condition and
+  contamination findings above.
+- Varies is preserved as text but cannot become a trustworthy integer target.count; this is why Minor Blessing is reported rather than guessed.
+- Tiny on Teleport Object is preserved in the verbatim target text; the current structured target parser still classifies the line as an object.
+- Stream's card-specific three-band attack progression is preserved even though most attack cards print only two bands.
+- The test test/spellbook-corpus.test.mjs asserts the 27-document inventory, IDs and keys, the six named review flags, the no-Summoned card fact, and the high-risk card corrections.

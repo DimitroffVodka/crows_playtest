@@ -4,7 +4,7 @@ name: Deadspeech
 img: icons/magic/death/projectile-skull-animal-green.webp
 type: spellbook
 system:
-  description: "<p>The target can speak and must answer a number of questions you ask based on the casting honestly. The target has the same intellect it had in life. Your eyes are both compound and you can see in the dark.</p>"
+  description: "<p>The target can speak and must answer a number of questions you ask based on the casting honestly. The target has the same intellect it had in life.</p>"
   discipline: necromancy
   rank: 1
   castType: maneuver

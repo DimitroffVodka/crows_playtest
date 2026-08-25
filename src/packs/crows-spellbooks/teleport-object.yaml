@@ -11,7 +11,7 @@ system:
   range:
     kind: ranged
     value: 10
-  target: "1 obj."
+  target: "1 Tiny obj."
   aoe:
     shape: ""
     size: ""

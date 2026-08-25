@@ -1,96 +1,82 @@
-# Armor & Ammunition Cross-Validation Report
+# Playtest 2 Armor & Ammunition Cross-Validation Report
 
-**Generated:** 2026-05-26
-**Canonical source:** `MCDM_Crows_Annotated_Inventory_Cards_for_May_June_2026_Playtest.md`
-**YAMLs checked:** `src/packs/crows-armor/` (4 files) + `src/packs/crows-ammunition/` (2 files)
+**Date:** 2026-08-25
+**Canonical structure and numeric source:** `docs/source/C-characters-book.md`, C:1797–1940 and C:1976–2000
+**Name and prose source:** `02 Crows Characters Book for Playtest 2.pdf`, pp. 32–36 and 38, read with `pdftotext -layout`
+**YAMLs checked:** `src/packs/crows-armor/*.yaml` and `src/packs/crows-ammunition/*.yaml`
 
 ## Summary
 
-| Section | HIGH | MED | LOW | INFO | Total issues |
-|---------|------|-----|-----|------|-------------|
-| Armor | 0 | 0 | 0 | 0 | **0** |
-| Ammunition | 0 | 0 | 0 | 0 | **0** |
-| **Combined** | **0** | **0** | **0** | **0** | **0** |
+| Section | HIGH | MEDIUM | LOW | INFO | Total |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Armor | 0 | 1 | 0 | 5 | 6 |
+| Ammunition | 0 | 0 | 0 | 0 | 0 |
+| **Combined** | **0** | **1** | **0** | **5** | **6** |
 
-**Result: All 6 items match the canonical markdown exactly. No discrepancies found.**
+All six shipped documents match the PT2 base-item values. No armor or
+ammunition document was added, removed, or re-keyed.
 
----
+## Counts and base values derived from the source
 
-## Armor
+### Armor Prices (C:1814–1817; PDF p. 33)
 
-### Data extracted (YAML vs markdown)
+| Item | File | Price | Slots | AD |
+| --- | --- | ---: | ---: | ---: |
+| Light Armor | `light-armor.yaml` | 50 gc | 2 | 5 |
+| Medium Armor | `medium-armor.yaml` | 150 gc | 3 | 10 |
+| Heavy Armor | `heavy-armor.yaml` | 400 gc | 4 | 15 |
+| Shield | `shield.yaml` | 15 gc | 1 | 5 |
 
-| Item | Field | YAML value | Markdown value | Match |
-|------|-------|-----------|----------------|-------|
-| Shield | armorType | `shield` | Shield (Armor type) | YES |
-| Shield | ad | 5 | **AD:**5 | YES |
-| Shield | slots | 1 | Stack1 (no "Occupies X Slots" = 1 slot) | YES |
-| Shield | stackMax | 1 | Stack1 | YES |
-| Shield | cost | 15 | 15 gc | YES |
-| Light Armor | armorType | `light` | Light Armor (_Armor_) | YES |
-| Light Armor | ad | 5 | **AD**5 | YES |
-| Light Armor | slots | 2 | Stack1 (Occupies 2 Slots) | YES |
-| Light Armor | stackMax | 1 | Stack1 | YES |
-| Light Armor | cost | 50 | 50 gc | YES |
-| Medium Armor | armorType | `medium` | Medium Armor (_Armor_) | YES |
-| Medium Armor | ad | 10 | **AD**10 | YES |
-| Medium Armor | slots | 3 | Stack1 (Occupies 3 Slots) | YES |
-| Medium Armor | stackMax | 1 | Stack1 | YES |
-| Medium Armor | cost | 150 | 150 gc | YES |
-| Heavy Armor | armorType | `heavy` | Heavy Armor (_Armor_) | YES |
-| Heavy Armor | ad | 15 | **AD**15 | YES |
-| Heavy Armor | slots | 4 | Stack1 (Occupies 4 Slots) | YES |
-| Heavy Armor | stackMax | 1 | Stack1 | YES |
-| Heavy Armor | cost | 400 | 400 gc | YES |
+### Ammunition (C:1999–2000; PDF p. 38)
 
-### HIGH severity issues
-_None._
+| Item | File | Price | Slots | Use |
+| --- | --- | ---: | ---: | --- |
+| Quiver of 20 Arrows | `quiver-of-20-arrows.yaml` | 5 gc | 1 | Shortbows and longbows |
+| Case of 20 Bolts | `case-of-20-bolts.yaml` | 5 gc | 1 | Crossbows |
 
-### MEDIUM severity issues
-_None._
+## Discrepancies
 
-### LOW severity issues
-_None._
+### MEDIUM — the Silent register entry is stale, and the current consequence code does not read the field
 
-### INFO
-_None._
+The handoff/register statement that `ArmorData` has no `qualities` field and
+therefore has nowhere to store Silent is incorrect. `ArmorData` already defines
+`system.enchantment` as an optional, blank-allowed `StringField` with no choices;
+`"Silent"` fits it directly. The schema can hold the enchantment, so the
+register entry should be corrected. No `module/` file was edited.
 
-### Section summary
-All 4 armor items match the canonical markdown on every checked field. The YAML `slots` field correctly maps the card's "Occupies X Slots" notation (Stack1 with no qualifier = 1 slot for Shield; explicit slot counts for Light/Medium/Heavy). Costs align exactly: 15/50/150/400 gc.
+The related consequence helper in `module/helpers/combat.mjs` still checks only
+`system.qualities` and then the item name. It does **not** inspect
+`system.enchantment`, so a correctly transcribed Silent enchantment stored in
+that field is not currently visible to `wearsSilentArmor` unless the item name
+also contains “Silent”. This is reported only, as requested; it is outside
+this ticket’s ownership.
 
----
+### INFO — armor upgrade name corrected by the pinned markdown
 
-## Ammunition
+The PDF’s Crafting Upgraded Armor table (p. 33) prints **Bloedehide**. The
+markdown at C:1867 prints **Bloodhide**. The markdown spelling is used for the
+reliable table structure/numeric cross-check, while the PDF spelling is
+recorded here as the source name. Neither spelling is stored in the four base
+armor YAMLs.
 
-### Data extracted (YAML vs markdown)
+### INFO — armor prose typos repaired by the markdown
 
-| Item | Field | YAML value | Markdown value | Match |
-|------|-------|-----------|----------------|-------|
-| Quiver of 20 Arrows | name | `Quiver of 20 Arrows` | **Quiver of 20 Arrows** | YES |
-| Quiver of 20 Arrows | ammoFor | `"shortbows and longbows"` | "shortbows and longbows" | YES |
-| Quiver of 20 Arrows | countPerUnit | 20 | 20 (name-embedded) | YES |
-| Quiver of 20 Arrows | slots | 1 | Stack1 (no "Occupies" qualifier = 1 slot) | YES |
-| Quiver of 20 Arrows | stackMax | 1 | Stack1 | YES |
-| Quiver of 20 Arrows | cost | 5 | 5 gc | YES |
-| Case of 20 Bolts | name | `Case of 20 Bolts` | **Case of 20 Bolts** | YES |
-| Case of 20 Bolts | ammoFor | `"crossbows"` | "crossbows" | YES |
-| Case of 20 Bolts | countPerUnit | 20 | 20 (name-embedded) | YES |
-| Case of 20 Bolts | slots | 1 | Stack1 (no "Occupies" qualifier = 1 slot) | YES |
-| Case of 20 Bolts | stackMax | 1 | Stack1 | YES |
-| Case of 20 Bolts | cost | 5 | 5 gc | YES |
+The PDF and markdown differ in three armor-enchantment prose spots:
 
-### HIGH severity issues
-_None._
+| PDF location | PDF text | Markdown text | Followed |
+| --- | --- | --- | --- |
+| Slick, p. 35 | “an non-flammable oil” | “a non-flammable oil” | Markdown meaning |
+| Spell-Storing, p. 35 | “While wear or wield the armor” | “While you wear or wield the armor” | Markdown meaning |
+| Spell-Storing, p. 35 | “and old spells are gone” | “any old spells are gone” | Markdown meaning |
+| Waterwalking, p. 36 | “a -2 penalty on a tests made to swim” | “a -2 penalty on tests made to swim” | Markdown meaning |
 
-### MEDIUM severity issues
-_None._
+The Armor Enchantments names/table values (including **Silent**, 1,000 gc,
+1 use, Suit, 5 undead parts, goal 50 at C:1933) agree. Base armor and
+ammunition item names, prices, slots, and AD/usage values also agree.
 
-### LOW severity issues
-_None._
+## Schema notes
 
-### INFO
-- `countPerUnit` is not explicitly shown as a separate field on the card face — it is embedded in the item name ("20 Arrows", "20 Bolts") and confirmed by the card's Stack notation. YAML value of 20 is consistent.
-- The YAML description fields render "shortbows and longbows" / "crossbows" as paragraph text. The card uses the same wording inline. No deviation.
-
-### Section summary
-Both ammunition items match the canonical markdown exactly. The `ammoFor` text is word-for-word identical to the card descriptions. Costs (5 gc each) and stack/slot values (Stack1 = 1 slot each) are correct.
+Nothing in these packs exceeds the schema. `ArmorData.enchantment` can hold
+Silent; the limitation is the consumer in `combat.mjs`, not the data model.
+Armor does not need a `qualities` field for this enchantment. Ammunition uses
+the existing `cost` and `slots` fields and has no missing source value.
