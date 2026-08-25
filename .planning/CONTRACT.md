@@ -218,7 +218,11 @@ creatureType: + "human"                 // F:1397 prints Type: Human
 conditions: the six, plus `defeated`    // `boned` deleted here too
 ```
 
-Derived: `hasSlots` (`slots > 0` — deliberately **no** separate boolean to drift), `wounds`, `orphanedWounds`, `woundCapacityFilled` (reporting only, as on CrowData), and `suspectMissingSlots` — true when a `human`/`animal` has `slots: 0`, which `F:698` says should not happen and is almost certainly an incomplete transcription for Wave 3 to fix.
+Derived: `hasSlots` (`slots > 0` — deliberately **no** separate boolean to drift), `wounds`, `orphanedWounds`, and `woundCapacityFilled` (reporting only, as on CrowData).
+
+~~and `suspectMissingSlots` — true when a `human`/`animal` has `slots: 0`, which `F:698` says should not happen and is almost certainly an incomplete transcription for Wave 3 to fix.~~ **Removed 2026-08-25 (T3.5).** Its premise was false: the book contradicts its own rule, printing `Slots: 0` for Chicken, Crow, Hawk, Rat, Snake Venomous and Spider — 6 false positives in 32 animals. Nothing derives the distinction (Cat is Tiny with 1 slot, Hawk is Small with 0; both are power 1), and an allowlist would be the name-matching anti-pattern. The risk it existed for is now covered by `test/monster-corpus.test.mjs`, which checks every creature's slots against the pinned book in CI. Wave 3 has run; `slots: 0` on an animal is a fact, not a suspicion.
+
+**The §3 REPORTING pattern it modelled is unaffected** and still stands: a derivation that cannot classify its input says so, rather than guessing. `SpellbookData` and `spellcasting.mjs` both implement it.
 
 > F:700 — a creature that gains another creature's stats **keeps its original slot count**. Migration and polymorph must not overwrite `slots` from a stat block.
 

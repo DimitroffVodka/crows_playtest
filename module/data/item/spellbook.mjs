@@ -106,7 +106,7 @@ export class SpellbookData extends TypeDataModel {
     this.actsAsPet = summon.actsAsPet;
     this.requiresCommandTest = summon.requiresCommandTest;
 
-    // Reporting only, on the `suspectMissingSlots` pattern (CONTRACT §3): the
+    // Reporting only, on the CONTRACT §3 reporting pattern: the
     // target line could not be classified, or the spell talks about summoning
     // while its target line does not. Wave 3 lists these; nothing adjudicates
     // from it.

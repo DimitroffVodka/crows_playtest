@@ -245,7 +245,7 @@ function normalizeTarget(target) {
 /**
  * Does this spell's target line need a human before it can be trusted?
  *
- * Modelled on `MonsterData.suspectMissingSlots` (CONTRACT §3): a parse that
+ * On the CONTRACT §3 reporting pattern: a parse that
  * could not classify its input REPORTS that, so Wave 3 can list the documents
  * rather than discover them one bug at a time. Two cases:
  *   - the kind came out `other` — a noun outside R:1467's vocabulary;

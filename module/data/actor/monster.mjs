@@ -23,7 +23,7 @@ export class MonsterData extends TypeDataModel {
       // Default is `blood`, NOT `animal`. F:698 says animals HAVE slots, so the
       // old default paired an animal with `slots: 0` — an internally invalid
       // creature on every freshly created document, which then trips
-      // `suspectMissingSlots` for no reason. `blood` is a monster type, for
+      // the now-removed `suspectMissingSlots` for no reason. `blood` is a monster type, for
       // which `slots: 0` is correct.
       creatureType: new fields.StringField({ initial: "blood", choices: CROWS.creatureTypes }),
 
@@ -175,11 +175,22 @@ export class MonsterData extends TypeDataModel {
     // never adjudicated from derived preparation.
     this.woundCapacityFilled = this.hasSlots && held.length >= cap;
 
-    // F:698 — humans and animals HAVE slots. A stat block of one of those types
-    // with slots: 0 is almost certainly an incomplete transcription rather than
-    // a deliberate statement, so surface it for Wave 3 instead of silently
-    // treating the creature as a slotless monster.
-    this.suspectMissingSlots =
-      !this.hasSlots && ["human", "animal"].includes(this.creatureType);
+    // `suspectMissingSlots` was REMOVED on 2026-08-25 (T3.5). It flagged any
+    // human/animal with slots: 0 as a probable incomplete transcription, on the
+    // strength of F:691 ("all animals ... have slots"). The book contradicts its
+    // own rule: Chicken, Crow, Hawk, Rat, Snake Venomous and Spider each print
+    // Slots: 0. That is 6 false positives in 32 animals, and a warning wrong
+    // a fifth of the time teaches people to ignore warnings.
+    //
+    // No predicate can fix it — nothing derives the distinction. Cat is Tiny
+    // with 1 slot, Hawk is Small with 0; Cat and Hawk are both power 1. An
+    // allowlist of the six names would be the name-matching anti-pattern that
+    // produced the Coin Purse bug.
+    //
+    // The risk it existed for — a value we failed to read, which is exactly
+    // what Bear (book 10) and Wolf (book 5) were — is now covered properly by
+    // test/monster-corpus.test.mjs, which checks EVERY creature's slots against
+    // the pinned book in CI rather than waiting for a human to open a sheet.
+    // `slots: 0` on an animal is now a fact, not a suspicion.
   }
 }
