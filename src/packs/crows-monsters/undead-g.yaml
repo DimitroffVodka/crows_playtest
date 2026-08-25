@@ -1,0 +1,57 @@
+_id: crowsmonundeg001
+_key: "!actors!crowsmonundeg001"
+name: Undead G
+type: monster
+system:
+  power: 20
+  size: medium
+  creatureType: undead
+  stamina: { value: 100, max: 100 }
+  speed:
+    value: 6
+    modes:
+      - name: fly
+        value: 6
+  characteristics: { agility: 2, mind: 5, strength: 5 }
+  ad: 0
+  slots: 0
+  expertises: []
+  reactions: 4
+  xRest: []
+  attacks:
+    - name: Rustswords
+      toHit: 5
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 8
+      dmgT3: 16
+      riderRef: "*"
+    - name: Begone
+      toHit: 5
+      range: "Ranged 10"
+      targets: 1
+      dmgT2: 8
+      dmgT3: 14
+      riderRef: "**"
+  traits:
+    - name: Rust
+      effect: "<p>When the undead deals damage to a creature wearing metal armor or wielding a sword or a shield with Rustswords, each item has its AD reduced by 5 after the attack.</p>"
+      uses: ""
+      linkedAttack: "Rustswords"
+    - name: Hurl Away
+      effect: "<p>When the undead hits with Begone, they can vertically slide the target 3 squares on a tier 2 result, or 5 squares on a tier 3.</p>"
+      uses: ""
+      linkedAttack: "Begone"
+    - name: Extra Action
+      effect: "<p>The undead can take one additional action or maneuver on their combat turn.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Insect Breath (3/Day; max 1/turn)
+      effect: "<p>As an action, the undead breathes a plague of stinging insects in a 5-cube within 1 square of them. Each enemy in the cube must make an Agility RR: ≤11 (Tier 1): 20 dam 12–16 (Tier 2): 10 dam 17+ (Tier 3): No effect</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Rise!
+      effect: "<p>A human killed by this undead rises as an **undead creature A** 1d6 rounds after death.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: ["fallen knight", "rusted one"]

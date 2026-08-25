@@ -1,14 +1,14 @@
-_id: crowsmonsterwolf
-_key: "!actors!crowsmonsterwolf"
-name: Wolf
+_id: crowsmondeer0001
+_key: "!actors!crowsmondeer0001"
+name: Deer
 type: monster
 system:
-  power: 3
+  power: 2
   size: medium
   creatureType: animal
-  stamina: { value: 10, max: 10 }
+  stamina: { value: 5, max: 5 }
   speed:
-    value: 7
+    value: 8
     modes: []
   characteristics: { agility: 1, mind: -2, strength: 0 }
   ad: 0
@@ -16,20 +16,20 @@ system:
   expertises: []
   xRest: []
   attacks:
-    - name: Bite
-      toHit: 1
+    - name: Ram
+      toHit: 2
       range: "Melee 1"
       targets: 1
-      dmgT2: 3
+      dmgT2: 2
       dmgT3: 4
       riderRef: ""
   traits:
-    - name: Pack Hunter
-      effect: "<p>The wolf gains a total +3 bonus to attacks (instead of +2) for flanking with another wolf.</p>"
+    - name: Charge
+      effect: "<p>If the deer moves at least 4 squares before making an attack on the same turn, the attack deals an additional 2 dam.</p>"
       uses: ""
       linkedAttack: ""
     - name: No Dim Light Penalty
-      effect: "<p>Dim light imposes no penalties for the wolf.</p>"
+      effect: "<p>Dim light imposes no penalties for the deer.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: []

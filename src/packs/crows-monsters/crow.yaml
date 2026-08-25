@@ -1,0 +1,33 @@
+_id: crowsmoncrow0001
+_key: "!actors!crowsmoncrow0001"
+name: Crow
+type: monster
+system:
+  power: 0
+  size: tiny
+  creatureType: animal
+  stamina: { value: 2, max: 2 }
+  speed:
+    value: 2
+    modes:
+      - name: fly
+        value: 8
+  characteristics: { agility: 1, mind: -2, strength: -4 }
+  ad: 0
+  slots: 0
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Peck
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 1
+      dmgT3: 2
+      riderRef: ""
+  traits:
+    - name: Messenger
+      effect: "<p>The crow can carry a single sheet of paper without penalty. When outside, a pet crow always knows how to return to their owner’s village and does so if their owner commands it.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

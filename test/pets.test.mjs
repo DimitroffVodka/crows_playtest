@@ -160,11 +160,11 @@ describe("Pet Shop and the real shipped animal corpus", () => {
     assert.equal(petPurchaseQuote("").reason, "invalid-power", "blank power is not silently power 0");
   });
 
-  test("all 7/7 shipped animals have usable size and power; 3/7 still have zero slots", () => {
+  test("all 32/32 shipped animals have usable size and power; 6/32 have zero slots", () => {
     const monsters = shippedMonsters();
-    assert.equal(monsters.length, 11, "guard: the real shipped monster corpus was loaded");
+    assert.equal(monsters.length, 71, "guard: the real shipped monster corpus was loaded");
     const animals = monsters.filter(isAnimal);
-    assert.equal(animals.length, 7, "guard: the real animal subset was loaded");
+    assert.equal(animals.length, 32, "guard: the real animal subset was loaded");
 
     for (const pet of animals) {
       assert.ok(CROWS.sizes.includes(pet.system.size), `${pet.name}: invalid size ${pet.system.size}`);
@@ -175,9 +175,11 @@ describe("Pet Shop and the real shipped animal corpus", () => {
         `${pet.name}: slots are missing or invalid`);
     }
 
+    // Bear and Wolf were our transcription errors; PT2 prints Slots 10 and 5
+    // (F:718, F:1025). These six print 0 in the book and are correct.
     assert.deepEqual(
       animals.filter((pet) => pet.system.slots === 0).map((pet) => pet.name).sort(),
-      ["Bear", "Rat", "Wolf"]
+      ["Chicken", "Crow", "Hawk", "Rat", "Snake, Venomous", "Spider"]
     );
   });
 });

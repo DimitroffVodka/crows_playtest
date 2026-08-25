@@ -1,0 +1,38 @@
+_id: crowsmonenchant1
+_key: "!actors!crowsmonenchant1"
+name: Enchanter
+type: monster
+system:
+  power: 3
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 0, mind: 1, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: enchanting
+      value: 3
+      max: 3
+    - key: magicLore
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Enchanter’s tools</p>"
+  attacks:
+    - name: Unarmed
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 1
+      dmgT3: 2
+      riderRef: ""
+  traits:
+    - name: Material Transfer
+      effect: "<p>As a rest activity, the enchanter can choose two items that can be weapons or armor that can be crafted from the same materials, but are made of different ones. The items swap materials.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

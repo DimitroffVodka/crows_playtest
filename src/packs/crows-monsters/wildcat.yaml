@@ -1,0 +1,44 @@
+_id: crowsmonwildcat1
+_key: "!actors!crowsmonwildcat1"
+name: Wildcat
+type: monster
+system:
+  power: 2
+  size: small
+  creatureType: animal
+  stamina: { value: 9, max: 9 }
+  speed:
+    value: 6
+    modes:
+      - name: climb
+        value: 6
+  characteristics: { agility: 1, mind: -2, strength: 0 }
+  ad: 0
+  slots: 1
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Bite
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 2
+      dmgT3: 4
+      riderRef: ""
+    - name: Scratch
+      toHit: 1
+      range: "Melee 1"
+      targets: 2
+      dmgT2: 1
+      dmgT3: 2
+      riderRef: ""
+  traits:
+    - name: Charge
+      effect: "<p>If the cat moves at least 4 squares before making an attack on the same turn, the attack deals an additional 2 dam.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: No Dim Light Penalty
+      effect: "<p>Dim light imposes no penalties for the wildcat.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

@@ -1,0 +1,31 @@
+_id: crowsmonox000001
+_key: "!actors!crowsmonox000001"
+name: Ox
+type: monster
+system:
+  power: 8
+  size: large
+  creatureType: animal
+  stamina: { value: 20, max: 20 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: -1, mind: -2, strength: 3 }
+  ad: 0
+  slots: 20
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Kick
+      toHit: 3
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 4
+      dmgT3: 8
+      riderRef: ""
+  traits:
+    - name: Draft Animal
+      effect: "<p>When hauling a vehicle, the ox has 10 open slots that can be used to carry equipment.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

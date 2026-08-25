@@ -1,0 +1,41 @@
+_id: crowsmontrapper1
+_key: "!actors!crowsmontrapper1"
+name: Trapper
+type: monster
+system:
+  power: 5
+  size: medium
+  creatureType: human
+  stamina: { value: 15, max: 15 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 2, mind: 1, strength: 1 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: natureLore
+      value: 2
+      max: 2
+    - key: navigate
+      value: 1
+      max: 1
+    - key: stealth
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Bear traps (2), caltrops (2), knife, longbow, oil pints (2), quiver of 20 arrows</p>"
+  attacks:
+    - name: Longbow
+      toHit: 2
+      range: "Ranged 20"
+      targets: 1
+      dmgT2: 5
+      dmgT3: 8
+      riderRef: ""
+  traits:
+    - name: Trap Master
+      effect: "<p>Other creatures take a bane on RRs made to resist terrain effects created by the trapper.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

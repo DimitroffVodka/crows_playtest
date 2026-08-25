@@ -1,0 +1,27 @@
+_id: crowsmoncommoner
+_key: "!actors!crowsmoncommoner"
+name: Commoner
+type: monster
+system:
+  power: 0
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 0, mind: 0, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Unarmed
+      toHit: 0
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 1
+      dmgT3: 2
+      riderRef: ""
+  traits: []
+  colloquialNames: []

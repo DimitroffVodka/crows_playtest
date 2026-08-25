@@ -1,6 +1,6 @@
-_id: crowsmonster0rat
-_key: "!actors!crowsmonster0rat"
-name: Rat
+_id: crowsmonspider01
+_key: "!actors!crowsmonspider01"
+name: Spider
 type: monster
 system:
   power: 0
@@ -8,11 +8,11 @@ system:
   creatureType: animal
   stamina: { value: 2, max: 2 }
   speed:
-    value: 4
+    value: 5
     modes:
       - name: climb
-        value: 4
-  characteristics: { agility: 1, mind: -3, strength: -5 }
+        value: 5
+  characteristics: { agility: 1, mind: -4, strength: -5 }
   ad: 0
   slots: 0
   expertises: []
@@ -26,8 +26,8 @@ system:
       dmgT3: 2
       riderRef: ""
   traits:
-    - name: No Dim Light Penalty
-      effect: "<p>Dim light imposes no penalties for the rat.</p>"
+    - name: Vibration Sense
+      effect: "<p>The spider is aware of the exact location of any creature within 2 squares and suffers no penalties on attacks against or tests made to observe them.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: []

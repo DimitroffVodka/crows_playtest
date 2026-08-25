@@ -1,0 +1,33 @@
+_id: crowsmonape00001
+_key: "!actors!crowsmonape00001"
+name: Ape
+type: monster
+system:
+  power: 4
+  size: medium
+  creatureType: animal
+  stamina: { value: 10, max: 10 }
+  speed:
+    value: 5
+    modes:
+      - name: climb
+        value: 5
+  characteristics: { agility: 1, mind: -1, strength: 2 }
+  ad: 0
+  slots: 10
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Punch
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: ""
+  traits:
+    - name: Dangerous When Cornered
+      effect: "<p>When the ape has 0 Stamina, they deal an additional 2 dam with attacks.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

@@ -1,0 +1,41 @@
+_id: crowsmonpike0004
+_key: "!actors!crowsmonpike0004"
+name: Warrior, Pike (Power 4)
+type: monster
+system:
+  power: 4
+  size: medium
+  creatureType: human
+  stamina: { value: 10, max: 10 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 0, strength: 1 }
+  ad: 5
+  slots: 10
+  expertises:
+    - key: athletics
+      value: 1
+      max: 1
+    - key: lift
+      value: 1
+      max: 1
+    - key: stabbing
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Light armor, pike</p>"
+  attacks:
+    - name: Pike
+      toHit: 2
+      range: "Melee 2"
+      targets: 1
+      dmgT2: 4
+      dmgT3: 8
+      riderRef: ""
+  traits:
+    - name: Brutal
+      effect: "<p>The warrior scores a crit with a pike attack when the dice total 18, 19, or 20 without modifiers. When the warrior scores a crit with a pike attack, it deals 16 dam.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

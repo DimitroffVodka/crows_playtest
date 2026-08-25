@@ -1,0 +1,38 @@
+_id: crowsmonblksmith
+_key: "!actors!crowsmonblksmith"
+name: Blacksmith
+type: monster
+system:
+  power: 3
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 0, mind: 0, strength: 1 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: blacksmithing
+      value: 3
+      max: 3
+    - key: bashing
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Blacksmith’s tools, hammer</p>"
+  attacks:
+    - name: Hammer
+      toHit: 2
+      range: "Melee 1/Ranged 5"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: ""
+  traits:
+    - name: Pummeling
+      effect: "<p>When the blacksmith gets a tier 3 result on a hammer attack against a Medium or smaller target, the target is pushed 1 square. If the blacksmith gets a crit on a hammer attack against a Medium or smaller creature, the target is knocked prone.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

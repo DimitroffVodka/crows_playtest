@@ -1,18 +1,18 @@
-_id: crowsmon0bear001
-_key: "!actors!crowsmon0bear001"
-name: Bear
+_id: crowsmoncatbig01
+_key: "!actors!crowsmoncatbig01"
+name: Cat, Big
 type: monster
 system:
-  power: 6
+  power: 7
   size: large
   creatureType: animal
-  stamina: { value: 20, max: 20 }
+  stamina: { value: 25, max: 25 }
   speed:
     value: 6
     modes:
       - name: climb
         value: 6
-  characteristics: { agility: 0, mind: -2, strength: 2 }
+  characteristics: { agility: 2, mind: -2, strength: 2 }
   ad: 0
   slots: 10
   expertises: []
@@ -23,22 +23,22 @@ system:
       range: "Melee 1"
       targets: 1
       dmgT2: 4
-      dmgT3: 6
+      dmgT3: 7
       riderRef: ""
-    - name: Claws
+    - name: Scratch
       toHit: 2
       range: "Melee 1"
       targets: 2
       dmgT2: 2
-      dmgT3: 3
+      dmgT3: 4
       riderRef: ""
   traits:
-    - name: Dangerous When Cornered
-      effect: "<p>When the bear has 15 or lower Stamina, they deal an additional 2 dam with attacks.</p>"
+    - name: Charge
+      effect: "<p>If the cat moves at least 4 squares before making an attack on the same turn, the attack deals an additional 3 dam.</p>"
       uses: ""
       linkedAttack: ""
     - name: No Dim Light Penalty
-      effect: "<p>Dim light imposes no penalties for the bear.</p>"
+      effect: "<p>Dim light imposes no penalties for the big cat.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: []

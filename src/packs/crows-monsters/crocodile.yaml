@@ -1,0 +1,37 @@
+_id: crowsmoncroc0001
+_key: "!actors!crowsmoncroc0001"
+name: Crocodile
+type: monster
+system:
+  power: 6
+  size: large
+  creatureType: animal
+  stamina: { value: 20, max: 20 }
+  speed:
+    value: 4
+    modes:
+      - name: swim
+        value: 6
+  characteristics: { agility: 1, mind: -3, strength: 2 }
+  ad: 0
+  slots: 10
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Bite
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 4
+      dmgT3: 6
+      riderRef: "*"
+  traits:
+    - name: Vise Grip
+      effect: "<p>When the crocodile gets a tier 3 result with their bite against a Medium or smaller target, the target is grabbed. While grabbed this way, the crocodile can’t bite another target. While they have a target grabbed this way, the crocodile can use a maneuver to deal 3 P dam to the target.</p>"
+      uses: ""
+      linkedAttack: "Bite"
+    - name: No Darkness Penalty
+      effect: "<p>Dim light and darkness imposes no penalties for the crocodile.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

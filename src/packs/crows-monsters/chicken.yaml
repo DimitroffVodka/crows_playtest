@@ -1,6 +1,6 @@
-_id: crowsmonster0rat
-_key: "!actors!crowsmonster0rat"
-name: Rat
+_id: crowsmonchicken0
+_key: "!actors!crowsmonchicken0"
+name: Chicken
 type: monster
 system:
   power: 0
@@ -8,17 +8,17 @@ system:
   creatureType: animal
   stamina: { value: 2, max: 2 }
   speed:
-    value: 4
+    value: 2
     modes:
-      - name: climb
-        value: 4
-  characteristics: { agility: 1, mind: -3, strength: -5 }
+      - name: fly
+        value: 3
+  characteristics: { agility: 1, mind: -2, strength: -4 }
   ad: 0
   slots: 0
   expertises: []
   xRest: []
   attacks:
-    - name: Bite
+    - name: Peck
       toHit: 1
       range: "Melee 1"
       targets: 1
@@ -26,8 +26,8 @@ system:
       dmgT3: 2
       riderRef: ""
   traits:
-    - name: No Dim Light Penalty
-      effect: "<p>Dim light imposes no penalties for the rat.</p>"
+    - name: Clumsy Flyer
+      effect: "<p>If the chicken is still in the air when they stop flying, they fall.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: []

@@ -1,6 +1,6 @@
 _id: crowsmonringcol1
 _key: "!actors!crowsmonringcol1"
-name: Ring Collector
+name: Ring Collector (Namlin)
 type: monster
 system:
   power: 20
@@ -10,19 +10,25 @@ system:
   speed:
     value: 7
     modes: []
-  characteristics: { agility: 4, mind: 4, strength: 3 }
+  characteristics: { agility: 4, mind: 5, strength: 4 }
   ad: 0
   slots: 0
+  expertises: []
+  reactions: 4
+  xRest:
+    - name: Vanish
+      max: 1
+      used: 0
   attacks:
     - name: Kneel
-      toHit: 4
-      range: "Range 10"
+      toHit: 5
+      range: "Ranged 10"
       targets: 1
       dmgT2: 8
       dmgT3: 14
       riderRef: "*"
     - name: Sword
-      toHit: 3
+      toHit: 4
       range: "Melee 1"
       targets: 1
       dmgT2: 7
@@ -34,14 +40,14 @@ system:
       targets: 2
       dmgT2: 4
       dmgT3: 8
-      riderRef: "*"
+      riderRef: ""
   traits:
     - name: Literally Kneel
       effect: "<p>When this creature gets a tier 3 result with a Kneel attack, the target falls prone.</p>"
       uses: ""
       linkedAttack: "Kneel"
     - name: Exploding Sword
-      effect: "<p>When this creature's sword attack kills a creature, the target explodes and deals 1d6 dam to each creature within 1 square.</p>"
+      effect: "<p>When this creature’s sword attack kills a creature, the target explodes and deals 1d6 dam to each creature within 1 square.</p>"
       uses: ""
       linkedAttack: "Sword"
     - name: Extra Action
@@ -50,7 +56,7 @@ system:
       linkedAttack: ""
     - name: Vanish
       effect: "<p>This creature can teleport up to 50 miles to a location they have visited before regardless of line of effect.</p>"
-      uses: "1/Rest"
+      uses: ""
       linkedAttack: ""
     - name: Ring Sense
       effect: "<p>This creature knows the exact location of any magic ring within 20 squares of them regardless of line of effect.</p>"

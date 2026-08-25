@@ -1,0 +1,33 @@
+_id: crowsmonsncon001
+_key: "!actors!crowsmonsncon001"
+name: Snake, Constrictor
+type: monster
+system:
+  power: 5
+  size: huge
+  creatureType: animal
+  stamina: { value: 15, max: 15 }
+  speed:
+    value: 6
+    modes:
+      - name: climb
+        value: 6
+  characteristics: { agility: 2, mind: -3, strength: 2 }
+  ad: 0
+  slots: 10
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Bite
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 6
+      riderRef: ""
+  traits:
+    - name: Grabber
+      effect: "<p>The snake has an edge on attempts made to grab other creatures, and other creatures take a bane on tests made to escape being grabbed by the snake. While they have a target grabbed this way, the snake can use a maneuver to deal 2 P dam to the target.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

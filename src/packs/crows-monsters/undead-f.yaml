@@ -1,0 +1,42 @@
+_id: crowsmonundef001
+_key: "!actors!crowsmonundef001"
+name: Undead F
+type: monster
+system:
+  power: 15
+  size: large
+  creatureType: undead
+  stamina: { value: 75, max: 75 }
+  speed:
+    value: 4
+    modes:
+      - name: climb
+        value: 4
+  characteristics: { agility: -2, mind: 1, strength: 4 }
+  ad: 0
+  slots: 0
+  expertises: []
+  reactions: 3
+  xRest: []
+  attacks:
+    - name: Boneshard
+      toHit: 4
+      range: "Melee 2/Ranged 5"
+      targets: 1
+      dmgT2: 7
+      dmgT3: 12
+      riderRef: ""
+  traits:
+    - name: Exploding Mote (2/Day)
+      effect: "<p>As an action, the undead hurls a chunk of their flesh that explodes into gas in a 4-cube within 10 squares of them. Each non-undead creature in the area must make a Strength RR: ≤11 (Tier 1): 15 dam 12–16 (Tier 2): 7 dam 17+ (Tier 3): No effect</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Glorp Through (3/Day)
+      effect: "<p>As a maneuver, the undead moves their speed without provoking opportunity attacks and while entering other creatures' spaces at no speed penalty. Each creature whose space they enter takes 1d6 dam. If they end this movement in another creature’s space, the undead slides the creature into the nearest unoccupied space of their choice.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Liquid Death
+      effect: "<p>When the undead is reduced to 0 Stamina, their body explodes in a fountain of acidic gore. Each creature within 2 squares of them takes 1d10 dam.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: ["gore beast", "rot pile", "sludge"]

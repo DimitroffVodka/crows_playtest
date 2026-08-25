@@ -1,0 +1,55 @@
+_id: crowsmonundeh001
+_key: "!actors!crowsmonundeh001"
+name: Undead H
+type: monster
+system:
+  power: 25
+  size: huge
+  creatureType: undead
+  stamina: { value: 120, max: 120 }
+  speed:
+    value: 7
+    modes: []
+  characteristics: { agility: 3, mind: 4, strength: 5 }
+  ad: 0
+  slots: 0
+  expertises: []
+  reactions: 4
+  xRest: []
+  attacks:
+    - name: Spineswords
+      toHit: 5
+      range: "Melee 2/Ranged 5"
+      targets: 1
+      dmgT2: 10
+      dmgT3: 19
+      riderRef: "*"
+    - name: Bites
+      toHit: 5
+      range: "Melee 1"
+      targets: 2
+      dmgT2: 5
+      dmgT3: 10
+      riderRef: "**"
+  traits:
+    - name: Weakening Blade
+      effect: "<p>When the undead damages a creature with their spineswords, the creature is weakened.</p>"
+      uses: ""
+      linkedAttack: "Spineswords"
+    - name: Vorpal Bite
+      effect: "<p>When the undead scores a crit with their bite attack against a Large or smaller creature, the creature’s head is removed.</p>"
+      uses: ""
+      linkedAttack: "Bites"
+    - name: Extra Action
+      effect: "<p>The undead can take one additional action or maneuver on their combat turn.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Whirlwind (3/Day; max 1/turn)
+      effect: "<p>As an action, the undead moves up to their speed without provoking opportunity attacks. Each enemy they come within 2 squares of at the start of, end of, and during the move takes 1d10 dam.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Damned Shriek (2/Day; max 1/turn)
+      effect: "<p>As a maneuver, the undead’s many mouths open in a hideous, discordant scream. Each enemy within 5 squares of the undead must make a Mind RR: ≤11 (Tier 1): Prone and vulnerable 12–16 (Tier 2): Prone 17+ (Tier 3): No effect</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: ["flayer of souls", "spinecruncher"]

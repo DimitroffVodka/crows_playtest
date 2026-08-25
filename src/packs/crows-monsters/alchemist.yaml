@@ -1,0 +1,48 @@
+_id: crowsmonalch0001
+_key: "!actors!crowsmonalch0001"
+name: Alchemist
+type: monster
+system:
+  power: 3
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 1, strength: -1 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: alchemy
+      value: 3
+      max: 3
+    - key: magicLore
+      value: 1
+      max: 1
+    - key: monsterLore
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Acid vial (5), alchemist’s tools, fire bomb, poison vial (5)</p>"
+  attacks:
+    - name: Unarmed
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 2
+      dmgT3: 3
+      riderRef: ""
+    - name: Acid Vial
+      toHit: 1
+      range: "Ranged 5"
+      targets: 1
+      dmgT2: 5
+      dmgT3: 9
+      riderRef: ""
+  traits:
+    - name: Fire Bomb
+      effect: "<p>The alchemist hurls a bomb up to 10 squares. It explodes in a 3-cube. Each creature in the cube must make an Agility RR: ≤11 (Tier 1): 10 dam 12–16 (Tier 2): 5 dam 17+ (Tier 3): 0 dam</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

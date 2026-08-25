@@ -1,32 +1,30 @@
-_id: crowsmon0bear001
-_key: "!actors!crowsmon0bear001"
-name: Bear
+_id: crowsmonbcave001
+_key: "!actors!crowsmonbcave001"
+name: Bear, Cave
 type: monster
 system:
-  power: 6
+  power: 9
   size: large
   creatureType: animal
-  stamina: { value: 20, max: 20 }
+  stamina: { value: 30, max: 30 }
   speed:
     value: 6
-    modes:
-      - name: climb
-        value: 6
-  characteristics: { agility: 0, mind: -2, strength: 2 }
+    modes: []
+  characteristics: { agility: 0, mind: -2, strength: 3 }
   ad: 0
-  slots: 10
+  slots: 15
   expertises: []
   xRest: []
   attacks:
     - name: Bite
-      toHit: 2
+      toHit: 3
       range: "Melee 1"
       targets: 1
-      dmgT2: 4
+      dmgT2: 6
       dmgT3: 6
       riderRef: ""
     - name: Claws
-      toHit: 2
+      toHit: 3
       range: "Melee 1"
       targets: 2
       dmgT2: 2
@@ -34,11 +32,11 @@ system:
       riderRef: ""
   traits:
     - name: Dangerous When Cornered
-      effect: "<p>When the bear has 15 or lower Stamina, they deal an additional 2 dam with attacks.</p>"
+      effect: "<p>When the bear has 22 or lower Stamina, they deal an additional 2 dam with attacks.</p>"
       uses: ""
       linkedAttack: ""
     - name: No Dim Light Penalty
-      effect: "<p>Dim light imposes no penalties for the bear.</p>"
+      effect: "<p>Dim light imposes no penalties for the cave bear.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: []

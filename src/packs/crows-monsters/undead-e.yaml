@@ -1,0 +1,47 @@
+_id: crowsmonundee001
+_key: "!actors!crowsmonundee001"
+name: Undead E
+type: monster
+system:
+  power: 12
+  size: large
+  creatureType: undead
+  stamina: { value: 60, max: 60 }
+  speed:
+    value: 4
+    modes: []
+  characteristics: { agility: -2, mind: 0, strength: 3 }
+  ad: 0
+  slots: 0
+  expertises: []
+  reactions: 2
+  xRest: []
+  attacks:
+    - name: Fist
+      toHit: 3
+      range: "Melee 1"
+      targets: 2
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: "*"
+    - name: Bite
+      toHit: 3
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 6
+      dmgT3: 10
+      riderRef: ""
+  traits:
+    - name: Grabbing Fist
+      effect: "<p>When the undead gets a tier 3 result with their fist against a Medium or smaller target, the target is grabbed. The undead can grab up to two targets at a time, and deals an additional 3 damage to targets they have grabbed with melee attacks.</p>"
+      uses: ""
+      linkedAttack: "Fist"
+    - name: Bite Frenzy (1/Day)
+      effect: "<p>As an action, the undead makes a bite attack targeting each enemy within 1 square of them.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Horrid Gnashing
+      effect: "<p>When a non-undead creature with a Mind score of 1 or lower starts their turn within 1 square of the undead, they take a bane on all tests until the start of their next turn.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: ["babbling death", "hideous choir"]

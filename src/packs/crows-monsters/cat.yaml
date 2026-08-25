@@ -1,20 +1,24 @@
 _id: crowsmon0cat0001
 _key: "!actors!crowsmon0cat0001"
-name: Cat (Pet)
+name: Cat
 type: monster
 system:
-  power: 0
+  power: 1
   size: tiny
   creatureType: animal
   stamina: { value: 4, max: 4 }
   speed:
     value: 5
-    modes: []
-  characteristics: { agility: 1, mind: -3, strength: 0 }
+    modes:
+      - name: climb
+        value: 5
+  characteristics: { agility: 1, mind: -2, strength: -3 }
   ad: 0
   slots: 1
+  expertises: []
+  xRest: []
   attacks:
-    - name: Claws
+    - name: Scratch
       toHit: 1
       range: "Melee 1"
       targets: 1
@@ -23,7 +27,7 @@ system:
       riderRef: ""
   traits:
     - name: No Dim Light Penalty
-      effect: "<p>Dim light imposes no penalties for this creature.</p>"
+      effect: "<p>Dim light imposes no penalties for the cat.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: []

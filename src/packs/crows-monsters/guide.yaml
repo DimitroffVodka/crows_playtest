@@ -1,0 +1,44 @@
+_id: crowsmonguide001
+_key: "!actors!crowsmonguide001"
+name: Guide
+type: monster
+system:
+  power: 5
+  size: medium
+  creatureType: human
+  stamina: { value: 15, max: 15 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 2, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: historicalLore
+      value: 1
+      max: 1
+    - key: natureLore
+      value: 1
+      max: 1
+    - key: navigate
+      value: 2
+      max: 2
+    - key: stealth
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Compass, longbow, quiver of 20 arrows, torch</p>"
+  attacks:
+    - name: Longbow
+      toHit: 1
+      range: "Ranged 20"
+      targets: 1
+      dmgT2: 4
+      dmgT3: 7
+      riderRef: ""
+  traits:
+    - name: Travel Expert
+      effect: "<p>When the guide makes a test related to a travel role, they can roll twice and choose either result.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

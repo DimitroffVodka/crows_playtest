@@ -1,0 +1,41 @@
+_id: crowsmonspidgi01
+_key: "!actors!crowsmonspidgi01"
+name: Spider, Giant
+type: monster
+system:
+  power: 10
+  size: huge
+  creatureType: animal
+  stamina: { value: 30, max: 30 }
+  speed:
+    value: 8
+    modes:
+      - name: climb
+        value: 8
+  characteristics: { agility: 2, mind: -4, strength: 3 }
+  ad: 0
+  slots: 20
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Bite
+      toHit: 3
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 5
+      dmgT3: 9
+      riderRef: ""
+  traits:
+    - name: Highly Venomous
+      effect: "<p>When the spider gets a tier 2 result with their bite, the target is weakened, or vulnerable and weakened on a tier 3 result.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Web
+      effect: "<p>As an action, the spider showers a 3-square area within 1 square of them with web. The web has 10 Stamina. Each creature in the area must make an Agility RR: ≤11 (Tier 1): The creature is grabbed by the web. 12–16 (Tier 2): The creature’s speed is halved until the end of their next turn. 17+ (Tier 3): No effect.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Vibration Sense
+      effect: "<p>The spider is aware of the exact location of any creature within 2 squares and suffers no penalties on attacks against or tests made to observe them.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

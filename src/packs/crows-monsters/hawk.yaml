@@ -1,0 +1,33 @@
+_id: crowsmonhawk0001
+_key: "!actors!crowsmonhawk0001"
+name: Hawk
+type: monster
+system:
+  power: 1
+  size: small
+  creatureType: animal
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 2
+    modes:
+      - name: fly
+        value: 8
+  characteristics: { agility: 1, mind: -2, strength: -1 }
+  ad: 0
+  slots: 0
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Rake
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 2
+      dmgT3: 3
+      riderRef: ""
+  traits:
+    - name: Carrier
+      effect: "<p>This creature can carry one Tiny object.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

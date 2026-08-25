@@ -1,0 +1,33 @@
+_id: crowsmonmonitr01
+_key: "!actors!crowsmonmonitr01"
+name: Monitor Lizard
+type: monster
+system:
+  power: 4
+  size: medium
+  creatureType: animal
+  stamina: { value: 15, max: 15 }
+  speed:
+    value: 4
+    modes:
+      - name: swim
+        value: 4
+  characteristics: { agility: 2, mind: -3, strength: 1 }
+  ad: 0
+  slots: 5
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Bite
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: "*"
+  traits:
+    - name: Lacerate
+      effect: "<p>When the lizard gets a tier 3 result with their bite against a creature and damages their Stamina or gives them a wound, the target gains a laceration until they regain Stamina. When the target takes a maneuver and an action on their turn, they take 1 P dam for each laceration they have.</p>"
+      uses: ""
+      linkedAttack: "Bite"
+  colloquialNames: []

@@ -1,0 +1,41 @@
+_id: crowsmonarcher07
+_key: "!actors!crowsmonarcher07"
+name: Archer (Power 7)
+type: monster
+system:
+  power: 7
+  size: medium
+  creatureType: human
+  stamina: { value: 25, max: 25 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 2, mind: 1, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: athletics
+      value: 1
+      max: 1
+    - key: stealth
+      value: 1
+      max: 1
+    - key: bow
+      value: 2
+      max: 2
+  xRest: []
+  notes: "<p>Equipment: Longbow, quiver of 20 arrows</p>"
+  attacks:
+    - name: Longbow
+      toHit: 4
+      range: "Ranged 22"
+      targets: 1
+      dmgT2: 5
+      dmgT3: 8
+      riderRef: ""
+  traits:
+    - name: Walls Cannot Save You
+      effect: "<p>The archer’s longbow attacks ignore cover.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

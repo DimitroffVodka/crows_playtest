@@ -1,0 +1,37 @@
+_id: crowsmonarcher04
+_key: "!actors!crowsmonarcher04"
+name: Archer (Power 4)
+type: monster
+system:
+  power: 4
+  size: medium
+  creatureType: human
+  stamina: { value: 10, max: 10 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 0, strength: 0 }
+  ad: 2
+  slots: 10
+  expertises:
+    - key: athletics
+      value: 1
+      max: 1
+    - key: stealth
+      value: 1
+      max: 1
+    - key: bow
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Knife, quiver of 20 arrows, shortbow</p>"
+  attacks:
+    - name: Shortbow
+      toHit: 2
+      range: "Ranged 12"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: ""
+  traits: []
+  colloquialNames: []

@@ -3,16 +3,18 @@ _key: "!actors!crowsmonbloodcc1"
 name: Blood Creature C
 type: monster
 system:
-  power: 3
-  size: small
+  power: 8
+  size: large
   creatureType: blood
   stamina: { value: 40, max: 40 }
   speed:
     value: 5
-    modes: [ { name: climb, value: 5 } ]
+    modes: []
   characteristics: { agility: 0, mind: 0, strength: 2 }
   ad: 0
   slots: 0
+  expertises: []
+  xRest: []
   attacks:
     - name: Punch
       toHit: 2
@@ -30,7 +32,7 @@ system:
       riderRef: ""
   traits:
     - name: Malleable
-      effect: "<p>This creature can fit through spaces as small as 1 inch wide and never needs to squeeze.</p>"
+      effect: "<p>This blood creature can fit through spaces as small as 1 inch wide and never needs to squeeze. They can’t be grabbed or knocked prone.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: ["blood brute", "tiny arms"]

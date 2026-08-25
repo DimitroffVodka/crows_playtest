@@ -1,0 +1,45 @@
+_id: crowsmonsword007
+_key: "!actors!crowsmonsword007"
+name: Warrior, Sword (Power 7)
+type: monster
+system:
+  power: 7
+  size: medium
+  creatureType: human
+  stamina: { value: 25, max: 25 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 0, strength: 2 }
+  ad: 19
+  slots: 10
+  expertises:
+    - key: endurance
+      value: 1
+      max: 1
+    - key: lift
+      value: 1
+      max: 1
+    - key: slashing
+      value: 2
+      max: 2
+  xRest: []
+  notes: "<p>Equipment: Medium armor, shield, sword</p>"
+  attacks:
+    - name: Sword
+      toHit: 4
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 5
+      dmgT3: 8
+      riderRef: ""
+  traits:
+    - name: Disengage
+      effect: "<p>When the warrior uses the Shift maneuver while wielding a sword, they can shift 2 additional squares.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Interposing Arm
+      effect: "<p>When a creature within 1 square of the warrior is hit with an attack while the warrior wields a shield, the warrior can use their reaction to have the damage dealt to the shield as if the target were wielding it.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

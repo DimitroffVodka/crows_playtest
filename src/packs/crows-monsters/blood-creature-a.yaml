@@ -9,13 +9,17 @@ system:
   stamina: { value: 5, max: 5 }
   speed:
     value: 6
-    modes: [ { name: climb, value: 6 } ]
-  characteristics: { agility: 1, mind: -2, strength: 0 }
+    modes:
+      - name: climb
+        value: 6
+  characteristics: { agility: 2, mind: -2, strength: 0 }
   ad: 0
   slots: 0
+  expertises: []
+  xRest: []
   attacks:
     - name: Claws
-      toHit: 1
+      toHit: 2
       range: "Melee 1"
       targets: 1
       dmgT2: 2
@@ -23,7 +27,7 @@ system:
       riderRef: ""
   traits:
     - name: Drop Attack
-      effect: "<p>This creature treats falls as 10 squares shorter when calculating fall damage. After falling and taking no damage, they gain a +1 bonus on attacks and damage until the end of the turn.</p>"
+      effect: "<p>This blood creature treats falls as 10 squares shorter when calculating fall damage. After falling and taking no damage, they gain an edge on attacks and damage until the end of the turn.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: ["creep", "red drool", "spindleclaw"]

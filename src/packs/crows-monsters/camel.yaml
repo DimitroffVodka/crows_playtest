@@ -1,0 +1,31 @@
+_id: crowsmoncamel001
+_key: "!actors!crowsmoncamel001"
+name: Camel
+type: monster
+system:
+  power: 5
+  size: large
+  creatureType: animal
+  stamina: { value: 15, max: 15 }
+  speed:
+    value: 8
+    modes: []
+  characteristics: { agility: 0, mind: -2, strength: 2 }
+  ad: 0
+  slots: 10
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Kick
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 6
+      riderRef: ""
+  traits:
+    - name: Sustained
+      effect: "<p>The camel can gain the benefits of a rest without eating or drinking anything for up to three days in a row. They also can go for three days without food and water before beginning to starve.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

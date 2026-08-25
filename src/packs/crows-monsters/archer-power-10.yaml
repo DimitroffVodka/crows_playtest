@@ -1,0 +1,45 @@
+_id: crowsmonarcher10
+_key: "!actors!crowsmonarcher10"
+name: Archer (Power 10)
+type: monster
+system:
+  power: 10
+  size: medium
+  creatureType: human
+  stamina: { value: 40, max: 40 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 3, mind: 1, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: athletics
+      value: 1
+      max: 1
+    - key: stealth
+      value: 1
+      max: 1
+    - key: bow
+      value: 2
+      max: 2
+  xRest: []
+  notes: "<p>Equipment: Longbow, quiver of 20 arrows</p>"
+  attacks:
+    - name: Longbow
+      toHit: 5
+      range: "Ranged 22"
+      targets: 1
+      dmgT2: 6
+      dmgT3: 9
+      riderRef: ""
+  traits:
+    - name: Split Shot
+      effect: "<p>When the archer makes a longbow attack, they can use 2 arrows and pick 2 targets.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Walls Cannot Save You
+      effect: "<p>The archer’s longbow attacks ignore cover.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

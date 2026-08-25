@@ -1,0 +1,45 @@
+_id: crowsmonpike0010
+_key: "!actors!crowsmonpike0010"
+name: Warrior, Pike (Power 10)
+type: monster
+system:
+  power: 10
+  size: medium
+  creatureType: human
+  stamina: { value: 40, max: 40 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 0, strength: 3 }
+  ad: 15
+  slots: 10
+  expertises:
+    - key: athletics
+      value: 2
+      max: 2
+    - key: lift
+      value: 2
+      max: 2
+    - key: stabbing
+      value: 2
+      max: 2
+  xRest: []
+  notes: "<p>Equipment: Heavy armor, pike</p>"
+  attacks:
+    - name: Pike
+      toHit: 5
+      range: "Melee 2"
+      targets: 1
+      dmgT2: 6
+      dmgT3: 10
+      riderRef: ""
+  traits:
+    - name: Brutal
+      effect: "<p>The warrior scores a crit with a pike attack when the dice total 18, 19, or 20 without modifiers. When the warrior scores a crit with a pike attack, it deals 20 dam.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Spinning Shaft
+      effect: "<p>When the warrior gets a tier 3 result with a pike attack, they can deal 3 dam to another target within range.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

@@ -1,0 +1,38 @@
+_id: crowsmonconjurer
+_key: "!actors!crowsmonconjurer"
+name: Conjurer
+type: monster
+system:
+  power: 3
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 0, mind: 1, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: magicLore
+      value: 1
+      max: 1
+    - key: conjuration
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Spellbooks: *jaunt*, *summon object*, *teleport object*</p>"
+  attacks:
+    - name: Unarmed
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 1
+      dmgT3: 2
+      riderRef: ""
+  traits:
+    - name: Jumper
+      effect: "<p>When the conjurer casts a conjuration spell that causes a target to teleport, they can teleport the target up to 1 additional square.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

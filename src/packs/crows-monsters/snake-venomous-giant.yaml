@@ -1,0 +1,37 @@
+_id: crowsmonsvgiant1
+_key: "!actors!crowsmonsvgiant1"
+name: Snake, Venomous Giant
+type: monster
+system:
+  power: 4
+  size: large
+  creatureType: animal
+  stamina: { value: 15, max: 15 }
+  speed:
+    value: 6
+    modes:
+      - name: climb
+        value: 6
+  characteristics: { agility: 2, mind: -4, strength: 1 }
+  ad: 0
+  slots: 5
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Bite
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: ""
+  traits:
+    - name: Highly Venomous
+      effect: "<p>When the snake gets a tier 2 result with their bite, the target is weakened, or vulnerable and weakened on a tier 3 result.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Heat Sense
+      effect: "<p>The snake is aware of the exact location of any human, blood creature, demon, or bird or mammal animal within 2 squares and suffers no penalties on attacks against or tests made to observe them.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

@@ -1,0 +1,31 @@
+_id: crowsmonhdraft01
+_key: "!actors!crowsmonhdraft01"
+name: Horse, Draft
+type: monster
+system:
+  power: 5
+  size: large
+  creatureType: animal
+  stamina: { value: 10, max: 10 }
+  speed:
+    value: 8
+    modes: []
+  characteristics: { agility: 0, mind: -2, strength: 2 }
+  ad: 0
+  slots: 15
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Kick
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 6
+      riderRef: ""
+  traits:
+    - name: Draft Animal
+      effect: "<p>When hauling a vehicle, the horse has 5 open slots that can be used to carry equipment.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

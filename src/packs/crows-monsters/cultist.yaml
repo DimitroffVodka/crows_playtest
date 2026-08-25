@@ -1,0 +1,38 @@
+_id: crowsmoncultist1
+_key: "!actors!crowsmoncultist1"
+name: Cultist
+type: monster
+system:
+  power: 3
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 0, mind: 1, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: religiousLore
+      value: 1
+      max: 1
+    - key: necromancy
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Spellbooks: *bone capture*, *minor curse*, *monster sense*</p>"
+  attacks:
+    - name: Bone Capture
+      toHit: 2
+      range: "Ranged 5"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 4
+      riderRef: "*"
+  traits:
+    - name: Knock Prone
+      effect: "<p>When the cultist gets a tier 3 result with the *bone capture* spell, the target falls prone.</p>"
+      uses: ""
+      linkedAttack: "Bone Capture"
+  colloquialNames: []

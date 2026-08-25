@@ -1,0 +1,47 @@
+_id: crowsmonsage0003
+_key: "!actors!crowsmonsage0003"
+name: Sage (Power 3)
+type: monster
+system:
+  power: 3
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 0, mind: 2, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: historicalLore
+      value: 1
+      max: 1
+    - key: magicLore
+      value: 1
+      max: 1
+    - key: monsterLore
+      value: 1
+      max: 1
+    - key: natureLore
+      value: 1
+      max: 1
+    - key: religiousLore
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Journal, lore books (4: Historical Lore, Magic Lore, Monster Lore, Nature Lore, Religious Lore), quill and ink pot, spellbooks: *fire lance*</p>"
+  attacks:
+    - name: Fire Lance
+      toHit: 2
+      range: "Ranged 10"
+      targets: 1
+      dmgT2: 4
+      dmgT3: 6
+      riderRef: ""
+  traits:
+    - name: Shared Knowledge
+      effect: "<p>When the sage reads a lore book as a rest activity, they can choose one other human resting with them who also gains the activity’s benefits.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

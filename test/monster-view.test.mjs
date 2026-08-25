@@ -48,7 +48,7 @@ const view = (system) => monsterViewData(system, {
 describe("monster sheet view model", () => {
   test("every shipped creature renders exactly its real backpack-slot count", () => {
     const monsters = shippedMonsters();
-    assert.equal(monsters.length, 11, "guard: the real shipped corpus was loaded");
+    assert.equal(monsters.length, 71, "guard: the real shipped corpus was loaded");
 
     for (const monster of monsters) {
       const data = view(monster.system);
@@ -56,8 +56,10 @@ describe("monster sheet view model", () => {
       assert.equal(data.hasSlots, monster.system.slots > 0, monster.name);
     }
 
-    assert.equal(monsters.find((m) => m.name === "Horse (Pet)")?.system.slots, 10);
-    assert.equal(monsters.find((m) => m.name === "Ring Collector")?.system.slots, 0);
+    // Names follow the book since T3.5: the "(Pet)" suffixes were ours, and
+    // PT2 prints three distinct horses (Draft, Riding, War).
+    assert.equal(monsters.find((m) => m.name === "Horse, Riding")?.system.slots, 10);
+    assert.equal(monsters.find((m) => m.name === "Ring Collector (Namlin)")?.system.slots, 0);
   });
 
   test("the six PT2 conditions render in contract order", () => {

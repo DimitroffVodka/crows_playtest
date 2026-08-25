@@ -1,0 +1,37 @@
+_id: crowsmonsvenom01
+_key: "!actors!crowsmonsvenom01"
+name: Snake, Venomous
+type: monster
+system:
+  power: 1
+  size: tiny
+  creatureType: animal
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 6
+    modes:
+      - name: climb
+        value: 6
+  characteristics: { agility: 1, mind: -3, strength: -4 }
+  ad: 0
+  slots: 0
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Bite
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 1
+      dmgT3: 2
+      riderRef: ""
+  traits:
+    - name: Venomous
+      effect: "<p>When the snake gets a tier 3 result with their bite, the target is weakened.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Heat Sense
+      effect: "<p>The snake is aware of the exact location of any human, blood creature, demon, or bird or mammal animal within 2 squares and suffers no penalties on attacks against or tests made to observe them.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

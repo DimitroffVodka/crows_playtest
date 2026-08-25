@@ -1,0 +1,41 @@
+_id: crowsmonsword004
+_key: "!actors!crowsmonsword004"
+name: Warrior, Sword (Power 4)
+type: monster
+system:
+  power: 4
+  size: medium
+  creatureType: human
+  stamina: { value: 10, max: 10 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 0, strength: 1 }
+  ad: 14
+  slots: 10
+  expertises:
+    - key: endurance
+      value: 1
+      max: 1
+    - key: lift
+      value: 1
+      max: 1
+    - key: slashing
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Light armor, shield, sword</p>"
+  attacks:
+    - name: Sword
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 4
+      dmgT3: 7
+      riderRef: ""
+  traits:
+    - name: Disengage
+      effect: "<p>When the warrior uses the Shift maneuver while wielding a sword, they can shift 2 additional squares.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

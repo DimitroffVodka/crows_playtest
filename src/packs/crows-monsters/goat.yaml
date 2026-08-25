@@ -1,6 +1,6 @@
 _id: crowsmon0goat001
 _key: "!actors!crowsmon0goat001"
-name: Goat (Pet)
+name: Goat
 type: monster
 system:
   power: 2
@@ -10,9 +10,11 @@ system:
   speed:
     value: 5
     modes: []
-  characteristics: { agility: 0, mind: -3, strength: 1 }
+  characteristics: { agility: 0, mind: -2, strength: 1 }
   ad: 0
   slots: 2
+  expertises: []
+  xRest: []
   attacks:
     - name: Gore
       toHit: 1
@@ -23,7 +25,7 @@ system:
       riderRef: ""
   traits:
     - name: No Dim Light Penalty
-      effect: "<p>Dim light imposes no penalties for this creature.</p>"
+      effect: "<p>Dim light imposes no penalties for the goat.</p>"
       uses: ""
       linkedAttack: ""
   colloquialNames: []

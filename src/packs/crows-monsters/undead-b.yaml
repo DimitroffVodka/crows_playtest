@@ -1,0 +1,42 @@
+_id: crowsmonundeb001
+_key: "!actors!crowsmonundeb001"
+name: Undead B
+type: monster
+system:
+  power: 4
+  size: medium
+  creatureType: undead
+  stamina: { value: 20, max: 20 }
+  speed:
+    value: 6
+    modes: []
+  characteristics: { agility: 2, mind: -2, strength: 2 }
+  ad: 0
+  slots: 0
+  expertises: []
+  xRest: []
+  attacks:
+    - name: Claws
+      toHit: 2
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: "*"
+    - name: Spine
+      toHit: 2
+      range: "Ranged 10"
+      targets: 1
+      dmgT2: 2
+      dmgT3: 4
+      riderRef: ""
+  traits:
+    - name: Lacerate
+      effect: "<p>When the undead hits with their claws against a creature and damages their Stamina or gives them a wound, the target gains a laceration until they regain Stamina. When the target takes a maneuver and an action on their turn, they take 1 P dam for each laceration they have.</p>"
+      uses: ""
+      linkedAttack: "Claws"
+    - name: Leap
+      effect: "<p>The undead can jump a distance equal to their speed as a maneuver.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: ["longclaw", "spined one"]

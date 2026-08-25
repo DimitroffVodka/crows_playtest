@@ -1,16 +1,16 @@
-_id: crowsmon0horse01
-_key: "!actors!crowsmon0horse01"
-name: Horse, Riding
+_id: crowsmonmule0001
+_key: "!actors!crowsmonmule0001"
+name: Mule
 type: monster
 system:
-  power: 5
+  power: 4
   size: large
   creatureType: animal
-  stamina: { value: 15, max: 15 }
+  stamina: { value: 10, max: 10 }
   speed:
-    value: 10
+    value: 7
     modes: []
-  characteristics: { agility: 2, mind: -2, strength: 2 }
+  characteristics: { agility: 1, mind: -2, strength: 2 }
   ad: 0
   slots: 10
   expertises: []
@@ -21,7 +21,7 @@ system:
       range: "Melee 1"
       targets: 1
       dmgT2: 3
-      dmgT3: 6
+      dmgT3: 5
       riderRef: ""
   traits: []
   colloquialNames: []

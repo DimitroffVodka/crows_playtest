@@ -1,0 +1,47 @@
+_id: crowsmonsage0006
+_key: "!actors!crowsmonsage0006"
+name: Sage (Power 6)
+type: monster
+system:
+  power: 6
+  size: medium
+  creatureType: human
+  stamina: { value: 20, max: 20 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 3, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: historicalLore
+      value: 2
+      max: 2
+    - key: magicLore
+      value: 2
+      max: 2
+    - key: monsterLore
+      value: 2
+      max: 2
+    - key: natureLore
+      value: 2
+      max: 2
+    - key: religiousLore
+      value: 2
+      max: 2
+  xRest: []
+  notes: "<p>Equipment: Journal, lore books (4: Historical Lore, Magic Lore, Monster Lore, Nature Lore, Religious Lore), quill and ink pot, spellbooks: *fire lance*</p>"
+  attacks:
+    - name: Fire Lance
+      toHit: 3
+      range: "Ranged 10"
+      targets: 1
+      dmgT2: 5
+      dmgT3: 7
+      riderRef: ""
+  traits:
+    - name: Lecture
+      effect: "<p>When the sage reads a lore book as a rest activity, they can choose up to two other humans resting with them who also gain the activity’s benefits.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

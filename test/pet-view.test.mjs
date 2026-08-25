@@ -143,10 +143,14 @@ describe("pet sheet view model", () => {
     const animals = shippedAnimals();
     const data = petViewData(owner, animals, { localize });
 
-    assert.equal(animals.length, 7, "guard: the real shipped animal corpus was loaded");
+    assert.equal(animals.length, 32, "guard: the real shipped animal corpus was loaded");
+    // T3.5 replaced this set wholesale. Bear and Wolf were OUR transcription
+    // errors — PT2 prints Slots 10 and 5 (F:718, F:1025). The six below print 0
+    // in the book, so a zero-slot animal is a fact to render, not a bug to fix.
+    // No rule derives it: Cat is Tiny with 1 slot, Hawk is Small with 0.
     assert.deepEqual(
       data.animals.filter(entry => entry.slots.capacity === 0).map(entry => entry.name).sort(),
-      ["Bear", "Rat", "Wolf"]
+      ["Chicken", "Crow", "Hawk", "Rat", "Snake, Venomous", "Spider"]
     );
     for (const entry of data.animals.filter(animal => animal.slots.capacity === 0)) {
       assert.equal(entry.slots.percent, null, entry.name);

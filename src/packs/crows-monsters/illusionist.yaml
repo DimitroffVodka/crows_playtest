@@ -1,0 +1,38 @@
+_id: crowsmonillusio1
+_key: "!actors!crowsmonillusio1"
+name: Illusionist
+type: monster
+system:
+  power: 3
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 0, mind: 1, strength: 0 }
+  ad: 0
+  slots: 10
+  expertises:
+    - key: magicLore
+      value: 1
+      max: 1
+    - key: illusion
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Spellbooks: *cacophony*, *light*, *minor phantasm*</p>"
+  attacks:
+    - name: Unarmed
+      toHit: 1
+      range: "Melee 1"
+      targets: 1
+      dmgT2: 1
+      dmgT3: 2
+      riderRef: ""
+  traits:
+    - name: Lasting Illusion
+      effect: "<p>When the illusionist casts an illusion spell with a duration listed in UD, the duration gains 1 additional UD.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []

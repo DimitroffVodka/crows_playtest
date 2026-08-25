@@ -1,0 +1,42 @@
+_id: crowsmontorchbr1
+_key: "!actors!crowsmontorchbr1"
+name: Torchbearer
+type: monster
+system:
+  power: 3
+  size: medium
+  creatureType: human
+  stamina: { value: 5, max: 5 }
+  speed:
+    value: 5
+    modes: []
+  characteristics: { agility: 1, mind: 0, strength: 0 }
+  ad: 2
+  slots: 10
+  expertises:
+    - key: search
+      value: 1
+      max: 1
+    - key: stealth
+      value: 1
+      max: 1
+  xRest: []
+  notes: "<p>Equipment: Knife, torches (6)</p>"
+  attacks:
+    - name: Knife
+      toHit: 1
+      range: "Melee 1/Ranged 5"
+      targets: 1
+      dmgT2: 3
+      dmgT3: 5
+      riderRef: ""
+  traits:
+    - name: Disengage
+      effect: "<p>When the torchbearer uses the Shift maneuver while wielding the knife, they can shift 1 additional square.</p>"
+      uses: ""
+      linkedAttack: ""
+    - name: Lasting Light
+      effect: "<p>While the torchbearer holds a torch, its UD maximum is 2.</p>"
+      uses: ""
+      linkedAttack: ""
+  colloquialNames: []
