@@ -431,6 +431,43 @@ export function occupantsOfSpan(layout, item, container, index) {
   return [...ids];
 }
 
+/**
+ * The container an item must occupy to be usable at all.
+ *
+ * R:392 — "Aside from magic items worn in slots and suits of armor, to use any
+ * other item, including a weapon, tool, light source, or spellbook, the item
+ * must first be placed in a hand slot. Items in hand slots are equipped and
+ * being wielded." R:762 then requires an attack to be made "with a weapon or
+ * spellbook you are wielding".
+ *
+ * So a weapon on the BELT cannot attack. It is one maneuver away (R:396), not
+ * ready — and the sheet shipped a live Attack button on belt weapons, which
+ * quietly granted a free maneuver every round.
+ */
+export const WIELDING_CONTAINER = "hand";
+
+/** Every token `wieldRefusal` can return. The sheet turns each into a message. */
+export const WIELD_REFUSALS = Object.freeze(["in-belt", "in-backpack", "worn", "unplaced"]);
+
+/**
+ * Why this item cannot be used where it sits, or null when it can.
+ *
+ * Returns a reason token rather than a message: the rule belongs here, the
+ * wording belongs in lang/en.json.
+ *
+ * @returns {"in-belt"|"in-backpack"|"worn"|"unplaced"|null}
+ */
+export function wieldRefusal(item) {
+  const container = item?.system?.location?.container ?? null;
+  if (container === WIELDING_CONTAINER) return null;
+  if (container === "belt") return "in-belt";
+  if (container === "backpack") return "in-backpack";
+  // A magic item in its own slot is worn, not held — it is exempt from R:392,
+  // but that exemption does not make it a weapon you can swing.
+  if (MAGIC_CONTAINERS.includes(container)) return "worn";
+  return "unplaced";
+}
+
 /** Remove every trace of an item from the layout. Returns the slots it vacated. */
 export function unpackItem(layout, id) {
   const vacated = [];

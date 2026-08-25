@@ -799,6 +799,25 @@
   margin-top: 4px;
 }
 .cc-attack-btn:hover { background: var(--crows-attack-hover); }
+
+/* A weapon that is not in a hand slot is not wielded (R:392), so it cannot
+   attack (R:762). The button still RENDERS — showing nothing is what left
+   players unable to find attacking at all. It reads as unavailable and carries
+   a tooltip saying which slot it needs. */
+.cc-attack-btn.cc-attack-blocked {
+  background: transparent;
+  color: var(--crows-ink-soft);
+  border: 1px dashed var(--crows-rule);
+  cursor: not-allowed;
+  font-weight: normal;
+}
+.cc-attack-btn.cc-attack-blocked:hover { background: transparent; }
+
+.cc-dialog-hint {
+  font-size: var(--crows-text-tiny);
+  color: var(--crows-ink-soft);
+  margin-top: 6px;
+}
 .cc-card-name { cursor: pointer; }
 .cc-card-name:hover { background: var(--crows-gold-light); }
 

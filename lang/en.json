@@ -139,6 +139,10 @@
   "CROWS.Warn.magicSlotOverload": "More than one magic item in the same slot: you can't rest, and you gain 1d6 wounds at the end of each dungeon turn.",
   "CROWS.Sheet.Crow.ad": "AD",
   "CROWS.Sheet.Crow.attack": "Attack",
+  "CROWS.Sheet.Crow.attackBlocked.in-belt": "On your belt — not wielded. Move it to a hand slot to attack (one maneuver in combat).",
+  "CROWS.Sheet.Crow.attackBlocked.in-backpack": "In your backpack — not wielded. Draw it to a hand slot to attack (Draw From Pack).",
+  "CROWS.Sheet.Crow.attackBlocked.worn": "Worn, not held. Only a weapon in a hand slot can attack.",
+  "CROWS.Sheet.Crow.attackBlocked.unplaced": "Not in a slot. Place it in a hand slot to attack.",
   "CROWS.Sheet.Crow.background": "Background",
   "CROWS.Sheet.Crow.conditions": "Conditions",
   "CROWS.Sheet.Crow.cryptBoon": "Crypt Boon",
@@ -526,5 +530,11 @@
   "CROWS.Dialog.AddToSlot.confirm": "Add",
   "CROWS.Dialog.AddToSlot.none": "No card in the compendiums fits {slot}.",
   "CROWS.Sheet.Crow.inventory.remove": "Remove {item}",
-  "CROWS.Sheet.Crow.inventory.add": "Add a card to {slot}"
+  "CROWS.Sheet.Crow.inventory.add": "Add a card to {slot}",
+  "CROWS.Dialog.AttackTarget.title": "Choose a target",
+  "CROWS.Dialog.AttackTarget.body": "Attacking with {weapon}. Pick a target, or attack untargeted.",
+  "CROWS.Dialog.AttackTarget.confirm": "Attack",
+  "CROWS.Dialog.AttackTarget.none": "No target (the Ref narrates)",
+  "CROWS.Dialog.AttackTarget.empty": "No other tokens on this scene to target. Attacking untargeted.",
+  "CROWS.Dialog.AttackTarget.hint": "Tip: you can also target with Foundry's targeting tool before attacking."
 }

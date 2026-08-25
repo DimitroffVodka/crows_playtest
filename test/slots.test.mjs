@@ -9,6 +9,7 @@ import {
   slotsNeeded, quantityOf, stackKindOf, stackLimitFor, canStack,
   collectSlotGrants, emptyLayout, slotAt, layoutFor,
   placeAt, packItem, unpackItem, occupancy, planSwap, occupantsOfSpan,
+  wieldRefusal, WIELDING_CONTAINER, WIELD_REFUSALS,
   speedPenaltyFromWounds, applyWoundSpeedPenalty,
   retrieveFromBackpack, magicOverloadFor,
   BURSTING_PURSE_ID, hasBurstingPurse, purseEntriesFor,
@@ -722,5 +723,57 @@ describe("occupantsOfSpan", () => {
     const l = layoutFor(mkActor({ items: [a, b] }));
     const wide = at("wide", "backpack", 8, 2);
     assert.deepEqual(occupantsOfSpan(l, wide, "backpack", 2).sort(), ["a", "b"]);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/*  Wielding                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * R:392 — "to use any other item, including a weapon... the item must first be
+ * placed in a hand slot. Items in hand slots are equipped and being wielded."
+ * R:762 — an attack "must be made with a weapon or spellbook you are wielding."
+ *
+ * The sheet shipped a live Attack button on BELT weapons, which handed out a
+ * free Draw From Belt maneuver every round. These pin the rule so it cannot
+ * drift back.
+ */
+describe("wieldRefusal (R:392, R:762)", () => {
+  const inSlot = (container, index = 0) =>
+    mkItem({ id: `w-${container}`, type: "weapon", container, index });
+
+  test("only the hand container wields", () => {
+    assert.equal(WIELDING_CONTAINER, "hand");
+    assert.equal(wieldRefusal(inSlot("hand")), null);
+  });
+
+  test("a belt weapon is NOT wielded — it is one maneuver away (R:396)", () => {
+    assert.equal(wieldRefusal(inSlot("belt")), "in-belt");
+  });
+
+  test("a backpack weapon is not wielded", () => {
+    assert.equal(wieldRefusal(inSlot("backpack")), "in-backpack");
+  });
+
+  test("a worn magic item is exempt from R:392 but still is not held", () => {
+    for (const c of MAGIC_CONTAINERS) assert.equal(wieldRefusal(inSlot(c)), "worn");
+  });
+
+  test("an item in no slot at all reports unplaced, and nothing throws on junk", () => {
+    assert.equal(wieldRefusal(mkItem({ id: "loose", type: "weapon" })), "unplaced");
+    assert.equal(wieldRefusal(null), "unplaced");
+    assert.equal(wieldRefusal({}), "unplaced");
+    assert.equal(wieldRefusal({ system: {} }), "unplaced");
+  });
+
+  test("every refusal token has a message in en.json", async () => {
+    // The sheet builds `CROWS.Sheet.Crow.attackBlocked.${token}`; a token with
+    // no message renders the raw key on a card.
+    const lang = JSON.parse(
+      await (await import("node:fs/promises")).readFile("lang/en.json", "utf8"));
+    const tokens = WIELD_REFUSALS;
+    const missing = tokens.filter(k => !(`CROWS.Sheet.Crow.attackBlocked.${k}` in lang));
+    assert.deepEqual(missing, []);
   });
 });

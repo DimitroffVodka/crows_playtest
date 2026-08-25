@@ -236,8 +236,13 @@
                         data-tooltip="{{localize "CROWS.Sheet.Crow.inventory.remove" item=card.name}}">&times;</button>
                 <div class="cc-card-body">
                   {{#each card.summary.lines as |line|}}<div class="cc-card-line">{{line}}</div>{{/each}}
-                  {{#if (eq card.type "weapon")}}
-                    <button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{card.id}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>
+                  {{#if card.isWeapon}}
+                    {{#if card.canAttack}}
+                      <button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{card.id}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>
+                    {{else}}
+                      <button type="button" class="cc-attack-btn cc-attack-blocked" disabled aria-disabled="true"
+                              data-tooltip="{{card.attackHint}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>
+                    {{/if}}
                   {{/if}}
                   {{#if card.cost}}<div class="cc-card-cost">{{localize "CROWS.Sheet.Crow.currencyAmount" amount=card.cost}}</div>{{/if}}
                 </div>
@@ -269,7 +274,7 @@
                           aria-label="{{localize "CROWS.Sheet.Crow.inventory.remove" item=card.name}}" data-tooltip="{{localize "CROWS.Sheet.Crow.inventory.remove" item=card.name}}">&times;</button>
                   <div class="cc-card-body">
                     {{#each card.summary.lines as |line|}}<div class="cc-card-line">{{line}}</div>{{/each}}
-                    {{#if (eq card.type "weapon")}}<button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{card.id}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>{{/if}}
+                    {{#if card.isWeapon}}{{#if card.canAttack}}<button type="button" class="cc-attack-btn" data-action="attackWithWeapon" data-item-id="{{card.id}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>{{else}}<button type="button" class="cc-attack-btn cc-attack-blocked" disabled aria-disabled="true" data-tooltip="{{card.attackHint}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>{{/if}}{{/if}}
                     {{#if card.cost}}<div class="cc-card-cost">{{localize "CROWS.Sheet.Crow.currencyAmount" amount=card.cost}}</div>{{/if}}
                   </div>
                 </div>
@@ -347,6 +352,10 @@
                         data-tooltip="{{localize "CROWS.Sheet.Crow.inventory.remove" item=card.name}}">&times;</button>
                 <div class="cc-card-body">
                   {{#each card.summary.lines as |line|}}<div class="cc-card-line">{{line}}</div>{{/each}}
+                  {{#if card.isWeapon}}
+                    <button type="button" class="cc-attack-btn cc-attack-blocked" disabled aria-disabled="true"
+                            data-tooltip="{{card.attackHint}}">{{localize "CROWS.Sheet.Crow.attack"}}</button>
+                  {{/if}}
                   {{#if card.cost}}<div class="cc-card-cost">{{localize "CROWS.Sheet.Crow.currencyAmount" amount=card.cost}}</div>{{/if}}
                 </div>
               </div>

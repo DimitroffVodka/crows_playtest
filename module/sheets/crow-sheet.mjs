@@ -16,7 +16,7 @@ import {
 import { endDungeonTurn, rollEncounterCheck } from "../helpers/dungeon-turn.mjs";
 import { attackWithWeapon } from "../helpers/attack.mjs";
 import {
-  layoutFor, packItem, unpackItem, slotsNeeded, coinSummary, planSwap, occupantsOfSpan,
+  layoutFor, packItem, unpackItem, slotsNeeded, coinSummary, planSwap, occupantsOfSpan, wieldRefusal,
   applyWoundSpeedPenalty, CARRY_CONTAINERS, MAGIC_CONTAINERS
 } from "../helpers/slots.mjs";
 import {
@@ -40,6 +40,13 @@ import { openCharacterCreator } from "../helpers/character-creator.mjs";
 const PHYSICAL_ITEM_TYPES = new Set([
   "weapon", "armor", "ammunition", "consumable", "gear", "spellbook"
 ]);
+/**
+ * Distinguishes "the player closed the dialog" from "the player chose nothing".
+ * A plain null cannot: attacking with no target is a legitimate answer, and
+ * treating a dismissed dialog as one would roll an attack nobody asked for.
+ */
+const CANCELLED = Symbol("cancelled");
+
 const CONDITION_KEYS = ["blessed", "grabbed", "prone", "vulnerable", "unconscious", "weakened"];
 const EXPERTISE_CATEGORIES = ["general", "spellcasting", "weapon"];
 const EXPERTISE_ICON = "icons/svg/d10-grey.svg";
@@ -178,6 +185,10 @@ function summarizeItem(item) {
 function slotCard(item) {
   if (!item) return null;
   const s = item.system ?? {};
+  // R:392/R:762 — a weapon must be in a hand slot to be wielded, and only a
+  // wielded weapon can attack. Computed here rather than in the template so the
+  // rule lives in one place and the template just renders the answer.
+  const blocked = item.type === "weapon" ? wieldRefusal(item) : null;
   return {
     id: item.id,
     name: item.name,
@@ -186,7 +197,10 @@ function slotCard(item) {
     typeLabel: itemTypeLabel(item.type),
     stack: s.stackMax > 1 ? `${s.quantity ?? 1}/${s.stackMax}` : null,
     summary: summarizeItem(item),
-    cost: s.cost ?? null
+    cost: s.cost ?? null,
+    isWeapon: item.type === "weapon",
+    canAttack: item.type === "weapon" && !blocked,
+    attackHint: blocked ? t(`CROWS.Sheet.Crow.attackBlocked.${blocked}`) : null
   };
 }
 
@@ -1062,7 +1076,72 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       notify("warn", "CROWS.Sheet.Crow.notice.weaponMissing");
       return;
     }
+
+    // Re-check the rule here, not only in the template. A disabled button is a
+    // hint, not a guard — the action is still reachable by keyboard, by macro,
+    // and by anything that re-enables the element.
+    const blocked = wieldRefusal(weapon);
+    if (blocked) {
+      notify("warn", `CROWS.Sheet.Crow.attackBlocked.${blocked}`);
+      return;
+    }
+
+    // R:762 attacks have a target. Foundry's targeting tool is the only way to
+    // set one today and nothing on the sheet says so, so ask instead of rolling
+    // a silently untargeted attack.
+    if (!(globalThis.game?.user?.targets?.size)) {
+      const picked = await this.#promptForTarget(weapon);
+      if (picked === CANCELLED) return;
+    }
     await attackWithWeapon(this.document, weapon);
+  }
+
+  /**
+   * Ask which token is being attacked, and set it as the user's target so the
+   * whole existing pipeline — `_situationsFromUserTargets`, cover, range,
+   * flanking — sees it exactly as if the targeting tool had been used.
+   *
+   * Attacking with no target stays available: the rules allow attacking objects
+   * and the Ref may simply be narrating.
+   *
+   * @returns {Promise<symbol|null>} CANCELLED if the player backed out.
+   */
+  async #promptForTarget(weapon) {
+    const own = new Set(this.document.getActiveTokens().map(t => t.id));
+    const candidates = (globalThis.canvas?.tokens?.placeables ?? [])
+      .filter(t => t.visible && !own.has(t.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    if (!candidates.length) {
+      notify("info", "CROWS.Dialog.AttackTarget.empty");
+      return null;
+    }
+
+    const options = [
+      `<option value="">${t("CROWS.Dialog.AttackTarget.none")}</option>`,
+      ...candidates.map(tok =>
+        `<option value="${tok.id}">${foundry.utils.escapeHTML(tok.name)}</option>`)
+    ].join("");
+
+    const choice = await foundry.applications.api.DialogV2.prompt({
+      window: { title: t("CROWS.Dialog.AttackTarget.title") },
+      content: `
+        <p>${t("CROWS.Dialog.AttackTarget.body", { weapon: weapon.name })}</p>
+        <select class="cc-target-pick" size="8" style="width:100%">${options}</select>
+        <p class="cc-dialog-hint">${t("CROWS.Dialog.AttackTarget.hint")}</p>`,
+      modal: true,
+      rejectClose: false,
+      ok: {
+        label: t("CROWS.Dialog.AttackTarget.confirm"),
+        // "" is a real answer (attack untargeted); null means the dialog closed.
+        callback: (ev, button) => button.form.querySelector(".cc-target-pick")?.value ?? ""
+      }
+    });
+    if (choice === null || choice === undefined) return CANCELLED;
+
+    const token = candidates.find(tok => tok.id === choice);
+    if (token) token.setTarget(true, { releaseOthers: true });
+    return null;
   }
 
   static async _onSpendExpertiseBonus() {

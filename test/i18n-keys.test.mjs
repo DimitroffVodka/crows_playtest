@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { CROWS } from "../module/config.mjs";
-import { CONTAINER_ORDER } from "../module/helpers/slots.mjs";
+import { CONTAINER_ORDER, WIELD_REFUSALS } from "../module/helpers/slots.mjs";
 import { INSTITUTION_KEYS } from "../module/helpers/village.mjs";
 
 /**
@@ -127,6 +127,8 @@ const FAMILIES = {
   "CROWS.Sheet.Crow.pets.status.*": () =>
     ["invalid", "unowned", "followingYou", "followingOther", "ownedByYou", "ownedByOther"],
   "CROWS.Dialog.Village.institutionType.*": () => INSTITUTION_KEYS,
+  // R:392 — why a weapon cannot attack from the slot it is in.
+  "CROWS.Sheet.Crow.attackBlocked.*": () => WIELD_REFUSALS,
   // Each group has its own vocabulary — `gear.shield` is not a thing.
   "CROWS.Sheet.Crow.value.*.*": () => cross({
     action: CROWS.castTypes,
@@ -174,7 +176,11 @@ const INTERNAL_ONLY = new Set(["no-origin", "same-item"]);
  * (R:478) and the purse operations return them to their own callers.
  */
 const NON_PLACEMENT = new Set([
-  "not-in-backpack", "bad-roll", "no-coin", "no-purse", "purse-empty"
+  "not-in-backpack", "bad-roll", "no-coin", "no-purse", "purse-empty",
+  // Wielding tokens (R:392). Their messages live under
+  // CROWS.Sheet.Crow.attackBlocked.*, checked as its own family above — they are
+  // not placement refusals and must not be looked up under InventoryDrop.
+  ...WIELD_REFUSALS
 ]);
 
 /** Raised by the sheet itself rather than by a placement attempt. */
