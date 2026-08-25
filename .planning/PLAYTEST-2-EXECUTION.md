@@ -1894,6 +1894,11 @@ Pack build reminder: Foundry holds exclusive LevelDB locks while a world is open
 
 Carry these into the playtest feedback channel. **Each states the reading we shipped**, so MCDM only has to confirm or correct rather than answer from scratch. Every default is one constant or one predicate — all are cheaply reversible.
 
+> ⚠️ **Citations in A1–A6, B1 and C1–C3 predate the 2026-08-25 book rebuild and are stale.**
+> They were written against the pre-rebuild files. Quote the *rule text* to MCDM rather than
+> the line number, or re-derive against `docs/source/` first. Entries added on 2026-08-25
+> (A7, B2–B5) use current citations.
+
 ### A. Blocking a real implementation decision
 
 **A1 — When does a "tier N result" trigger read: before or after an expertise is spent?**
@@ -1937,6 +1942,30 @@ A double bane is −1 tier, an expertise is +1 tier. Do they net out, and does a
 
 C:24 says a background gives "1 use in some expertises," but entries list parentheticals like "Benefaction (2 uses)" (C:103). Is the parenthetical the total, or an addition to the base 1? **Shipping: the total.**
 
+**A7 — Soothing Candy still removes a "boned level". Which condition does it remove now?**
+*Added 2026-08-25. This one genuinely needs an answer; the others in section B do not.*
+
+The card (`IC:249`) reads *"Consume a candy to remove 1 **boned** level from yourself."* But
+the changelog states plainly that *"Boned is no longer a condition and has been replaced by
+**two** conditions, weakened and vulnerable"*, `boned` appears **zero** times in all four PT2
+books, and `R:443` removes condition levels entirely — nothing stacks.
+
+So the card names a condition that no longer exists, and its replacement is **two** conditions,
+not one. The card names neither. MCDM *did* update the neighbouring poison cards for exactly
+this change, which is what makes the omission look like an oversight.
+
+| Candidate | For | Against |
+|---|---|---|
+| Removes `weakened` | Poison — the other former-boned consumable — now inflicts `weakened`, so a candy that answers poison is coherent | Makes the candy a hard counter to poison's main effect |
+| Removes `vulnerable` | Leaves poison's counterplay intact | Nothing else in the item set applies `vulnerable` to a PC |
+| Either, player's choice | Treats "1 level" as one generic step of the old condition | Invents a choice the card never offered |
+
+**Shipping: the player's choice of either**, with the source text preserved in the item's
+description. Deliberately *not* defaulted to `weakened`: `module/data/actor/crow.mjs:110-111`
+records that `boned` "has no PT2 equivalent and **must not be silently converted to
+`weakened`**", and a silent conversion is exactly what a single-condition default would be.
+Logged as H3 in `docs/discrepancies/playtest-2-source-issues.md`.
+
 ### B. Bug reports — no answer needed to proceed
 
 **B1 — Elemental Mastery describes *conjuration* spells (C:1169 / C:1173).**
@@ -1944,6 +1973,63 @@ C:24 says a background gives "1 use in some expertises," but entries list parent
 The Elemental Mastery body names "conjuration spells" in both clauses. It is the only one of the six Mastery traits that doesn't name its own discipline. Taken literally the trait grants an elementalist nothing.
 
 **This was already reported for Playtest 1** and is unchanged in the PT2 packet — see `docs/discrepancies/SUMMARY.md` line 49. **Shipping: implemented as "elemental"**, with the source text retained in a `sourceNote` for audit. One-word fix on MCDM's side.
+
+**B2 — Summon Object's target line reads `Self`, and the `Summoned` keyword is never used.**
+*Added 2026-08-25.*
+
+`R:1215` defines a target keyword: *"**Summoned:** This spell summons a creature or object
+within range."* The one spell in the game that summons an object — **Summon Object** — prints
+its target as **`Self`** (`IC:362`).
+
+We searched all five card decks: **`Summoned` appears in zero target lines.** The keyword is
+defined and never used. The spell's own description does not use the word either — it says
+*"You **create** a mundane object"* — so there is no prose route to detecting it.
+
+**Shipping: the card as printed, `Self`, flagged for review.** We deliberately did not encode
+`1 Summoned object`: that would diverge from the source *and* silently switch on downstream
+summon behaviour. Should the target read `1 Summoned object`? It is a one-word fix and the
+rules already define the keyword.
+
+Worth noting the knock-on: `R:1255` says summoned creatures *"function like pets in combat
+except that you don't need to make a test"*, but **PT2 ships no creature-summoning spell at
+all**, so that rule currently has nothing to apply to.
+
+**B3 — The backlash table prints overlapping ranges at 61-62 and 62-64.**
+*Added 2026-08-25.*
+
+Two consecutive rows both claim **62**. Our runtime disambiguates by reading the second row as
+63-64 while recording the printed range verbatim; the player-facing journal follows the book.
+A d100 roll of 62 is otherwise ambiguous.
+
+**B4 — `F:691` says all animals have slots, but six animals print `Slots: 0`.**
+*Added 2026-08-25.*
+
+*"Monsters don't have slots… Humans and animals have the potential to be allies, so they do
+have slots"* — yet **Chicken, Crow, Hawk, Rat, Snake (Venomous) and Spider** each print
+`Slots: 0` in the bestiary.
+
+Six of 32 animals, and it is almost certainly intentional — a chicken carries nothing. But it
+contradicts the stated rule, and no property derives it: **Cat is Tiny with 1 slot while Hawk
+is Small with 0**, and both are power 1. **Shipping: the printed values verbatim.** We removed
+a validation warning that assumed the rule held.
+
+**B5 — Typos confirmed present in the PT2 PDFs.**
+*Added 2026-08-25. Each verified in the PDF, not the markdown extraction.*
+
+| Where | Prints | Should be |
+|---|---|---|
+| Blacksmithing tree heading, Characters p.13 | `Blackmsithing` | Blacksmithing |
+| Bone Breaker, Characters p.13 | `vulenarble`, and no noun after it — *"When you hit a grappled, prone, vulenarble, or weakened with a bashing weapon attack"* | vulnerable; presumably "…or weakened **creature**" |
+| Seeing Things | `wile` | while |
+| Unrelenting Death | `one the same turn` | on the same turn |
+| Keraunomancer background | expertise `Blacksmith` | Blacksmithing — the other five backgrounds that grant it print the full name |
+| Share Food (Pets) | `pets you car for` | care for |
+| Tricks / Extra Tricks (Pets) | `a two expertises` | two expertises |
+
+All are preserved verbatim in our content per the preserve-canonical-text policy, so correcting
+them upstream is safe on our side. `Blackmsithing` and `vulenarble` each appear exactly once
+against many correct spellings, which is the signature of a one-off rather than a systematic
+choice.
 
 ### C. Lower priority
 
