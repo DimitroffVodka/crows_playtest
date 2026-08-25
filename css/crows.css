@@ -3132,3 +3132,27 @@
 
 /* Dim the card being dragged so its origin reads as vacated. */
 .cc-dragging .cc-card:active { opacity: 0.5; }
+
+/* ── Add-to-slot affordance ────────────────────────────────────────────────
+   The empty-slot placeholder IS the button rather than sitting beside one: the
+   whole vacant area is the target, which is far easier to hit than a small +
+   and needs no extra chrome in an already dense grid. */
+.cc-slot-add {
+  display: block;
+  width: 100%;
+  border: 1px dashed var(--crows-ink);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--crows-ink);
+  font-size: 20px;
+  line-height: 1.2;
+  opacity: 0.28;
+  cursor: pointer;
+  transition: opacity 90ms ease-in, background-color 90ms ease-in;
+}
+
+.cc-slot-add:hover,
+.cc-slot-add:focus-visible { opacity: 0.85; background: var(--crows-paper-warm); }
+
+/* While a card is in hand the + is noise — the drop targets are the story. */
+.cc-dragging .cc-slot-add { opacity: 0; pointer-events: none; }

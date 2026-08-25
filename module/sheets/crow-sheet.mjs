@@ -373,6 +373,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       craftComplete: CrowSheet._onCraftComplete,
       identifyItem: CrowSheet._onIdentifyItem,
       removeItem: CrowSheet._onRemoveItem,
+      addToSlot: CrowSheet._onAddToSlot,
       openCreator: CrowSheet._onOpenCreator
     },
     window: { resizable: true },
@@ -1103,6 +1104,105 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ))}</div>`,
       speaker: { alias: t("CROWS.Sheet.Crow.environment") }
     });
+  }
+
+  /**
+   * Every item document a crow could be given, loaded once per session.
+   *
+   * 133 documents across seven packs — small enough to load in full, which is
+   * what lets the picker show ONLY cards that genuinely fit rather than listing
+   * everything and refusing after the click. The compendium index carries no
+   * `system` fields, so a cheap index-only filter could not answer either
+   * question the slot rules ask (equipSlotType, and how many slots the card
+   * needs).
+   */
+  static #catalogue = null;
+
+  static async #loadCatalogue() {
+    if (CrowSheet.#catalogue) return CrowSheet.#catalogue;
+    const packs = ["crows-gear", "crows-weapons", "crows-armor", "crows-consumables",
+                   "crows-ammunition", "crows-spellbooks", "crows-loot"];
+    const all = [];
+    for (const key of packs) {
+      const pack = game.packs.get(`crows.${key}`);
+      if (!pack) continue;
+      all.push(...await pack.getDocuments());
+    }
+    all.sort((a, b) => a.name.localeCompare(b.name));
+    CrowSheet.#catalogue = all;
+    return all;
+  }
+
+  /**
+   * Add a card to an empty slot without dragging.
+   *
+   * Candidates are filtered by the SAME checks the drop and the drag-highlight
+   * use, so the list cannot offer something the slot would refuse.
+   */
+  static async _onAddToSlot(event, target) {
+    if (!this.document.isOwner) return;
+    const container = target?.dataset?.container;
+    const index = Number(target?.dataset?.index);
+    if (!container || !Number.isInteger(index)) return;
+
+    const catalogue = await CrowSheet.#loadCatalogue();
+    const base = layoutFor(this.document);
+    const fits = catalogue.filter((doc) => {
+      if (dropRefusal(doc, container)) return false;
+      const trial = structuredClone(base);
+      return packItem(trial, doc, container, index).ok;
+    });
+
+    if (!fits.length) {
+      notify("warn", "CROWS.Dialog.AddToSlot.none", { slot: slotLabel(container, index) });
+      return;
+    }
+
+    const options = fits.map((doc) =>
+      `<option value="${doc.uuid}">${foundry.utils.escapeHTML(doc.name)} — ${foundry.utils.escapeHTML(doc.type)}</option>`
+    ).join("");
+    const content = `
+      <p>${t("CROWS.Dialog.AddToSlot.body", { slot: slotLabel(container, index) })}</p>
+      <input type="search" class="cc-add-filter" placeholder="${t("CROWS.Dialog.AddToSlot.filter")}" autofocus>
+      <select class="cc-add-pick" size="12" style="width:100%">${options}</select>`;
+
+    const uuid = await foundry.applications.api.DialogV2.prompt({
+      window: { title: t("CROWS.Dialog.AddToSlot.title") },
+      content,
+      modal: true,
+      rejectClose: false,
+      ok: {
+        label: t("CROWS.Dialog.AddToSlot.confirm"),
+        callback: (ev, button) => button.form.querySelector(".cc-add-pick")?.value ?? null
+      },
+      render: (ev, dialog) => {
+        const root = dialog.element ?? dialog;
+        const search = root.querySelector(".cc-add-filter");
+        const list = root.querySelector(".cc-add-pick");
+        search?.addEventListener("input", () => {
+          const q = search.value.trim().toLowerCase();
+          let firstVisible = null;
+          for (const opt of list.options) {
+            const hit = !q || opt.textContent.toLowerCase().includes(q);
+            opt.hidden = !hit;
+            if (hit && !firstVisible) firstVisible = opt;
+          }
+          // Keep the selection on something the player can actually see.
+          if (firstVisible && list.selectedOptions[0]?.hidden) firstVisible.selected = true;
+        });
+      }
+    });
+    if (!uuid) return;
+
+    const source = await fromUuid(uuid);
+    if (!source) return;
+    const data = source.toObject();
+    delete data._id;
+    delete data._key;
+    data.system = { ...(data.system ?? {}),
+      location: { container, index, length: slotsNeeded(source) } };
+    await this.document.createEmbeddedDocuments("Item", [data]);
+    this.render();
   }
 
   /**

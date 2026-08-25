@@ -516,22 +516,14 @@
   "CROWS.Dialog.Crafting.roll": "Roll",
   "CROWS.Dialog.Crafting.chooseUpToTwo": "Choose up to two expertise uses to spend.",
   "CROWS.Dialog.Crafting.noneAvailable": "No expertise uses remain.",
-  "CROWS": {
-    "Dialog": {
-      "RemoveItem": {
-        "title": "Remove Card",
-        "body": "Remove <strong>{item}</strong> from this crow? This cannot be undone."
-      },
-      "InventoryDrop": {
-        "not-owner": "You do not own this crow, so you cannot remove {item}."
-      }
-    },
-    "Sheet": {
-      "Crow": {
-        "inventory": {
-          "remove": "Remove {item}"
-        }
-      }
-    }
-  }
+  "CROWS.Dialog.RemoveItem.title": "Remove Card",
+  "CROWS.Dialog.RemoveItem.body": "Remove <strong>{item}</strong> from this crow? This cannot be undone.",
+  "CROWS.Dialog.InventoryDrop.not-owner": "You do not own this crow, so you cannot remove {item}.",
+  "CROWS.Dialog.AddToSlot.title": "Add Card",
+  "CROWS.Dialog.AddToSlot.body": "Choose a card for <strong>{slot}</strong>. Only cards that fit this slot are listed.",
+  "CROWS.Dialog.AddToSlot.filter": "Search…",
+  "CROWS.Dialog.AddToSlot.confirm": "Add",
+  "CROWS.Dialog.AddToSlot.none": "No card in the compendiums fits {slot}.",
+  "CROWS.Sheet.Crow.inventory.remove": "Remove {item}",
+  "CROWS.Sheet.Crow.inventory.add": "Add a card to {slot}"
 }

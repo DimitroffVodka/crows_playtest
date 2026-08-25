@@ -243,7 +243,7 @@
                 </div>
               </div>
             {{/each}}
-            {{#unless slot.cards.length}}<div class="cc-slot-empty">{{localize "CROWS.Sheet.Crow.inventory.empty"}}</div>{{/unless}}
+            {{#unless slot.cards.length}}<button type="button" class="cc-slot-empty cc-slot-add" data-action="addToSlot" data-container="{{slot.container}}" data-index="{{slot.index}}" aria-label="{{localize "CROWS.Sheet.Crow.inventory.add" slot=slot.label}}" data-tooltip="{{localize "CROWS.Sheet.Crow.inventory.add" slot=slot.label}}">+</button>{{/unless}}
           {{/if}}
         </div>
       {{/each}}
@@ -274,7 +274,7 @@
                   </div>
                 </div>
               {{/each}}
-              {{#unless slot.cards.length}}<div class="cc-slot-empty">{{localize "CROWS.Sheet.Crow.inventory.empty"}}</div>{{/unless}}
+              {{#unless slot.cards.length}}<button type="button" class="cc-slot-empty cc-slot-add" data-action="addToSlot" data-container="{{slot.container}}" data-index="{{slot.index}}" aria-label="{{localize "CROWS.Sheet.Crow.inventory.add" slot=slot.label}}" data-tooltip="{{localize "CROWS.Sheet.Crow.inventory.add" slot=slot.label}}">+</button>{{/unless}}
             {{/if}}
           </div>
         {{/each}}
@@ -303,7 +303,7 @@
                   </div>
                 </div>
               {{/each}}
-              {{#unless slot.cards.length}}<div class="cc-slot-empty">{{localize "CROWS.Sheet.Crow.inventory.empty"}}</div>{{/unless}}
+              {{#unless slot.cards.length}}<button type="button" class="cc-slot-empty cc-slot-add" data-action="addToSlot" data-container="{{slot.container}}" data-index="{{slot.index}}" aria-label="{{localize "CROWS.Sheet.Crow.inventory.add" slot=slot.label}}" data-tooltip="{{localize "CROWS.Sheet.Crow.inventory.add" slot=slot.label}}">+</button>{{/unless}}
             </div>
           {{/each}}
         {{/each}}
@@ -351,7 +351,7 @@
                 </div>
               </div>
             {{/each}}
-            {{#unless slot.cards.length}}{{#unless slot.wound}}<div class="cc-slot-empty">{{localize "CROWS.Sheet.Crow.inventory.empty"}}</div>{{/unless}}{{/unless}}
+            {{#unless slot.cards.length}}{{#unless slot.wound}}<button type="button" class="cc-slot-empty cc-slot-add" data-action="addToSlot" data-container="{{slot.container}}" data-index="{{slot.index}}" aria-label="{{localize "CROWS.Sheet.Crow.inventory.add" slot=slot.label}}" data-tooltip="{{localize "CROWS.Sheet.Crow.inventory.add" slot=slot.label}}">+</button>{{/unless}}{{/unless}}
           {{/if}}
         </div>
       {{/each}}
