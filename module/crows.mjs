@@ -69,6 +69,9 @@ import {
 } from "./helpers/migration.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
+import { CrowsCombat } from "./documents/combat.mjs";
+import { CrowsCombatant } from "./documents/combatant.mjs";
+import { CrowsCombatTracker } from "./applications/combat-tracker.mjs";
 
 const MIGRATION_TARGET_VERSION = "0.2.0";
 const MIGRATION_VERSION_SETTING = "systemMigrationVersion";
@@ -157,6 +160,12 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.background = BackgroundData;
   CONFIG.Actor.dataModels.crow = CrowData;
   CONFIG.Actor.dataModels.monster = MonsterData;
+  CONFIG.Combat ??= {};
+  CONFIG.Combatant ??= {};
+  CONFIG.ui ??= {};
+  CONFIG.Combat.documentClass = CrowsCombat;
+  CONFIG.Combatant.documentClass = CrowsCombatant;
+  CONFIG.ui.combat = CrowsCombatTracker;
 
   registerMigrationSettings();
   registerSlotSettings();

@@ -150,6 +150,7 @@ export function rollLevelLabels({ conditions = {}, isMelee = true, improvised = 
  * @param {object} t                     the target situation
  * @param {string} t.tokenId
  * @param {object} [t.conditions]        the TARGET's conditions
+ * @param {boolean} [t.surprised]        the target's round-1 combat flag
  * @param {boolean} [t.isMelee]
  * @param {number} [t.distance]          squares between attacker and target
  * @param {number} [t.normalRange]       the weapon/spell's normal range in squares
@@ -170,6 +171,7 @@ export function targetLabels({
   highGround = false,
   cover = false,
   concealment = "",
+  surprised = false,
   sourceId
 } = {}) {
   const edges = [];
@@ -187,6 +189,9 @@ export function targetLabels({
   }
   // R:536 — attacks against a grabbed creature gain an edge.
   if (conditions.grabbed) edges.push(label("grabbed-target", "Target grabbed", sourceId));
+  // R:704 — attacks against a surprised creature gain a flat +1 bonus.
+  // This is a numeric modifier, not an edge, and it expires after round 1.
+  if (surprised) mods.push(mod("surprised", "Target surprised", 1));
 
   // --- position ----------------------------------------------------------
   if (flanking && isMelee) edges.push(label("flanking", "Flanking", sourceId));   // R:965, melee only

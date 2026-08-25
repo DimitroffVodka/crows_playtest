@@ -23,6 +23,7 @@
 import { CROWS } from "../config.mjs";
 import { rollTest } from "./roll.mjs";
 import { buildAttackLabels, targetRef } from "./combat.mjs";
+import { readCrowsFlag } from "./initiative.mjs";
 
 /**
  * Substitute A/S/M into a damage formula and evaluate it.
@@ -154,7 +155,7 @@ export function weaponAttackPayload(actor, weapon, { isMelee, characteristic, fu
  * @param {object} [opts]
  * @param {Array} [opts.targets]  per-target situation:
  *        {tokenId, conditions, distance, adjacent, flanking, highGround,
- *         cover, concealment}. Defaults to the user's current targets.
+ *         cover, concealment, surprised}. Defaults to the user's current targets.
  * @param {boolean} [opts.thrown]      R:993 — declare a thrown weapon ranged
  * @param {boolean} [opts.improvised]  R:1023 — a bane
  * @param {object}  [opts.situation]   {alliesAdjacent, onOwnTurn}
@@ -254,8 +255,20 @@ export async function attackWithWeapon(actor, weapon, {
  */
 function _situationsFromUserTargets() {
   const targets = globalThis.game?.user?.targets ?? [];
-  return [...targets].map(t => ({
-    tokenId: t?.id ?? null,
-    conditions: { ...(t?.actor?.system?.conditions ?? {}) }
-  }));
+  const combat = globalThis.game?.combat;
+  const combatants = combat?.combatants?.contents ?? combat?.combatants ?? [];
+  const round = Number(combat?.round);
+  return [...targets].map(t => {
+    const tokenId = t?.id ?? null;
+    const combatant = [...combatants].find(c => c?.tokenId === tokenId);
+    const flag = readCrowsFlag(combatant, "surprised", combatant?.surprised);
+    return {
+      tokenId,
+      conditions: { ...(t?.actor?.system?.conditions ?? {}) },
+      // Surprise is combat-round state, not an Actor condition. Read it from
+      // the active combatant for this target token so the +1 reaches only the
+      // target that is actually surprised this round.
+      surprised: round === 1 && !!flag
+    };
+  });
 }

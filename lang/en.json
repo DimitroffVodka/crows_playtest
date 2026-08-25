@@ -536,5 +536,17 @@
   "CROWS.Dialog.AttackTarget.confirm": "Attack",
   "CROWS.Dialog.AttackTarget.none": "No target (the Ref narrates)",
   "CROWS.Dialog.AttackTarget.empty": "No other tokens on this scene to target. Attacking untargeted.",
-  "CROWS.Dialog.AttackTarget.hint": "Tip: you can also target with Foundry's targeting tool before attacking."
+  "CROWS.Dialog.AttackTarget.hint": "Tip: you can also target with Foundry's targeting tool before attacking.",
+  "CROWS.Combat.side.crows": "Crows",
+  "CROWS.Combat.side.enemies": "Enemies",
+  "CROWS.Combat.sideRoll": "1d10: {roll} — {side} act first",
+  "CROWS.Combat.chatSideRoll": "{roller} rolled 1d10 ({roll}) — {side} act first",
+  "CROWS.Combat.rollForRound": "Roll for the round",
+  "CROWS.Combat.notYetRolled": "Not yet rolled",
+  "CROWS.Combat.rollPermission": "Only the Ref or a player who owns a combatant can roll side initiative.",
+  "CROWS.Combat.noCreatureInitiative": "Crows uses one side roll per round; creatures do not roll initiative.",
+  "CROWS.Combat.moveUp": "Move combatant up",
+  "CROWS.Combat.moveDown": "Move combatant down",
+  "CROWS.Combat.markSurprised": "Mark surprised",
+  "CROWS.Combat.markNotSurprised": "Remove surprised"
 }
