@@ -3,7 +3,7 @@ _key: "!items!ctstab32nope0000"
 name: Nope
 type: trait
 system:
-  description: "<p>When you hit an opportunity attack made with a stabbing weapon, the target's speed is reduced to 0 until the end of the current combat turn.</p>"
+  description: "<p>When you hit with an opportunity attack made with a stabbing weapon, the target's speed is reduced to 0 until the end of the current combat turn.</p>"
   tree: stabbing
   tier: 3
   column: 2

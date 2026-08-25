@@ -3,7 +3,7 @@ _key: "!items!ctbene22mnyblss0"
 name: Many Blessings
 type: trait
 system:
-  description: "<p>When you cast a benefaction spell that makes the spell's target blessed, they gain 1 additional blessed level.</p>"
+  description: "<p>When you cast a benefaction spell that makes the spell's target blessed, you can become blessed as well. You can use this trait a number of times equal to your Mind, regaining all uses when you finish a rest.</p>"
   tree: benefaction
   tier: 2
   column: 2

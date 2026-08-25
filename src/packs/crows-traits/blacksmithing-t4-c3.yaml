@@ -3,7 +3,7 @@ _key: "!items!ctblac43nchntwpn"
 name: Enchant Weapons
 type: trait
 system:
-  description: "<p>You can use your blacksmith's tools as enchanter's tools and your bonus in the Blacksmithing skill in place of the Enchantment skill when crafting magic weapons.</p>"
+  description: "<p>You can use your blacksmith's tools as enchanter's tools and your number of uses in the Blacksmithing expertise in place of Enchantment when crafting magic weapons.</p>"
   tree: blacksmithing
   tier: 4
   column: 3

@@ -3,7 +3,7 @@ _key: "!items!ctbene41spltbnf0"
 name: Split Benefaction
 type: trait
 system:
-  description: "<p>When you cast a benefaction spell that has a target of 1 creature, object, ally, enemy, or target, you can target one additional qualifying target.</p>"
+  description: "<p>When you cast an benefaction spell that has a target of 1 creature, object, ally, enemy, or target, you can target one additional qualifying target.</p>"
   tree: benefaction
   tier: 4
   column: 1

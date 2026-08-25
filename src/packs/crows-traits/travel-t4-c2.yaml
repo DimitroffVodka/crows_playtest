@@ -3,7 +3,7 @@ _key: "!items!cttrav42thiswwy0"
 name: This Way
 type: trait
 system:
-  description: "<p>When you make a test related to the guide travel role while carrying a compass that doesn't result in the group getting or remaining lost, you and each creature traveling with increases their pace by 3.</p>"
+  description: "<p>When you make a test related to the guide role while carrying a compass that doesn't result in the group getting or remaining lost, you can increase the group's distance traveled that day by 1 hex.</p>"
   tree: travel
   tier: 4
   column: 2

@@ -7,6 +7,6 @@ system:
   tree: alchemy
   tier: 4
   column: 2
-  connectsTo: ["You In Particular", "Two for One", "Alchemy Bell"]
+  connectsTo: ["You In Particular", "Two for One", "Alchemy Belt"]
   isStarting: false
   restActivity: false

@@ -1,9 +1,9 @@
 _id: ctleve42grndrl00
 _key: "!items!ctleve42grndrl00"
-name: Groundroll
+name: Stacks on Stacks
 type: trait
 system:
-  description: "<p>You don't need a bedroll, bed, or similar soft surface to sleep on to get the benefit of resting.</p>"
+  description: "<p>When you carry an item with a stack limit greater than 1, its stack limit increases by 1.</p>"
   tree: leverage
   tier: 4
   column: 2

@@ -8,6 +8,6 @@ system:
   tier: 3
   column: 2
   connectsTo:
-    - Groundroll
+    - Stacks on Stacks
   isStarting: false
   restActivity: false

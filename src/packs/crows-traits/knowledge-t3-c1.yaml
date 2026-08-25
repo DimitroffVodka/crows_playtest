@@ -3,7 +3,7 @@ _key: "!items!ctknow31shrdknw0"
 name: Shared Knowledge
 type: trait
 system:
-  description: "<p>When you read a lore book as a rest activity to gain a skill bonus, you can read the book aloud. If you do, choose one human who rests with you. They gain the benefit too.</p>"
+  description: "<p>When you read a lore book as a rest activity to gain an expertise, you can read the book aloud. If you do, choose one human who rests with you. They gain the benefit too.</p>"
   tree: knowledge
   tier: 3
   column: 1

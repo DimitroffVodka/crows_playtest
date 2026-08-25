@@ -3,7 +3,7 @@ _key: "!items!ctstab11jvln0000"
 name: Javelin
 type: trait
 system:
-  description: "<p>You can make a ranged attack with a spear with a range of range 5.</p>"
+  description: "<p>You can make a ranged attack with a spear with a range of ranged 5.</p>"
   tree: stabbing
   tier: 1
   column: 1

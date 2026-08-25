@@ -3,7 +3,7 @@ _key: "!items!ctblac21smthngpp"
 name: Smithing Epiphany
 type: trait
 system:
-  description: "<p>When you make a crafting roll for a blacksmithing item, you get a crit when the dice without modifiers equal 18, 19, or 20.</p>"
+  description: "<p>When you make a crafting roll for an blacksmithing item, you get a crit when the dice without modifiers equal 18, 19, or 20.</p>"
   tree: blacksmithing
   tier: 2
   column: 1

@@ -3,7 +3,7 @@ _key: "!items!ctelem22lmntlmst"
 name: Elemental Mastery
 type: trait
 system:
-  description: "<p>Non-doom tier 1 results of rank 0 and 1 conjuration spells you cast don't add to the chaos count. Your conjuration spells of rank 2 and higher are treated as 2 ranks lower when they trigger a backlash.</p><p><em>Note: card body reads &quot;conjuration spells&quot; verbatim from MCDM playtest source (canonical authoring typo for &quot;elemental spells&quot;).</em></p>"
+  description: "<p>Non-doom tier 1 results of rank 0 and 1 elemental spells you cast don't add to the chaos count. Your elemental spells of rank 2 and higher are treated as 2 ranks lower when they trigger a backlash.</p>"
   tree: elemental
   tier: 2
   column: 2

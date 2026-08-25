@@ -3,7 +3,7 @@ _key: "!items!ctslas12qckstep0"
 name: Quickstep
 type: trait
 system:
-  description: "<p>When you use the Shift maneuver while wielding a slashing weapon, you can move 2 squares instead of 3.</p>"
+  description: "<p>When you use the Shift maneuver while wielding a slashing weapon, you can move 3 squares instead of 2.</p>"
   tree: slashing
   tier: 1
   column: 2

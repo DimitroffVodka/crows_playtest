@@ -3,10 +3,10 @@ _key: "!items!ctunar32hrdtpin0"
 name: Hard to Pin
 type: trait
 system:
-  description: "<p>While you have at least 1 hand slot free and use the Escape Grab maneuever, you can roll twice and choose either result and if you get a tier 3 result, you can counter the grabber as part of your escape.</p>"
+  description: "<p>While you have at least 1 hand slot free and use the Escape Grab maneuver, you can roll twice and choose either result and if you get a tier 3 result, you can counter the grabber as part of your escape.</p>"
   tree: unarmed
   tier: 3
   column: 2
-  connectsTo: [Pack a Kick]
+  connectsTo: [Pack a Big Punch]
   isStarting: false
   restActivity: false

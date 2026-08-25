@@ -3,7 +3,7 @@ _key: "!items!ctpets12tricks00"
 name: Tricks
 type: trait
 system:
-  description: "<p>While you own a pet, they gain a +1 bonus to one of the following skills: Climb, Endurance, Hide, Jump, Lift, Search, Sneak, or Swim. This trait stacks with Extra Tricks.</p>"
+  description: "<p>While you own a pet, they gain a two expertises from the following list: Athletics, Endurance, Lift, Search, or Stealth. This trait stacks with Extra Tricks.</p>"
   tree: pets
   tier: 1
   column: 2

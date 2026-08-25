@@ -7,6 +7,6 @@ system:
   tree: chopping
   tier: 4
   column: 3
-  connectsTo: ["Crit", "Chopping Holster"]
+  connectsTo: ["Chopping Crit", "Chopping Holster"]
   isStarting: false
   restActivity: false

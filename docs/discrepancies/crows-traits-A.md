@@ -1,9 +1,12 @@
-# Crows Traits Batch A — Cross-Validation Report
+# Crows Traits Batch A — PT2 PDF Cross-Validation Report
 
-**Trees:** alchemy, alteration, archery, armor, bashing, benefaction  
-**YAMLs checked:** 72 (all present, no missing files)  
-**Markdown source:** `02_MCDM_Crows_Characters_Booklet_May_June_2026_Playtest.md`  
-**Date:** 2026-05-26
+**Trees:** alchemy, alteration, archery, armor, bashing, benefaction, blacksmithing
+**YAMLs checked:** 84 (all present, no missing files)
+**Structure source:** `docs/source/C-characters-book.md`
+**Verbatim source:** `02 Crows Characters Book for Playtest 2.pdf` (trait pages 8–14)
+**Date:** 2026-08-25
+
+This report supersedes the earlier markdown-only snapshot. The pinned markdown controls tree, tier, column, and ordering; the PT2 PDF controls trait names and prose.
 
 ---
 
@@ -11,54 +14,61 @@
 
 _No HIGH discrepancies found._
 
+All 84 documents have the expected tree, tier, column, and `isStarting` values. No `xpCost` field is stored; the runtime derives it from tier as agreed.
+
 ---
 
 ## MEDIUM Severity
 
-| Slug | Field | YAML | Markdown |
-|------|-------|------|----------|
-| `alchemy-t4-c3` | `name` | Alchemy Bell | Alchemy Belt |
+These are source deltas that changed mechanics or user-visible behavior in the YAML. The PDF and pinned markdown agree on each corrected value.
 
-**Note:** The YAML `_id` (`ctalch43alchblt0`) and `description` ("You gain a third belt slot…") both confirm the intent is "Alchemy **Belt**". The name field has a single-letter typo ("Bell" → "Belt").
+| Slug | Field | Previous YAML | PDF / current YAML |
+|------|-------|---------------|--------------------|
+| `alchemy-t4-c3` | `system.description` | “You gain a third belt slot…” | “You gain an additional belt slot…” |
+| `benefaction-t2-c2` | `system.description` | Target gains 1 additional blessed level | You can become blessed; uses equal Mind, refreshed by a rest |
+| `benefaction-t4-c3` | `system.description` | Remove all blessed levels; regain 3 Stamina | Remove the blessed condition; regain 1d6 Stamina (or remove 1 wound) per level removed |
+| `blacksmithing-t4-c2` | `system.description` | Use Blacksmithing skill bonus in place of Enchantment skill | Use the number of Blacksmithing expertise uses in place of Enchantment |
+| `blacksmithing-t4-c3` | `system.description` | Use Blacksmithing skill bonus in place of Enchantment skill | Use the number of Blacksmithing expertise uses in place of Enchantment |
+
+**H1 chaos wording:** `alteration-t2-c1` and `benefaction-t2-c1` retain the PDF’s “don’t add to the chaos count” text. The agreed PT2 reading is that rank 0–1 spells of the relevant discipline do not trigger a chaos roll; no new mechanics wording was added to either description.
 
 ---
 
 ## LOW Severity
 
-Canonical typos in the markdown that the YAML either preserves or silently corrects, and minor name-format differences. Per spec, note but do not require fixes.
+The following PDF/markdown disagreements were checked against the PDF and the YAML follows the PDF verbatim. They are typos, omissions, or grammar-level differences except where noted.
 
-| Slug | Field | YAML | Markdown |
-|------|-------|------|----------|
-| `alteration-t1-c1` | `system.description` | "additional 1 UD" | "addtioinal 1 UD" (markdown typo corrected in YAML) |
-| `alteration-t2-c2` | `system.description` | "alteration spell" ×3 (Hooves, Horns, Wings) | "altearation spell" (markdown typo corrected in YAML) |
-| `alteration-t3-c2` | `system.description` | "alteration spell" | "altearation spell" (markdown typo corrected in YAML) |
-| `alteration-t4-c2` | `system.description` | "alteration spell" | "altearation spell" (markdown typo corrected in YAML) |
-| `alteration-t2-c3` | `system.description` | "A creature who holds" | "A creautre who holds" (markdown typo corrected in YAML) |
-| `alteration-t4-c3` | `system.description` | "absorbs and destroys" | "absorbs and destorys" (markdown typo corrected in YAML) |
-| `armor-t2-c2` | `name` | Sacrifice Armor | "Sacrifce Armor" (markdown typo corrected in YAML) |
-| `armor-t3-c3` | `name` | Jury-Rig Repairs | "- Jury Rig Repairs" (markdown has leading dash prefix and no hyphen; YAML normalises to hyphenated form) |
-| `armor-t4-c1` | `system.description` | "When get a tier 3 result…" | "When get a tier 3 result…" (canonical markdown omission of "you" preserved in YAML — matches source) |
-| `bashing-t1-c1` | `system.description` | "1 additional square. This trait stacks" | "1 addtional square. This trait statcks" (two markdown typos corrected in YAML) |
-| `bashing-t2-c1` | `system.description` | "1 additional square. This trait stacks" | "1 addtional square. This trait statcks" (two markdown typos corrected in YAML) |
-| `benefaction-t1-c1` | `system.description` | "additional 1 UD" | "addtioinal 1 UD" (markdown typo corrected in YAML) |
+| Slug / source | PDF text | Markdown text | Followed |
+|---------------|----------|---------------|----------|
+| `alchemy-t2-c2` Big Boom | “cube they **effect** increased” | “cube they **affect** increased” | PDF |
+| `alchemy-t4-c1` Two for One | “When you **finishing** crafting” | “When you **finish** crafting” | PDF |
+| `alteration-t2-c2` Hooves | “your speed **increase**” | “your speed **increases**” | PDF |
+| `archery-t1-c2` Range Finder | “**it’s** range increases” | “**its** range increases” | PDF |
+| `archery-t2-c2` Greater Range | “**it’s** range increases” | “**its** range increases” | PDF |
+| `archery-t3-c2` Shot in the Dark | “against **target** in darkness” | “against **targets** in darkness” | PDF |
+| `armor-t1-c1` Interposing Arm | “apply **your shield**” | “apply **to your shield**” | PDF |
+| `armor-t4-c1` Shield Bash | “When **get** a tier 3 result” | “When **you get** a tier 3 result” | PDF |
+| `bashing-t3-c3` Bone Breaker | “grappled, prone, **vulenarble**, or weakened” (no “creature”) | “grappled, prone, **vulnerable**, or weakened creature” | PDF; canonical typo/omission already verified and preserved |
+| `benefaction-t1-c1` Lasting Benefaction | “cast **an** benefaction spell” | “cast **a** benefaction spell” | PDF |
+| `benefaction-t1-c3` First Responder | “range **take** damage” | “range **takes** damage” | PDF |
+| `benefaction-t4-c1` Split Benefaction | “cast **an** benefaction spell” | “cast **a** benefaction spell” | PDF |
+| `blacksmithing-t2-c1` Smithing Epiphany | “for **an** blacksmithing item” | “for **a** blacksmithing item” | PDF |
+| Blacksmithing tree heading | `Blackmsithing` | `Blacksmithing` | PDF; heading only, so the normalized `blacksmithing` tree slug remains unchanged |
 
-**Additional LOW notes:**
-
-- **Archery t1 merged heading:** Markdown L839 lists "Range Finder Prone Position XP Cost: 500 (Starting) XP Cost: 500 (Starting)" as a single line, combining two traits. YAML correctly splits them into `archery-t1-c2` (Range Finder) and `archery-t1-c3` (Prone Position) with the correct descriptions assigned to each.
-- **Bashing t1 merged heading:** Markdown L959 lists "Destructive Tripping Counter XP Cost: 500 (Starting) XP Cost: 500 (Starting)" as a single header for two traits. YAML correctly splits into `bashing-t1-c2` (Destructive) and `bashing-t1-c3` (Tripping Counter) with correct descriptions.
+No trait name changed in this pass. The two stale `Alchemy Bell` entries in `connectsTo` were updated to the canonical trait name `Alchemy Belt`; `_id` and `_key` were preserved.
 
 ---
 
 ## INFO
 
-| Slug | Field | YAML | Markdown |
-|------|-------|------|----------|
-| `(all 72)` | `connectsTo` | present in all YAMLs | not verifiable — markdown lacks visible graph edges |
-
-**connectsTo not verified** — the markdown contains no explicit connection arrows or adjacency annotations. Column-aligned defaults from extraction are accepted as-is.
+- All 84 YAMLs parse successfully. Every existing `_id` and `_key` is unchanged from `HEAD`.
+- `connectsTo` graph edges are not printed in either source document, so the existing column-aligned edges were retained; only the stale `Alchemy Bell` labels were corrected.
+- The PDF’s Movement Stone bullet list is represented as one HTML paragraph in the existing schema; the two benefits and their order are preserved.
+- Many Blessings’ use limit/reset and Burn Blessings’ choice are represented in prose because traits have no separate uses/effect schema. No source requirement was unrepresentable.
+- XP costs are printed in the PDF but intentionally omitted from YAML; `prepareDerivedData` computes them from tier.
 
 ---
 
 ## Summary
 
-Batch A (72 traits across 6 trees) is in excellent shape. There are **zero HIGH discrepancies**: all tier values, XP costs (none written in YAML, correctly computed from tier), tree assignments, column assignments, and `isStarting` flags match the markdown exactly. There is **one MEDIUM issue**: `alchemy-t4-c3` has name "Alchemy Bell" where the markdown reads "Alchemy Belt" (both the description text and the `_id` confirm "Belt" is the intended name — single-character typo). The **twelve LOW notes** are all cases where the YAML silently corrects obvious markdown typos (misspellings of "additional," "alteration," "creature," "destroys," "Sacrifice," "stacks") or normalises formatting (Jury-Rig Repairs name, merged trait headings in Archery and Bashing); one LOW note flags a canonical markdown omission ("When **you** get a tier 3 result" → "When get a tier 3 result") in Shield Bash that was preserved faithfully in the YAML. No traits are missing from either the YAML set or the markdown.
+Batch A now covers 84 traits across seven trees. Eleven YAML documents changed for PDF-faithful prose, including two with stale `Alchemy Bell` graph labels corrected, and no trait names changed. The canonical `vulenarble` Bone Breaker typo was verified and left intact. No dangling `connectsTo` edges, schema gaps, missing files, ID/key changes, or HIGH discrepancies were found.

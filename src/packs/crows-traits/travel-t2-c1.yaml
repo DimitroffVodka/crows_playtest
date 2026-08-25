@@ -3,7 +3,7 @@ _key: "!items!cttrav21fdaway00"
 name: Fade Away
 type: trait
 system:
-  description: "<p>When you are in the scout travel role and carrying a spy glass and encounter other creatures while traveling, you can begin the encounter hidden from those creatures.</p>"
+  description: "<p>When you are in the scout role and carrying a spyglass and encounter other creatures while traveling, you can begin the encounter hidden from those creatures.</p>"
   tree: travel
   tier: 2
   column: 1

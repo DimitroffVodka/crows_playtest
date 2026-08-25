@@ -3,7 +3,7 @@ _key: "!items!ctchop11xhrlr000"
 name: Axe Hurler
 type: trait
 system:
-  description: "<p>While you wield a handaxe, its non-melee range increases by 2 squares. This bonus stacks with Mighty Arm.</p>"
+  description: "<p>While you wield a handaxe, it's non-melee range increases by 2 squares. This bonus stacks with Mighty Arm.</p>"
   tree: chopping
   tier: 1
   column: 1

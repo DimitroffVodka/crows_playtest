@@ -7,6 +7,6 @@ system:
   tree: chopping
   tier: 2
   column: 2
-  connectsTo: ["Hone the Blade", "Stop Chopping"]
+  connectsTo: ["Hone the Blade", "Stop"]
   isStarting: false
   restActivity: false

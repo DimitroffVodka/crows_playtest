@@ -3,7 +3,7 @@ _key: "!items!ctstab23trplcrt0"
 name: Triple Crit
 type: trait
 system:
-  description: "<p>When you score a crit with a stabbing weapon, you deal thriple the weapon's tier 3 damage instead of double.</p>"
+  description: "<p>When you score a crit with a stabbing weapon, you deal triple the weapon's tier 3 damage instead of double.</p>"
   tree: stabbing
   tier: 2
   column: 3

@@ -3,7 +3,7 @@ _key: "!items!cttrav13frgxprt0"
 name: Foraging Expert
 type: trait
 system:
-  description: "<p>When you make a test related to the forager travel roll and gain at least 1 ration, you gain 1 additional ration. This trait stacks with Food Finder.</p>"
+  description: "<p>When you make a test related to the tracker roll and gain at least 1 ration, you gain 1 additional ration. This trait stacks with Food Finder.</p>"
   tree: travel
   tier: 1
   column: 3

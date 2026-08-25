@@ -3,7 +3,7 @@ _key: "!items!ctchop31hrlnthdr"
 name: Hurl in the Dark
 type: trait
 system:
-  description: "<p>Ranged attacks you make with handaxes don't suffer a penalty for the target being in dim light or similar concealment, and they only suffer a -2 penalty against targets in darkness or similar concealment.</p>"
+  description: "<p>Ranged attacks you make with handaxes don't suffer a penalty for the target being in dim light or similar concealment, and they only suffer a -2 penalty against target in darkness or similar concealment.</p>"
   tree: chopping
   tier: 3
   column: 1

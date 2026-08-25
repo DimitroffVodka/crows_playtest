@@ -3,7 +3,7 @@ _key: "!items!cttrav11ispy0000"
 name: I Spy
 type: trait
 system:
-  description: "<p>When you make a test related to the scout travel role while carrying a spyglass, you can roll the test twice and choose either result.</p>"
+  description: "<p>When you make a test related to the scout role while carrying a spyglass, you can roll the test twice and choose either result.</p>"
   tree: travel
   tier: 1
   column: 1

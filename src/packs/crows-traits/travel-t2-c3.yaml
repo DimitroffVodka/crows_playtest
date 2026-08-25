@@ -3,7 +3,7 @@ _key: "!items!cttrav23hntxprt0"
 name: Hunting Expert
 type: trait
 system:
-  description: "<p>When you make a test related to the guide travel role while carrying a bow weapon and ammunition for it, you can roll the test twice and choose either result.</p>"
+  description: "<p>When you make a test in the tracker role to hunt carrying a bow weapon and ammunition for it, you can roll the test twice and choose either result.</p>"
   tree: travel
   tier: 2
   column: 3

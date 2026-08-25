@@ -3,7 +3,7 @@ _key: "!items!ctthie11szdvntg0"
 name: Sieze the Advantage
 type: trait
 system:
-  description: "<p>When you hit with a weapon attack using Agility that has bonuses outside of skills and characteristics, you deal additional damage equal to twice those bonuses.</p>"
+  description: "<p>When you hit with a weapon attack using Agility that has at least one edge and no banes, you deal additional damage equal to twice your Agility.</p>"
   tree: thievery
   tier: 1
   column: 1

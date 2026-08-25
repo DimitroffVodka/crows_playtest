@@ -7,6 +7,6 @@ system:
   tree: chopping
   tier: 4
   column: 2
-  connectsTo: ["Stop Chopping", "Double Axe", "Improved Chop"]
+  connectsTo: ["Stop", "Double Axe", "Improved Chop"]
   isStarting: false
   restActivity: false

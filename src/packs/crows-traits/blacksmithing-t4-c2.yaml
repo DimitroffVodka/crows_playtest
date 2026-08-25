@@ -3,7 +3,7 @@ _key: "!items!ctblac42nchntrmr"
 name: Enchant Armor
 type: trait
 system:
-  description: "<p>You can use your blacksmith's tools as enchanter's tools and your bonus in the Blacksmithing skill in place of the Enchantment skill when crafting magic armor.</p>"
+  description: "<p>You can use your blacksmith's tools as enchanter's tools and your number of uses in the Blacksmithing expertise in place of Enchantment when crafting magic armor.</p>"
   tree: blacksmithing
   tier: 4
   column: 2

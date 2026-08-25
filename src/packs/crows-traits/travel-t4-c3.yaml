@@ -1,9 +1,9 @@
 _id: cttrav43lycanet0
 _key: "!items!cttrav43lycanet0"
-name: All You Can Eat
+name: Specialized Hunter
 type: trait
 system:
-  description: "<p>When you make a test related to the guide travel role while carrying a bow weapon and ammunition for it, you gain 7 rations instead of 1d6 + 1.</p>"
+  description: "<p>When you are in the tracker role while carrying a compass, you can choose two tasks in the role and make a test for both during a travel day.</p>"
   tree: travel
   tier: 4
   column: 3

@@ -1,9 +1,9 @@
 _id: cttrav32pshrlgd0
 _key: "!items!cttrav32pshrlgd0"
-name: Push It Real Good
+name: Camp Builder
 type: trait
 system:
-  description: "<p>When you are in the guide or leader role and carrying a compass or musical instrument, you and each ally traveling with you adds your Mind to tests related to pushing to travel further.</p>"
+  description: "<p>When you are in the support role and get a tier 3 result on the test to make camp while carrying blacksmith's tools, you can ignore the normal benefits to create a camp that counts as resting outside of the Miasma.</p>"
   tree: travel
   tier: 3
   column: 2

@@ -3,7 +3,7 @@ _key: "!items!ctknow41mmrztn00"
 name: Memorization
 type: trait
 system:
-  description: "<p>As a rest activity, choose a lore book you have to study. You gain its skill bonus and are always wielding it even when you don't have it until you use this rest activity again.</p>"
+  description: "<p>As a rest activity, choose a lore book you have to study. You gain its expertise and are always wielding it even when you don't have it until you use this rest activity again.</p>"
   tree: knowledge
   tier: 4
   column: 1

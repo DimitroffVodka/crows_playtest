@@ -3,7 +3,7 @@ _key: "!items!cttrav31mstgfstr"
 name: Must Go Faster
 type: trait
 system:
-  description: "<p>When you are in the scout travel role and carrying a spy glass and encounter other creatures while traveling, you and each creature in your party can take 2d6 P damage to avoid the encounter before it starts.</p>"
+  description: "<p>When you are in the scout role and carrying a spyglass and encounter other creatures while traveling (not resting), you and each creature in your party can take 3d6 P damage to avoid the encounter before it starts.</p>"
   tree: travel
   tier: 3
   column: 1

@@ -3,7 +3,7 @@ _key: "!items!ctrepu33hvtbck00"
 name: Have it in the Back
 type: trait
 system:
-  description: "<p>You can ask the merchant affected by your Favorite Customer trait to start crafting an item you don't have the materials for. There's a 20% chance they have the materials and charge you 10% for the work.</p>"
+  description: "<p>You can ask the merchant affected by your Favorite Customer trait to start crafting an item you don't have the materials for. There's a 20% they have the materials and charge you 10% for the work.</p>"
   tree: reputation
   tier: 3
   column: 3

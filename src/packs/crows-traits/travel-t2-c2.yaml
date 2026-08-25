@@ -1,12 +1,12 @@
 _id: cttrav22pthfall0
 _key: "!items!cttrav22pthfall0"
-name: A Path for All
+name: Troubadour
 type: trait
 system:
-  description: "<p>When are in the guide travel role while carrying a compass, any test you make that grants a bonus to other travel roles has that bonus increase by your Mind.</p>"
+  description: "<p>When are in the support role while carrying a musical instrument, any test you make that grants a bonus to other travel roles has that bonus increased by 1.</p>"
   tree: travel
   tier: 2
   column: 2
-  connectsTo: [Push It Real Good]
+  connectsTo: [Camp Builder]
   isStarting: false
   restActivity: false

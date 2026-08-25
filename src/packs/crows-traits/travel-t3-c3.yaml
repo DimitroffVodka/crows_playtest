@@ -3,10 +3,10 @@ _key: "!items!cttrav33fdfindr0"
 name: Food Finder
 type: trait
 system:
-  description: "<p>When you make a test related to the forager travel roll and gain at least 1 ration, you gain 1 additional ration. This trait stacks with Foraging Expert.</p>"
+  description: "<p>When you make a test related to the tracker role and gain at least 1 ration, you gain 1 additional ration. This trait stacks with Foraging Expert.</p>"
   tree: travel
   tier: 3
   column: 3
-  connectsTo: [All You Can Eat]
+  connectsTo: [Specialized Hunter]
   isStarting: false
   restActivity: false

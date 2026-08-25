@@ -3,10 +3,10 @@ _key: "!items!cttrav12orntrng0"
 name: Orienteering
 type: trait
 system:
-  description: "<p>When you make a test related to the guide travel role while carrying a compass, you can roll the test twice and choose either result.</p>"
+  description: "<p>When you make a test related to the guide role while carrying a compass, you can roll the test twice and choose either result.</p>"
   tree: travel
   tier: 1
   column: 2
-  connectsTo: [A Path for All]
+  connectsTo: [Troubadour]
   isStarting: true
   restActivity: false

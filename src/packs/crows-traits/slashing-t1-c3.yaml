@@ -7,6 +7,6 @@ system:
   tree: slashing
   tier: 1
   column: 3
-  connectsTo: [Intercepting Blade]
+  connectsTo: [Interceding Blade]
   isStarting: true
   restActivity: false

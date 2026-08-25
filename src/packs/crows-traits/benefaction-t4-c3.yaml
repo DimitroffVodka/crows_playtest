@@ -3,7 +3,7 @@ _key: "!items!ctbene43brnblss0"
 name: Burn Blessings
 type: trait
 system:
-  description: "<p>When you cast a benefaction spell on a blessed target, you can remove all blessed levels from them. The target regains 3 Stamina or removes 1 wound for each level removed (your choice).</p>"
+  description: "<p>When you cast a benefaction spell on a blessed target, you can remove the blessed condition from them. The target regains 1d6 Stamina or removes 1 wound for each level removed (your choice).</p>"
   tree: benefaction
   tier: 4
   column: 3

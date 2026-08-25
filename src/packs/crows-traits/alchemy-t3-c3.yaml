@@ -7,6 +7,6 @@ system:
   tree: alchemy
   tier: 3
   column: 3
-  connectsTo: ["Lasting Brew", "Alchemy Bell"]
+  connectsTo: ["Lasting Brew", "Alchemy Belt"]
   isStarting: false
   restActivity: false
