@@ -372,6 +372,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       craftCancel: CrowSheet._onCraftCancel,
       craftComplete: CrowSheet._onCraftComplete,
       identifyItem: CrowSheet._onIdentifyItem,
+      removeItem: CrowSheet._onRemoveItem,
       openCreator: CrowSheet._onOpenCreator
     },
     window: { resizable: true },
@@ -1028,6 +1029,32 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ))}</div>`,
       speaker: { alias: t("CROWS.Sheet.Crow.environment") }
     });
+  }
+
+  /**
+   * Remove a card from the sheet.
+   *
+   * Confirms first, because Foundry has no undo for an embedded document and a
+   * card can be a 10,000gc magic item. The dialog names the item so a misclick
+   * on a dense card grid is obvious before it is irreversible.
+   */
+  static async _onRemoveItem(event, target) {
+    const itemId = target?.dataset?.itemId;
+    const item = this.document.items.get(itemId);
+    if (!item) return;
+    if (!this.document.isOwner) {
+      notify("warn", "CROWS.Dialog.InventoryDrop.not-owner", { item: item.name });
+      return;
+    }
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: t("CROWS.Dialog.RemoveItem.title") },
+      content: `<p>${t("CROWS.Dialog.RemoveItem.body", { item: item.name })}</p>`,
+      rejectClose: false,
+      modal: true
+    });
+    if (!confirmed) return;
+    await item.delete();
+    this.render();
   }
 
   static async _onRollMiasmaResist() {

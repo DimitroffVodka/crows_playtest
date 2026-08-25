@@ -3070,3 +3070,33 @@
   .crows-crow .cc-expertise-row { grid-template-columns: minmax(0, 1fr) auto; }
   .crows-crow .cc-expertise-spend { grid-column: 1 / -1; }
 }
+
+/* ── Card remove control ───────────────────────────────────────────────────
+   Hidden until the card is hovered or the button itself has keyboard focus.
+   A card grid is dense; a permanent ✕ on every card is visual noise, and an
+   always-hidden one is unreachable by keyboard — :focus-visible covers both. */
+.cc-card { position: relative; }
+
+.cc-card-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  line-height: 1;
+  font-size: 13px;
+  border: none;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--crows-parchment, #f2e8d5);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 90ms ease-in, background-color 90ms ease-in;
+}
+
+.cc-card:hover .cc-card-remove,
+.cc-card-remove:focus-visible { opacity: 1; }
+
+.cc-card-remove:hover,
+.cc-card-remove:focus-visible { background: var(--crows-blood, #7c1c1c); }
