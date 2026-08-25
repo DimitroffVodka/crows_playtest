@@ -462,8 +462,7 @@ export async function onCrueltyCleared(actor) {
   return { ok: true, removed: active.length - keep.length };
 }
 
-/**
- * Compatibility export for the old API name. It no longer reads or writes a
- * `boned` field; it only clears effects tied to the cruelty counter.
- */
-export const onBonedCleared = onCrueltyCleared;
+// The PT1 alias `onBonedCleared` was REMOVED on 2026-08-25. Keeping it would
+// have preserved a name whose MEANING changed: a PT1 macro calling it expected
+// boned semantics and would silently have got cruelty semantics instead. A
+// clean break fails loudly, which is the better failure. Use onCrueltyCleared.

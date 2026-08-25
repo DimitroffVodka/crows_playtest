@@ -28,7 +28,7 @@ import { enterDungeon, leaveDungeon, applyGreedBonus } from "./helpers/greed.mjs
 import { registerSlotSettings } from "./helpers/slots.mjs";
 import {
   registerMiasmaSettings, registerMiasmaHooks, getInMiasma, setInMiasma,
-  rollMiasmaResist, rollMiasmaEffect, clearMiasma, onBonedCleared, MIASMA_EFFECTS
+  rollMiasmaResist, rollMiasmaEffect, clearMiasma, onCrueltyCleared, MIASMA_EFFECTS
 } from "./helpers/miasma.mjs";
 import {
   registerCryptSettings, CRYPT_BOONS, BOON_IDS,
@@ -183,7 +183,7 @@ Hooks.once("init", () => {
     },
     attackWithWeapon,
     dt: { get: getDT, set: setDT, bump: bumpDT, end: endDungeonTurn, encounterCheck: rollEncounterCheck, getDungeonEN },
-    miasma: { get: getInMiasma, set: setInMiasma, resist: rollMiasmaResist, effect: rollMiasmaEffect, clear: clearMiasma, onBonedCleared, EFFECTS: MIASMA_EFFECTS },
+    miasma: { get: getInMiasma, set: setInMiasma, resist: rollMiasmaResist, effect: rollMiasmaEffect, clear: clearMiasma, onCrueltyCleared, EFFECTS: MIASMA_EFFECTS },
     crypt: {
       BOONS: CRYPT_BOONS, BOON_IDS,
       getLevel: getCryptLevel, setLevel: setCryptLevel,
