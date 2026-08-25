@@ -1600,6 +1600,22 @@ T3.8 and T3.9 both target `crows-adventures`. Give them separate subdirectories 
 >
 > The values below are **re-derived by content** — every one lands on a
 > `### **<Name>**` heading — and verified to match the old list minus 1752 exactly.
+>
+> ### ⚠️⚠️ AND THEN THE BOOKS WERE REGENERATED, HOURS LATER, THE SAME DAY
+>
+> At **07:44 and 07:49 on 2026-08-25** the Rules Book (1,736 → 1,388 lines) and Characters
+> Book (3,179 → 2,678) were rewritten by the OCR/build pipeline, invalidating the numbers
+> immediately below *and* every other `R:`/`C:` citation in this repo. `F:` and `D:` are
+> untouched.
+>
+> **The current values are in the table further down.** The list immediately below is kept
+> only as the audit trail for the `L####` correction.
+>
+> **The lesson is not "renumber again".** This is **L1** in
+> `docs/discrepancies/playtest-2-source-issues.md` landing for real, twice in one session.
+> Book line numbers are not a stable address: the books are generated artifacts living
+> outside the repo. Until they are pinned the way `docs/source/` pins the cards,
+> **cite backgrounds by `### <Name>` heading and treat every `C:`/`R:` number as a hint.**
 
 Acolyte of the Gardner **C:93**, Acolyte of the Healer **C:107**, Acolyte of the Smith **C:121**,
 Acolyte of the Three **C:135**, Acolyte of the Warrior **C:141**, Alchemist **C:151**,
@@ -1612,8 +1628,39 @@ Pyromancer **C:459**, Merchant **C:461**, Sage **C:487**, Miner **C:489**, Noble
 Soldier **C:529**, Thief **C:547**, Tinkerer **C:561**, Transmuter **C:575**,
 Village Watch **C:589**.
 
-The chapter runs `C:89`–`C:602`, which is what the T3.1 row above already said — the two
-were inconsistent, and the row was the correct one.
+The chapter ran `C:89`–`C:602` in the pre-regeneration file, which is what the T3.1 row above
+said — the two were inconsistent, and the row was the correct one.
+
+### Current values — post-regeneration, 2026-08-25 07:49
+
+The new extraction is **strictly alphabetical** (the "not strictly alphabetical" note above
+was itself an artifact of the old column-bleeding extraction), records are a regular **8
+lines apart**, and fields are clean `- **Field:**` bullets. Backgrounds run **C:81–C:372**.
+
+Acolyte of the Gardner **C:85**, Acolyte of the Healer **C:93**, Acolyte of the Smith **C:101**,
+Acolyte of the Three **C:109**, Acolyte of the Warrior **C:117**, Alchemist **C:125**,
+Apprentice Mage **C:133**, Archer **C:141**, Assassin **C:149**, Beggar **C:157**,
+Blacksmith **C:165**, Bodyguard **C:173**, Cartographer **C:181**, Conjurer **C:189**,
+Cook **C:197**, Duelist **C:205**, Entertainer **C:213**, Executioner **C:221**,
+Farmer **C:229**, Gladiator **C:237**, Hunter **C:245**, Hydromancer **C:253**,
+Illusionist **C:261**, Keraunomancer **C:269**, Knight **C:277**, Merchant **C:285**,
+Miner **C:293**, Noble **C:301**, Pugilist **C:309**, Pyromancer **C:317**, Sage **C:325**,
+Soldier **C:333**, Thief **C:341**, Tinkerer **C:349**, Transmuter **C:357**,
+Village Watch **C:365**.
+
+The two `###` headings after Village Watch — "Expertise & Stamina Advancement" and
+"Characteristics Advancement" — are **not backgrounds**. The count is still exactly 36.
+
+**Content is stable across both extractions; only the rendering improved.** The
+`Characteristic at 2:` distribution is byte-for-byte identical in the old and new files —
+Mind 15, Strength 9, Agility 6, Mind-or-Strength 2, Agility-or-Mind 1, Agility-or-Strength 1,
+Any 2 = 36. Use that as the transcription check; it survives regeneration when line numbers
+do not.
+
+**The old extraction mangled multi-word italic tokens.** Transmuter's spellbooks rendered as
+`_repair take_ , _shape_` where the book means `*repair*, *take shape*`. Anything transcribed
+from the pre-07:49 files should be re-derived, because that error class reads as plausible
+content rather than as corruption.
 
 ---
 
