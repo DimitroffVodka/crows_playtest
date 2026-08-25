@@ -243,7 +243,13 @@ export async function createCharacter(actor, opts = {}) {
 
   const universal = await applyUniversalStarterItems(actor);
   const gold = await rollStartingGold(background.system?.startingGold ?? "3d6");
-  await actor.update({ "system.currency": gold.total });
+  // Some backgrounds grant coins on TOP of the universal 3d6 — the Noble's
+  // "50 gold coins" (C:36 is the universal roll; the extra is the background's).
+  // applyBackground reports these as `bonusGold` rather than creating an item,
+  // because coins are not equipment. Before this was added the grant was
+  // silently dropped and a Noble started 50 gc poor.
+  const bonusGold = backgroundResult.bonusGold ?? 0;
+  await actor.update({ "system.currency": gold.total + bonusGold });
 
   const errors = universal.missing.map((name) => `starter item not found: ${name}`);
   await ChatMessage.create({
@@ -253,7 +259,7 @@ export async function createCharacter(actor, opts = {}) {
         <li>Background: <strong>${esc(background.name)}</strong></li>
         <li>Characteristics: ${Object.entries(characteristics.values).map(([key, value]) => `${esc(label(key))} ${value}`).join(", ")}</li>
         <li>Expertise uses granted: <strong>${Object.values(backgroundResult.expertiseUses).reduce((sum, uses) => sum + uses, 0)}</strong></li>
-        <li>Starting gold: <strong>${gold.total} gc</strong> (${esc(gold.formula)})</li>
+        <li>Starting gold: <strong>${gold.total + bonusGold} gc</strong> (${esc(gold.formula)}${bonusGold ? ` + ${bonusGold} from background` : ""})</li>
         <li>Universal kit items added: <strong>${universal.added}</strong></li>
         <li>NPC connection: <strong>${esc(identity["system.npcConnection.name"] || "Not named")}</strong></li>
       </ul>
