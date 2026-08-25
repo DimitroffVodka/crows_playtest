@@ -379,7 +379,13 @@ this file warned about. Every Wave 3 citation was re-derived by content in
 | T3.4a | 8 new gear/consumables, 4 Lore Books, Ten-Foot → **11-Foot Pole** |
 | T3.5 | **71** stat blocks, up from 11 |
 | T3.6 | **27** spellbooks, up from 25 — Group Healing and Wound Closure had never been transcribed |
-| T3.7 | rules journal — **in flight**, the last `boned` holdout |
+| T3.7 | rules journal — 16 pages, the last `boned` holdout |
+| T3.4b | **13** loot documents, up from 6 — the last untouched pack |
+
+**Wave 3 content is complete.** Every pack is transcribed against PT2 and built. `boned` now
+appears in exactly **one** shipped document across the whole system — `soothing-candy`, whose
+source note quotes the card in order to explain that the condition no longer exists. It began
+the day in nine documents, plus a journal page of levelling rules, plus a dead code path.
 
 ### Three content findings worth carrying forward
 
@@ -443,9 +449,47 @@ A three-times-run sweep creating **one crow of every background** is the cheapes
 check available: 36/36 ok, zero stubs, zero trait failures, zero spellbook shortfalls, 4/4
 pets bonded, console clean.
 
+
+### Two more findings from the closing tickets
+
+**The rules journal had to agree with the runtime, and now does.** All 55 backlash rows and
+all 7 Miasma paired rows were verified against `BACKLASH_TABLE` and `MIASMA_EFFECTS` by
+parsing the built page HTML and comparing text. The known row 39–40 disagreement — the journal
+keeping a PT1 stacking clause the runtime correctly dropped — is fixed to the runtime. This is
+the pack's whole purpose: a player reading the journal and a player triggering the effect must
+see the same words.
+
+**A page was deleted and a page was added.** `Chaos Count` (`crrlpgchaoscnt01`) documented a
+mechanic PT2 removed and is the **only id deleted all session**; the packer confirmed
+`Removed !journal.pages!…crrlpgchaoscnt01`, so the deletion reached the LevelDB rather than
+lingering. `Edges & Banes` (`crrlpgedgban0001`) was added because checking all eight topics
+the plan lists for T3.7 showed seven already had coverage and this was the only hole — a rules
+reference that never explained the mechanic a player meets on their first roll.
+
+**Two source bugs surfaced by comparing content to itself.** The backlash table prints
+**overlapping** ranges at `61-62` and `62-64`, so a d100 roll of 62 is ambiguous; the runtime
+disambiguates while the journal follows the book, and both are logged. And `Blood Concoction`
+— the *origin* of the column-bleed text removed from two spellbooks earlier the same day — was
+checked and confirmed self-contained, closing that loop rather than leaving the source
+unexamined.
+
 ### Still open
 
-- **T3.7** in flight; `crows-loot` untouched this session.
+- **Nothing in Wave 3 content.** All eleven packs are transcribed, built and verified live.
+  The 36-background sweep was run four times, finally against the complete content: 36/36 ok,
+  zero stubs, zero trait failures, zero spellbook shortfalls, 4/4 pets bonded, console clean.
+- **Gate D cannot run yet, and not for scheduling reasons.** It requires importing "the
+  generated ZIP" into a clean world, and **no ZIP or release script exists** — `package.json`
+  has `pack`, `unpack`, `test` and `verify` and nothing that produces a distributable
+  artifact. Its "zero unresolved HIGH findings" wording also needs scoping: `SUMMARY.md`'s
+  eight are all resolved, but three HIGH entries remain in
+  `playtest-2-source-issues.md` (H1, H2, H3) which are **MCDM's bugs, not ours** and cannot be
+  closed from this side. As written, Gate D would block a release forever on someone else's
+  book.
+- **The material-upgrade schema gap** — `WeaponData`/`ArmorData` cannot hold Steel, Bloodhide
+  and the other upgrades; `qualityTier` is *gear* vocabulary with zero code consumers. See
+  `material-upgrade-schema`, and note the migration hazard recorded there: the four loot
+  weapons already carry pre-multiplied damage, so a later auto-applied bonus would double it.
 - **`summonBehaviour` matches 0 of 27** — but `actsAsPet` is *correctly* unreachable, because
   PT2 ships no creature-summoning spell. Do not "fix" it by loosening the parser; §7's phrasing
   is corrected above. Now **pinned by `test/spellbook-corpus.test.mjs`**, which asserts both
