@@ -100,6 +100,26 @@ async function _lookupEquipment(name) {
  *
  * `raw` is preserved so callers can report exactly what failed to resolve.
  */
+/**
+ * The name an embedded copy should carry.
+ *
+ * A qualifier is only meaningful when the item was found by its STRIPPED name.
+ * If the full string already matched a shipped item — which is the whole point
+ * of the four separately-named Lore Books — the qualifier is part of that name
+ * already, and appending it produces "Lore Book (Historical Lore) (Historical
+ * Lore)". That shipped, and only a live run caught it: the node tests check
+ * name RESOLUTION, and this is the item-CONSTRUCTION path.
+ *
+ * @param {string} docName   name of the resolved compendium document
+ * @param {{qualifier: string}} parsed
+ * @param {boolean} matchedFullString  did the raw entry resolve directly?
+ */
+export function embeddedItemName(docName, parsed, matchedFullString) {
+  if (!parsed?.qualifier || matchedFullString) return docName;
+  const label = parsed.qualifier.replace(/\b\w/g, (c) => c.toUpperCase());
+  return `${docName} (${label})`;
+}
+
 export function parseEquipmentEntry(input) {
   const raw = String(input ?? "").trim();
   const base = { raw, kind: "item", name: raw, quantity: 1, qualifier: "" };
@@ -191,6 +211,7 @@ export async function applyBackground(actor, bg) {
     // resolves to the item of that name, so stripping the parenthetical before
     // lookup would break the very case the four Lore Books were named for.
     let eqDoc = await _lookupEquipment(parsed.raw);
+    const matchedFullString = Boolean(eqDoc);
     if (!eqDoc && parsed.name !== parsed.raw) eqDoc = await _lookupEquipment(parsed.name);
 
     if (parsed.kind === "pet") {
@@ -211,10 +232,7 @@ export async function applyBackground(actor, bg) {
       // A qualifier the item itself cannot hold ("musical instrument (lute)")
       // is kept on the embedded copy's name. Safe because this document is a
       // clone on the actor, so no compendium lookup depends on it.
-      if (parsed.qualifier) {
-        const label = parsed.qualifier.replace(/\b\w/g, (c) => c.toUpperCase());
-        data.name = `${data.name} (${label})`;
-      }
+      data.name = embeddedItemName(data.name, parsed, matchedFullString);
       toCreate.push(data);
     } else {
       stubbed.push(parsed.raw);

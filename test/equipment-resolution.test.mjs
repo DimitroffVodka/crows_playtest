@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import yaml from "js-yaml";
 
-import { parseEquipmentEntry } from "../module/helpers/creation.mjs";
+import { parseEquipmentEntry, embeddedItemName } from "../module/helpers/creation.mjs";
 
 const BACKGROUNDS = "src/packs/crows-backgrounds";
 const ITEM_PACKS = [
@@ -76,6 +76,36 @@ describe("equipment entry parsing", () => {
 
   test("raw is always preserved for reporting", () => {
     assert.equal(parseEquipmentEntry("  goat (pet)  ").raw, "goat (pet)");
+  });
+});
+
+describe("embedded item naming", () => {
+  // Regression: a live run produced "Lore Book (Historical Lore) (Historical
+  // Lore)". The full string had already matched a shipped item, so the
+  // qualifier was part of the name and appending it doubled the suffix. The
+  // resolution tests could not catch it — they check whether a name RESOLVES,
+  // and this is the item-CONSTRUCTION path.
+  test("a qualifier is NOT appended when the full string already matched", () => {
+    const p = parseEquipmentEntry("lore book (historical lore)");
+    assert.equal(embeddedItemName("Lore Book (Historical Lore)", p, true),
+      "Lore Book (Historical Lore)");
+  });
+
+  test("a qualifier IS appended when only the stripped name matched", () => {
+    const p = parseEquipmentEntry("musical instrument (lute)");
+    assert.equal(embeddedItemName("Musical Instrument", p, false),
+      "Musical Instrument (Lute)");
+  });
+
+  test("no qualifier leaves the name alone either way", () => {
+    const p = parseEquipmentEntry("torch");
+    assert.equal(embeddedItemName("Torch", p, false), "Torch");
+    assert.equal(embeddedItemName("Torch", p, true), "Torch");
+  });
+
+  test("a quantity is not a qualifier and never reaches the name", () => {
+    const p = parseEquipmentEntry("animal feed (6)");
+    assert.equal(embeddedItemName("Animal Feed", p, false), "Animal Feed");
   });
 });
 
