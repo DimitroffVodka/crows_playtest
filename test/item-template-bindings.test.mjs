@@ -60,13 +60,35 @@ describe("item template bindings match their data model", () => {
     }
   });
 
-  test("the background sheet surfaces every grant the schema can hold", () => {
+  test("the card FACE carries only the sections the design handoff specifies", () => {
+    // The card is a designed artifact. Starting gold and Animal were added to
+    // it once and removed again — extra sections change its composition, and
+    // that is the designer's call, not the implementer's.
     const src = readFileSync(join(TEMPLATES, "background.hbs"), "utf8");
-    // bonusGold and pets were promoted out of the equipment array precisely so
-    // they could be shown; a sheet that omits them wastes that.
-    for (const shown of ["bonusGold", "pets", "expertises", "equipment",
-                         "spellbooks", "startingTrait", "stamina"]) {
-      assert.ok(src.includes(shown), `background.hbs never mentions ${shown}`);
+    const face = src.slice(src.indexOf("<article"), src.indexOf("</article>"));
+    const sections = [...face.matchAll(/bg-notelabel">\{\{localize "([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(sections, [
+      "CROWS.Background.Expertises",
+      "CROWS.Background.Equipment",
+      "CROWS.Background.StartingTrait"
+    ]);
+  });
+
+  test("nothing the schema holds becomes unreachable", () => {
+    // The handoff's own rule: whatever is not on the card face lives in the
+    // All fields disclosure. Removing a section must not delete access to it.
+    const src = readFileSync(join(TEMPLATES, "background.hbs"), "utf8");
+    const all = src.slice(src.indexOf('<details class="bg-all">'));
+    for (const field of ["startingGold", "bonusGold", "pets",
+                         "characteristicOptionsAt2", "startingTrait", "description"]) {
+      assert.ok(all.includes(field), `${field} is reachable nowhere`);
     }
+  });
+
+  test("no All-fields control writes to an ArrayField it cannot represent", () => {
+    // A text input bound to system.pets submits a string and corrupts the array.
+    const src = readFileSync(join(TEMPLATES, "background.hbs"), "utf8");
+    assert.ok(!/<input[^>]*name="system\.pets"/.test(src),
+      "pets is an ArrayField — a text input cannot write it");
   });
 });

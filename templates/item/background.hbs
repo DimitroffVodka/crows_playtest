@@ -68,20 +68,6 @@
       {{/if}}
     </section>
 
-    {{!-- Coins and animals are their own fields now, so they can finally be
-          SHOWN rather than hidden inside an equipment string. --}}
-    {{#if bg.pets.length}}
-      <section class="bg-note">
-        <div class="bg-notelabel">{{localize "CROWS.Background.Pets"}}</div>
-        <p>{{#each bg.pets as |p|}}{{p}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
-      </section>
-    {{/if}}
-
-    <section class="bg-note">
-      <div class="bg-notelabel">{{localize "CROWS.Background.Gold"}}</div>
-      <p>{{#if bg.bonusGold}}{{localize "CROWS.Sheet.Crow.origin.goldBonus" formula=bg.startingGold bonus=bg.bonusGold}}{{else}}{{bg.startingGold}}{{/if}}</p>
-    </section>
-
     {{#if system.startingTrait}}
       <section class="bg-note">
         <div class="bg-notelabel">{{localize "CROWS.Background.StartingTrait"}}</div>
@@ -104,6 +90,13 @@
           <option value="{{c.key}}" {{#if c.selected}}selected{{/if}}>{{c.label}}</option>
         {{/each}}
       </select>
+    </label>
+    {{!-- Read-only on purpose. `pets` is an ArrayField; a comma-separated text
+          input would submit a STRING and quietly corrupt it. Four backgrounds
+          grant an animal and they are authored in YAML, so this shows the value
+          rather than offering a control that cannot write it. --}}
+    <label>{{localize "CROWS.Background.Pets"}}
+      <input type="text" value="{{#each system.pets as |p|}}{{p}}{{#unless @last}}, {{/unless}}{{/each}}" readonly>
     </label>
     <label>{{localize "CROWS.Background.Gold"}}
       <input type="text" name="system.startingGold" value="{{system.startingGold}}">
