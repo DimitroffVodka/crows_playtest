@@ -20,25 +20,28 @@
 
   The name is a textarea, not an input, so long names wrap instead of clipping.
 --}}
-<form class="crows-item background" autocomplete="off">
+{{!-- READ-ONLY. Backgrounds are shipped compendium content authored in
+      src/packs/crows-backgrounds/*.yaml and rebuilt by `npm run pack`, so any
+      edit made here is discarded at the next build. The sheet is the printed
+      card a player reads, not an editor. --}}
+<div class="crows-item background">
   <article class="bg-card">
 
     <header class="bg-head">
       <div class="bg-titleline">
-        <textarea name="name" class="bg-title" rows="1" spellcheck="false"
-                  placeholder="{{localize "CROWS.Background.namePlaceholder"}}">{{item.name}}</textarea>
+        <div class="bg-title">{{item.name}}</div>
         <span class="bg-kind">{{localize "TYPES.Item.background"}}</span>
       </div>
 
       <div class="bg-origin">
         <div class="bg-glyph">
-          <img src="{{item.img}}" alt="" data-edit="img">
+          <img src="{{item.img}}" alt="">
         </div>
         <div class="bg-originbody">
           <div class="bg-action">{{localize "CROWS.Background.Origin"}}</div>
           <div class="bg-meta">
             <span>&#10711; {{localize "CROWS.Stamina"}}
-              <input type="number" name="system.stamina" value="{{system.stamina}}" class="bg-num">
+              <span class="bg-num">{{system.stamina}}</span>
             </span>
             <span>&#9678; {{#if bg.characteristic.isAny}}{{localize "CROWS.Background.AnyCharacteristic"}}{{else}}{{bg.characteristic.labelText}}{{/if}}
               {{localize "CROWS.Background.AtTwo"}}
@@ -52,8 +55,7 @@
       </div>
     </header>
 
-    <input type="text" name="system.flavor" value="{{system.flavor}}" class="bg-flavor"
-           placeholder="{{localize "CROWS.Background.FlavorPlaceholder"}}">
+    <p class="bg-flavor">{{system.flavor}}</p>
 
     <section class="bg-note">
       <div class="bg-notelabel">{{localize "CROWS.Background.Expertises"}}</div>
@@ -78,34 +80,4 @@
     <div class="bg-foot"></div>
   </article>
 
-  {{!-- everything not on the card face stays reachable, collapsed by default --}}
-  <details class="bg-all">
-    <summary>{{localize "CROWS.AllFields"}}</summary>
-    <label>{{localize "CROWS.Background.StartingTrait"}}
-      <input type="text" name="system.startingTrait" value="{{system.startingTrait}}">
-    </label>
-    <label>{{localize "CROWS.Background.CharacteristicOptions"}}
-      <select name="system.characteristicOptionsAt2" multiple size="3">
-        {{#each characteristicChoices as |c|}}
-          <option value="{{c.key}}" {{#if c.selected}}selected{{/if}}>{{c.label}}</option>
-        {{/each}}
-      </select>
-    </label>
-    {{!-- Read-only on purpose. `pets` is an ArrayField; a comma-separated text
-          input would submit a STRING and quietly corrupt it. Four backgrounds
-          grant an animal and they are authored in YAML, so this shows the value
-          rather than offering a control that cannot write it. --}}
-    <label>{{localize "CROWS.Background.Pets"}}
-      <input type="text" value="{{#each system.pets as |p|}}{{p}}{{#unless @last}}, {{/unless}}{{/each}}" readonly>
-    </label>
-    <label>{{localize "CROWS.Background.Gold"}}
-      <input type="text" name="system.startingGold" value="{{system.startingGold}}">
-    </label>
-    <label>{{localize "CROWS.Background.BonusGold"}}
-      <input type="number" name="system.bonusGold" value="{{system.bonusGold}}" min="0" step="1">
-    </label>
-    <label>{{localize "CROWS.Description"}}
-      <textarea name="system.description" rows="4">{{system.description}}</textarea>
-    </label>
-  </details>
-</form>
+</div>

@@ -39,15 +39,6 @@ export class CrowsItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       // Same shaper the crow sheet's Bio tab uses, so the two surfaces cannot
       // disagree about what a background grants.
       ctx.bg = backgroundSummary(this.document.system, t);
-      // PT2 backgrounds SET a characteristic to 2, and some offer a CHOICE
-      // (C:28) — so this is an array, not a single key. The old sheet bound a
-      // <select> to `system.characteristicBonus`, a PT1 field that no longer
-      // exists: it displayed nothing and wrote to a path the DataModel drops.
-      ctx.characteristicChoices = Object.keys(CROWS.characteristics).map((key) => ({
-        key,
-        label: t(`CROWS.Characteristic.${key}`),
-        selected: (this.document.system.characteristicOptionsAt2 ?? []).includes(key)
-      }));
     }
     return ctx;
   }

@@ -74,21 +74,25 @@ describe("item template bindings match their data model", () => {
     ]);
   });
 
-  test("nothing the schema holds becomes unreachable", () => {
-    // The handoff's own rule: whatever is not on the card face lives in the
-    // All fields disclosure. Removing a section must not delete access to it.
-    const src = readFileSync(join(TEMPLATES, "background.hbs"), "utf8");
-    const all = src.slice(src.indexOf('<details class="bg-all">'));
-    for (const field of ["startingGold", "bonusGold", "pets",
-                         "characteristicOptionsAt2", "startingTrait", "description"]) {
-      assert.ok(all.includes(field), `${field} is reachable nowhere`);
+  test("the background sheet is READ-ONLY — it writes nothing", () => {
+    // Backgrounds are shipped compendium content authored in YAML and rebuilt
+    // by `npm run pack`. An edit made on this sheet is discarded at the next
+    // build, so offering controls promises a persistence that does not exist.
+    const src = readFileSync(join(TEMPLATES, "background.hbs"), "utf8")
+      .replace(/\{\{!--[\s\S]*?--\}\}/g, "");
+    for (const control of ["<input", "<textarea", "<select", 'name="', "data-edit"]) {
+      assert.ok(!src.includes(control), `background.hbs still carries ${control}`);
     }
+    assert.ok(!src.includes("<form"), "a read-only sheet should not be a form");
   });
 
-  test("no All-fields control writes to an ArrayField it cannot represent", () => {
-    // A text input bound to system.pets submits a string and corrupts the array.
-    const src = readFileSync(join(TEMPLATES, "background.hbs"), "utf8");
-    assert.ok(!/<input[^>]*name="system\.pets"/.test(src),
-      "pets is an ArrayField — a text input cannot write it");
+  test("nothing else lost an editor by accident", () => {
+    // The other seven item sheets ARE editors; this is a guard that the
+    // read-only decision stayed scoped to backgrounds.
+    const editable = templates
+      .filter((f) => f !== "background.hbs")
+      .filter((f) => /name="system\./.test(readFileSync(join(TEMPLATES, f), "utf8")));
+    assert.equal(editable.length, templates.length - 1,
+      "every non-background item sheet should still bind fields");
   });
 });
