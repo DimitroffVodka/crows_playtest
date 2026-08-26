@@ -8,6 +8,7 @@ import { REMOVED_STATUS_IDS } from "../conditions.mjs";
 // that has never existed in any schema, and a second local reader is exactly
 // how a migration ends up auditing a layout the game does not have.
 import { layoutFor, magicOverloadFor, emptyLayout, placeAt, slotsNeeded } from "./slots.mjs";
+import { normalizeMaterialRequirement } from "./materials.mjs";
 
 /**
  * Playtest 1 -> Playtest 2 data migration. PURE FUNCTIONS ONLY — nothing here
@@ -105,74 +106,6 @@ function humanizeKey(key) {
 /* Crafting project shape                                                     */
 /* -------------------------------------------------------------------------- */
 
-const CRAFTING_MATERIAL_IDENTITIES = new Set([
-  "bloodhide", "undeadBone", "demonHide", "angelHide",
-  "iron", "hickory", "treatedIron",
-  "steel", "archmageObsidian", "necromancerSilver", "starDiamond",
-  "yew", "archmageWillow", "necromancerDeathtree", "starwood",
-  "elementalEssence"
-]);
-// This is the currently recognised equipment vocabulary, not a closed union.
-// Unknown categories stay in `legacyText` so a later material planner can
-// resolve them without data loss.
-const CRAFTING_MATERIAL_FORMS = new Set(["", "bar", "log", "part"]);
-const CRAFTING_MATERIAL_SIZES = new Set(["", "tiny", "small", "medium", "large"]);
-const CRAFTING_MATERIAL_ALIASES = [
-  ["archmage obsidian", "archmageObsidian"],
-  ["necromancer silver", "necromancerSilver"],
-  ["star diamond", "starDiamond"],
-  ["archmage willow", "archmageWillow"],
-  ["necromancer deathtree", "necromancerDeathtree"],
-  ["star wood", "starwood"],
-  ["starwood", "starwood"],
-  ["elemental essence", "elementalEssence"],
-  ["elemental tree", "elementalEssence"],
-  ["undead bone", "undeadBone"],
-  ["demon hide", "demonHide"],
-  ["angel hide", "angelHide"],
-  ["blood hide", "bloodhide"],
-  ["treated iron", "treatedIron"],
-  ["bloodhide", "bloodhide"],
-  ["undeadbone", "undeadBone"],
-  ["demonhide", "demonHide"],
-  ["angelhide", "angelHide"],
-  ["treatediron", "treatedIron"],
-  ["steel", "steel"],
-  ["iron", "iron"],
-  ["hickory", "hickory"],
-  ["yew", "yew"]
-];
-
-function craftingWords(value) {
-  return String(value ?? "")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase()
-    .replace(/[’']/g, "")
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ");
-}
-
-function craftingIdentity(value) {
-  const words = craftingWords(value);
-  if (!words) return "";
-  const alias = CRAFTING_MATERIAL_ALIASES.find(([name]) =>
-    words === name || words.includes(`${name} `) || words.includes(` ${name}`)
-  );
-  return alias?.[1] ?? (CRAFTING_MATERIAL_IDENTITIES.has(value) ? value : "");
-}
-
-function craftingForm(value) {
-  const form = craftingWords(value).replace(/s$/, "");
-  return CRAFTING_MATERIAL_FORMS.has(form) ? form : "";
-}
-
-function craftingSize(value) {
-  const size = craftingWords(value);
-  return CRAFTING_MATERIAL_SIZES.has(size) ? size : "";
-}
-
 /**
  * Shape-only migration for one project. It never decides that old points
  * prove a completed copy: material availability was not persisted by PT1.
@@ -211,40 +144,7 @@ export function migrateCraftingProject(project, index = 0) {
 }
 
 function migrateCraftingMaterial(material, index = 0) {
-  const id = `req-${Math.max(0, Math.floor(Number(index) || 0)) + 1}`;
-  if (isObject(material)) {
-    const rawIdentity = String(material.identity ?? "").trim();
-    const label = String(material.label ?? material.legacyText ?? rawIdentity).trim();
-    const identity = craftingIdentity(material.identity);
-    const providedLegacyText = String(material.legacyText ?? "").trim();
-    return {
-      id: String(material.id ?? id),
-      quantity: Math.max(1, toCount(material.quantity) || 1),
-      identity,
-      form: craftingForm(material.form),
-      size: craftingSize(material.size),
-      label,
-      legacyText: identity ? providedLegacyText : (providedLegacyText || label || rawIdentity)
-    };
-  }
-
-  const label = String(material ?? "").trim();
-  const quantityMatch = label.match(/^(\d+)\s+/);
-  const quantity = Math.max(1, toCount(quantityMatch?.[1]) || 1);
-  const description = quantityMatch ? label.slice(quantityMatch[0].length) : label;
-  const words = craftingWords(description);
-  const form = craftingForm(words.match(/\b(bars?|logs?|parts?)\b/)?.[1]);
-  const size = craftingSize(words.match(/\b(tiny|small|medium|large)\b/)?.[1]);
-  const identity = craftingIdentity(description);
-  return {
-    id,
-    quantity,
-    identity,
-    form,
-    size,
-    label,
-    legacyText: identity ? "" : label
-  };
+  return normalizeMaterialRequirement(material, index);
 }
 
 function migrateCraftingOutput(output, projectName = "") {

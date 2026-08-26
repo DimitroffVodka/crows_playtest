@@ -1,17 +1,14 @@
 const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
 import {
-  CROWS, ALL_EXPERTISES, expertiseMaxForTxp, bonusesEarnedAtTxp, effectiveCapacities
+  CROWS, ALL_EXPERTISES, MATERIAL_IDENTITY_KEYS,
+  expertiseMaxForTxp, bonusesEarnedAtTxp, effectiveCapacities
 } from "../../config.mjs";
 import { migrateCrowSystem, expertiseOverBudget } from "../../helpers/migration.mjs";
 
 const CRAFTING_PROJECT_STATUSES = ["active", "blocked", "pending"];
 const CRAFTING_MATERIAL_IDENTITIES = [
-  "", "bloodhide", "undeadBone", "demonHide", "angelHide",
-  "iron", "hickory", "treatedIron",
-  "steel", "archmageObsidian", "necromancerSilver", "starDiamond",
-  "yew", "archmageWillow", "necromancerDeathtree", "starwood",
-  "elementalEssence"
+  "", ...MATERIAL_IDENTITY_KEYS, "creatureTypeParts"
 ];
 const CRAFTING_MATERIAL_FORMS = ["", "bar", "log", "part"];
 const CRAFTING_MATERIAL_SIZES = ["", "tiny", "small", "medium", "large"];
@@ -23,6 +20,11 @@ function craftingMaterialField() {
     identity: new fields.StringField({ initial: "", blank: true, choices: CRAFTING_MATERIAL_IDENTITIES }),
     form: new fields.StringField({ initial: "", blank: true, choices: CRAFTING_MATERIAL_FORMS }),
     size: new fields.StringField({ initial: "", blank: true, choices: CRAFTING_MATERIAL_SIZES }),
+    params: new fields.SchemaField({
+      // Slaying is the one parameterized recipe. Keeping the parameter nested
+      // means a future recipe can add parameters without changing identity.
+      creatureType: new fields.StringField({ initial: "", blank: true, choices: ["", ...CROWS.creatureTypes] })
+    }),
     label: new fields.StringField({ initial: "", blank: true }),
     legacyText: new fields.StringField({ initial: "", blank: true })
   });
@@ -63,6 +65,7 @@ function craftingOutputClaimField() {
   return new fields.SchemaField({
     id: new fields.StringField({ initial: "" }),
     projectId: new fields.StringField({ initial: "" }),
+    transactionId: new fields.StringField({ initial: "", blank: true }),
     copy: new fields.NumberField({ initial: 1, min: 1, integer: true }),
     kind: new fields.StringField({ initial: "equipment", choices: ["equipment", "enchantment"] }),
     name: new fields.StringField({ initial: "", blank: true }),
@@ -70,6 +73,36 @@ function craftingOutputClaimField() {
     output: craftingObjectField(),
     target: craftingTargetField(),
     state: new fields.StringField({ initial: "ready", choices: ["ready", "attached", "attach-failed"] })
+  });
+}
+
+function craftingTransactionField() {
+  return new fields.SchemaField({
+    txId: new fields.StringField({ initial: "" }),
+    phase: new fields.StringField({
+      initial: "prepared",
+      choices: ["prepared", "quantities-applied", "items-deleted", "finalized", "recovery-required"]
+    }),
+    actorRevision: new fields.StringField({ initial: "", blank: true }),
+    projectRevision: new fields.StringField({ initial: "", blank: true }),
+    projectId: new fields.StringField({ initial: "" }),
+    copies: new fields.NumberField({ initial: 1, min: 1, integer: true }),
+    preQuantities: new fields.ArrayField(new fields.SchemaField({
+      itemId: new fields.StringField({ initial: "" }),
+      before: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+      after: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+      delete: new fields.BooleanField({ initial: false })
+    }), { initial: [] }),
+    postQuantities: new fields.ArrayField(new fields.SchemaField({
+      itemId: new fields.StringField({ initial: "" }),
+      quantity: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+      present: new fields.BooleanField({ initial: true })
+    }), { initial: [] }),
+    updates: new fields.ArrayField(craftingObjectField(), { initial: [] }),
+    exhaustedIds: new fields.ArrayField(new fields.StringField(), { initial: [] }),
+    failedPhase: new fields.StringField({ initial: "", blank: true }),
+    error: new fields.StringField({ initial: "", blank: true }),
+    result: craftingObjectField()
   });
 }
 
@@ -249,6 +282,9 @@ export class CrowData extends TypeDataModel {
       }),
 
       crafting: new fields.SchemaField({
+        // Monotonic observation number for receipts/journals. It is not a
+        // compare-and-swap fence; Foundry v14 exposes no such primitive.
+        revision: new fields.NumberField({ initial: 0, min: 0, integer: true }),
         projects: new fields.ArrayField(new fields.SchemaField({
           id: new fields.StringField({ initial: "" }),
           name: new fields.StringField({ initial: "" }),
@@ -266,7 +302,10 @@ export class CrowData extends TypeDataModel {
         }), { initial: [] }),
         // Finalize records a Ref-facing handoff here. It does not embed or
         // grant the finished Item; the Ref/GM performs that terminal action.
-        outputClaims: new fields.ArrayField(craftingOutputClaimField(), { initial: [] })
+        outputClaims: new fields.ArrayField(craftingOutputClaimField(), { initial: [] }),
+        // Bounded material sagas remain recoverable after an uncertain Item
+        // update/delete. Never infer completion from a missing journal entry.
+        transactions: new fields.ArrayField(craftingTransactionField(), { initial: [] })
       })
     };
   }

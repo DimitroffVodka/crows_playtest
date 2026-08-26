@@ -13,6 +13,26 @@ const MAGIC_SLOTS = ["head", "neck", "waist", "arms", "finger", "feet"];
 /** Carry containers. SEPARATE axis from magic slots in PT2 (R:426 vs R:438). */
 const CARRY_CONTAINERS = { hand: 2, belt: 4, backpack: 10 };   // belt was 2 in PT1
 
+/**
+ * Crafting keeps two deliberately disjoint vocabularies. Upgrade keys describe
+ * what a finished item becomes; material identity keys describe what inventory
+ * units a recipe consumes. They overlap only where the printed tables happen
+ * to use the same word (for example archmage obsidian), and must never be
+ * treated as one union.
+ */
+export const EQUIPMENT_UPGRADE_KEYS = Object.freeze([
+  "bloodhide", "undeadBone", "demonHide", "angelHide", "elementalEssence",
+  "steel", "archmageObsidian", "necromancerSilver", "starDiamond", "yew",
+  "archmageWillow", "necromancerDeathtree", "starwood"
+]);
+
+export const MATERIAL_IDENTITY_KEYS = Object.freeze([
+  "bloodCreature", "undead", "demon", "angel", "elemental", "plant",
+  "iron", "treatedIron", "archmageObsidian", "necromancerSilver",
+  "starDiamond", "hickory", "yew", "archmageWillow", "necromancerDeathtree",
+  "starwood"
+]);
+
 export const CROWS = {
   id: "crows",
   characteristics: { agility: "A", mind: "M", strength: "S" },
@@ -132,7 +152,12 @@ export const CROWS = {
   castTypes: ["action", "maneuver", "reaction", "attack", "outOfCombat"],
   usageExpiry: ["useless", "refuel", "rest", "activate", "dt"],
   qualityTiers: ["standard", "fine", "masterwork"],
-  gearSubtypes: ["tool", "utility", "light", "wand", "ring", "wornMagic", "treasure"]
+  gearSubtypes: ["tool", "utility", "light", "wand", "ring", "wornMagic", "treasure", "material"],
+
+  // Expose the fixed vocabularies on CONFIG.CROWS as well as named exports so
+  // data models and downstream equipment work can share one source of truth.
+  equipmentUpgradeKeys: EQUIPMENT_UPGRADE_KEYS,
+  materialIdentityKeys: MATERIAL_IDENTITY_KEYS
 };
 
 /**

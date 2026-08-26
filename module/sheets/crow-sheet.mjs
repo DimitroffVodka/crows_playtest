@@ -1683,7 +1683,15 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         }
       });
       if (!expertises) return;
-      await makeCraftingRoll(this.document, projectId, { expertises });
+      // Resolve the inventory budget at the moment the roll is requested. The
+      // helper repeats this guard, but passing the caller's fresh result keeps
+      // the sheet/crit paths on the same strict planner contract and ensures
+      // pending copies reserve their physical sets.
+      const project = (this.document.system?.crafting?.projects ?? [])
+        .find(entry => entry?.id === projectId);
+      const availableSets = project
+        ? craftingMaterialSetsFor(this.document, project) : 0;
+      await makeCraftingRoll(this.document, projectId, { expertises, materialSets: availableSets });
       this.render();
     } catch { /* dismissed */ }
   }
