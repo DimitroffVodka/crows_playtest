@@ -50,9 +50,6 @@
         </div>
       </div>
 
-      <div class="bg-dice">&#9092; +
-        {{#if bg.characteristic.initial}}<span class="bg-key">{{bg.characteristic.initial}}</span>{{bg.characteristic.rest}}{{else}}{{bg.characteristic.labelText}}{{/if}}
-      </div>
     </header>
 
     <p class="bg-flavor">{{system.flavor}}</p>
@@ -66,7 +63,7 @@
       <div class="bg-notelabel">{{localize "CROWS.Background.Equipment"}}</div>
       <p>{{#each system.equipment as |e|}}{{e}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
       {{#if system.spellbooks.length}}
-        <p class="bg-books">{{#each system.spellbooks as |sb|}}{{sb}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
+        <p class="bg-books"><span class="bg-runin">{{localize "CROWS.Background.Spellbooks"}}</span> {{#each system.spellbooks as |sb|}}{{sb}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
       {{/if}}
     </section>
 

@@ -3257,16 +3257,16 @@
 .cc-origin-hint { margin: 8px 0 0; font-size: var(--crows-text-tiny); opacity: 0.65; }
 
 /* ── Background item card ───────────────────────────────────────────────────
-   From the design handoff, revision 2. Self-contained: no CSS variables, all
+   From the design handoff, revision 3. Self-contained: no CSS variables, all
    selectors scoped under .crows-item, and the three brand faces it asks for are
    already declared as @font-face in this file.
 
-   Rev 2 replaced `filter: brightness(0) invert(1)` on the glyph with
-   `mix-blend-mode: screen`. The filter turned every game-icons file into a solid
-   white diamond, because they ship as a white silhouette on an OPAQUE BLACK
-   rect and the filter whitens the rect too. Screen composites against the black
-   header instead: the black ground disappears, the white silhouette survives,
-   and the SVGs need no modification at all. */
+   Rev 2 replaced a `brightness(0) invert(1)` glyph filter with
+   `mix-blend-mode: screen` — the filter whitened the opaque black ground that
+   game-icons files ship with and rendered a solid white diamond.
+   Rev 3 dropped the `⚄ + [M]IND` line: on a weapon or spell it means "add this
+   characteristic to the roll", but a background never rolls, so it only
+   repeated the `◎ MIND AT 2` line two rows above it. */
 /* CROWS — Background item sheet.
    Append to css/crows.css, or @import it there. Scoped to .crows-item.background so
    nothing here can leak into the other item sheets.
@@ -3333,7 +3333,7 @@
 .crows-item.background .bg-kind {
   flex: 0 0 auto;
   font-family: "Grenze Gotisch", serif;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #b9b2a3;
@@ -3372,28 +3372,21 @@
 
 .crows-item.background .bg-action {
   font-family: "Uncial Antiqua", serif;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.1;
   text-transform: uppercase;
   border-bottom: 1px solid #fff;
   padding-bottom: 3px;
 }
 
-.crows-item.background .bg-meta,
-.crows-item.background .bg-dice {
+.crows-item.background .bg-meta {
   font-family: "Grenze Gotisch", serif;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-}
-.crows-item.background .bg-meta { display: grid; gap: 2px; margin-top: 6px; }
-.crows-item.background .bg-dice { margin-top: 10px; }
-
-.crows-item.background .bg-key {
-  background: #fff;
-  color: #000;
-  padding: 0 4px;
-  font-weight: 700;
+  display: grid;
+  gap: 2px;
+  margin-top: 6px;
 }
 
 /* inputs inside the header read as type, not as form fields */
@@ -3413,7 +3406,7 @@
   color: inherit;
   font-family: Georgia, serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -3437,7 +3430,7 @@
   border: 0;
   background: transparent;
   color: inherit;
-  font: italic 15px/1.4 "EB Garamond", Georgia, serif;
+  font: italic 16px/1.45 "EB Garamond", Georgia, serif;
   text-align: center;
 }
 .crows-item.background .bg-flavor:focus { outline: 1px solid #c4262e; }
@@ -3451,22 +3444,36 @@
 .crows-item.background .bg-notelabel {
   font-family: "Grenze Gotisch", serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .crows-item.background .bg-note p {
   margin: 3px 0 0;
-  font-size: 15px;
+  font-size: 16.5px;
   line-height: 1.4;
 }
-.crows-item.background .bg-note .bg-books { font-style: italic; }
+/* pack data stores spell names lowercase ("fire hands") — set them Title Case */
+.crows-item.background .bg-note .bg-books {
+  font-style: italic;
+  text-transform: capitalize;
+}
+
+/* run-in label, the rulebook's bold lead-in pattern */
+.crows-item.background .bg-runin {
+  font-family: "Grenze Gotisch", serif;
+  font-weight: 700;
+  font-size: 13px;
+  font-style: normal;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 
 .crows-item.background .bg-uses {
   font-family: Georgia, serif;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .crows-item.background .bg-foot { height: 16px; }
