@@ -64,6 +64,31 @@ describe("roll tables are rollable", () => {
     assert.equal(Math.max(...bl.results.map((r) => r.range[1])), 105);
   });
 
+  test("Dismember matches the C:1965-1974 table", () => {
+    const dismember = tables.find((x) => x.file === "dismember-table.yaml").t;
+    assert.equal(dismember.formula, "1d6");
+    assert.deepEqual(dismember.results.map(({ name, range }) => ({ name, range })), [
+      {
+        name: "Arm: The attacker chooses which arm is removed. Any object held in the arm is dropped and any creature grabbed by the arm is no longer grabbed. If the creature uses the arm as part of a natural weapon attack (such as with claws) the attack takes a -1 damage penalty. If the creature has no arms remaining, they can’t make any attacks or complete tasks that require arms.",
+        range: [1, 2]
+      },
+      {
+        name: "Leg: The attacker chooses which leg is removed. The creature’s speed is reduced proportionally. If the creature has no legs remaining, they can’t stand and their speed is 0.",
+        range: [3, 4]
+      },
+      {
+        name: "Arm or Leg: The attacker chooses to remove an arm or leg of their choice.",
+        range: [5, 5]
+      },
+      { name: "Head: The creature dies.", range: [6, 6] }
+    ]);
+    assert.match(dismember.description, /Some creatures have only legs/);
+    assert.match(dismember.description, /limbs that serve as both arms and legs/);
+    assert.match(dismember.description, /combining or adjusting as they see fit/);
+    assert.match(dismember.description, /doesn’t have discernible anatomy/);
+    assert.match(dismember.description, /twice as much damage .* with a crit/);
+  });
+
   test("results use v14's `name`, never the removed `text` field", () => {
     // TableResult's v14 schema is _id, type, NAME, img, DESCRIPTION, documentUuid,
     // weight, range, drawn, flags, _stats. `text` was removed. Authoring it meant
