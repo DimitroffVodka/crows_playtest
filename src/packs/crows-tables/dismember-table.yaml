@@ -1,136 +1,83 @@
+# WHY. This is a rules instrument used after a Dismember weapon crit, not a
+# generic injury table. The former 1d10 Eye/Ear/Nose/Finger rows came from a
+# different table and could not be repaired by changing the die alone.
+#
+# SOURCE. C:1965-1974 is transcribed as four rows (1-2, 3-4, 5, and 6), with
+# the book's anatomy footnote kept in the table description below. REJECTED:
+# preserving the old ten result IDs or splitting the book's ranges into six
+# rows would make the shipped instrument less faithful and needlessly change
+# the printed choices. The first four existing result IDs are retained so
+# references to this table's result documents remain stable where possible.
+#
+# FOUNDRY V14 CAVEAT. TableResult renders `name` and uses the inclusive `range`
+# pair; keep the rule text in `name`, not the removed `text` field, and make the
+# ranges contiguous so every 1d6 result resolves exactly once.
 _id: crowsrtf6fdcf8fc
 _key: '!tables!crowsrtf6fdcf8fc'
 name: Dismember Table
 img: icons/svg/bones.svg
 description: <p>Determines permanent injury and loss of body parts when an attack
-  dismembers a target.</p>
-formula: 1d10
+  dismembers a target.</p><p><em>*Some creatures have only legs. Others have limbs
+  that serve as both arms and legs. When you remove a limb from such a creature,
+  the Ref determines which effects on the table are appropriate, combining or
+  adjusting as they see fit. If a creature doesn’t have discernible anatomy, you
+  instead deal twice as much damage against them as you normally would with a crit
+  rather than dismembering them.</em></p>
+formula: 1d6
 replacement: true
 displayRoll: true
 results:
 - _id: resf1ec0b134afa6
   _key: '!tables.results!crowsrtf6fdcf8fc.resf1ec0b134afa6'
   type: 0
-  name: '1 Eye: You lose one eye. You take a bane on tests made to see or search.'
+  name: 'Arm: The attacker chooses which arm is removed. Any object held in the arm
+    is dropped and any creature grabbed by the arm is no longer grabbed. If the
+    creature uses the arm as part of a natural weapon attack (such as with claws)
+    the attack takes a -1 damage penalty. If the creature has no arms remaining,
+    they can’t make any attacks or complete tasks that require arms.'
   img: icons/svg/d20-black.svg
   weight: 1
   range:
   - 1
-  - 1
+  - 2
   drawn: false
   documentCollection: ''
   documentId: null
 - _id: res2b71db8b35e03
   _key: '!tables.results!crowsrtf6fdcf8fc.res2b71db8b35e03'
   type: 0
-  name: '1 Ear: You lose one ear. You take a bane on tests made to hear.'
+  name: 'Leg: The attacker chooses which leg is removed. The creature’s speed is
+    reduced proportionally. If the creature has no legs remaining, they can’t stand
+    and their speed is 0.'
   img: icons/svg/d20-black.svg
   weight: 1
   range:
-  - 2
-  - 2
+  - 3
+  - 4
   drawn: false
   documentCollection: ''
   documentId: null
 - _id: rese050d82b6584c
   _key: '!tables.results!crowsrtf6fdcf8fc.rese050d82b6584c'
   type: 0
-  name: 'Nose: Your nose is sliced off. You take a bane on tests made to smell or
-    navigate by scent.'
+  name: 'Arm or Leg: The attacker chooses to remove an arm or leg of their choice.'
   img: icons/svg/d20-black.svg
   weight: 1
   range:
-  - 3
-  - 3
+  - 5
+  - 5
   drawn: false
   documentCollection: ''
   documentId: null
 - _id: resce3c17a218ba3
   _key: '!tables.results!crowsrtf6fdcf8fc.resce3c17a218ba3'
   type: 0
-  name: '1 Arm: You lose one arm. You cannot wield two-handed weapons or use that
-    hand slot.'
-  img: icons/svg/d20-black.svg
-  weight: 1
-  range:
-  - 4
-  - 4
-  drawn: false
-  documentCollection: ''
-  documentId: null
-- _id: res420cd56e329f8
-  _key: '!tables.results!crowsrtf6fdcf8fc.res420cd56e329f8'
-  type: 0
-  name: '1 Hand: You lose one hand. You cannot wield two-handed weapons or use that
-    hand slot.'
-  img: icons/svg/d20-black.svg
-  weight: 1
-  range:
-  - 5
-  - 5
-  drawn: false
-  documentCollection: ''
-  documentId: null
-- _id: res1336d4ebe6a88
-  _key: '!tables.results!crowsrtf6fdcf8fc.res1336d4ebe6a88'
-  type: 0
-  name: '1d4 Fingers: You lose 1d4 fingers. You take a bane on delicate agility/thievery
-    tests using that hand.'
+  name: 'Head: The creature dies.'
   img: icons/svg/d20-black.svg
   weight: 1
   range:
   - 6
   - 6
-  drawn: false
-  documentCollection: ''
-  documentId: null
-- _id: res42e129f9ab610
-  _key: '!tables.results!crowsrtf6fdcf8fc.res42e129f9ab610'
-  type: 0
-  name: '1 Leg: You lose one leg. Your speed is halved and you take a bane on athletic
-    tests.'
-  img: icons/svg/d20-black.svg
-  weight: 1
-  range:
-  - 7
-  - 7
-  drawn: false
-  documentCollection: ''
-  documentId: null
-- _id: res17dae104d8fed
-  _key: '!tables.results!crowsrtf6fdcf8fc.res17dae104d8fed'
-  type: 0
-  name: '1 Foot: You lose one foot. Your speed is reduced by 1.'
-  img: icons/svg/d20-black.svg
-  weight: 1
-  range:
-  - 8
-  - 8
-  drawn: false
-  documentCollection: ''
-  documentId: null
-- _id: res6ab89383bb3c5
-  _key: '!tables.results!crowsrtf6fdcf8fc.res6ab89383bb3c5'
-  type: 0
-  name: '1d4 Toes: You lose 1d4 toes. You take a bane on balance and acrobatics tests.'
-  img: icons/svg/d20-black.svg
-  weight: 1
-  range:
-  - 9
-  - 9
-  drawn: false
-  documentCollection: ''
-  documentId: null
-- _id: resae5bea00c7503
-  _key: '!tables.results!crowsrtf6fdcf8fc.resae5bea00c7503'
-  type: 0
-  name: 'Vital Organ / Decapitation: Fatal wound. The creature dies instantly or is
-    at 0 Stamina with mortal bleeding.'
-  img: icons/svg/d20-black.svg
-  weight: 1
-  range:
-  - 10
-  - 10
   drawn: false
   documentCollection: ''
   documentId: null
