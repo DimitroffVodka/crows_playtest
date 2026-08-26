@@ -2,6 +2,11 @@ const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
 import { CROWS } from "../../config.mjs";
 import { physicalItemFields, usageDieFields } from "../../helpers/schema.mjs";
+import {
+  MATERIAL_IDENTITY_CHOICES,
+  MATERIAL_FORMS,
+  MATERIAL_SIZES
+} from "../../helpers/materials.mjs";
 
 export class GearData extends TypeDataModel {
   static defineSchema() {
@@ -18,6 +23,17 @@ export class GearData extends TypeDataModel {
       isMagic: new fields.BooleanField({ initial: false }),
       mystery: new fields.BooleanField({ initial: false }),
       identified: new fields.BooleanField({ initial: true }),
+      // A material is still ordinary gear. The Ref fills in identity/form when
+      // a generic card is identified; blank identity is intentionally not a
+      // wildcard and never satisfies a named recipe.
+      material: new fields.SchemaField({
+        identity: new fields.StringField({ initial: "", blank: true, choices: MATERIAL_IDENTITY_CHOICES }),
+        form: new fields.StringField({ initial: "", blank: true, choices: MATERIAL_FORMS }),
+        size: new fields.StringField({ initial: "", blank: true, choices: MATERIAL_SIZES }),
+        creatureType: new fields.StringField({
+          initial: "", blank: true, choices: ["", ...CROWS.creatureTypes]
+        })
+      }),
       treasure: new fields.SchemaField({
         size: new fields.StringField({ blank: true, choices: ["tiny","small","medium","large"] }),
         value: new fields.NumberField({ initial: 0, min: 0, integer: true })

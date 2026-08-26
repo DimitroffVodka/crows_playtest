@@ -47,8 +47,10 @@ import {
 } from "./helpers/village.mjs";
 import {
   startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
-  identifyMagicItem, reconcileCraftingProjects, craftingMaterialSetsFor
+  identifyMagicItem, reconcileCraftingProjects, craftingMaterialSetsFor,
+  recoverCraftingTransaction
 } from "./helpers/crafting.mjs";
+import { planCraftingMaterials } from "./helpers/materials.mjs";
 import {
   openCharacterCreator, createCharacter, applyCharacteristics,
   applyUniversalStarterItems, rollBackground, rollStartingGold
@@ -215,8 +217,11 @@ Hooks.once("init", () => {
       startProject: startCraftingProject, cancel: cancelProject,
       roll: makeCraftingRoll, complete: completeProject,
       identify: identifyMagicItem, reconcile: reconcileCraftingProjects,
-      // The material ticket may replace `planMaterials` with its inventory
-      // planner; this resolver remains the safe no-wildcard fallback.
+      recover: recoverCraftingTransaction,
+      // `planMaterials` is pure and data-only. `materialSetsFor` is the
+      // lifecycle adapter; it reads the planner's availableSets while keeping
+      // old direct callers compatible.
+      planMaterials: planCraftingMaterials,
       materialSetsFor: craftingMaterialSetsFor
     },
     creator: {

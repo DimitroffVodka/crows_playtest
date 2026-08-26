@@ -1099,8 +1099,12 @@ async function _resolveActivity(actor, activity, data = null, { restCompleted = 
     const projectId = data.projectId || null;
     if (projectId) {
       try {
-        const { makeCraftingRoll } = await import("./crafting.mjs");
-        let r = await makeCraftingRoll(actor, projectId);
+        const { makeCraftingRoll, craftingMaterialSetsFor } = await import("./crafting.mjs");
+        const currentProject = () => (actor.system?.crafting?.projects ?? [])
+          .find(project => project?.id === projectId);
+        let project = currentProject();
+        let availableSets = project ? craftingMaterialSetsFor(actor, project) : 0;
+        let r = await makeCraftingRoll(actor, projectId, { materialSets: availableSets });
         if (!r.ok) return { ok: false, activity, error: r.error };
         // R:1453 — a crit buys another crafting roll for the same item within
         // the same rest activity.
@@ -1108,7 +1112,9 @@ async function _resolveActivity(actor, activity, data = null, { restCompleted = 
         let safety = 0;
         while (r.crit && !r.complete && safety < 8) {
           safety++;
-          r = await makeCraftingRoll(actor, projectId);
+          project = currentProject();
+          availableSets = project ? craftingMaterialSetsFor(actor, project) : 0;
+          r = await makeCraftingRoll(actor, projectId, { materialSets: availableSets });
           if (!r.ok) break;
           rolls.push(r);
         }

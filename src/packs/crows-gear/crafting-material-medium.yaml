@@ -5,7 +5,7 @@ img: icons/commodities/leather/fur-pelt-brown.webp
 type: gear
 system:
   description: "<p>Exact crafting material is determined by the Ref.</p>"
-  subtype: treasure
+  subtype: material
   light:
     enabled: false
     bright: 0
@@ -19,6 +19,11 @@ system:
   isMagic: false
   mystery: false
   identified: true
+  material:
+    identity: ""
+    form: ""
+    size: medium
+    creatureType: ""
   treasure:
     size: medium
     value: 0

@@ -28,10 +28,19 @@
  *   R:1691 still calls them organs and vials of blood in flavour text, but the
  *   crafting requirement is a count).
  * - **Surplus points roll into another copy** of the same item (R:1709).
- * - **Interim material planning stays playable.** Until the dependent
- *   material-transaction ticket registers its inventory planner, a
- *   material-bearing project retains PT1's one-set default. Once registered,
- *   that planner owns strict set authorization (including zero).
+ * - **Materials are inventory-backed.** The pure planner authorizes sets from
+ *   identified material gear; Finalize consumes those exact quantities through
+ *   a prepared/quantities-applied/items-deleted journal and leaves the output
+ *   Item to the Ref.
+ *
+ * ## Deliberate concurrency boundary
+ *
+ * The transaction is recoverable and idempotent by its durable journal, but it
+ * does not claim cross-client atomicity or a designated-writer lease. Foundry
+ * v14's `activeGM` is a selector, not a fence, and supplies no compare-and-swap
+ * primitive. `craftingWriterAuthority` is the single future choke point for the
+ * authority decision; until the Commerce C1 epoch/fence contract is settled,
+ * this module only performs local preflight and post-write reconciliation.
  *
  * The pure half — prerequisites, point arithmetic, tier lookup — is what
  * `test/village.test.mjs` exercises; the `Roll` / `ChatMessage` half is below it.
@@ -39,6 +48,28 @@
 
 import { CROWS } from "../config.mjs";
 import { readExpertiseUses } from "./expertise.mjs";
+import {
+  EQUIPMENT_UPGRADE_KEYS,
+  MATERIAL_IDENTITY_KEYS,
+  MATERIAL_FORMS,
+  MATERIAL_SIZES,
+  EQUIPMENT_UPGRADE_MATERIALS,
+  equipmentUpgradeKeyFor,
+  normalizeCraftingMaterialRequirement,
+  planCraftingMaterials,
+  materialItemMatches
+} from "./materials.mjs";
+
+export {
+  EQUIPMENT_UPGRADE_KEYS,
+  MATERIAL_IDENTITY_KEYS,
+  EQUIPMENT_UPGRADE_MATERIALS,
+  equipmentUpgradeKeyFor,
+  planCraftingMaterials,
+  materialItemMatches
+};
+
+export { planCraftingMaterials as planMaterials };
 
 /** R:1681-1687 — the tools each crafting expertise needs. */
 export const TOOL_FOR_EXPERTISE = Object.freeze({
@@ -67,51 +98,12 @@ export const CRAFTING_MIN_POINTS = 1;
 /** Durable lifecycle values written to `crafting.projects[].status`. */
 export const CRAFTING_PROJECT_STATUSES = Object.freeze(["active", "blocked", "pending"]);
 
-/**
- * The material vocabulary belongs to the material planner, but project records
- * need to carry it before that planner is installed. Keeping the currently
- * recognised aliases in this helper means the shape migration and the roll
- * state machine can agree without importing the Foundry data model from the
- * pure arithmetic tests. This list is deliberately not a closed vocabulary:
- * categories unknown to this ticket remain unresolved text for the planner.
- */
+/** Compatibility aliases for the lifecycle module's former names. */
 export const CRAFTING_MATERIAL_IDENTITIES = Object.freeze([
-  "bloodhide", "undeadBone", "demonHide", "angelHide",
-  "iron", "hickory", "treatedIron",
-  "steel", "archmageObsidian", "necromancerSilver", "starDiamond",
-  "yew", "archmageWillow", "necromancerDeathtree", "starwood",
-  "elementalEssence"
+  ...MATERIAL_IDENTITY_KEYS, "creatureTypeParts"
 ]);
-export const CRAFTING_MATERIAL_FORMS = Object.freeze(["", "bar", "log", "part"]);
-export const CRAFTING_MATERIAL_SIZES = Object.freeze(["", "tiny", "small", "medium", "large"]);
-
-const MATERIAL_IDENTITY_ALIASES = Object.freeze([
-  ["archmage obsidian", "archmageObsidian"],
-  ["necromancer silver", "necromancerSilver"],
-  ["star diamond", "starDiamond"],
-  ["archmage willow", "archmageWillow"],
-  ["necromancer deathtree", "necromancerDeathtree"],
-  ["star wood", "starwood"],
-  ["starwood", "starwood"],
-  ["elemental essence", "elementalEssence"],
-  ["elemental tree", "elementalEssence"],
-  ["undead bone", "undeadBone"],
-  ["demon hide", "demonHide"],
-  ["angel hide", "angelHide"],
-  ["blood hide", "bloodhide"],
-  ["treated iron", "treatedIron"],
-  ["necromancer deathtree", "necromancerDeathtree"],
-  ["bloodhide", "bloodhide"],
-  ["undeadbone", "undeadBone"],
-  ["demonhide", "demonHide"],
-  ["angelhide", "angelHide"],
-  ["treatediron", "treatedIron"],
-  ["steels", "steel"],
-  ["steel", "steel"],
-  ["iron", "iron"],
-  ["hickory", "hickory"],
-  ["yew", "yew"]
-]);
+export const CRAFTING_MATERIAL_FORMS = MATERIAL_FORMS;
+export const CRAFTING_MATERIAL_SIZES = MATERIAL_SIZES;
 
 function cloneValue(value) {
   try {
@@ -126,82 +118,8 @@ function nonNegativeInteger(value, fallback = 0) {
   return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
 }
 
-function normalizedWords(value) {
-  return String(value ?? "")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase()
-    .replace(/[’']/g, "")
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ");
-}
-
-function materialIdentity(value) {
-  const words = normalizedWords(value);
-  if (!words) return "";
-  const alias = MATERIAL_IDENTITY_ALIASES.find(([name]) =>
-    new RegExp(`(?:^| )${name.replace(/ /g, " ")}(?:$| )`).test(words)
-  );
-  return alias?.[1] ?? (CRAFTING_MATERIAL_IDENTITIES.includes(value) ? value : "");
-}
-
-function materialForm(value) {
-  const form = normalizedWords(value).replace(/s$/, "");
-  return CRAFTING_MATERIAL_FORMS.includes(form) ? form : "";
-}
-
-function materialSize(value) {
-  const size = normalizedWords(value);
-  return CRAFTING_MATERIAL_SIZES.includes(size) ? size : "";
-}
-
-/**
- * Convert one legacy/display material into the durable requirement shape.
- *
- * This is deliberately only shape work. An empty `identity` means that a Ref
- * still has to identify the generic card; no caller may treat it as a wildcard
- * or consume an arbitrary material for it. The material-consumption ticket
- * owns matching and expenditure.
- */
-export function normalizeCraftingMaterialRequirement(material, index = 0) {
-  const fallbackId = `req-${Math.max(0, Math.floor(Number(index) || 0)) + 1}`;
-  if (material && typeof material === "object" && !Array.isArray(material)) {
-    const source = cloneValue(material) ?? {};
-    const rawIdentity = String(source.identity ?? "").trim();
-    const label = String(source.label ?? source.legacyText ?? rawIdentity).trim();
-    const identity = materialIdentity(source.identity);
-    const form = materialForm(source.form);
-    const size = materialSize(source.size);
-    const providedLegacyText = String(source.legacyText ?? "").trim();
-    return {
-      id: String(source.id ?? fallbackId),
-      quantity: Math.max(1, nonNegativeInteger(source.quantity, 1)),
-      identity,
-      form,
-      size,
-      label,
-      legacyText: identity ? providedLegacyText : (providedLegacyText || label || rawIdentity)
-    };
-  }
-
-  const text = String(material ?? "").trim();
-  const quantityMatch = text.match(/^(\d+)\s+/);
-  const quantity = quantityMatch ? Math.max(1, nonNegativeInteger(quantityMatch[1], 1)) : 1;
-  const description = quantityMatch ? text.slice(quantityMatch[0].length) : text;
-  const identity = materialIdentity(description);
-  const formWord = normalizedWords(description).match(/\b(bars?|logs?|parts?)\b/)?.[1] ?? "";
-  const sizeWord = normalizedWords(description).match(/\b(tiny|small|medium|large)\b/)?.[1] ?? "";
-  return {
-    id: fallbackId,
-    quantity,
-    identity,
-    form: materialForm(formWord),
-    size: materialSize(sizeWord),
-    label: text,
-    legacyText: identity ? "" : text
-  };
-}
+/** Shared shape migration name retained for callers of the lifecycle module. */
+export { normalizeCraftingMaterialRequirement };
 
 function materialLabel(material) {
   if (material && typeof material === "object") {
@@ -290,6 +208,9 @@ function materialSetsFrom(options, actor, project) {
     return options.availableSets;
   }
   const planner = options.materialPlan ?? options.planner ?? options.materialSetsFor;
+  if (planner && typeof planner === "object") {
+    return planner.availableSets ?? planner.materialSets ?? 0;
+  }
   if (typeof planner === "function") {
     const plan = planner(actor, project);
     if (plan && typeof plan === "object") {
@@ -368,7 +289,9 @@ export function reconcileCraftingProject(actor, project, options = {}) {
     project: next,
     changed: JSON.stringify(before) !== JSON.stringify(next),
     availableSets: suppliedSets === undefined || suppliedSets === null
-      ? null : Math.max(0, Math.floor(Number(suppliedSets) || 0)),
+      ? null : suppliedSets === Number.POSITIVE_INFINITY
+        ? Number.POSITIVE_INFINITY
+        : Math.max(0, Math.floor(Number(suppliedSets) || 0)),
     ...accrued
   };
 }
@@ -715,11 +638,12 @@ function randomId(prefix) {
 }
 
 /** Build one durable, non-Item handoff for a completed copy. */
-export function outputClaimFor(project, index = 0) {
+export function outputClaimFor(project, index = 0, { transactionId = "" } = {}) {
   const output = normalizeCraftingOutput(project?.output, project?.name);
   return {
     id: randomId("claim"),
     projectId: String(project?.id ?? ""),
+    transactionId: String(transactionId ?? ""),
     copy: Math.max(1, Math.floor(Number(index) || 0) + 1),
     kind: output.kind,
     name: output.name,
@@ -730,25 +654,472 @@ export function outputClaimFor(project, index = 0) {
   };
 }
 
+/* -------------------------------------------------------------------------- */
+/* Journaled material transaction                                              */
+/* -------------------------------------------------------------------------- */
+
+function actorItems(actor) {
+  const items = actor?.items;
+  if (!items) return [];
+  if (Array.isArray(items)) return [...items];
+  if (Array.isArray(items.contents)) return [...items.contents];
+  if (typeof items.values === "function") return [...items.values()];
+  try { return [...items]; } catch { return []; }
+}
+
+function actorItem(actor, id) {
+  const key = String(id ?? "");
+  if (!key) return null;
+  const items = actor?.items;
+  if (typeof items?.get === "function") return items.get(key) ?? null;
+  return actorItems(actor).find(item => String(item?.id ?? item?._id ?? "") === key) ?? null;
+}
+
+function itemQuantityForTransaction(item) {
+  const n = Number(item?.system?.quantity);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 1;
+}
+
+function craftingRevisionFor(actor) {
+  const revision = actor?.system?.crafting?.revision;
+  if (Number.isFinite(Number(revision))) return String(Math.max(0, Math.floor(Number(revision))));
+  return String(actor?._stats?.modifiedTime ?? actor?._stats?.lastModified ?? "");
+}
+
+function nextCraftingRevision(actor) {
+  const revision = Number(actor?.system?.crafting?.revision);
+  return Number.isFinite(revision) && revision >= 0 ? Math.floor(revision) + 1 : 1;
+}
+
+function fingerprint(value) {
+  try { return JSON.stringify(cloneValue(value)); }
+  catch { return String(value ?? ""); }
+}
+
+function transactionList(actor) {
+  return Array.isArray(actor?.system?.crafting?.transactions)
+    ? actor.system.crafting.transactions : [];
+}
+
+function transactionById(actor, txId) {
+  return transactionList(actor).find(entry => String(entry?.txId ?? "") === String(txId ?? "")) ?? null;
+}
+
+async function persistTransaction(actor, transaction, { append = false } = {}) {
+  if (typeof actor?.update !== "function") throw new Error("actor.update unavailable");
+  const current = transactionList(actor).map(cloneValue);
+  const index = current.findIndex(entry => String(entry?.txId ?? "") === String(transaction.txId));
+  if (index >= 0) current[index] = cloneValue(transaction);
+  else if (append) current.push(cloneValue(transaction));
+  else throw new Error(`crafting transaction ${transaction.txId} is missing`);
+  await actor.update({ "system.crafting.transactions": current });
+  return transaction;
+}
+
+/**
+ * The one authority seam. The current implementation intentionally does not
+ * inspect `activeGM`, mint an epoch, or claim a lock: Commerce C1 has not yet
+ * defined an executable writer fence. A later designated-writer implementation
+ * can be injected as `authorityCheck` without changing the journal protocol.
+ */
+export async function craftingWriterAuthority(actor, context = {}, options = {}) {
+  const check = options?.authorityCheck ?? options?.authority;
+  if (typeof check !== "function") {
+    return { ok: true, guaranteed: false, reason: "authority-contract-pending", actor, context };
+  }
+  const result = await check(actor, context);
+  if (result === false) return { ok: false, error: "authority-unavailable" };
+  if (result && typeof result === "object" && result.ok === false) {
+    return { ...result, error: result.error ?? "authority-unavailable" };
+  }
+  return { ok: true, ...(result && typeof result === "object" ? result : {}) };
+}
+
+export const craftingAuthorityCheck = craftingWriterAuthority;
+
+function transactionFromPlan(actor, project, plan, txId) {
+  const preQuantities = plan.consumption.map(entry => ({
+    itemId: entry.itemId,
+    before: entry.beforeQuantity,
+    after: entry.afterQuantity,
+    delete: entry.delete === true
+  }));
+  return {
+    txId: String(txId),
+    phase: "prepared",
+    failedPhase: "",
+    actorRevision: craftingRevisionFor(actor),
+    projectRevision: fingerprint(project),
+    projectId: String(project?.id ?? ""),
+    copies: Math.max(1, nonNegativeInteger(project?.completed, 1)),
+    preQuantities,
+    postQuantities: preQuantities.map(entry => ({
+      itemId: entry.itemId,
+      quantity: entry.after,
+      present: entry.after > 0
+    })),
+    updates: cloneValue(plan.updates),
+    exhaustedIds: [...plan.exhaustedIds],
+    error: "",
+    result: {}
+  };
+}
+
+function quantityStates(actor, transaction) {
+  return (transaction.preQuantities ?? []).map(entry => {
+    const item = actorItem(actor, entry.itemId);
+    if (!item) return entry.after === 0 ? "post" : "divergent";
+    const quantity = itemQuantityForTransaction(item);
+    if (quantity === entry.before) return "pre";
+    if (quantity === entry.after) return "post";
+    return "divergent";
+  });
+}
+
+function allStates(states, value) {
+  return states.every(state => state === value);
+}
+
+function transactionFailure(transaction, error, state = "unknown") {
+  return {
+    ok: false,
+    error,
+    state,
+    transaction: cloneValue(transaction)
+  };
+}
+
+async function markTransactionRecovery(actor, transaction, failedPhase, error) {
+  transaction.phase = "recovery-required";
+  transaction.failedPhase = failedPhase;
+  transaction.error = String(error?.message ?? error ?? `crafting ${failedPhase} write failed`);
+  try {
+    await persistTransaction(actor, transaction);
+  } catch (persistError) {
+    return transactionFailure(transaction, "write-failed");
+  }
+  return transactionFailure(transaction, "recovery-required");
+}
+
+async function applyTransactionQuantities(actor, transaction) {
+  if (transaction.phase !== "prepared" && transaction.phase !== "recovery-required") return { ok: true };
+  const states = quantityStates(actor, transaction);
+  if (!states.length || allStates(states, "post")) {
+    transaction.phase = "quantities-applied";
+    transaction.failedPhase = "";
+    try { await persistTransaction(actor, transaction); }
+    catch (error) { return transactionFailure(transaction, "write-failed"); }
+    return { ok: true };
+  }
+  if (!allStates(states, "pre")) {
+    return markTransactionRecovery(actor, transaction, "quantities", "mixed or divergent quantity state");
+  }
+  if (typeof actor?.updateEmbeddedDocuments !== "function") {
+    transaction.error = "actor.updateEmbeddedDocuments unavailable";
+    return transactionFailure(transaction, "write-failed");
+  }
+  try {
+    // Foundry v14 separates embedded updates from embedded deletes. Every
+    // decrement, including a zero result, belongs in this update call.
+    await actor.updateEmbeddedDocuments("Item", cloneValue(transaction.updates ?? []));
+  } catch (error) {
+    const afterFailure = quantityStates(actor, transaction);
+    if (allStates(afterFailure, "post")) {
+      transaction.phase = "quantities-applied";
+      transaction.failedPhase = "";
+      try { await persistTransaction(actor, transaction); }
+      catch (persistError) { return transactionFailure(transaction, "write-failed"); }
+      return { ok: true };
+    }
+    if (allStates(afterFailure, "pre")) {
+      transaction.error = String(error?.message ?? error ?? "quantity update rejected");
+      return transactionFailure(transaction, "write-failed");
+    }
+    return markTransactionRecovery(actor, transaction, "quantities", error);
+  }
+  const after = quantityStates(actor, transaction);
+  if (!allStates(after, "post")) {
+    return markTransactionRecovery(actor, transaction, "quantities", "quantity update did not reach the planned post-state");
+  }
+  transaction.phase = "quantities-applied";
+  transaction.failedPhase = "";
+  try { await persistTransaction(actor, transaction); }
+  catch (error) { return transactionFailure(transaction, "write-failed"); }
+  return { ok: true };
+}
+
+async function applyTransactionDeletes(actor, transaction) {
+  if (transaction.phase !== "quantities-applied" && transaction.phase !== "recovery-required") return { ok: true };
+  const states = quantityStates(actor, transaction);
+  if (states.some(state => state === "pre" || state === "divergent")) {
+    return markTransactionRecovery(actor, transaction, "delete", "quantity post-state is not confirmed");
+  }
+  const exhausted = [...(transaction.exhaustedIds ?? [])].map(String);
+  let present = exhausted.filter(id => actorItem(actor, id));
+  if (!present.length) {
+    transaction.phase = "items-deleted";
+    transaction.failedPhase = "";
+    try { await persistTransaction(actor, transaction); }
+    catch (error) { return transactionFailure(transaction, "write-failed"); }
+    return { ok: true };
+  }
+  if (typeof actor?.deleteEmbeddedDocuments !== "function") {
+    return markTransactionRecovery(actor, transaction, "delete", "actor.deleteEmbeddedDocuments unavailable");
+  }
+  const deleteOnce = async ids => actor.deleteEmbeddedDocuments("Item", ids);
+  try {
+    // Deletion is a separate Foundry operation; never pass deletion objects to
+    // updateEmbeddedDocuments. A retry here is idempotent and only includes
+    // exhausted Items still present after the first result.
+    await deleteOnce(present);
+  } catch (error) {
+    present = exhausted.filter(id => actorItem(actor, id));
+    if (present.length) {
+      try { await deleteOnce(present); }
+      catch (retryError) { return markTransactionRecovery(actor, transaction, "delete", retryError); }
+    }
+  }
+  present = exhausted.filter(id => actorItem(actor, id));
+  if (present.length) return markTransactionRecovery(actor, transaction, "delete", "exhausted Item deletion is not confirmed");
+  transaction.phase = "items-deleted";
+  transaction.failedPhase = "";
+  try { await persistTransaction(actor, transaction); }
+  catch (error) { return transactionFailure(transaction, "write-failed"); }
+  return { ok: true };
+}
+
+function postStateConfirmed(actor, transaction) {
+  for (const entry of transaction.preQuantities ?? []) {
+    const item = actorItem(actor, entry.itemId);
+    if (entry.delete) {
+      if (item) return false;
+    } else if (!item || itemQuantityForTransaction(item) !== entry.after) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function outputClaimsForTransaction(actor, txId) {
+  return (Array.isArray(actor?.system?.crafting?.outputClaims)
+    ? actor.system.crafting.outputClaims : [])
+    .filter(claim => String(claim?.transactionId ?? "") === String(txId));
+}
+
+async function finalizeTransaction(actor, transaction, plan) {
+  if (!postStateConfirmed(actor, transaction)) {
+    return markTransactionRecovery(actor, transaction, "finalize", "material post-state is divergent");
+  }
+  const projects = Array.isArray(actor?.system?.crafting?.projects)
+    ? actor.system.crafting.projects : [];
+  const index = projects.findIndex(project => String(project?.id ?? "") === String(transaction.projectId));
+  const existingForTransaction = outputClaimsForTransaction(actor, transaction.txId);
+  if (index < 0) {
+    if (existingForTransaction.length >= transaction.copies) {
+      transaction.phase = "finalized";
+      transaction.result = {
+        ok: true,
+        project: null,
+        claims: cloneValue(existingForTransaction),
+        remainder: null,
+        plan: cloneValue(plan)
+      };
+      try { await persistTransaction(actor, transaction); }
+      catch (error) { return transactionFailure(transaction, "write-failed"); }
+      return { ...transaction.result, transaction: cloneValue(transaction), recovered: true };
+    }
+    return markTransactionRecovery(actor, transaction, "finalize", "project disappeared before claim persistence");
+  }
+
+  const project = normalizeCraftingProject(projects[index]);
+  const completed = nonNegativeInteger(project.completed, 0);
+  if (completed < transaction.copies) {
+    return markTransactionRecovery(actor, transaction, "finalize", "project completion count changed during transaction");
+  }
+
+  const claims = [];
+  for (let copy = 0; copy < transaction.copies; copy++) {
+    const id = `${transaction.txId}-claim-${copy + 1}`;
+    const existing = existingForTransaction.find(claim => String(claim?.id ?? "") === id);
+    if (existing) claims.push(cloneValue(existing));
+    else {
+      const claim = outputClaimFor(project, copy, { transactionId: transaction.txId });
+      claim.id = id;
+      claims.push(claim);
+    }
+  }
+  const existingClaims = Array.isArray(actor.system?.crafting?.outputClaims)
+    ? actor.system.crafting.outputClaims : [];
+  const claimIds = new Set(claims.map(claim => claim.id));
+  const nextClaims = [
+    ...existingClaims.filter(claim => !claimIds.has(claim?.id)),
+    ...claims
+  ];
+
+  // Pending copies are handed to the Ref. Any below-goal points remain on the
+  // project for the next copy; only an empty remainder removes the project.
+  const remainderPoints = nonNegativeInteger(project.points, 0);
+  const remainder = remainderPoints > 0
+    ? {
+      ...project,
+      completed: Math.max(0, completed - transaction.copies),
+      points: remainderPoints,
+      status: remainderPoints >= Math.max(1, nonNegativeInteger(project.goal, 1))
+        ? "blocked" : "active"
+    }
+    : null;
+  // If the project had more completed copies than this transaction's bounded
+  // claim, retain them for the next explicit Finalize instead of dropping them.
+  if (completed > transaction.copies) {
+    const retained = { ...project, completed: completed - transaction.copies, status: "pending" };
+    if (remainder) retained.points = remainder.points;
+    else retained.points = 0;
+    if (remainder) retained.status = remainder.status;
+    else retained.status = "pending";
+    // `remainder` is const for the common one-copy path; this branch replaces
+    // it through the next-project calculation below.
+    const nextProjects = projects.map((entry, entryIndex) => entryIndex === index ? retained : entry);
+    const finalTransaction = {
+      ...transaction,
+      phase: "finalized",
+      failedPhase: "",
+      error: "",
+      result: { ok: true, project, claims, remainder: retained, plan: cloneValue(plan) }
+    };
+    try {
+      await actor.update({
+        "system.crafting.projects": nextProjects,
+        "system.crafting.outputClaims": nextClaims,
+        "system.crafting.transactions": transactionList(actor).map(entry =>
+          String(entry?.txId ?? "") === transaction.txId ? finalTransaction : entry),
+        "system.crafting.revision": nextCraftingRevision(actor)
+      });
+    } catch (error) {
+      transaction.error = String(error?.message ?? error ?? "finalize write rejected");
+      return transactionFailure(transaction, "write-failed");
+    }
+    return { ...finalTransaction.result, transaction: cloneValue(finalTransaction) };
+  }
+
+  const nextProjects = remainder
+    ? projects.map((entry, entryIndex) => entryIndex === index ? remainder : entry)
+    : projects.filter((_, entryIndex) => entryIndex !== index);
+  const finalTransaction = {
+    ...transaction,
+    phase: "finalized",
+    failedPhase: "",
+    error: "",
+    result: { ok: true, project, claims, remainder, plan: cloneValue(plan) }
+  };
+  try {
+    await actor.update({
+      "system.crafting.projects": nextProjects,
+      "system.crafting.outputClaims": nextClaims,
+      "system.crafting.transactions": transactionList(actor).map(entry =>
+        String(entry?.txId ?? "") === transaction.txId ? finalTransaction : entry),
+      "system.crafting.revision": nextCraftingRevision(actor)
+    });
+  } catch (error) {
+    transaction.error = String(error?.message ?? error ?? "finalize write rejected");
+    return transactionFailure(transaction, "write-failed");
+  }
+  return { ...finalTransaction.result, transaction: cloneValue(finalTransaction) };
+}
+
+async function runCraftingTransaction(actor, transaction, plan) {
+  if (transaction.phase === "finalized") {
+    return transaction.result && typeof transaction.result === "object"
+      ? { ...cloneValue(transaction.result), transaction: cloneValue(transaction), recovered: true }
+      : transactionFailure(transaction, "already-finalized");
+  }
+
+  // A recovery-required journal may resume only the phase whose post-state is
+  // observable. It never replays a quantity decrement after quantities landed.
+  if (transaction.phase === "recovery-required") {
+    if (transaction.failedPhase === "finalize") {
+      if (!postStateConfirmed(actor, transaction)) return transactionFailure(transaction, "recovery-required");
+      transaction.phase = "items-deleted";
+    } else if (transaction.failedPhase === "delete") {
+      const states = quantityStates(actor, transaction);
+      if (!allStates(states, "post")) return transactionFailure(transaction, "recovery-required");
+      transaction.phase = "quantities-applied";
+    } else if (transaction.failedPhase === "quantities") {
+      const states = quantityStates(actor, transaction);
+      if (!allStates(states, "pre")) return transactionFailure(transaction, "recovery-required");
+      transaction.phase = "prepared";
+    } else {
+      return transactionFailure(transaction, "recovery-required");
+    }
+  }
+
+  let result = await applyTransactionQuantities(actor, transaction);
+  if (!result.ok) return result;
+  result = await applyTransactionDeletes(actor, transaction);
+  if (!result.ok) return result;
+  return finalizeTransaction(actor, transaction, plan);
+}
+
+async function postFinalizeChat(actor, result) {
+  if (typeof globalThis.ChatMessage?.create !== "function") return;
+  const project = result?.project;
+  if (!project) return;
+  const consumed = result?.plan?.consumption ?? [];
+  const materialLine = consumed.length
+    ? `<div>Materials consumed: ${consumed.map(entry =>
+      `${entry.quantity} ${entry.itemName || entry.itemId}`).join(", ")}</div>`
+    : "";
+  await ChatMessage.create({
+    content: `<div class="crows crafting-done">
+      <header><strong>${actor.name}</strong> finishes <strong>${project.name}</strong>!</header>
+      ${materialLine}
+      <div>${(result.claims ?? []).length} output claim${(result.claims ?? []).length === 1 ? "" : "s"} recorded for the Ref.</div>
+      <em>The Ref grants the finished item.</em>
+    </div>`,
+    speaker: ChatMessage.getSpeaker({ actor })
+  });
+}
+
 /**
  * Finalize completed copies and post their Ref handoff.
  *
- * This function owns the durable completion guard and output claim only. It
- * deliberately does not create an Item or consume material records: the
- * dependent material-transaction ticket supplies that preflight/commit seam.
- * The finished Item is still the Ref's to grant.
+ * The bounded protocol is deliberately two Foundry calls for material writes:
+ * update every planned quantity (including zeroes), then delete exhausted
+ * Items. Each phase is journaled only after its call succeeds. The finished
+ * Item is still the Ref's to grant; this helper only records output claims.
  */
 export async function completeProject(actor, projectId, options = {}) {
   if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
   const projects = Array.isArray(actor.system?.crafting?.projects)
     ? actor.system.crafting.projects : [];
   const idx = projects.findIndex(project => project?.id === projectId);
+
+  const txId = String(options?.txId ?? "").trim();
+  const authority = await craftingWriterAuthority(actor, { projectId, txId }, options);
+  if (!authority.ok) return { ok: false, error: authority.error ?? "authority-unavailable" };
+
+  if (txId) {
+    const existing = transactionById(actor, txId);
+    if (existing) {
+      if (String(existing.projectId ?? "") !== String(projectId)) {
+        return { ok: false, error: "conflict", transaction: cloneValue(existing) };
+      }
+      // A prior finalize write may have removed the project before its claim
+      // acknowledgement was observed. Recovery still uses the journal and
+      // must not fail early on the now-missing project.
+      const existingPlan = planCraftingMaterials(actor, idx < 0 ? { materials: [] } : projects[idx], {
+        copies: existing.copies
+      });
+      const result = await runCraftingTransaction(actor, cloneValue(existing), existingPlan);
+      if (result.ok && !result.recovered) await postFinalizeChat(actor, result);
+      return result;
+    }
+  }
+
   if (idx < 0) return { ok: false, error: "not found" };
 
-  // Re-read the current project and reconcile in memory. In particular, a
-  // late material grant may have authorized a blocked goal; the caller can
-  // provide the planner's fresh `availableSets` here. No write occurs until
-  // the durable completion guard has passed.
+  // Re-read and reconcile in memory. A late material grant can authorize a
+  // blocked goal; no document write occurs until the durable completion guard,
+  // unresolved check, and exact inventory preflight all pass.
   const reconciliationOptions = { ...(options ?? {}) };
   if (!Object.prototype.hasOwnProperty.call(reconciliationOptions, "materialSets")
       && !Object.prototype.hasOwnProperty.call(reconciliationOptions, "availableSets")
@@ -761,46 +1132,51 @@ export async function completeProject(actor, projectId, options = {}) {
   const completed = nonNegativeInteger(project.completed, 0);
   if (completed < 1) return { ok: false, error: "incomplete", project };
 
-  const claims = Array.from({ length: completed }, (_, copy) => outputClaimFor(project, copy));
-  const nextClaims = [
-    ...(Array.isArray(actor.system?.crafting?.outputClaims)
-      ? actor.system.crafting.outputClaims : []),
-    ...claims
-  ];
+  const plan = planCraftingMaterials(actor, project, { copies: completed });
+  if (plan.unresolved.length) {
+    return { ok: false, error: "unresolved-material", project, plan };
+  }
+  if (Number.isFinite(plan.fullSets) && plan.fullSets < completed) {
+    return { ok: false, error: "insufficient-material", project, plan };
+  }
+  if (plan.requirements.length && plan.copies !== completed) {
+    return { ok: false, error: "insufficient-material", project, plan };
+  }
 
-  // Pending copies are handed to the Ref. Any below-goal points remain on the
-  // project for the next copy; only an empty remainder can be removed. A
-  // goal-sized remainder is retained as blocked until the material planner
-  // authorizes it, rather than being mistaken for another free completion.
-  const remainderPoints = nonNegativeInteger(project.points, 0);
-  const remainder = remainderPoints > 0
-    ? {
-      ...project,
-      completed: 0,
-      points: remainderPoints,
-      status: remainderPoints >= Math.max(1, nonNegativeInteger(project.goal, 1))
-        ? "blocked" : "active"
-    }
-    : null;
-  const nextProjects = remainder
-    ? projects.map((entry, entryIndex) => entryIndex === idx ? remainder : entry)
-    : projects.filter((_, entryIndex) => entryIndex !== idx);
-  const update = {
-    "system.crafting.projects": nextProjects,
-    "system.crafting.outputClaims": nextClaims
-  };
-  await actor.update(update);
-  await ChatMessage.create({
-    content: `<div class="crows crafting-done">
-      <header><strong>${actor.name}</strong> finishes <strong>${project.name}</strong>!</header>
-      ${project.materials.length ? `<div>Materials expended: ${project.materials.map(materialLabel).join(", ")}</div>` : ""}
-      <div>${claims.length} output claim${claims.length === 1 ? "" : "s"} recorded for the Ref.</div>
-      <em>The Ref grants the finished item.</em>
-    </div>`,
-    speaker: ChatMessage.getSpeaker({ actor })
-  });
-  return { ok: true, project, claims, remainder };
+  const transaction = transactionFromPlan(actor, project, plan, txId || randomId("craft-tx"));
+  try {
+    // `prepared` is durable before the first Item mutation. This is the only
+    // new write on a successful preflight and the first recovery boundary.
+    if (typeof actor.update !== "function") return transactionFailure(transaction, "write-failed");
+    const journals = [...transactionList(actor).map(cloneValue), cloneValue(transaction)];
+    await actor.update({ "system.crafting.transactions": journals });
+  } catch (error) {
+    transaction.error = String(error?.message ?? error ?? "prepared journal write rejected");
+    return transactionFailure(transaction, "write-failed");
+  }
+
+  const result = await runCraftingTransaction(actor, transaction, plan);
+  if (result.ok && !result.recovered) await postFinalizeChat(actor, result);
+  return result;
 }
+
+/** Resume a durable transaction by token without constructing a new plan. */
+export async function recoverCraftingTransaction(actor, txId, options = {}) {
+  const transaction = transactionById(actor, txId);
+  if (!transaction) return { ok: false, error: "not found" };
+  const project = (actor?.system?.crafting?.projects ?? [])
+    .find(entry => String(entry?.id ?? "") === String(transaction.projectId));
+  const plan = planCraftingMaterials(actor, project ?? { materials: [] }, { copies: transaction.copies });
+  const authority = await craftingWriterAuthority(actor, {
+    projectId: transaction.projectId, txId: transaction.txId, recovery: true
+  }, options);
+  if (!authority.ok) return { ok: false, error: authority.error ?? "authority-unavailable" };
+  const result = await runCraftingTransaction(actor, cloneValue(transaction), plan);
+  if (result.ok && !result.recovered) await postFinalizeChat(actor, result);
+  return result;
+}
+
+export const consumeCraftingMaterials = completeProject;
 
 /**
  * Identify Item (R:1719-1733). 2d10 + M, one attempt per item ever (R:1733) —

@@ -19,6 +19,14 @@
 
 import { CROWS, effectiveCapacities } from "../config.mjs";
 
+// Crafting's planner is data-only and shares this helper's inventory-shaped
+// input, so expose the seam here too for callers that already depend on slots.
+export {
+  planCraftingMaterials,
+  planMaterials,
+  materialItemMatches
+} from "./materials.mjs";
+
 /* -------------------------------------------------------------------------- */
 /*  Containers                                                                 */
 /* -------------------------------------------------------------------------- */
