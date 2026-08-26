@@ -1,0 +1,36 @@
+_id: crowsrtc601aa05b
+_key: '!tables!crowsrtc601aa05b'
+name: Bad Weather - Cold & Winter
+img: icons/svg/d20-grey.svg
+description: <p>Roll when bad weather strikes in cold climate or winter season.</p>
+formula: 1d2
+replacement: true
+displayRoll: true
+results:
+- _id: res94dfd0e8af187
+  _key: '!tables.results!crowsrtc601aa05b.res94dfd0e8af187'
+  type: 0
+  text: 'Blizzard: Daily speed reduced by 2 hexes. Hourly Strength RR without cold
+    weather gear (Tier 1: 4d6 P dam, Tier 2: 3d6 P dam, Tier 3: 2d6 P dam with cumulative
+    -2). Double bane to guide/scout/tracker.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 1
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resa829cdb6ea028
+  _key: '!tables.results!crowsrtc601aa05b.resa829cdb6ea028'
+  type: 0
+  text: 'Cold Snap: Hourly Strength RR without cold weather gear (Tier 1: 3d6 P dam,
+    Tier 2: 2d6 P dam, Tier 3: 1d6 P dam with cumulative -2).'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 2
+  - 2
+  drawn: false
+  documentCollection: ''
+  documentId: null

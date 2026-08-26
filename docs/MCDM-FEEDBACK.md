@@ -88,7 +88,21 @@ Consecutive rows read **61-62** and **62-64**. A d100 result of 62 matches both.
 
 We read the second row as 63-64. **Question: which row owns 62?**
 
-## 6. Six animals print "Slots: 0" against a rule saying animals have slots
+## 6. Minor Interesting Things prints 45 twice and has no 57
+
+Two rows both claim **45**:
+
+> | 45 | Lockpick set |
+> | 45–46 | Gem worth 10d10 gc |
+
+And the table jumps straight from **56** (Quiver of steel arrows) to **58** (Case of steel
+crossbow bolts) — nothing covers 57, so a d100 result of 57 has no entry.
+
+**Question: should the gem be 46 only, and what belongs on 57?** We read them that way and
+extended 56 to cover 57, because a table that returns nothing on a roll cannot be used at the
+table. This is the same shape as the backlash overlap above.
+
+## 7. Six animals print "Slots: 0" against a rule saying animals have slots
 
 The Ref Book says *"Monsters don't have slots… Humans and animals have the potential to be
 allies, so they do have slots."* But **Chicken, Crow, Hawk, Rat, Snake (Venomous) and Spider**

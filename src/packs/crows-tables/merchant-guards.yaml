@@ -1,0 +1,129 @@
+_id: crowsrtcf938c2d2
+_key: '!tables!crowsrtcf938c2d2'
+name: Merchant Guards
+img: icons/svg/d20-grey.svg
+description: <p>Determines guard composition for merchant caravans.</p>
+formula: 1d10
+replacement: true
+displayRoll: true
+results:
+- _id: resa1feb85f70428
+  _key: '!tables.results!crowsrtcf938c2d2.resa1feb85f70428'
+  type: 0
+  text: Archer (Power 4)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 1
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res5c9e3fb28d479
+  _key: '!tables.results!crowsrtcf938c2d2.res5c9e3fb28d479'
+  type: 0
+  text: Archer (Power 7)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 2
+  - 2
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: rese87490818fa93
+  _key: '!tables.results!crowsrtcf938c2d2.rese87490818fa93'
+  type: 0
+  text: Archer (Power 8)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 3
+  - 3
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: rese87b32f9f111e
+  _key: '!tables.results!crowsrtcf938c2d2.rese87b32f9f111e'
+  type: 0
+  text: Elementalist
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 4
+  - 4
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res860ff05fb17c5
+  _key: '!tables.results!crowsrtcf938c2d2.res860ff05fb17c5'
+  type: 0
+  text: Pike Warrior (Power 4)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 5
+  - 5
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resb6ec3de33db0f
+  _key: '!tables.results!crowsrtcf938c2d2.resb6ec3de33db0f'
+  type: 0
+  text: Pike Warrior (Power 7)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 6
+  - 6
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res025e70422a6d1
+  _key: '!tables.results!crowsrtcf938c2d2.res025e70422a6d1'
+  type: 0
+  text: Pike Warrior (Power 10)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 7
+  - 7
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res620191666afea
+  _key: '!tables.results!crowsrtcf938c2d2.res620191666afea'
+  type: 0
+  text: Sword Warrior (Power 4)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 8
+  - 8
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resc9a0aef7a468c
+  _key: '!tables.results!crowsrtcf938c2d2.resc9a0aef7a468c'
+  type: 0
+  text: Sword Warrior (Power 7)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 9
+  - 9
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res8839a50e75b7b
+  _key: '!tables.results!crowsrtcf938c2d2.res8839a50e75b7b'
+  type: 0
+  text: Sword Warrior (Power 10)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 10
+  - 10
+  drawn: false
+  documentCollection: ''
+  documentId: null

@@ -1,0 +1,189 @@
+_id: crowsrta527a52e4
+_key: '!tables!crowsrta527a52e4'
+name: Desert Animal Encounters
+img: icons/svg/d20-grey.svg
+description: <p>Animal encounters in desert habitats.</p>
+formula: 1d100
+replacement: true
+displayRoll: true
+results:
+- _id: rescc98759462ae9
+  _key: '!tables.results!crowsrta527a52e4.rescc98759462ae9'
+  type: 0
+  text: 1 big cat
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 7
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res08ca67a4e6dfd
+  _key: '!tables.results!crowsrta527a52e4.res08ca67a4e6dfd'
+  type: 0
+  text: 1d6 big cats
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 8
+  - 13
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res7b05ae56fe93d
+  _key: '!tables.results!crowsrta527a52e4.res7b05ae56fe93d'
+  type: 0
+  text: 2d6 dogs
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 14
+  - 20
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res339ca1dd3cfb3
+  _key: '!tables.results!crowsrta527a52e4.res339ca1dd3cfb3'
+  type: 0
+  text: 1 elephant
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 21
+  - 27
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res10896205a631d
+  _key: '!tables.results!crowsrta527a52e4.res10896205a631d'
+  type: 0
+  text: 2d6 elephants
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 28
+  - 33
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: rese80f1b451f655
+  _key: '!tables.results!crowsrta527a52e4.rese80f1b451f655'
+  type: 0
+  text: 1 monitor lizard
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 34
+  - 40
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res62057e0a4cb93
+  _key: '!tables.results!crowsrta527a52e4.res62057e0a4cb93'
+  type: 0
+  text: 2 monitor lizards
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 41
+  - 46
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res78c70cabc8fd3
+  _key: '!tables.results!crowsrta527a52e4.res78c70cabc8fd3'
+  type: 0
+  text: 1 giant scorpion
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 47
+  - 53
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resbad2eab2fcfb2
+  _key: '!tables.results!crowsrta527a52e4.resbad2eab2fcfb2'
+  type: 0
+  text: 2 giant scorpions
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 54
+  - 59
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resfdce29b50c84a
+  _key: '!tables.results!crowsrta527a52e4.resfdce29b50c84a'
+  type: 0
+  text: 1 constrictor snake
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 60
+  - 66
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res141e188a4023d
+  _key: '!tables.results!crowsrta527a52e4.res141e188a4023d'
+  type: 0
+  text: 1 venomous snake
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 67
+  - 73
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res040c57ee7c8f2
+  _key: '!tables.results!crowsrta527a52e4.res040c57ee7c8f2'
+  type: 0
+  text: 1 giant venomous snake
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 74
+  - 80
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res92152fbeecae9
+  _key: '!tables.results!crowsrta527a52e4.res92152fbeecae9'
+  type: 0
+  text: 2d6 venomous snakes
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 81
+  - 87
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res6876167fc38a1
+  _key: '!tables.results!crowsrta527a52e4.res6876167fc38a1'
+  type: 0
+  text: 1 giant spider
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 88
+  - 94
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res5920ff2dc15b8
+  _key: '!tables.results!crowsrta527a52e4.res5920ff2dc15b8'
+  type: 0
+  text: 2 giant spiders
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 95
+  - 100
+  drawn: false
+  documentCollection: ''
+  documentId: null

@@ -1,0 +1,249 @@
+_id: crowsrt83ebcf71f
+_key: '!tables!crowsrt83ebcf71f'
+name: Merchant Sales
+img: icons/svg/d20-grey.svg
+description: <p>Determines merchant caravan specialty institution and level.</p>
+formula: 1d100
+replacement: true
+displayRoll: true
+results:
+- _id: res41dab5d7faa7e
+  _key: '!tables.results!crowsrt83ebcf71f.res41dab5d7faa7e'
+  type: 0
+  text: Alchemist | 1st
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 10
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resb761e5ae89428
+  _key: '!tables.results!crowsrt83ebcf71f.resb761e5ae89428'
+  type: 0
+  text: Alchemist | 2nd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 11
+  - 15
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res2aebf2d0497e6
+  _key: '!tables.results!crowsrt83ebcf71f.res2aebf2d0497e6'
+  type: 0
+  text: Alchemist | 3rd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 16
+  - 18
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res3fe7c7933ad9c
+  _key: '!tables.results!crowsrt83ebcf71f.res3fe7c7933ad9c'
+  type: 0
+  text: Alchemist | 4th
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 19
+  - 20
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resa98752a99e3c4
+  _key: '!tables.results!crowsrt83ebcf71f.resa98752a99e3c4'
+  type: 0
+  text: Blacksmith | 1st
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 21
+  - 30
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res52790cafded09
+  _key: '!tables.results!crowsrt83ebcf71f.res52790cafded09'
+  type: 0
+  text: Blacksmith | 2nd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 31
+  - 35
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res6a8742f39f4d0
+  _key: '!tables.results!crowsrt83ebcf71f.res6a8742f39f4d0'
+  type: 0
+  text: Blacksmith | 3rd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 36
+  - 38
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res4aae2ac4fb303
+  _key: '!tables.results!crowsrt83ebcf71f.res4aae2ac4fb303'
+  type: 0
+  text: Blacksmith | 4th
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 39
+  - 40
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res3f40c3adbbd55
+  _key: '!tables.results!crowsrt83ebcf71f.res3f40c3adbbd55'
+  type: 0
+  text: Bookseller | 1st
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 41
+  - 50
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: rese06efcda8af24
+  _key: '!tables.results!crowsrt83ebcf71f.rese06efcda8af24'
+  type: 0
+  text: Bookseller | 2nd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 51
+  - 55
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res21a846ad62ebf
+  _key: '!tables.results!crowsrt83ebcf71f.res21a846ad62ebf'
+  type: 0
+  text: Bookseller | 3rd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 56
+  - 58
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resfa216844a0b52
+  _key: '!tables.results!crowsrt83ebcf71f.resfa216844a0b52'
+  type: 0
+  text: Bookseller | 4th
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 59
+  - 60
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res4258a20f89bc5
+  _key: '!tables.results!crowsrt83ebcf71f.res4258a20f89bc5'
+  type: 0
+  text: Enchanter | 1st
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 61
+  - 70
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res5deb6b642417f
+  _key: '!tables.results!crowsrt83ebcf71f.res5deb6b642417f'
+  type: 0
+  text: Enchanter | 2nd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 71
+  - 75
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res8dcceebf632e9
+  _key: '!tables.results!crowsrt83ebcf71f.res8dcceebf632e9'
+  type: 0
+  text: Enchanter | 3rd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 76
+  - 78
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res50366e4e7b00d
+  _key: '!tables.results!crowsrt83ebcf71f.res50366e4e7b00d'
+  type: 0
+  text: Enchanter | 4th
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 79
+  - 80
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res3d82b018ea129
+  _key: '!tables.results!crowsrt83ebcf71f.res3d82b018ea129'
+  type: 0
+  text: General Store | 1st
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 81
+  - 90
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resbe8b7d2f7ea54
+  _key: '!tables.results!crowsrt83ebcf71f.resbe8b7d2f7ea54'
+  type: 0
+  text: General Store | 2nd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 91
+  - 95
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res95ceab77252ed
+  _key: '!tables.results!crowsrt83ebcf71f.res95ceab77252ed'
+  type: 0
+  text: General Store | 3rd
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 96
+  - 98
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res0a145138bec47
+  _key: '!tables.results!crowsrt83ebcf71f.res0a145138bec47'
+  type: 0
+  text: Special | N/A
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 99
+  - 100
+  drawn: false
+  documentCollection: ''
+  documentId: null

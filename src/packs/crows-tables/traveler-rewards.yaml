@@ -1,0 +1,82 @@
+_id: crowsrt24fc03200
+_key: '!tables!crowsrt24fc03200'
+name: Traveler Rewards
+img: icons/svg/d20-grey.svg
+description: <p>Rewards gifted by grateful travelers when assisted by the PCs.</p>
+formula: 1d6
+replacement: true
+displayRoll: true
+results:
+- _id: res4ab2d0fc2c0c6
+  _key: '!tables.results!crowsrt24fc03200.res4ab2d0fc2c0c6'
+  type: 0
+  text: Nothing. The travelers have nothing to give or consider virtue its own reward.
+    Jerks.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 1
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resd9e099a294552
+  _key: '!tables.results!crowsrt24fc03200.resd9e099a294552'
+  type: 0
+  text: A piece of useful information about a nearby POI, dungeon, village, or treasure.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 2
+  - 2
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resff106c7eb522e
+  _key: '!tables.results!crowsrt24fc03200.resff106c7eb522e'
+  type: 0
+  text: 1d6 × 100 gc
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 3
+  - 3
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res489629b69e7b6
+  _key: '!tables.results!crowsrt24fc03200.res489629b69e7b6'
+  type: 0
+  text: 2d10 × 100 gc
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 4
+  - 4
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resa300860a43433
+  _key: '!tables.results!crowsrt24fc03200.resa300860a43433'
+  type: 0
+  text: An item from the Minor Interesting Things table
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 5
+  - 5
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resa825a6e60e32b
+  _key: '!tables.results!crowsrt24fc03200.resa825a6e60e32b'
+  type: 0
+  text: An item from the Major Interesting Things table
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 6
+  - 6
+  drawn: false
+  documentCollection: ''
+  documentId: null

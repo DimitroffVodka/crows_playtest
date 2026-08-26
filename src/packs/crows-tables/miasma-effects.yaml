@@ -1,0 +1,111 @@
+_id: crowsrtc4c1f07cb
+_key: '!tables!crowsrtc4c1f07cb'
+name: Miasma Effects
+img: icons/svg/hazard.svg
+description: <p>When exposed to the Miasma, roll 1d10 + current cruelty level to determine
+  physical and behavioral mutations.</p>
+formula: 1d10
+replacement: true
+displayRoll: true
+results:
+- _id: resc74b745443835
+  _key: '!tables.results!crowsrtc4c1f07cb.resc74b745443835'
+  type: 0
+  text: '1st Effect: You become despondent. You only speak if spoken to first and
+    give one-word responses until you exit the Miasma. | 2nd Effect: You have an edge
+    on tests made to sneak or hide.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 2
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res40e345179b667
+  _key: '!tables.results!crowsrtc4c1f07cb.res40e345179b667'
+  type: 0
+  text: '1st Effect: You become ravenous and greedy. You must eat at least 2 rations
+    during a rest to get the benefits of a rest until you are out of the Miasma. |
+    2nd Effect: Your ravenous nature makes you good at finding food. You gain a +2
+    bonus on tests made related to the forage role.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 3
+  - 4
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res32a65d0fac724
+  _key: '!tables.results!crowsrtc4c1f07cb.res32a65d0fac724'
+  type: 0
+  text: '1st Effect: You enter a destructive rage and destroy one mundane item randomly
+    chosen by the Ref from your backpack. | 2nd Effect: Destroying something makes
+    you feel good. You regain 3 Stamina or, if your Stamina is full, lose 1 wound.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 5
+  - 6
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res21ce69380db52
+  _key: '!tables.results!crowsrtc4c1f07cb.res21ce69380db52'
+  type: 0
+  text: '1st Effect: You become deceitful for the sake of it. You only communicate
+    in lies and try to get away with it until you are out of the Miasma. | 2nd Effect:
+    You lie even to yourself. Choose an expertise you do not have. You gain that expertise.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 7
+  - 8
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res5532384559ef5
+  _key: '!tables.results!crowsrtc4c1f07cb.res5532384559ef5'
+  type: 0
+  text: '1st Effect: You become lazy. You refuse to have any travel role until you
+    are out of the Miasma. | 2nd Effect: When you rest, you recover 2 wounds instead
+    of 1.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 9
+  - 10
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res2c75c33bc57b2
+  _key: '!tables.results!crowsrtc4c1f07cb.res2c75c33bc57b2'
+  type: 0
+  text: '1st Effect: You relish violence. In combat, you must keep pursuing and fighting
+    your foes until you can no longer sense them. This effect ends when you are no
+    longer have cruelty. | 2nd Effect: Your relish in violence gives you a +1 damage
+    bonus on weapon attacks.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 11
+  - 12
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resa19f0f6bad3ac
+  _key: '!tables.results!crowsrtc4c1f07cb.resa19f0f6bad3ac'
+  type: 0
+  text: '1st Effect: All of your other Miasma effects end and all your levels of cruelty
+    disappear. You can’t suffer any new Miasma effects and are permanently selfish
+    and cruel. You become an NPC controlled by the Ref. | 2nd Effect: Finishing a
+    rest in the Miasma regains the uses of your expertises.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 13
+  - 23
+  drawn: false
+  documentCollection: ''
+  documentId: null

@@ -1,0 +1,129 @@
+_id: crowsrt15eca19a2
+_key: '!tables!crowsrt15eca19a2'
+name: Cold Climate Animal Encounters
+img: icons/svg/d20-grey.svg
+description: <p>Animal encounters in cold climates and arctic regions.</p>
+formula: 1d10
+replacement: true
+displayRoll: true
+results:
+- _id: res3c6c26f43ad86
+  _key: '!tables.results!crowsrt15eca19a2.res3c6c26f43ad86'
+  type: 0
+  text: 1 bear
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 1
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resbbff407fe504f
+  _key: '!tables.results!crowsrt15eca19a2.resbbff407fe504f'
+  type: 0
+  text: 2 bears
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 2
+  - 2
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: rescc7c19da0e5ab
+  _key: '!tables.results!crowsrt15eca19a2.rescc7c19da0e5ab'
+  type: 0
+  text: 1 cave bear
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 3
+  - 3
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res8e7bb3f8c35af
+  _key: '!tables.results!crowsrt15eca19a2.res8e7bb3f8c35af'
+  type: 0
+  text: 2 cave bears
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 4
+  - 4
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resd45a0cb1a4a8a
+  _key: '!tables.results!crowsrt15eca19a2.resd45a0cb1a4a8a'
+  type: 0
+  text: 2d6 deer
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 5
+  - 5
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resf3ce676765739
+  _key: '!tables.results!crowsrt15eca19a2.resf3ce676765739'
+  type: 0
+  text: 1d6 oxen
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 6
+  - 6
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: rescc82de99129a2
+  _key: '!tables.results!crowsrt15eca19a2.rescc82de99129a2'
+  type: 0
+  text: 2d6 oxen
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 7
+  - 7
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: rese64a0c577ecff
+  _key: '!tables.results!crowsrt15eca19a2.rese64a0c577ecff'
+  type: 0
+  text: 1d6 wolves
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 8
+  - 8
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resa50759abc68d7
+  _key: '!tables.results!crowsrt15eca19a2.resa50759abc68d7'
+  type: 0
+  text: 1 dire wolf
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 9
+  - 9
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resbc3ef7d81840e
+  _key: '!tables.results!crowsrt15eca19a2.resbc3ef7d81840e'
+  type: 0
+  text: 1 dire wolf and 1d6 wolves
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 10
+  - 10
+  drawn: false
+  documentCollection: ''
+  documentId: null

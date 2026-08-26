@@ -1,0 +1,70 @@
+_id: crowsrta1c8fa8f0
+_key: '!tables!crowsrta1c8fa8f0'
+name: Campfire Brightness
+img: icons/svg/fire.svg
+description: <p>Determines campfire illumination radius based on wood quality and
+  preparation.</p>
+formula: 1d100
+replacement: true
+displayRoll: true
+results:
+- _id: resecb508201dcbe
+  _key: '!tables.results!crowsrta1c8fa8f0.resecb508201dcbe'
+  type: 0
+  text: Dim Light 3 squares (No bright light)
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 20
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resbacefceeca3da
+  _key: '!tables.results!crowsrta1c8fa8f0.resbacefceeca3da'
+  type: 0
+  text: Bright Light 1 square, Dim Light 4 squares
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 21
+  - 60
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res8746c5e461572
+  _key: '!tables.results!crowsrta1c8fa8f0.res8746c5e461572'
+  type: 0
+  text: Bright Light 2 squares, Dim Light 5 squares
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 61
+  - 80
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res31eda1c97a73d
+  _key: '!tables.results!crowsrta1c8fa8f0.res31eda1c97a73d'
+  type: 0
+  text: Bright Light 3 squares, Dim Light 6 squares
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 81
+  - 95
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res925ad05ec3df9
+  _key: '!tables.results!crowsrta1c8fa8f0.res925ad05ec3df9'
+  type: 0
+  text: Bright Light 4 squares, Dim Light 7 squares
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 96
+  - 100
+  drawn: false
+  documentCollection: ''
+  documentId: null

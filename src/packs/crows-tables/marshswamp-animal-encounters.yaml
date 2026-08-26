@@ -1,0 +1,129 @@
+_id: crowsrt3a2636f43
+_key: '!tables!crowsrt3a2636f43'
+name: Marsh/Swamp Animal Encounters
+img: icons/svg/d20-grey.svg
+description: <p>Animal encounters in marsh and swamp habitats.</p>
+formula: 1d10
+replacement: true
+displayRoll: true
+results:
+- _id: res9b0cb3a364b64
+  _key: '!tables.results!crowsrt3a2636f43.res9b0cb3a364b64'
+  type: 0
+  text: 1 bear
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 1
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resb5a0f576f50b5
+  _key: '!tables.results!crowsrt3a2636f43.resb5a0f576f50b5'
+  type: 0
+  text: 1d6 crocodiles
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 2
+  - 2
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res49224f113c28f
+  _key: '!tables.results!crowsrt3a2636f43.res49224f113c28f'
+  type: 0
+  text: 1d6 giant crows
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 3
+  - 3
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resa634db7e57936
+  _key: '!tables.results!crowsrt3a2636f43.resa634db7e57936'
+  type: 0
+  text: 1 monitor lizard
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 4
+  - 4
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res6b84a69837d6a
+  _key: '!tables.results!crowsrt3a2636f43.res6b84a69837d6a'
+  type: 0
+  text: 2 monitor lizards
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 5
+  - 5
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res59eb4d0be4720
+  _key: '!tables.results!crowsrt3a2636f43.res59eb4d0be4720'
+  type: 0
+  text: 1 constrictor snake
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 6
+  - 6
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resfa2f141b9c3e3
+  _key: '!tables.results!crowsrt3a2636f43.resfa2f141b9c3e3'
+  type: 0
+  text: 1 venomous snake
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 7
+  - 7
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resbe24e2401a270
+  _key: '!tables.results!crowsrt3a2636f43.resbe24e2401a270'
+  type: 0
+  text: 1 giant venomous snake
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 8
+  - 8
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res501ef06bfd04d
+  _key: '!tables.results!crowsrt3a2636f43.res501ef06bfd04d'
+  type: 0
+  text: 1 giant venomous snake and 1d6 venomous snakes
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 9
+  - 9
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res21d84939f3809
+  _key: '!tables.results!crowsrt3a2636f43.res21d84939f3809'
+  type: 0
+  text: 1 giant spider
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 10
+  - 10
+  drawn: false
+  documentCollection: ''
+  documentId: null

@@ -1,0 +1,159 @@
+_id: crowsrte2ff6ac38
+_key: '!tables!crowsrte2ff6ac38'
+name: Traveler Encounters
+img: icons/svg/d20-grey.svg
+description: <p>Situational encounter prompts when meeting travelers.</p>
+formula: 1d10
+replacement: true
+displayRoll: true
+results:
+- _id: res8457b31900812
+  _key: '!tables.results!crowsrte2ff6ac38.res8457b31900812'
+  type: 0
+  text: Animal Hunt | The travelers hunt an animal rolled on the appropriate habitat
+    table in [[#Wild Animal]]. If the PCs help, the travelers give them a reward from
+    the Traveler Rewards table.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 1
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res6ce6bfcb6d5d3
+  _key: '!tables.results!crowsrte2ff6ac38.res6ce6bfcb6d5d3'
+  type: 0
+  text: 'Battle | The travelers are battling a group of 2d6 Miasma-touched humans
+    (see [[#Miasma-Touched]]). Roll 1d6: On a 1–2 the Miasma-touched are bandits,
+    on 3–4 they are cannibals, on 5–6 they are cultists. If the PCs save the travelers,
+    the NPCs give them a reward from the Traveler Rewards table.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 2
+  - 2
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res9e897876c8dc6
+  _key: '!tables.results!crowsrte2ff6ac38.res9e897876c8dc6'
+  type: 0
+  text: Camping | The travelers are camping when the PCs come upon them. The NPCs
+    welcome the crows with caution. If the PCs are friendly, they offer to share their
+    meal, and the PCs don’t need to eat rations when they next rest. If the PCs are
+    standoffish or suspicious, the NPCs ask them to leave, attacking or fleeing if
+    the PCs refuse.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 3
+  - 3
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res4fecd029604b2
+  _key: '!tables.results!crowsrte2ff6ac38.res4fecd029604b2'
+  type: 0
+  text: 'Crows | These travelers are another group of crows on their way to a nearby
+    dungeon. Roll 1d6: On a 1–2, the NPCs invite the PCs to come with them and raid
+    a dungeon together. On a 3–4, the crows are standoffish, suspecting the PCs of
+    foul play. If the PCs show kindness, the NPCs share helpful lore about a nearby
+    POI or dungeon. On a 5–6, the NPCs view the PCs as business rivals and make plans
+    to kill them and take their stuff.'
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 4
+  - 4
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resa1d71d3617efa
+  _key: '!tables.results!crowsrte2ff6ac38.resa1d71d3617efa'
+  type: 0
+  text: Injured | One or more of the travelers has 1d6 wounds and an injured leg,
+    which prevents them from moving quickly. If the PCs help the injured NPC by healing
+    them or giving them a mount or vehicle to ride, the travelers give them a reward
+    from the Traveler Rewards table.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 5
+  - 5
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res2b982abea75b2
+  _key: '!tables.results!crowsrte2ff6ac38.res2b982abea75b2'
+  type: 0
+  text: Lost | The travelers are lost. If the PCs take a day to help the travelers
+    find their way, the travelers give them a reward from the Traveler Rewards table.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 6
+  - 6
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resc40b61b306352
+  _key: '!tables.results!crowsrte2ff6ac38.resc40b61b306352'
+  type: 0
+  text: Need an Escort | The travelers had a larger retinue, but many of them died
+    in a monster attack. They feel unsafe, and ask the PCs to escort them to the nearest
+    village. If the PCs agree, the travelers give them a reward from the Traveler
+    Rewards table.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 7
+  - 7
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res14502c141fb72
+  _key: '!tables.results!crowsrte2ff6ac38.res14502c141fb72'
+  type: 0
+  text: Pursued by Monsters | The travelers are being chased by one or more monsters,
+    rolled on the monster encounter table used by the closest dungeon. If the PCs
+    intervene, the travelers take the opportunity to flee, leaving any of their dead
+    behind.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 8
+  - 8
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res4f7674f0ed176
+  _key: '!tables.results!crowsrte2ff6ac38.res4f7674f0ed176'
+  type: 0
+  text: Starving | The travelers have run out of food. They beg the PCs to give them
+    something to eat. If the PCs provide them with enough food to last them 1d6 days,
+    the travelers give them a reward from the Traveler Rewards table.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 9
+  - 9
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res6f5fc625fe56f
+  _key: '!tables.results!crowsrte2ff6ac38.res6f5fc625fe56f'
+  type: 0
+  text: Treasure Hunt | The PCs find the travelers searching the area for treasure.
+    The NPCs are cagey about their hunt, but they’re looking for one specific item
+    (perhaps rolled on the Major Interesting Things table). If the PCs help in the
+    search and hand over the item, the NPCs give them a reward from the Traveler Rewards
+    table.
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 10
+  - 10
+  drawn: false
+  documentCollection: ''
+  documentId: null

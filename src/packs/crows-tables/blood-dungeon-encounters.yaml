@@ -1,0 +1,81 @@
+_id: crowsrt5f6940e79
+_key: '!tables!crowsrt5f6940e79'
+name: Blood Dungeon Encounters
+img: icons/svg/d20-grey.svg
+description: <p>Random encounter compositions in blood dungeons.</p>
+formula: 1d6
+replacement: true
+displayRoll: true
+results:
+- _id: res7c9fd2ece5b9b
+  _key: '!tables.results!crowsrt5f6940e79.res7c9fd2ece5b9b'
+  type: 0
+  text: 1d6 blood creature A
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 1
+  - 1
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res5702e188e6c3e
+  _key: '!tables.results!crowsrt5f6940e79.res5702e188e6c3e'
+  type: 0
+  text: 2d6 blood creature A
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 2
+  - 2
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res8cb683a12fed9
+  _key: '!tables.results!crowsrt5f6940e79.res8cb683a12fed9'
+  type: 0
+  text: 1 blood creature B
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 3
+  - 3
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: res29ef8f5cb3799
+  _key: '!tables.results!crowsrt5f6940e79.res29ef8f5cb3799'
+  type: 0
+  text: 1d6 blood creature B
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 4
+  - 4
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resd6a7f6dd4c558
+  _key: '!tables.results!crowsrt5f6940e79.resd6a7f6dd4c558'
+  type: 0
+  text: 1 blood creature C
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 5
+  - 5
+  drawn: false
+  documentCollection: ''
+  documentId: null
+- _id: resc0dc5b6c809a9
+  _key: '!tables.results!crowsrt5f6940e79.resc0dc5b6c809a9'
+  type: 0
+  text: 1 blood creature C and 1d6 blood creature A
+  img: icons/svg/d20-black.svg
+  weight: 1
+  range:
+  - 6
+  - 6
+  drawn: false
+  documentCollection: ''
+  documentId: null
