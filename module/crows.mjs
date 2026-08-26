@@ -47,7 +47,7 @@ import {
 } from "./helpers/village.mjs";
 import {
   startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
-  identifyMagicItem
+  identifyMagicItem, reconcileCraftingProjects, craftingMaterialSetsFor
 } from "./helpers/crafting.mjs";
 import {
   openCharacterCreator, createCharacter, applyCharacteristics,
@@ -214,7 +214,10 @@ Hooks.once("init", () => {
     crafting: {
       startProject: startCraftingProject, cancel: cancelProject,
       roll: makeCraftingRoll, complete: completeProject,
-      identify: identifyMagicItem
+      identify: identifyMagicItem, reconcile: reconcileCraftingProjects,
+      // The material ticket may replace `planMaterials` with its inventory
+      // planner; this resolver remains the safe no-wildcard fallback.
+      materialSetsFor: craftingMaterialSetsFor
     },
     creator: {
       open: openCharacterCreator,
@@ -303,6 +306,32 @@ Hooks.on("createActor", (actor) => {
     });
   })().catch((error) => console.error(`crows | imported actor migration failed for ${actor.name}`, error));
 });
+
+/**
+ * Material Item changes are the other input to a crafting state transition.
+ * The material planner remains the owner of matching; this hook deliberately
+ * calls the lifecycle seam without inventing a wildcard match. Once the
+ * planner supplies an explicit set count, the same seam promotes blocked
+ * projects to `pending` and persists that fact for the sheet.
+ */
+function reconcileCraftingOwner(item, changes = {}) {
+  const actor = item?.parent;
+  if (actor?.type !== "crow") return;
+  const subtypeWasMaterial = changes?.system?.subtype === "material"
+    || changes?.["system.subtype"] === "material";
+  if (item?.type !== "gear" || (item?.system?.subtype !== "material" && !subtypeWasMaterial)) return;
+  const crafting = globalThis.game?.crows?.crafting;
+  const materialPlanner = crafting?.materialSetsFor ?? crafting?.planMaterials;
+  const options = typeof materialPlanner === "function"
+    ? { materialSetsFor: materialPlanner } : { materialSetsFor: craftingMaterialSetsFor };
+  reconcileCraftingProjects(actor, options).catch((error) => {
+    console.error(`crows | crafting reconciliation failed for ${actor.name}`, error);
+  });
+}
+
+Hooks.on("createItem", reconcileCraftingOwner);
+Hooks.on("updateItem", reconcileCraftingOwner);
+Hooks.on("deleteItem", reconcileCraftingOwner);
 
 /**
  * Wire chat-card actions (e.g. "Apply T2/T3" damage buttons).
