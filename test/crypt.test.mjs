@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import * as cryptRules from "../module/helpers/crypt.mjs";
 import { effectiveInstitutionLevel } from "../module/helpers/village.mjs";
 
-describe("crypt boon effect level (C:2943)", () => {
+describe("crypt boon effect level (C:2517)", () => {
   test("crypt 5 + Prosperity 10 uses level 6 and never consults a disagreeing fallback", () => {
     const institutionLevel = effectiveInstitutionLevel(
       { type: "crypt", level: 5, operatingFromCycle: 0 },
@@ -63,7 +63,7 @@ describe("crypt boon effect level (C:2943)", () => {
   });
 });
 
-describe("Boon of Disappearance (C:2925)", () => {
+describe("Boon of Disappearance (C:2507)", () => {
   test("is an honest narrative combat-round clock, not a deleted condition flag", () => {
     const boon = cryptRules.CRYPT_BOONS.disappearance;
     assert.equal(boon.applyTo, "narrative");

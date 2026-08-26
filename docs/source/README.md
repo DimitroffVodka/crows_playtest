@@ -23,6 +23,14 @@ stable addresses tied to a commit.
 ./sync-books.sh --check  # do the pinned copies still match the packet?
 ```
 
+## Citation identity
+
+The `C:` extraction is frozen at this exact 2,678-line snapshot. Do not replace
+that file in place while keeping old `C:` citations: a future playtest draft gets
+a new identity (`C2:` or a dated snapshot) and its own source file. For newly
+touched high-value claims, prefer a line locator plus a short content phrase so
+the line handles navigation and the phrase provides the semantic check.
+
 ## Why this exists — it cost three rounds of rework in one day
 
 The books are **generated artifacts** from an OCR/build pipeline outside the repo. On

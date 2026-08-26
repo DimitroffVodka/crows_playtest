@@ -3,7 +3,7 @@ import { getInstitutionLevel, getVillage, setVillage } from "./village.mjs";
 /**
  * Crypt — village institution that grants boons via dead crows.
  *
- * Characters Book C:2913-2961.
+ * Characters Book C:2498-2527.
  *
  *   - When a crow dies, their remains can be interred in the village
  *     Crypt. The player picks a boon for the dead crow.
@@ -14,7 +14,7 @@ import { getInstitutionLevel, getVillage, setVillage } from "./village.mjs";
  *   - Expending a boon takes no action; once expended, it's gone.
  *
  * The Crypt has a raw institution level of 1–5. At raw level 5 and
- * Prosperity 10, it is level 6 specifically for boon effects (C:2943).
+ * Prosperity 10, it is level 6 specifically for boon effects (C:2517).
  * The Village institution model is authoritative for those effects.
  */
 
@@ -124,7 +124,7 @@ function normaliseLevel(value) {
  * Resolve the level used by every boon effect.
  *
  * `institutionLevel` is already the Village model's effective operating level,
- * including pending upgrades, event modifiers, and the C:2943 boon capstone.
+ * including pending upgrades, event modifiers, and the C:2517 boon capstone.
  * The old standalone setting is read only when that authority is genuinely
  * unavailable. In particular, level 0 is authoritative rather than a falsey
  * signal to resurrect a destroyed/closed crypt from stale fallback data.
@@ -177,7 +177,7 @@ export function getCryptBoonLevel() {
 
 /**
  * Set the raw Village Crypt institution level (0–5).
- * Level 6 is never stored: C:2943 derives it for boon effects only.
+ * Level 6 is never stored: C:2517 derives it for boon effects only.
  */
 export async function setRawCryptInstitutionLevel(lvl) {
   const rawLevel = Math.max(0, Math.min(5, Math.floor(Number(lvl) || 0)));
