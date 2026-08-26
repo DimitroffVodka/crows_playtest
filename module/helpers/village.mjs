@@ -39,6 +39,60 @@
 const NS = "crows";
 const KEY_VILLAGE = "village";
 
+/**
+ * Village state is a world setting, not a Document with Foundry's clone and
+ * revision machinery.  Keep the copy/fingerprint helpers local to this
+ * boundary so every caller gets the same ownership semantics.  JSON is used
+ * only for the operation fingerprint (the setting itself is cloned with
+ * Foundry's utility when it exists); sorting object keys makes a retry token
+ * insensitive to property insertion order while preserving array order.
+ */
+function cloneValue(value) {
+  if (value === undefined) return undefined;
+  try {
+    if (typeof globalThis.foundry?.utils?.deepClone === "function") {
+      return globalThis.foundry.utils.deepClone(value);
+    }
+  } catch { /* fall through to the platform-neutral clone */ }
+  if (typeof structuredClone === "function") return structuredClone(value);
+  return JSON.parse(JSON.stringify(value));
+}
+
+function randomToken(length = 16) {
+  try {
+    const token = globalThis.foundry?.utils?.randomID?.(length);
+    if (token) return String(token);
+  } catch { /* a test shim may expose no randomID */ }
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  return Array.from({ length }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
+}
+
+function newVillageIdentity() {
+  return {
+    villageId: `village-${randomToken(16)}`,
+    sceneSeed: randomToken(24)
+  };
+}
+
+function stableFingerprintValue(value) {
+  if (value === undefined) return "__undefined__";
+  if (value === null || typeof value !== "object") return value;
+  if (Array.isArray(value)) return value.map(stableFingerprintValue);
+  return Object.fromEntries(Object.keys(value).sort().map(key => [key, stableFingerprintValue(value[key])]));
+}
+
+/** Stable, order-insensitive input token for the Village operation journal. */
+export function villageInputFingerprint(value) {
+  return JSON.stringify(stableFingerprintValue(value));
+}
+
+// A setting read may occur before the first designated-writer migration.  A
+// process-local fallback prevents repeated reads of a legacy/absent setting
+// from inventing a new identity, but it is never treated as durable until a
+// successful Village write persists it.
+let fallbackVillageRecord = null;
+let legacyIdentity = null;
+
 export const PROSPERITY_MIN = -10;          // C:2265
 export const PROSPERITY_MAX = 10;           // C:2261
 export const CYCLE_DAYS = 10;               // C:2251
@@ -345,8 +399,15 @@ export function institutionPurchasableMaxLevel(key) {
 }
 
 /** Cost to upgrade INTO `level`. `null` when that level is not purchasable. */
-export function upgradePrice(key, level) {
-  return INSTITUTIONS[key]?.advancement.find(r => r.level === level)?.price ?? null;
+export function upgradePrice(key, level, institution = null) {
+  if (key && typeof key === "object") {
+    institution = key;
+    key = institution.type ?? institution.key;
+    level = level ?? institution.pendingLevel ?? institution.level;
+  }
+  if (institution?.destroyed) return null;
+  const target = Math.floor(Number(level));
+  return INSTITUTIONS[key]?.advancement.find(r => r.level === target)?.price ?? null;
 }
 
 /** Cost to establish the institution (C:2350). */
@@ -392,6 +453,24 @@ export function effectiveInstitutionLevel(inst, { prosperity = 0, cycle = null, 
 
   // (1) paid-for level, if its cycle has arrived.
   let base = Math.max(0, Math.floor(Number(inst.level) || 0));
+
+  // Destruction is deliberately represented as a tombstone in the durable
+  // record.  It remains addressable by id for ruins/map reconciliation, but a
+  // type/service read must never accidentally revive it through its old level.
+  if (inst?.destroyed) {
+    return {
+      ok: true,
+      base,
+      level: 0,
+      closed: true,
+      destroyed: true,
+      notYetOpen: false,
+      modifierDelta: 0,
+      capstoneActive: false,
+      aboveTableMax: false
+    };
+  }
+
   if (inst.pendingLevel != null && cycle != null && cycle >= (inst.pendingFromCycle ?? Infinity)) {
     base = Math.max(base, Math.floor(Number(inst.pendingLevel) || 0));
   }
@@ -459,6 +538,22 @@ const QUALITY_ORDER = ["standard", "fine", "masterwork"];   // C:2565-2569
  *   percentChance  { kind }               auctionHouse
  */
 export function itemAvailability(key, level, criteria = {}) {
+  // Pure callers normally pass an effective numeric level.  Accepting an
+  // optional record here keeps a tombstoned institution from being treated as
+  // live by a browse/service caller that already has the durable record in
+  // hand; id-based lookup still remains available for ruin rendering.
+  let record = (key && typeof key === "object" ? key : null)
+    ?? criteria?.institutionRecord ?? criteria?.institution ?? null;
+  if (key && typeof key === "object") key = key.type ?? key.key;
+  if (level && typeof level === "object") {
+    record ??= level;
+    level = level.level;
+  }
+  if (record?.destroyed) {
+    return { ok: true, deterministic: true, available: false, closed: true, destroyed: true };
+  }
+  if (record?.type && (key == null || typeof key !== "string")) key = record.type;
+  if (record && level == null) level = record.level;
   const def = INSTITUTIONS[key];
   if (!def) return { ok: false, error: `unknown institution: ${key}` };
   const axis = def.availability?.axis;
@@ -814,6 +909,7 @@ export function retirementBenefitCount(txp = 0) {
  * lookup above keeps working against it unchanged.
  */
 export function makeForeignVillage({ name = "Unnamed Village", prosperity = 0, institutions = [] } = {}) {
+  const identity = newVillageIdentity();
   return {
     name,
     isHome: false,
@@ -821,7 +917,17 @@ export function makeForeignVillage({ name = "Unnamed Village", prosperity = 0, i
     cycle: 0,
     tracksCycles: false,          // C:2226 — the Ref doesn't track these
     canInvest: false,             // C:2226 — "you can't invest in them"
-    institutions: institutions.map(i => ({ ...i })),
+    villageId: identity.villageId,
+    revision: 0,
+    sceneId: null,
+    sceneSeed: identity.sceneSeed,
+    bootstrap: { txId: null, phase: "prepared", candidateSceneId: null },
+    auctionLots: [],
+    operationJournal: [],
+    institutions: institutions.map((institution, index) =>
+      normaliseInstitution(institution, index, identity.villageId)),
+    activeEffects: [],
+    pendingEvent: null,
     spentThisCycle: 0,
     spendBonusAwarded: false
   };
@@ -879,16 +985,58 @@ export function workshopRental(key, level) {
 /*  Everything above is pure and unit-tested; everything below needs a world.  */
 /* ========================================================================== */
 
-export function registerVillageSettings() {
-  game.settings.register(NS, KEY_VILLAGE, {
-    scope: "world",
-    config: false,
-    type: Object,
-    default: defaultVillage()
-  });
-}
+/*
+ * State-boundary notes
+ * --------------------
+ * A world setting is a mutable JSON value, while `game.settings.get` returns
+ * the value held by Foundry's client-side setting document.  The old shallow
+ * Object.assign boundary therefore let a caller mutate the stored
+ * institutions/effects arrays before it had decided to save them.  We keep
+ * the setting as the one durable source of truth, but clone at every edge and
+ * make `saveVillage` the only successful-write notification origin.
+ *
+ * The migration intentionally does not write from a read.  Generating an id
+ * in `getVillage` and hoping a later client converges would create two
+ * villages during a simultaneous load.  A designated writer calls
+ * `migrateVillageState` (the ready hook wires this for the current GM), which
+ * persists the identity once.  A process-local fallback is used only until
+ * that write is possible, so repeated legacy reads remain stable without
+ * pretending that a local default is durable.
+ *
+ * Foundry v14 invokes a setting's onChange callback synchronously from the
+ * client-document update, before ClientSettings.set resolves.  The local
+ * origin marker is consequently registered before set and consumed by the
+ * callback; saveVillage emits the authoritative (next, prev) notification
+ * after set resolves.  This is deterministic, not an either-order race, and
+ * prevents one local setting write from dispatching twice.
+ *
+ * The queue below is storage/serialization infrastructure only.  It does not
+ * decide event targets, prices, Commerce receipts, or saga policy.  The
+ * designated-writer check is deliberately a live check immediately before a
+ * setting write.  Core has no lease/epoch/fence/CAS for independent clients,
+ * so the residual GM-transition window is reported for reconciliation rather
+ * than hidden behind a false atomicity claim.
+ */
 
-export function defaultVillage() {
+export const VILLAGE_BOOTSTRAP_PHASES = Object.freeze([
+  "prepared", "scene-created", "tiles-created", "committed", "uncertain"
+]);
+export const VILLAGE_OPERATION_TERMINAL_PHASES = Object.freeze([
+  "committed", "abandoned", "complete", "resolved", "duplicate-detected"
+]);
+const TERMINAL_OPERATION_PHASES = new Set(VILLAGE_OPERATION_TERMINAL_PHASES);
+export const VILLAGE_OPERATION_RETENTION = Object.freeze({ terminal: 100, cycles: 20 });
+
+let villageSettingsRegistered = false;
+let lastObservedVillage = null;
+const pendingOriginMarkers = new Map();
+const villageChangeListeners = new Set();
+const villageQueues = new Map();
+let villageSceneReconciliationEnqueuer = null;
+
+function buildDefaultVillage(identity = newVillageIdentity()) {
+  const villageId = String(identity.villageId);
+  const sceneSeed = String(identity.sceneSeed);
   const institutions = STARTING_INSTITUTIONS.map((type, idx) => ({
     id: `seed-${idx}-${type}`,
     type,
@@ -898,7 +1046,10 @@ export function defaultVillage() {
     foundedOnCycle: 0,
     operatingFromCycle: 0,        // the starting five are open on day one
     pendingLevel: null,
-    pendingFromCycle: null
+    pendingFromCycle: null,
+    destroyed: false,
+    destroyedOnCycle: null,
+    destruction: null
   }));
   return {
     name: "Unnamed Village",
@@ -910,77 +1061,701 @@ export function defaultVillage() {
     raisingEventThisCycle: true,  // start true so the first end-of-cycle is not a penalty
     spentThisCycle: 0,            // C:2261
     spendBonusAwarded: false,
+    villageId,
+    revision: 0,
+    sceneId: null,
+    sceneSeed,
+    bootstrap: {
+      txId: null,
+      phase: "prepared",
+      candidateSceneId: null
+    },
+    auctionLots: [],
+    operationJournal: [],
     institutions,
     activeEffects: [],            // event effects live until the end of their cycle
     pendingEvent: null
   };
 }
 
+function normaliseInstitution(value, index, villageId) {
+  const source = value && typeof value === "object" ? cloneValue(value) : {};
+  const type = String(source.type ?? source.key ?? "");
+  const generatedId = `${villageId}-institution-${index}-${type || "unknown"}`;
+  const def = INSTITUTIONS[type];
+  const normalized = {
+    id: String(source.id ?? generatedId),
+    type,
+    name: source.name ?? def?.label ?? type,
+    level: Math.max(0, Math.floor(Number(source.level) || 0)),
+    steward: source.steward ?? "",
+    foundedOnCycle: source.foundedOnCycle ?? 0,
+    operatingFromCycle: source.operatingFromCycle ?? 0,
+    pendingLevel: source.pendingLevel ?? null,
+    pendingFromCycle: source.pendingFromCycle ?? null,
+    destroyed: source.destroyed === true,
+    destroyedOnCycle: source.destroyedOnCycle ?? null,
+    destruction: source.destruction ?? null,
+    ...source,
+    id: String(source.id ?? generatedId),
+    type,
+    name: source.name ?? def?.label ?? type,
+    level: Math.max(0, Math.floor(Number(source.level) || 0)),
+    steward: source.steward ?? "",
+    foundedOnCycle: source.foundedOnCycle ?? 0,
+    operatingFromCycle: source.operatingFromCycle ?? 0,
+    pendingLevel: source.pendingLevel ?? null,
+    pendingFromCycle: source.pendingFromCycle ?? null,
+    destroyed: source.destroyed === true,
+    destroyedOnCycle: source.destroyedOnCycle ?? null,
+    destruction: source.destruction ?? null
+  };
+  return normalized;
+}
+
+/** Normalize a legacy or current record without writing it. */
+export function normalizeVillage(value, { identity = null } = {}) {
+  const source = value && typeof value === "object" ? cloneValue(value) : {};
+  const sourceVillageId = typeof source.villageId === "string" ? source.villageId.trim() : source.villageId;
+  const sourceSceneSeed = typeof source.sceneSeed === "string" ? source.sceneSeed.trim() : source.sceneSeed;
+  if (!identity && sourceVillageId && legacyIdentity?.villageId !== String(sourceVillageId)) {
+    legacyIdentity = {
+      villageId: String(sourceVillageId),
+      sceneSeed: String(sourceSceneSeed || randomToken(24))
+    };
+  }
+  const remembered = identity ?? legacyIdentity ?? (legacyIdentity = newVillageIdentity());
+  const villageId = String(sourceVillageId || remembered.villageId);
+  const sceneSeed = String(sourceSceneSeed || remembered.sceneSeed);
+  if (sourceVillageId || sourceSceneSeed || !legacyIdentity?.villageId) legacyIdentity = { villageId, sceneSeed };
+
+  const defaults = buildDefaultVillage({ villageId, sceneSeed });
+  const normalized = { ...defaults, ...source, villageId, sceneSeed };
+  normalized.prosperity = clampProsperity(normalized.prosperity);
+  normalized.cycle = Math.max(0, Math.floor(Number(normalized.cycle) || 0));
+  normalized.revision = Math.max(0, Math.floor(Number(normalized.revision) || 0));
+  normalized.spentThisCycle = Math.max(0, Math.floor(Number(normalized.spentThisCycle) || 0));
+  normalized.spendBonusAwarded = Boolean(normalized.spendBonusAwarded);
+  normalized.raisingEventThisCycle = Boolean(normalized.raisingEventThisCycle);
+  normalized.sceneId = normalized.sceneId ?? null;
+  normalized.institutions = (Array.isArray(source.institutions)
+    ? source.institutions : defaults.institutions)
+    .map((institution, index) => normaliseInstitution(institution, index, villageId));
+  normalized.activeEffects = Array.isArray(source.activeEffects) ? cloneValue(source.activeEffects) : [];
+  normalized.auctionLots = Array.isArray(source.auctionLots) ? cloneValue(source.auctionLots) : [];
+  normalized.operationJournal = Array.isArray(source.operationJournal)
+    ? cloneValue(source.operationJournal) : [];
+  normalized.pendingEvent = Object.prototype.hasOwnProperty.call(source, "pendingEvent")
+    ? cloneValue(source.pendingEvent) : null;
+  const bootstrap = source.bootstrap && typeof source.bootstrap === "object" ? source.bootstrap : {};
+  normalized.bootstrap = {
+    ...defaults.bootstrap,
+    ...cloneValue(bootstrap),
+    txId: bootstrap.txId == null ? null : String(bootstrap.txId),
+    phase: VILLAGE_BOOTSTRAP_PHASES.includes(bootstrap.phase) ? bootstrap.phase : "prepared",
+    candidateSceneId: bootstrap.candidateSceneId ?? null
+  };
+  return cloneValue(normalized);
+}
+
+/** British-spelling alias retained for callers that use the plan vocabulary. */
+export const normaliseVillage = normalizeVillage;
+
+export function cloneVillage(value = getVillage()) {
+  return normalizeVillage(value);
+}
+
+export const cloneVillageState = cloneVillage;
+
+export function registerVillageSettings() {
+  if (villageSettingsRegistered) return;
+  game.settings.register(NS, KEY_VILLAGE, {
+    scope: "world",
+    config: false,
+    type: Object,
+    default: defaultVillage(),
+    onChange: (value, options, userId) => handleVillageSettingChange(value, options, userId)
+  });
+  villageSettingsRegistered = true;
+}
+
+export function defaultVillage() {
+  return cloneValue(buildDefaultVillage());
+}
+
 export function getVillage() {
   try {
     const v = game.settings.get(NS, KEY_VILLAGE);
-    return Object.assign(defaultVillage(), v ?? {});
-  } catch { return defaultVillage(); }
+    if (v == null) {
+      if (!fallbackVillageRecord) fallbackVillageRecord = normalizeVillage(buildDefaultVillage());
+      return cloneValue(fallbackVillageRecord);
+    }
+    return normalizeVillage(v);
+  } catch {
+    if (!fallbackVillageRecord) fallbackVillageRecord = normalizeVillage(buildDefaultVillage());
+    return cloneValue(fallbackVillageRecord);
+  }
 }
 
-async function save(v) {
-  return game.settings.set(NS, KEY_VILLAGE, v);
+function settingRawVillage() {
+  try { return game.settings.get(NS, KEY_VILLAGE); } catch { return null; }
 }
 
-export async function setVillage(patch = {}) {
-  const next = Object.assign({}, getVillage(), patch);
+function activeVillageGM() {
+  const users = globalThis.game?.users;
+  const hasUserCollection = users != null;
+  try {
+    if (users?.activeGM) return users.activeGM;
+  } catch { /* fall through to a collection scan */ }
+  let candidates = [];
+  try {
+    if (typeof users?.filter === "function") candidates = [...users.filter(user => user?.active && user?.isGM)];
+    else if (Array.isArray(users)) candidates = users.filter(user => user?.active && user?.isGM);
+    else if (Array.isArray(users?.contents)) candidates = users.contents.filter(user => user?.active && user?.isGM);
+    else if (typeof users?.[Symbol.iterator] === "function") {
+      candidates = [...users].map(entry => Array.isArray(entry) ? entry[1] : entry)
+        .filter(user => user?.active && user?.isGM);
+    }
+  } catch { candidates = []; }
+  candidates.sort((a, b) => {
+    const roleOrder = (Number(b?.role) || 0) - (Number(a?.role) || 0);
+    if (roleOrder) return roleOrder;
+    const left = String(a?.id ?? "");
+    const right = String(b?.id ?? "");
+    return left < right ? -1 : left > right ? 1 : 0;
+  });
+  if (candidates[0]) return candidates[0];
+  // Foundry always exposes game.users, and an explicit empty/activeGM-null
+  // collection means there is no designated writer.  Only the tiny pure-test
+  // harness with no collection at all falls back to game.user.
+  if (hasUserCollection) return null;
+  const current = globalThis.game?.user;
+  if (current?.isGM && current.active !== false) return current;
+  return null;
+}
+
+/** The Commerce option-(b) designated writer for a Village operation. */
+export function getActiveVillageGM() {
+  return activeVillageGM();
+}
+
+export const activeGM = getActiveVillageGM;
+
+export function isVillageDesignatedWriter(user = globalThis.game?.user) {
+  const designated = activeVillageGM();
+  if (!designated) return false;
+  if (!user) return true;
+  if (user.isGM === false) return false;
+  if (user.id == null || designated.id == null) return user === designated;
+  return String(user.id) === String(designated.id);
+}
+
+export function registerVillageChangeListener(listener) {
+  if (typeof listener !== "function") return () => {};
+  villageChangeListeners.add(listener);
+  return () => villageChangeListeners.delete(listener);
+}
+
+export const subscribeVillageChanges = registerVillageChangeListener;
+
+/** Install the later map ticket's enqueue hook without registering onChange twice. */
+export function setVillageSceneReconciliationEnqueuer(listener) {
+  villageSceneReconciliationEnqueuer = typeof listener === "function" ? listener : null;
+  return villageSceneReconciliationEnqueuer;
+}
+
+function villageMarkerKey(marker) {
+  return `${marker.villageId}:${marker.revision}:${marker.operationId}`;
+}
+
+function markerMatches(marker, village, options = {}, userId = null) {
+  if (!marker || marker.villageId !== village.villageId || marker.revision !== village.revision) return false;
+  if (marker.fingerprint !== villageInputFingerprint(village)) return false;
+  const source = marker.sourceUserId;
+  return !userId || !source || String(userId) === String(source)
+    || String(userId) === String(globalThis.game?.user?.id ?? "");
+}
+
+function handleVillageSettingChange(value, options = {}, userId = null) {
+  const next = normalizeVillage(value);
+  const marker = [...pendingOriginMarkers.values()].find(candidate => markerMatches(candidate, next, options, userId));
+  const previous = lastObservedVillage ? cloneValue(lastObservedVillage) : null;
+  lastObservedVillage = cloneValue(next);
+  if (marker) {
+    marker.observed = true;
+    return;
+  }
+
+  const metadata = {
+    villageId: next.villageId,
+    revision: next.revision,
+    operationId: options?.crowsVillageOperationId ?? options?.operationId ?? null,
+    sourceUserId: userId ?? null,
+    remote: true,
+    cacheMiss: !previous
+  };
+  notifyVillageChanged(next, previous, metadata);
+}
+
+function notifyVillageChanged(next, prev, metadata = {}) {
+  const ownedNext = cloneValue(next);
+  const ownedPrev = prev == null ? null : cloneValue(prev);
+  const ownedMetadata = cloneValue(metadata);
+  if (typeof globalThis.Hooks?.callAll === "function") {
+    try {
+      globalThis.Hooks.callAll("crowsVillageChanged", cloneValue(ownedNext),
+        ownedPrev == null ? null : cloneValue(ownedPrev), cloneValue(ownedMetadata));
+    } catch (error) { console.error("crows | Village change hook failed", error); }
+  }
+  for (const listener of villageChangeListeners) {
+    try {
+      listener(cloneValue(ownedNext), ownedPrev == null ? null : cloneValue(ownedPrev), cloneValue(ownedMetadata));
+    }
+    catch (error) { console.error("crows | Village change listener failed", error); }
+  }
+  if (villageSceneReconciliationEnqueuer && isVillageDesignatedWriter()) {
+    try {
+      Promise.resolve(villageSceneReconciliationEnqueuer(
+        cloneValue(ownedNext), ownedPrev == null ? null : cloneValue(ownedPrev), cloneValue(ownedMetadata)
+      )).catch(error => console.error("crows | Village scene reconciliation failed", error));
+    } catch (error) { console.error("crows | Village scene reconciliation failed", error); }
+  }
+}
+
+function villageOperationId(value) {
+  return String(value ?? "").trim();
+}
+
+function operationFingerprint(value) {
+  if (typeof value === "string" && value.length) return value;
+  return villageInputFingerprint(value ?? {});
+}
+
+function operationEntry(village, operationId) {
+  return (village.operationJournal ?? []).find(entry => villageOperationId(entry?.operationId) === operationId) ?? null;
+}
+
+/** Read one durable operation receipt without exposing the setting's object. */
+export function getVillageOperation(operationId, village = getVillage()) {
+  const entry = operationEntry(village, villageOperationId(operationId));
+  return entry ? cloneValue(entry) : null;
+}
+
+export const inspectVillageOperation = getVillageOperation;
+
+function operationResult(entry) {
+  if (entry?.result && typeof entry.result === "object") return cloneValue(entry.result);
+  return { ok: entry?.phase === "committed", operationId: entry?.operationId, phase: entry?.phase };
+}
+
+function journalEntryIsTerminal(entry) {
+  return TERMINAL_OPERATION_PHASES.has(String(entry?.phase ?? ""));
+}
+
+function journalReferencedOperationIds(journal) {
+  const refs = new Set();
+  for (const entry of journal) {
+    for (const child of entry?.childOperationIds ?? []) refs.add(String(child));
+  }
+  return refs;
+}
+
+/** Keep all recovery entries and the plan's bounded terminal evidence. */
+export function pruneVillageOperationJournal(journal = [], currentCycle = 0) {
+  const entries = (Array.isArray(journal) ? journal : []).map(cloneValue);
+  const terminal = entries.filter(journalEntryIsTerminal);
+  if (terminal.length <= VILLAGE_OPERATION_RETENTION.terminal) return entries;
+  const referenced = journalReferencedOperationIds(entries);
+  const cycleFloor = Math.floor(Number(currentCycle) || 0) - (VILLAGE_OPERATION_RETENTION.cycles - 1);
+  const keep = new Set(terminal.slice(-VILLAGE_OPERATION_RETENTION.terminal));
+  for (const entry of terminal) {
+    if ((Number(entry.originCycle) || 0) >= cycleFloor || referenced.has(String(entry.operationId))) keep.add(entry);
+  }
+  return entries.filter(entry => !journalEntryIsTerminal(entry) || keep.has(entry));
+}
+
+function enqueueVillageTask(villageId, task) {
+  const prior = villageQueues.get(villageId) ?? Promise.resolve();
+  const current = prior.catch(() => undefined).then(task);
+  villageQueues.set(villageId, current);
+  current.finally(() => {
+    if (villageQueues.get(villageId) === current) villageQueues.delete(villageId);
+  }).catch(() => undefined);
+  return current;
+}
+
+function authorityFailure() {
+  const designated = activeVillageGM();
+  if (!designated) {
+    return { ok: false, error: "authority-unavailable", code: "no-active-gm", reason: "no-active-gm" };
+  }
+  if (!isVillageDesignatedWriter()) {
+    return {
+      ok: false,
+      error: "authority-unavailable",
+      reason: "request-must-run-on-designated-gm",
+      activeGMId: designated.id ?? null
+    };
+  }
+  return null;
+}
+
+function operationPhase(request, outcome, terminal) {
+  const phase = request.phase ?? outcome?.phase ?? (terminal ? "committed" : "prepared");
+  return String(phase);
+}
+
+/**
+ * Generic per-Village designated-writer queue and journal primitive.
+ *
+ * `execute` is intentionally a storage callback: it receives an owned live
+ * snapshot and may return `{ next, result, phase }`.  Later event/interface
+ * tickets supply action policy and child sagas; this function only persists
+ * their operation token, revision/fingerprint, child ids, and result.
+ */
+export async function enqueueVillageOperation(request = {}, execute = null) {
+  const input = request && typeof request === "object" ? request : {};
+  const operationId = villageOperationId(input.operationId ?? input.id);
+  const hasFingerprint = Object.prototype.hasOwnProperty.call(input, "inputFingerprint")
+    || Object.prototype.hasOwnProperty.call(input, "fingerprint")
+    || Object.prototype.hasOwnProperty.call(input, "input");
+  const fingerprint = operationFingerprint(input.inputFingerprint ?? input.fingerprint ?? input.input);
+  const childOperationIds = [...new Set((input.childOperationIds ?? input.childIds ?? input.children ?? [])
+    .map(child => String(child)).filter(Boolean))];
+  if (!operationId) return { ok: false, error: "invalid-request", reason: "operation-id-required" };
+  if (!hasFingerprint || !fingerprint) {
+    return { ok: false, error: "invalid-request", reason: "input-fingerprint-required" };
+  }
+  const executor = typeof input.execute === "function" ? input.execute
+    : typeof input.apply === "function" ? input.apply
+      : typeof input.mutate === "function" ? input.mutate : execute;
+  const snapshot = getVillage();
+  const villageId = String(input.villageId ?? snapshot.villageId);
+
+  return enqueueVillageTask(villageId, async () => {
+    const authority = authorityFailure();
+    if (authority) return authority;
+
+    const current = getVillage();
+    if (current.villageId !== villageId) {
+      return { ok: false, error: "conflict", reason: "village-id-mismatch", villageId: current.villageId };
+    }
+    const existing = operationEntry(current, operationId);
+    if (existing) {
+      if (String(existing.inputFingerprint ?? "") !== fingerprint) {
+        return {
+          ok: false, error: "duplicate", code: "input-fingerprint-conflict", conflict: true,
+          reason: "input-fingerprint-conflict",
+          operation: cloneValue(existing), state: "known"
+        };
+      }
+      if (journalEntryIsTerminal(existing)) {
+        return { ...operationResult(existing), operationId, replayed: true, operation: cloneValue(existing) };
+      }
+      if (!executor && input.next == null && input.nextVillage == null && input.terminalResult == null) {
+        return {
+          ok: false, error: "operation-pending", phase: existing.phase,
+          operation: cloneValue(existing), state: existing.phase === "uncertain" ? "unknown" : "known"
+        };
+      }
+    }
+
+    const expectedRevision = Number(input.expectedRevision);
+    if (!Number.isInteger(expectedRevision) || expectedRevision < 0) {
+      return { ok: false, error: "invalid-request", reason: "expected-revision-required", currentRevision: current.revision };
+    }
+    if (!existing && current.revision !== expectedRevision) {
+      return {
+        ok: false, error: "conflict", code: "stale-revision", reason: "stale-revision", stale: true, retryable: true,
+        expectedRevision, currentRevision: current.revision
+      };
+    }
+
+    let outcome;
+    try {
+      if (executor) outcome = await executor({
+        village: cloneValue(current),
+        operation: {
+          operationId, villageId, expectedRevision, inputFingerprint: fingerprint,
+          childOperationIds: cloneValue(childOperationIds)
+        }
+      });
+      else outcome = {
+        next: input.nextVillage ?? input.next ?? current,
+        result: input.terminalResult ?? { ok: true, operationId },
+        phase: input.phase ?? "committed"
+      };
+    } catch (error) {
+      const uncertain = {
+        operationId, action: input.action ?? "village-operation", villageId,
+        originCycle: input.originCycle ?? current.cycle,
+        expectedRevision, inputFingerprint: fingerprint,
+        phase: "uncertain", childOperationIds,
+        result: { ok: false, error: "write-failed", state: "unknown", message: String(error?.message ?? error) },
+        createdAt: existing?.createdAt ?? Date.now(), updatedAt: Date.now()
+      };
+      const next = cloneValue(current);
+      next.operationJournal = pruneVillageOperationJournal(
+        [...(next.operationJournal ?? []).filter(entry => entry.operationId !== operationId), uncertain], next.cycle
+      );
+      try {
+        await saveVillage(next, { prev: current, operationId, action: input.action, incrementRevision: true });
+      } catch { /* an unavailable journal write is itself uncertain */ }
+      return cloneValue(uncertain.result);
+    }
+
+    const returnedNext = outcome?.nextVillage ?? outcome?.next ?? current;
+    const next = normalizeVillage(returnedNext, { identity: { villageId, sceneSeed: current.sceneSeed } });
+    const result = outcome?.result ?? input.terminalResult ?? { ok: true, operationId };
+    const explicitPhase = input.phase ?? outcome?.phase;
+    const terminal = outcome?.terminal === true
+      || input.terminal === true
+      || (!explicitPhase && outcome?.terminal !== false && input.terminal !== false)
+      || TERMINAL_OPERATION_PHASES.has(operationPhase(input, outcome, input.terminalResult != null));
+    const phase = operationPhase(input, outcome, terminal);
+    const entry = {
+      operationId, action: input.action ?? "village-operation", villageId,
+      originCycle: input.originCycle ?? current.cycle,
+      expectedRevision, inputFingerprint: fingerprint,
+      phase, childOperationIds: cloneValue(childOperationIds),
+      result: cloneValue(result),
+      createdAt: existing?.createdAt ?? Date.now(), updatedAt: Date.now(),
+      resultingRevision: current.revision + 1,
+      writerUserId: globalThis.game?.user?.id ?? null
+    };
+    next.operationJournal = pruneVillageOperationJournal(
+      [...(next.operationJournal ?? []).filter(candidate => candidate.operationId !== operationId), entry], next.cycle
+    );
+
+    const authorityBeforeWrite = authorityFailure();
+    if (authorityBeforeWrite) return authorityBeforeWrite;
+    // The executor may have awaited an external child operation.  Re-resolve
+    // the setting after that wait and immediately before the write; a remote
+    // Village change must win over this stale plan rather than being silently
+    // overwritten.  This is an observational revision check, not a CAS.
+    const liveBeforeWrite = getVillage();
+    if (liveBeforeWrite.villageId !== villageId || liveBeforeWrite.revision !== current.revision) {
+      return {
+        ok: false, error: "conflict", code: "stale-revision", reason: "stale-revision", stale: true,
+        retryable: true, expectedRevision, currentRevision: liveBeforeWrite.revision,
+        operation: existing ? cloneValue(existing) : undefined
+      };
+    }
+    try {
+      const saved = await saveVillage(next, { prev: current, operationId, action: input.action });
+      const activeAfterWrite = activeVillageGM();
+      const transitioned = !activeAfterWrite || !isVillageDesignatedWriter();
+      const response = {
+        ...cloneValue(result), operationId, revision: saved.revision,
+        operation: { ...cloneValue(entry), resultingRevision: saved.revision }
+      };
+      if (transitioned) {
+        response.ok = false;
+        response.error = "write-failed";
+        response.reconciliationRequired = true;
+        response.state = "unknown";
+        response.reason = "gm-transition-overlap";
+      }
+      return response;
+    } catch (error) {
+      return {
+        ok: false, error: "write-failed", state: "unknown", reconciliationRequired: true,
+        operationId, message: String(error?.message ?? error)
+      };
+    }
+  });
+}
+
+export const queueVillageOperation = enqueueVillageOperation;
+export const runVillageOperation = enqueueVillageOperation;
+export const villageOperation = enqueueVillageOperation;
+export const commitVillageOperation = enqueueVillageOperation;
+export const withVillageOperation = enqueueVillageOperation;
+export const recordVillageOperation = enqueueVillageOperation;
+
+/** Persist identity fields from a legacy setting through the designated writer. */
+export async function migrateVillageState({ operationId = null } = {}) {
+  const raw = settingRawVillage();
+  if (!raw || typeof raw !== "object") return { ok: true, migrated: false, village: getVillage() };
+  const normalized = normalizeVillage(raw);
+  const missing = ["villageId", "sceneSeed", "revision", "sceneId", "bootstrap", "auctionLots", "operationJournal"]
+    .some(key => !Object.prototype.hasOwnProperty.call(raw, key));
+  if (!missing) return { ok: true, migrated: false, village: normalized };
+  const authority = authorityFailure();
+  if (authority) return authority;
+  try {
+    const migrated = await saveVillage(normalized, {
+      prev: normalized,
+      operationId: operationId ?? `village-migration-${normalized.villageId}`,
+      incrementRevision: false,
+      action: "village-state-migration"
+    });
+    return { ok: true, migrated: true, village: migrated };
+  } catch (error) {
+    return { ok: false, error: "write-failed", state: "unknown", message: String(error?.message ?? error) };
+  }
+}
+
+export const migrateVillageSettings = migrateVillageState;
+
+async function save(v, options = {}) {
+  const previous = normalizeVillage(options.prev ?? getVillage());
+  const next = normalizeVillage(v, { identity: { villageId: previous.villageId, sceneSeed: previous.sceneSeed } });
+  next.villageId = previous.villageId;
+  next.sceneSeed = previous.sceneSeed;
+  next.revision = options.incrementRevision === false
+    ? previous.revision : previous.revision + 1;
+  next.operationJournal = pruneVillageOperationJournal(next.operationJournal, next.cycle);
+  const operationId = villageOperationId(options.operationId) || `village-save-${randomToken(12)}`;
+  const sourceUserId = options.sourceUserId ?? globalThis.game?.user?.id ?? null;
+  const marker = {
+    villageId: next.villageId,
+    revision: next.revision,
+    operationId,
+    sourceUserId,
+    fingerprint: villageInputFingerprint(next)
+  };
+  pendingOriginMarkers.set(villageMarkerKey(marker), marker);
+  try {
+    const persisted = cloneValue(next);
+    await game.settings.set(NS, KEY_VILLAGE, persisted, {
+      ...(options.settingOptions ?? {}),
+      crowsVillageOperationId: operationId
+    });
+    pendingOriginMarkers.delete(villageMarkerKey(marker));
+    lastObservedVillage = cloneValue(next);
+    notifyVillageChanged(next, previous, {
+      villageId: next.villageId,
+      revision: next.revision,
+      operationId,
+      sourceUserId
+    });
+    return cloneValue(next);
+  } catch (error) {
+    pendingOriginMarkers.delete(villageMarkerKey(marker));
+    throw error;
+  }
+}
+
+/** Public name for the one setting-write choke point used by later tickets. */
+export const saveVillage = save;
+export { save };
+
+export async function setVillage(patch = {}, options = {}) {
+  const prev = getVillage();
+  const next = cloneValue(prev);
+  Object.assign(next, cloneValue(patch ?? {}));
   next.prosperity = clampProsperity(next.prosperity);
-  await save(next);
-  return next;
+  const saved = await save(next, { ...options, prev });
+  return cloneValue(saved);
+}
+
+async function createVillageChat(data) {
+  if (typeof globalThis.ChatMessage?.create !== "function") return null;
+  return globalThis.ChatMessage.create(data);
+}
+
+/** Tombstones remain addressable, but only non-destroyed records are live. */
+export function isLiveInstitution(institution) {
+  return Boolean(institution && institution.destroyed !== true);
+}
+
+export function liveInstitutionRecords(village = getVillage()) {
+  return (village?.institutions ?? []).filter(isLiveInstitution).map(cloneValue);
+}
+
+export const liveInstitutions = liveInstitutionRecords;
+
+export function findLiveInstitution(type, village = getVillage()) {
+  return (village?.institutions ?? []).find(institution => isLiveInstitution(institution)
+    && institution.type === type) ?? null;
+}
+
+export const getLiveInstitution = findLiveInstitution;
+
+/** Find a record by id, including a tombstone for ruin/map repair work. */
+export function institutionRecordById(id, village = getVillage()) {
+  return (village?.institutions ?? []).find(institution => institution.id === id) ?? null;
 }
 
 /**
  * Found an institution. Prosperity rises immediately (C:2261); the institution
  * does not open until the start of the next cycle (C:2350).
  */
-export async function foundInstitution({ type, name = null, steward = "", level = 1 }) {
+export async function foundInstitution({ type, name = null, steward = "", level = 1, operationId = null } = {}, options = {}) {
   const def = INSTITUTIONS[type];
   if (!def) return { ok: false, error: `unknown institution: ${type}` };
-  const v = getVillage();
-  if (!v.canInvest) return { ok: false, error: "you can't invest in a village that isn't your home (C:2226)" };
+  const prev = getVillage();
+  if (!prev.canInvest) return { ok: false, error: "you can't invest in a village that isn't your home (C:2226)" };
+  const next = cloneValue(prev);
+  const existing = next.institutions.find(institution => institution.type === type) ?? null;
+  if (existing && isLiveInstitution(existing) && Number(existing.level) > 0) {
+    return { ok: false, error: "institution-exists", institution: cloneValue(existing) };
+  }
 
-  const inst = {
-    id: `inst-${foundry.utils.randomID(10)}`,
-    type,
-    name: name ?? def.label,
-    level: Math.max(1, Math.min(institutionPurchasableMaxLevel(type), Math.floor(Number(level) || 1))),
-    steward,
-    foundedOnCycle: v.cycle,
-    operatingFromCycle: v.cycle + 1,   // C:2350
-    pendingLevel: null,
-    pendingFromCycle: null
-  };
-  v.institutions.push(inst);
-  v.prosperity = clampProsperity(v.prosperity + 1);
-  v.raisingEventThisCycle = true;
+  const openingLevel = Math.max(1, Math.min(
+    institutionPurchasableMaxLevel(type), Math.floor(Number(level) || 1)
+  ));
+  const inst = existing
+    ? {
+      ...existing,
+      name: name ?? def.label,
+      steward,
+      level: openingLevel,
+      foundedOnCycle: next.cycle,
+      operatingFromCycle: next.cycle + 1,   // C:2350
+      pendingLevel: null,
+      pendingFromCycle: null,
+      destroyed: false,
+      revivedOnCycle: next.cycle
+    }
+    : {
+      id: `inst-${randomToken(10)}`,
+      type,
+      name: name ?? def.label,
+      level: openingLevel,
+      steward,
+      foundedOnCycle: next.cycle,
+      operatingFromCycle: next.cycle + 1,   // C:2350
+      pendingLevel: null,
+      pendingFromCycle: null,
+      destroyed: false,
+      destroyedOnCycle: null,
+      destruction: null
+    };
+  if (existing) {
+    const index = next.institutions.findIndex(institution => institution.id === existing.id);
+    next.institutions[index] = inst;
+  } else next.institutions.push(inst);
+  next.prosperity = clampProsperity(next.prosperity + 1);
+  next.raisingEventThisCycle = true;
   // C:2318 — founding a new institution is what lifts the boycott.
-  v.activeEffects = (v.activeEffects ?? []).filter(e => e.kind !== "boycott");
-  await save(v);
+  next.activeEffects = (next.activeEffects ?? []).filter(e => e.kind !== "boycott");
+  const saved = await save(next, { prev, operationId: options.operationId ?? operationId });
+  const savedInstitution = institutionRecordById(inst.id, saved);
 
-  await ChatMessage.create({
+  await createVillageChat({
     content: `<div class="crows village-found">
-      <strong>${v.name}</strong> founds <strong>${inst.name}</strong> (${def.label}) for ${def.foundingPrice} gc${steward ? ` — steward: ${steward}` : ""}.
-      <div>Opens at the start of cycle <strong>${inst.operatingFromCycle}</strong>. Prosperity now <strong>${v.prosperity}</strong>.</div>
+      <strong>${saved.name}</strong> founds <strong>${savedInstitution.name}</strong> (${def.label}) for ${def.foundingPrice} gc${steward ? ` — steward: ${steward}` : ""}.
+      <div>Opens at the start of cycle <strong>${savedInstitution.operatingFromCycle}</strong>. Prosperity now <strong>${saved.prosperity}</strong>.</div>
     </div>`,
     speaker: { alias: "Village" }
   });
-  return { ok: true, institution: inst, prosperity: v.prosperity, price: def.foundingPrice };
+  return { ok: true, institution: cloneValue(savedInstitution), prosperity: saved.prosperity, price: def.foundingPrice };
 }
 
 /**
  * Pay to upgrade. Prosperity rises now; the new level operates from the next
  * cycle (C:2353), so the level is parked in `pendingLevel` until `endCycle`.
  */
-export async function upgradeInstitution(id) {
-  const v = getVillage();
-  if (!v.canInvest) return { ok: false, error: "you can't invest in a village that isn't your home (C:2226)" };
-  const inst = v.institutions.find(i => i.id === id);
+export async function upgradeInstitution(id, options = {}) {
+  const prev = getVillage();
+  if (!prev.canInvest) return { ok: false, error: "you can't invest in a village that isn't your home (C:2226)" };
+  const next = cloneValue(prev);
+  const inst = institutionRecordById(id, next);
   if (!inst) return { ok: false, error: "no such institution" };
+  if (!isLiveInstitution(inst)) return { ok: false, error: "institution-destroyed", institution: cloneValue(inst) };
+  if (Number(inst.level) <= 0) return { ok: false, error: "institution-closed", institution: cloneValue(inst) };
 
   const target = (inst.pendingLevel ?? inst.level) + 1;
   const max = institutionPurchasableMaxLevel(inst.type);
@@ -988,85 +1763,115 @@ export async function upgradeInstitution(id) {
   const price = upgradePrice(inst.type, target);
 
   inst.pendingLevel = target;
-  inst.pendingFromCycle = v.cycle + 1;
-  v.prosperity = clampProsperity(v.prosperity + 1);
-  v.raisingEventThisCycle = true;
-  await save(v);
+  inst.pendingFromCycle = next.cycle + 1;
+  next.prosperity = clampProsperity(next.prosperity + 1);
+  next.raisingEventThisCycle = true;
+  const saved = await save(next, { prev, operationId: options.operationId });
+  const savedInstitution = institutionRecordById(id, saved);
 
-  await ChatMessage.create({
+  await createVillageChat({
     content: `<div class="crows village-upgrade">
-      <strong>${inst.name}</strong> pays ${price} gc for level <strong>${target}</strong>, operating from cycle ${inst.pendingFromCycle}.
-      <div>Prosperity now <strong>${v.prosperity}</strong>.</div>
+      <strong>${savedInstitution.name}</strong> pays ${price} gc for level <strong>${target}</strong>, operating from cycle ${savedInstitution.pendingFromCycle}.
+      <div>Prosperity now <strong>${saved.prosperity}</strong>.</div>
     </div>`,
     speaker: { alias: "Village" }
   });
-  return { ok: true, institution: inst, prosperity: v.prosperity, price, operatingFromCycle: inst.pendingFromCycle };
+  return {
+    ok: true, institution: cloneValue(savedInstitution), prosperity: saved.prosperity,
+    price, operatingFromCycle: savedInstitution.pendingFromCycle
+  };
 }
 
 /** Demote or destroy (C:2315, C:2316). A 1st-level institution is destroyed. */
-export async function damageInstitution(id, { destroy = false } = {}) {
-  const v = getVillage();
-  const idx = v.institutions.findIndex(i => i.id === id);
+export async function damageInstitution(id, {
+  destroy = false, resolutionId = null, resolutionMetadata = null, metadata = null, operationId = null
+} = {}) {
+  const prev = getVillage();
+  const next = cloneValue(prev);
+  const idx = next.institutions.findIndex(i => i.id === id);
   if (idx < 0) return { ok: false, error: "no such institution" };
-  const inst = v.institutions[idx];
+  const inst = next.institutions[idx];
+
+  // A repeated destruction click is a read of the same ruin, not a second
+  // write.  The id is intentionally retained for map reconciliation/retry.
+  if (inst.destroyed) return { ok: true, destroyed: true, institution: cloneValue(inst), replayed: true };
 
   if (destroy || inst.level <= 1) {
-    v.institutions.splice(idx, 1);
-    await save(v);
-    await ChatMessage.create({
-      content: `<div class="crows village-destroyed"><strong>${inst.name}</strong> destroyed.</div>`,
+    const destructionMetadata = resolutionMetadata ?? metadata;
+    const destruction = resolutionId || destructionMetadata
+      ? {
+        ...(inst.destruction ?? {}),
+        ...(resolutionId ? { resolutionId: String(resolutionId) } : {}),
+        ...(destructionMetadata ? { metadata: cloneValue(destructionMetadata) } : {})
+      } : inst.destruction ?? null;
+    next.institutions[idx] = {
+      ...inst,
+      destroyed: true,
+      destroyedOnCycle: next.cycle,
+      destruction,
+      destructionMetadata: cloneValue(destructionMetadata ?? inst.destructionMetadata ?? null),
+      pendingLevel: null,
+      pendingFromCycle: null
+    };
+    const saved = await save(next, { prev, operationId });
+    const savedInstitution = institutionRecordById(id, saved);
+    await createVillageChat({
+      content: `<div class="crows village-destroyed"><strong>${savedInstitution.name}</strong> destroyed.</div>`,
       speaker: { alias: "Village" }
     });
-    return { ok: true, destroyed: true, institution: inst };
+    return { ok: true, destroyed: true, institution: cloneValue(savedInstitution) };
   }
   inst.level -= 1;
   if (inst.pendingLevel != null) inst.pendingLevel = Math.max(inst.level, inst.pendingLevel - 1);
-  await save(v);
-  await ChatMessage.create({
-    content: `<div class="crows village-damaged"><strong>${inst.name}</strong> damaged — level now ${inst.level}.</div>`,
+  const saved = await save(next, { prev, operationId });
+  const savedInstitution = institutionRecordById(id, saved);
+  await createVillageChat({
+    content: `<div class="crows village-damaged"><strong>${savedInstitution.name}</strong> damaged — level now ${savedInstitution.level}.</div>`,
     speaker: { alias: "Village" }
   });
-  return { ok: true, destroyed: false, institution: inst };
+  return { ok: true, destroyed: false, institution: cloneValue(savedInstitution) };
 }
 
-export async function setProsperity(value, { silent = false } = {}) {
-  const v = getVillage();
-  const before = v.prosperity;
-  v.prosperity = clampProsperity(value);
-  if (v.prosperity > before) v.raisingEventThisCycle = true;
-  await save(v);
+export async function setProsperity(value, { silent = false, operationId = null } = {}) {
+  const prev = getVillage();
+  const next = cloneValue(prev);
+  const before = next.prosperity;
+  next.prosperity = clampProsperity(value);
+  if (next.prosperity > before) next.raisingEventThisCycle = true;
+  const saved = await save(next, { prev, operationId });
   if (!silent) {
-    await ChatMessage.create({
-      content: `<div class="crows village-prosperity">Prosperity: ${before} &rarr; <strong>${v.prosperity}</strong></div>`,
+    await createVillageChat({
+      content: `<div class="crows village-prosperity">Prosperity: ${before} &rarr; <strong>${saved.prosperity}</strong></div>`,
       speaker: { alias: "Village" }
     });
   }
-  return v.prosperity;
+  return saved.prosperity;
 }
 
 /**
  * Record a purchase from a merchant institution. Crossing 10,000 gc in a cycle
  * raises Prosperity by 1, once (C:2261).
  */
-export async function recordSpend(amount, { silent = false } = {}) {
-  const v = getVillage();
-  const result = recordMerchantSpend(v, amount);
-  v.spentThisCycle = result.spentThisCycle;
-  v.spendBonusAwarded = result.spendBonusAwarded;
+export async function recordSpend(amount, { silent = false, operationId = null } = {}) {
+  const prev = getVillage();
+  const next = cloneValue(prev);
+  const result = recordMerchantSpend(next, amount);
+  next.spentThisCycle = result.spentThisCycle;
+  next.spendBonusAwarded = result.spendBonusAwarded;
   if (result.prosperityDelta) {
-    v.prosperity = clampProsperity(v.prosperity + result.prosperityDelta);
-    v.raisingEventThisCycle = true;
+    next.prosperity = clampProsperity(next.prosperity + result.prosperityDelta);
+    next.raisingEventThisCycle = true;
   }
-  await save(v);
+  const saved = await save(next, { prev, operationId });
   if (result.prosperityDelta && !silent) {
-    await ChatMessage.create({
+    await createVillageChat({
       content: `<div class="crows village-prosperity">
-        ${SPEND_FOR_PROSPERITY.toLocaleString()} gc spent with village merchants this cycle — Prosperity now <strong>${v.prosperity}</strong>.
+        ${SPEND_FOR_PROSPERITY.toLocaleString()} gc spent with village merchants this cycle — Prosperity now <strong>${saved.prosperity}</strong>.
       </div>`,
       speaker: { alias: "Village" }
     });
   }
-  return { ok: true, ...result, prosperity: v.prosperity };
+  return { ok: true, ...result, prosperity: saved.prosperity };
 }
 
 /**
@@ -1074,14 +1879,16 @@ export async function recordSpend(amount, { silent = false } = {}) {
  * dock Prosperity if nothing could have raised it, reset the spend tracker,
  * then roll next cycle's event.
  */
-export async function endCycle({ skipEvent = false } = {}) {
-  const v = getVillage();
-  const prevProsperity = v.prosperity;
-  const nextCycle = (v.cycle ?? 0) + 1;
+export async function endCycle({ skipEvent = false, operationId = null } = {}) {
+  const prev = getVillage();
+  const next = cloneValue(prev);
+  const prevProsperity = next.prosperity;
+  const nextCycle = (next.cycle ?? 0) + 1;
 
   // C:2353 — paid-for levels go live at the start of the new cycle.
   const promoted = [];
-  for (const inst of v.institutions) {
+  for (const inst of next.institutions) {
+    if (!isLiveInstitution(inst)) continue;
     if (inst.pendingLevel != null && nextCycle >= (inst.pendingFromCycle ?? Infinity)) {
       inst.level = inst.pendingLevel;
       inst.pendingLevel = null;
@@ -1090,46 +1897,48 @@ export async function endCycle({ skipEvent = false } = {}) {
     }
   }
 
-  v.prosperity = prosperityAtCycleEnd(v.prosperity, { raisingEventOccurred: !!v.raisingEventThisCycle });
-  v.cycle = nextCycle;
-  v.raisingEventThisCycle = false;
-  v.spentThisCycle = 0;                    // C:2261 — "during a cycle"
-  v.spendBonusAwarded = false;
-  v.activeEffects = (v.activeEffects ?? []).filter(e => e.duration !== "cycle");
+  next.prosperity = prosperityAtCycleEnd(next.prosperity, {
+    raisingEventOccurred: !!next.raisingEventThisCycle
+  });
+  next.cycle = nextCycle;
+  next.raisingEventThisCycle = false;
+  next.spentThisCycle = 0;                    // C:2261 — "during a cycle"
+  next.spendBonusAwarded = false;
+  next.activeEffects = (next.activeEffects ?? []).filter(e => e.duration !== "cycle");
 
   let event = null;
   if (!skipEvent) {
-    const rolled = await new Roll("1d10").evaluate();
-    const total = rolled.total + v.prosperity;
+    const rolled = await new globalThis.Roll("1d10").evaluate();
+    const total = rolled.total + next.prosperity;
     event = villageEventFor(total);
-    v.pendingEvent = { rolled: rolled.total, total, id: event?.id ?? null };
-    if (event?.effect?.duration === "cycle") v.activeEffects.push({ ...event.effect, eventId: event.id });
+    next.pendingEvent = { rolled: rolled.total, total, id: event?.id ?? null };
+    if (event?.effect?.duration === "cycle") next.activeEffects.push({ ...event.effect, eventId: event.id });
   }
-  await save(v);
+  const saved = await save(next, { prev, operationId });
 
-  await ChatMessage.create({
+  await createVillageChat({
     content: `<div class="crows village-endcycle">
       <header><strong>End of cycle ${nextCycle - 1} — entering cycle ${nextCycle}</strong></header>
-      <div>Prosperity: ${prevProsperity} &rarr; <strong>${v.prosperity}</strong>${v.prosperity < prevProsperity ? " (nothing raised it)" : ""}</div>
+      <div>Prosperity: ${prevProsperity} &rarr; <strong>${saved.prosperity}</strong>${saved.prosperity < prevProsperity ? " (nothing raised it)" : ""}</div>
       ${promoted.length ? `<div>Now operating: ${promoted.map(i => `${i.name} (level ${i.level})`).join(", ")}</div>` : ""}
       ${event
-        ? `<div><strong>Event:</strong> d10=${v.pendingEvent.rolled} + Prosperity ${v.prosperity} = <strong>${v.pendingEvent.total}</strong></div>
+        ? `<div><strong>Event:</strong> d10=${saved.pendingEvent.rolled} + Prosperity ${saved.prosperity} = <strong>${saved.pendingEvent.total}</strong></div>
            <div class="ve-text">${event.text}</div>`
         : `<div><em>Event skipped.</em></div>`}
     </div>`,
     speaker: { alias: "Village" }
   });
-  return { ok: true, cycle: v.cycle, prosperity: v.prosperity, event, promoted };
+  return { ok: true, cycle: saved.cycle, prosperity: saved.prosperity, event, promoted: cloneValue(promoted) };
 }
 
 /** Roll a village event immediately (d10 + Prosperity). */
 export async function rollVillageEvent({ silent = false } = {}) {
   const v = getVillage();
-  const r = await new Roll("1d10").evaluate();
+  const r = await new globalThis.Roll("1d10").evaluate();
   const total = r.total + (v.prosperity ?? 0);
   const event = villageEventFor(total);
   if (!silent) {
-    await ChatMessage.create({
+    await createVillageChat({
       content: `<div class="crows village-event">
         <header><strong>Village Event</strong> — d10=${r.total} + Prosperity ${v.prosperity} = <strong>${total}</strong></header>
         <div>${event.text}</div>
@@ -1148,7 +1957,7 @@ export async function rollVillageEvent({ silent = false } = {}) {
  */
 export function getInstitutionLevel(type) {
   const v = getVillage();
-  const inst = v.institutions?.find(i => i.type === type);
+  const inst = findLiveInstitution(type, v);
   if (!inst) return 0;
   const modifiers = (v.activeEffects ?? [])
     .filter(e => (e.kind === "merchantLevel" && (e.scope === "all" || e.target === inst.id))
@@ -1158,5 +1967,5 @@ export function getInstitutionLevel(type) {
 
 /** Resolve an institution record by id. */
 export function getInstitution(id) {
-  return getVillage().institutions?.find(i => i.id === id) ?? null;
+  return institutionRecordById(id, getVillage());
 }

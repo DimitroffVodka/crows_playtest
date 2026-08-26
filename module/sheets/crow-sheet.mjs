@@ -1560,9 +1560,9 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const village = getVillage();
     const rows = village.institutions.map(institution => `<tr>
       <td>${esc(institution.name)} <em>(${esc(t(`CROWS.Dialog.Village.institutionType.${institution.type}`))})</em></td>
-      <td style="text-align:center">${institution.level}</td>
+      <td style="text-align:center">${institution.destroyed ? "Destroyed" : institution.level}</td>
       <td>${institution.steward ? esc(institution.steward) : "—"}</td>
-      <td>${isGM ? `<button type="button" data-village-upgrade="${esc(institution.id)}" ${institution.level >= 5 ? "disabled" : ""}>${esc(t(
+      <td>${isGM && !institution.destroyed ? `<button type="button" data-village-upgrade="${esc(institution.id)}" ${institution.level >= 5 ? "disabled" : ""}>${esc(t(
         "CROWS.Dialog.Village.levelUp"
       ))}</button><button type="button" data-village-damage="${esc(institution.id)}">${esc(t(
         "CROWS.Dialog.Village.levelDown"
