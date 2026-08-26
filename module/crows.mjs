@@ -80,6 +80,21 @@ import { CrowSheet } from "./sheets/crow-sheet.mjs";
 import { CrowsCombat } from "./documents/combat.mjs";
 import { CrowsCombatant } from "./documents/combatant.mjs";
 import { CrowsCombatTracker } from "./applications/combat-tracker.mjs";
+import { VillageCreator } from "./applications/village-creator.mjs";
+import {
+  VILLAGE_MAP_GENERATOR_VERSION,
+  assetForInstitution,
+  bootstrapVillageScene,
+  buildVillageProjection,
+  configureVillageArtSet,
+  getVillageMap,
+  housingCountForProsperity,
+  openVillageCreator,
+  reconcileVillageScene,
+  registerVillageMapHooks,
+  registerVillageMapListener,
+  villageSceneData
+} from "./helpers/village-map.mjs";
 
 // Bumped with the Village setting schema.  Keep this in the existing world
 // migration gate: a second ready-time migration track would race the actor
@@ -198,6 +213,7 @@ Hooks.once("init", () => {
   registerMiasmaSettings();
   registerCryptSettings();
   registerVillageSettings();
+  registerVillageMapHooks();
   game.crows = Object.assign(game.crows ?? {}, {
     applyBackground,
     applyDamage, applyHealing, repairArmor,
@@ -239,7 +255,24 @@ Hooks.once("init", () => {
       activeGM: getActiveVillageGM, isDesignatedWriter: isVillageDesignatedWriter,
       enqueue: enqueueVillageOperation,
       onChange: registerVillageChangeListener,
-      setSceneReconciliationEnqueuer: setVillageSceneReconciliationEnqueuer
+      setSceneReconciliationEnqueuer: setVillageSceneReconciliationEnqueuer,
+      map: getVillageMap,
+      mapProjection: buildVillageProjection,
+      mapListener: registerVillageMapListener,
+      reconcileScene: reconcileVillageScene,
+      reconcile: reconcileVillageScene,
+      bootstrapScene: bootstrapVillageScene,
+      bootstrap: bootstrapVillageScene,
+      createScene: bootstrapVillageScene,
+      create: bootstrapVillageScene,
+      creator: openVillageCreator,
+      openCreator: openVillageCreator,
+      creatorApplication: VillageCreator,
+      sceneData: villageSceneData,
+      assetForInstitution,
+      housingCount: housingCountForProsperity,
+      configureArtSet: configureVillageArtSet,
+      mapGeneratorVersion: VILLAGE_MAP_GENERATOR_VERSION
     },
     crafting: {
       startProject: startCraftingProject, cancel: cancelProject,
@@ -272,6 +305,7 @@ Hooks.once("init", () => {
     "systems/crows/templates/partials/item-header.hbs",
     "systems/crows/templates/partials/card-head.hbs"
   ]);
+  foundry.applications.handlebars.loadTemplates(["systems/crows/templates/apps/village-creator.hbs"]);
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/monster.hbs"]);
 });
 
