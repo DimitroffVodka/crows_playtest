@@ -103,6 +103,16 @@ export class CrowsItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       );
     }
 
+    if (this.document.type === "enchantment") {
+      const sys = this.document.system;
+      // Catalogue descriptions are HTMLField prose. Enrich it at the sheet
+      // boundary, like traits and weapons, so the card renders links and other
+      // Foundry markup rather than exposing the stored HTML source.
+      ctx.description = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+        sys.description ?? "", { relativeTo: this.document, secrets: this.document.isOwner }
+      );
+    }
+
     if (this.document.type === "background") {
       // Same shaper the crow sheet's Bio tab uses, so the two surfaces cannot
       // disagree about what a background grants.

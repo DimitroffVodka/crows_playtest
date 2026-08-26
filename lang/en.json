@@ -617,6 +617,13 @@
   "CROWS.Weapon.MissCounter": "Miss. The target can counter.",
   "CROWS.Weapon.Qualities": "Qualities",
   "TYPES.Item.enchantment": "Enchantment",
+  "CROWS.Enchantment.Label": "Enchantment",
+  "CROWS.Enchantment.Key": "Key",
+  "CROWS.Enchantment.Kind": "Kind",
+  "CROWS.Enchantment.Price": "Price",
+  "CROWS.Enchantment.Applies": "Applies",
+  "CROWS.Enchantment.Materials": "Materials",
+  "CROWS.Enchantment.Goal": "Crafting goal",
   "CROWS.Weapon.Attack": "Attack",
   "CROWS.Weapon.Dam": "Dam",
   "CROWS.Or": "or"

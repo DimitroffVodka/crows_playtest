@@ -19,6 +19,7 @@ import { join } from "node:path";
 
 const TEMPLATES = "templates/item";
 const MODELS = "module/data/item";
+const DECLARED_ITEM_TYPES = Object.keys(JSON.parse(readFileSync("system.json", "utf8")).documentTypes.Item);
 
 /** Field names declared by a `defineSchema()` return object. */
 function schemaFields(type) {
@@ -50,17 +51,28 @@ const templates = readdirSync(TEMPLATES).filter((f) => f.endsWith(".hbs"));
  * homebrew a trait on one character. That was weighed and accepted: traits are
  * edited in YAML and the pack rebuilt.
  *
+ * `enchantment.hbs` — enchantments are catalogue entries, like backgrounds,
+ * and are reference cards rather than attached-instance editors. Mutable
+ * instance state belongs to the owning armor or weapon Item.
+ *
  * If this is ever reversed, do NOT restore the handoff's All-fields control for
  * `connectsTo`. It binds a comma-separated text input to a StringField ARRAY
  * and would submit a string; the handoff's own README asks for a split-on-comma
  * handler it does not provide.
  */
-const READ_ONLY = ["background.hbs", "trait.hbs", "weapon.hbs"];
+const READ_ONLY = ["background.hbs", "enchantment.hbs", "trait.hbs", "weapon.hbs"];
 
 describe("item template bindings match their data model", () => {
   test("guard: templates and models were both found", () => {
     assert.ok(templates.length >= 8, `only ${templates.length} item templates`);
     assert.ok(schemaFields("background")?.size, "background schema not parsed");
+  });
+
+  test("every declared Item type has a matching template", () => {
+    const missing = DECLARED_ITEM_TYPES
+      .filter((type) => !templates.includes(`${type}.hbs`));
+    assert.deepEqual(missing, [],
+      `system.json declares Item type(s) without templates: ${missing.join(", ")}`);
   });
 
   for (const file of templates) {
