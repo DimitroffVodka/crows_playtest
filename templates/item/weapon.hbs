@@ -1,81 +1,81 @@
 {{!--
-  Weapon sheet, laid out as the printed item card.
+  systems/crows/templates/item/weapon.hbs
+  Same printed-card anatomy as background.hbs and trait.hbs (see mockup 4a), plus the two
+  parts only a weapon has: the dice/attack-stat line and the roll-tier table.
 
-  Structure follows crows_design/bfjvo2wbjyvzap98drtfclcn0f7l.avif (the
-  Mace / Torch / Animal Form plate):
-    black header  — centred uncial title, keyword right, triangle glyph
-                    straddling the header edge, action label with a rule,
-                    glyph meta rows, then the attribute line
-    tier ladder   — left rail carrying the 2d10 bands, results centred
-    rules note    — centred title over centred prose
+  ADAPTED. Read-only, like background.hbs and trait.hbs — weapons are shipped
+  compendium content authored in src/packs/crows-weapons/*.yaml and rebuilt by
+  `npm run pack`, so an edit here is discarded at the next build.
 
-  Fields stay editable; the inputs are styled to read as card text rather
-  than form controls. Everything the card does not show lives in the
-  collapsed "All fields" block at the foot.
+  `grip` is NOT in WeaponData; the context derives One hand / Two hands from
+  `slots`, which cannot express the "Any" the Mace card prints. Adding the field
+  is deferred — WeaponData is being edited concurrently for the enchantments
+  array, and two agents in one file is how data gets lost.
+
+  Needs, in order:
+    1. css/crows-card-face.css appended to (or @imported by) css/crows.css
+    2. css/crows-weapon.css after it
+    3. the _prepareContext additions in handoff/README.md — this template expects
+       `typeLabel`, `grip`, `rangeLine`, `attackStats`, `tiers`, `qualityLabels`,
+       `physical` and `flavor` (enriched HTML)
+
+  The frame is a TRIANGLE here, not the Background/Trait diamond — that is what the
+  printed weapon cards use, and the glyph deliberately overhangs its lower-left edge.
 --}}
-<form class="crows-item weapon ci-card">
+<div class="crows-item card-face weapon" autocomplete="off">
+  <article class="cf-card">
 
-  <header class="ci-card-hd">
-    <input type="text" name="name" value="{{item.name}}" class="ci-title" aria-label="Name">
-    <div class="ci-kw">{{system.type}}{{#if system.piercing}} · piercing{{/if}}</div>
-
-    <div class="ci-action">
-      <span class="ci-glyph" data-action="editImage" data-edit="img" data-tooltip="Click to change icon">
-        <img src="{{item.img}}" alt="">
-      </span>
-      <div class="ci-action-main">
-        <div class="ci-action-label">Attack</div>
-        <dl class="ci-meta">
-          <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Quality</dt><dd>{{system.qualityTier}}</dd></div>
-          <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Range</dt>
-            <dd>{{#if system.range.ranged}}Ranged {{system.range.ranged}}{{else}}Melee {{system.range.melee}}{{/if}}</dd></div>
-        </dl>
+    <header class="cf-head">
+      <div class="cf-titleline">
+        <div class="cf-title">{{item.name}}</div>
+        <span class="cf-kind">{{typeLabel}}</span>
       </div>
+
+      <div class="cf-origin">
+        {{!-- three layers: bone triangle, ink triangle inset inside it, glyph on top.
+              Built from siblings rather than one clipped box, because a clip-path on the
+              frame would cut off the part of the glyph that hangs outside it. --}}
+        <div class="cf-glyph">
+          <span class="wp-tri-out"></span>
+          <span class="wp-tri-in"></span>
+          <img src="{{item.img}}" alt="">
+        </div>
+        <div class="cf-originbody">
+          <div class="cf-action">{{localize "CROWS.Weapon.Attack"}}</div>
+          <div class="cf-meta">
+            <span>&#10711; {{grip}}</span>
+            <span>&#9678; {{{rangeLine}}}</span>
+          </div>
+        </div>
+      </div>
+
+      {{!-- the roll line. A Background never rolls, so its card has no equivalent. --}}
+      <div class="cf-meta wp-dice">
+        <span class="wp-die">&#9860;</span>
+        <span>+ {{#each attackStats as |s|}}<span class="wp-box">{{s.initial}}</span>{{s.rest}}{{#unless @last}} {{localize "CROWS.Or"}} {{/unless}}{{/each}}</span>
+      </div>
+    </header>
+
+    <div class="wp-tiers">
+      {{#each tiers as |t|}}
+        <div class="wp-row">
+          <div class="wp-roll">{{{t.roll}}}</div>
+          <div class="wp-result {{t.kind}}">{{#if t.damage}}<span class="wp-box">{{t.damage}}</span> {{localize "CROWS.Weapon.Dam"}}{{else}}{{t.text}}{{/if}}</div>
+        </div>
+      {{/each}}
     </div>
 
-    <div class="ci-attr">
-      <span class="ci-sym" aria-hidden="true">&#9860;</span> +
-      {{#if (eq system.attackStat "strength")}}<span class="ci-chip">S</span>trength{{/if}}
-      {{#if (eq system.attackStat "agility")}}<span class="ci-chip">A</span>gility{{/if}}
-      {{#if (eq system.attackStat "either")}}<span class="ci-chip">A</span> or <span class="ci-chip">S</span>{{/if}}
-    </div>
-  </header>
+    {{#if flavor}}<div class="cf-rules wp-flavor">{{{flavor}}}</div>{{/if}}
 
-  <div class="ci-tiers">
-    <div class="ci-tier miss">
-      <div class="ci-rail"><span>&ndash;</span><span>{{CROWS.tiers.t1Max}}</span></div>
-      <div class="ci-result">Miss. Target can counter.</div>
-    </div>
-    <div class="ci-tier">
-      <div class="ci-rail"><span>{{add CROWS.tiers.t1Max 1}}</span><span>{{CROWS.tiers.t2Max}}</span></div>
-      <div class="ci-result"><input type="text" name="system.damage.t2" value="{{system.damage.t2}}" class="ci-dmg" aria-label="Tier 2 damage"> dam</div>
-    </div>
-    <div class="ci-tier">
-      <div class="ci-rail"><span>{{add CROWS.tiers.t2Max 1}}</span><span>+</span></div>
-      <div class="ci-result"><input type="text" name="system.damage.t3" value="{{system.damage.t3}}" class="ci-dmg" aria-label="Tier 3 damage"> dam</div>
-    </div>
+    {{#if qualityLabels.length}}
+      <section class="cf-note">
+        <div class="cf-notelabel">{{localize "CROWS.Weapon.Qualities"}}</div>
+        <p>{{#each qualityLabels as |q|}}{{q}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
+      </section>
+    {{/if}}
+
+    <div class="cf-meta wp-physical">{{{physical}}}</div>
+  </article>
+
+  {{!-- everything not on the card face stays reachable, collapsed by default --}}
   </div>
-
-  <section class="ci-note">
-    <h2 class="ci-note-title">{{item.name}}</h2>
-    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
-  </section>
-
-  <details class="ci-more">
-    <summary>All fields</summary>
-    <div class="ci-body">
-      <label>Type <select name="system.type">{{#each CROWS.weaponTypes as |t|}}<option value="{{t}}" {{#if (eq t ../system.type)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
-      <label>Melee <input type="number" name="system.range.melee" value="{{system.range.melee}}"></label>
-      <label>Ranged <input type="number" name="system.range.ranged" value="{{system.range.ranged}}"></label>
-      <label>Attack stat <select name="system.attackStat">
-        <option value="strength" {{#if (eq system.attackStat "strength")}}selected{{/if}}>S</option>
-        <option value="agility" {{#if (eq system.attackStat "agility")}}selected{{/if}}>A</option>
-        <option value="either" {{#if (eq system.attackStat "either")}}selected{{/if}}>A or S</option>
-      </select></label>
-      <label><input type="checkbox" name="system.piercing" {{#if system.piercing}}checked{{/if}}> Piercing (ignores AD)</label>
-      <label>Quality <select name="system.qualityTier">{{#each CROWS.qualityTiers as |q|}}<option value="{{q}}" {{#if (eq q ../system.qualityTier)}}selected{{/if}}>{{q}}</option>{{/each}}</select></label>
-      {{> "systems/crows/templates/partials/physical-item.hbs"}}
-    </div>
-  </details>
-
-</form>

@@ -129,6 +129,13 @@ const FAMILIES = {
   "CROWS.Dialog.Village.institutionType.*": () => INSTITUTION_KEYS,
   // R:392 — why a weapon cannot attack from the slot it is in.
   "CROWS.Sheet.Crow.attackBlocked.*": () => WIELD_REFUSALS,
+  // The weapon card's header and tier ladder.
+  "CROWS.WeaponType.*": () => CROWS.weaponTypes,
+  "CROWS.Quality.*": () => CROWS.weaponQualities,
+  "CROWS.QualityTier.*": () => CROWS.qualityTiers,
+  // `grip` has no schema field yet; the sheet derives one/two from slots, and
+  // "any" is here for the field the design handoff proposes.
+  "CROWS.Grip.*": () => ["one", "two", "any"],
   // Each group has its own vocabulary — `gear.shield` is not a thing.
   "CROWS.Sheet.Crow.value.*.*": () => cross({
     action: CROWS.castTypes,

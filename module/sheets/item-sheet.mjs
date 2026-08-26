@@ -35,6 +35,58 @@ export class CrowsItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     ctx.item = this.document;
     ctx.CROWS = CROWS;
 
+    if (this.document.type === "weapon") {
+      const sys = this.document.system;
+      const n = (v) => `<span class="wp-n">${v}</span>`;
+      ctx.typeLabel = t(`CROWS.WeaponType.${sys.type}`);
+
+      // `grip` is not a WeaponData field. Derived from slots until one lands,
+      // which cannot express the "Any" the printed Mace card shows.
+      ctx.grip = t(`CROWS.Grip.${sys.grip ?? (sys.slots >= 2 ? "two" : "one")}`);
+
+      const r = sys.range ?? {};
+      ctx.rangeLine = [
+        r.melee ? `${t("CROWS.Weapon.Melee")} ${n(r.melee)}` : null,
+        r.ranged ? `${t("CROWS.Weapon.Ranged")} ${n(r.ranged)}` : null
+      ].filter(Boolean).join(" &middot; ");
+
+      // `attackStat` really does allow "either" — the printed cards show both
+      // boxed initials for "6 + A or S".
+      const keys = sys.attackStat === "either" ? ["agility", "strength"] : [sys.attackStat];
+      ctx.attackStats = keys.map((k) => {
+        const label = t(`CROWS.Characteristic.${k}`);
+        return { initial: label[0], rest: label.slice(1) };
+      });
+
+      const dam = (x) => String(x ?? "").replace(/\s*\+\s*/, "+").replace(/\s+or\s+/gi, "/").trim();
+      ctx.tiers = [
+        { roll: `&le;${n(11)}`, kind: "miss",
+          // A ranged-only weapon cannot be countered — R:772 ties the counter to reach.
+          text: t(r.ranged && !r.melee ? "CROWS.Weapon.Miss" : "CROWS.Weapon.MissCounter") },
+        { roll: n("12&ndash;16"), damage: dam(sys.damage?.t2) },
+        { roll: n("17+"), damage: dam(sys.damage?.t3) }
+      ];
+
+      // Parry carries a number, so it prints as "Parry 6" rather than a bare label.
+      ctx.qualityLabels = (sys.qualities ?? []).map((q) =>
+        q === "parry" && sys.parryValue ? `${t(`CROWS.Quality.${q}`)} ${sys.parryValue}` : t(`CROWS.Quality.${q}`));
+
+      ctx.physical = [
+        `${n(sys.slots)} ${t(sys.slots === 1 ? "CROWS.Slot" : "CROWS.Slots").toLowerCase()}`,
+        sys.stackMax > 1 ? `${t("CROWS.Stacks").toLowerCase()} ${n(sys.stackMax)}` : null,
+        `${n(sys.cost)} gc`,
+        t(`CROWS.QualityTier.${sys.qualityTier}`).toLowerCase()
+      ].filter(Boolean).join(" &middot; ");
+
+      ctx.flavor = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+        sys.description ?? "", { relativeTo: this.document, secrets: this.document.isOwner }
+      );
+      // Foundry's full-colour weapon art washes out under the silhouette blend.
+      // Dead for our content — every shipped weapon points at our own icons —
+      // but a world that repoints one at the stock library still needs it.
+      ctx.artColor = String(this.document.img ?? "").startsWith("icons/weapons/");
+    }
+
     if (this.document.type === "trait") {
       const sys = this.document.system;
       // `CROWS.traitTrees` is an ARRAY of names, so Object.keys() would give

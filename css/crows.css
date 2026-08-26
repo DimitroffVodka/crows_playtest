@@ -3588,3 +3588,157 @@
   font-size: 14px;
 }
 .crows-item.trait .cf-all select option { background: #0a0a0a; color: #f7f5f0; }
+
+/* ── Weapon card ────────────────────────────────────────────────────────────
+   Design handoff revision 5, appended after the shared card face and the trait
+   block. Same anatomy: the black header carries the weapon's meta, the bone
+   paper carries the tier ladder.
+
+   `wp-art-color` is an escape hatch for Foundry's full-colour weapon art, which
+   the silhouette blend mode washes out. Every shipped weapon now points at
+   systems/crows/icons/equipment/, so it is dead for our content and kept only
+   for a world that repoints a weapon at the stock library. */
+/* CROWS — Weapon item sheet.
+   Load AFTER crows-card-face.css. The card, the black header, the fonts, the paper body
+   and the centred rules note all come from there; this file adds the three things only a
+   weapon has — the triangle frame, the dice/attack-stat line, and the roll-tier table. */
+
+/* ---------- triangle frame ---------- */
+
+/* The printed weapon cards frame the glyph in a triangle, not the diamond a Background
+   or Trait uses. Three sibling layers rather than one clipped box: a clip-path on the
+   frame itself would cut off the part of the glyph that hangs outside it. */
+.crows-item.weapon .cf-glyph {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 56px;
+  margin: 2px 4px 0 0;
+  border: 0;
+  transform: none;                        /* the shared rule rotates it 45deg */
+}
+.crows-item.weapon .wp-tri-out,
+.crows-item.weapon .wp-tri-in {
+  position: absolute;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.crows-item.weapon .wp-tri-out { inset: 0; background: #f7f5f0; }
+.crows-item.weapon .wp-tri-in  { left: 2px; right: 2px; top: 4px; bottom: 1.5px; background: #000; }
+
+/* oversized on purpose — it breaks the lower-left edge, the way the printed cards let the
+   figure spill out of the frame */
+.crows-item.weapon .cf-glyph img {
+  position: absolute;
+  left: 5px;
+  bottom: -7px;
+  width: 48px;
+  height: 48px;
+  transform: none;
+  mix-blend-mode: screen;
+}
+
+/* Foundry's own weapon art is full-colour webp, not a white silhouette, and `screen`
+   washes it out. Add this class to the form when img points at icons/weapons/**. */
+.crows-item.weapon.wp-art-color .cf-glyph img { mix-blend-mode: normal; }
+
+/* ---------- dice / attack-stat line ---------- */
+
+.crows-item.weapon .wp-dice {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 11px;
+  font-size: 15px;
+}
+/* the die mark carries the line — at label size it disappears on screen */
+.crows-item.weapon .wp-die { font-size: 30px; line-height: 1; }
+
+/* boxed characteristic initial, inverted because it sits on the black header */
+.crows-item.weapon .cf-head .wp-box {
+  background: #f7f5f0;
+  color: #000;
+  padding: 0 4px;
+  font-family: Georgia, serif;
+  font-weight: 700;
+}
+
+/* ---------- roll-tier table ---------- */
+
+.crows-item.weapon .wp-row {
+  display: flex;
+  border-bottom: 1px solid #000;
+}
+.crows-item.weapon .wp-roll {
+  flex: 0 0 auto;
+  width: 52px;
+  border-right: 1px solid #000;
+  padding: 9px 6px;
+  font-family: "Grenze Gotisch", serif;
+  font-size: 17px;
+  line-height: 1.1;
+  text-align: center;
+}
+/* the threshold numerals are the loudest thing on the printed table */
+.crows-item.weapon .wp-roll .wp-n {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  font-size: 20px;
+}
+.crows-item.weapon .wp-result {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 16px;
+  line-height: 1.35;
+  text-align: center;
+}
+/* the miss row is a rules statement, not a damage value, so it is set in caps and larger */
+.crows-item.weapon .wp-result.miss {
+  font-size: 20px;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+/* damage on paper: black box, bone numerals — printed `3+S` */
+.crows-item.weapon .wp-result .wp-box {
+  background: #000;
+  color: #f7f5f0;
+  padding: 0 5px;
+  font-family: Georgia, serif;
+  font-weight: 700;
+}
+
+/* ---------- foot ---------- */
+
+.crows-item.weapon .wp-flavor { padding-top: 13px; font-style: italic; font-size: 16px; }
+
+.crows-item.weapon .wp-physical {
+  margin: 15px 0 0;
+  border-top: 1px solid rgba(10, 10, 10, 0.14);
+  padding: 9px 14px;
+  text-align: center;
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  color: #4a463f;
+}
+.crows-item.weapon .wp-physical .wp-n {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* the weapon card ends on the physical line, so it needs no bottom spacer */
+.crows-item.weapon .cf-foot { display: none; }
+
+/* ---------- all-fields disclosure ---------- */
+
+.crows-item.weapon .cf-all select {
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #3e3e3e;
+  color: #f7f5f0;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 14px;
+}
+.crows-item.weapon .cf-all select option { background: #0a0a0a; color: #f7f5f0; }

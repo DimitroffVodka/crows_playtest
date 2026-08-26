@@ -39,6 +39,10 @@ const templates = readdirSync(TEMPLATES).filter((f) => f.endsWith(".hbs"));
  * grants and discarding the item, so the only copy that exists lives in the
  * compendium and is rebuilt by `npm run pack`. Editing it could not persist.
  *
+ * `weapon.hbs` — like backgrounds, a weapon Item IS embedded (it lives in a
+ * hand or backpack slot), so read-only costs the same as it does for traits:
+ * a GM cannot fix a weapon on one character. Same call, same reasoning.
+ *
  * `trait.hbs` — traits ARE embedded: purchaseTrait calls
  * createEmbeddedDocuments (advancement.mjs) and applyBackground embeds the
  * starting trait. Those copies live on the actor and `npm run pack` never
@@ -51,7 +55,7 @@ const templates = readdirSync(TEMPLATES).filter((f) => f.endsWith(".hbs"));
  * and would submit a string; the handoff's own README asks for a split-on-comma
  * handler it does not provide.
  */
-const READ_ONLY = ["background.hbs", "trait.hbs"];
+const READ_ONLY = ["background.hbs", "trait.hbs", "weapon.hbs"];
 
 describe("item template bindings match their data model", () => {
   test("guard: templates and models were both found", () => {
