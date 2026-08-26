@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import {
   INSTITUTIONS, INSTITUTION_KEYS, INSTITUTION_TYPES, STARTING_INSTITUTIONS,
   ARTISANS, MERCHANTS, AVAILABILITY_IS_A_ROLL,
+  CYCLE_DAYS,
   institutionMaxLevel, institutionPurchasableMaxLevel, upgradePrice, foundingPrice,
   advancementRow, effectiveInstitutionLevel, capstoneActive,
   itemAvailability, innMaxBet, beaconRadius, beaconTransportCost,
@@ -31,6 +32,37 @@ import {
   onEmployerDeath, newEmployment, HIRELING_CONTROL, PROVISIONS_RATIONS
 } from "../module/helpers/hirelings.mjs";
 
+const CHARACTER_SOURCE_LINES = readFileSync(
+  new URL("../docs/source/C-characters-book.md", import.meta.url), "utf8"
+).split(/\r?\n/);
+
+function sourceLocator(locator) {
+  const match = /^C:(\d+)(?:-(\d+))?$/.exec(locator);
+  assert.ok(match, `${locator} must be a C line locator`);
+  const start = Number(match[1]);
+  const end = Number(match[2] ?? match[1]);
+  assert.ok(start > 0 && end > 0, `${locator} must use positive line numbers`);
+  assert.ok(start <= end, `${locator} must not run backwards`);
+  assert.ok(end <= CHARACTER_SOURCE_LINES.length,
+    `${locator} exceeds the pinned Characters source (${CHARACTER_SOURCE_LINES.length} lines)`);
+  return { start, end };
+}
+
+/** Assert both the address and the source content it is meant to support. */
+function assertSource(locator, expected) {
+  const { start, end } = sourceLocator(locator);
+  const excerpt = CHARACTER_SOURCE_LINES.slice(start - 1, end).join("\n");
+  assert.match(excerpt, expected, `${locator} is missing the expected content fragment`);
+  return excerpt;
+}
+
+function sourceTableRows(excerpt) {
+  return excerpt.split(/\r?\n/)
+    .filter(line => /^\|/.test(line) && !/^\|\s*---/.test(line))
+    .slice(1)
+    .map(line => line.split("|").slice(1, -1).map(cell => cell.trim()));
+}
+
 /* ========================================================================== */
 /*  Institutions                                                              */
 /* ========================================================================== */
@@ -44,19 +76,34 @@ import {
  */
 const LEVEL_COUNTS = [
   // key             levels  founding  source of the advancement table
-  ["alchemist",        4,      3000,   "C:2734-2739"],
-  ["auctionHouse",     5,      2000,   "C:2794-2800"],
-  ["barracks",         5,      3000,   "C:2777-2783"],  // NEW in Playtest 2 (C:2759)
-  ["beacon",           5,      4000,   "C:2830-2836"],  // NEW in Playtest 2 (C:2806)
-  ["blacksmith",       4,      3000,   "C:2869-2877"],
-  ["bookseller",       6,      3000,   "C:2903-2910"],
-  ["crypt",            5,      2000,   "C:2955-2961"],
-  ["enchanter",        4,      3000,   "C:2984-2989"],
-  ["generalStore",     3,      1000,   "C:3010-3014"],
-  ["inn",              5,      1000,   "C:3086-3092"],
-  ["stables",          5,      2000,   "C:3071-3077"],
-  ["temple",           6,      2000,   "C:3128-3135"]   // 6th row is unpriced — see below
+  ["alchemist",        4,      3000,   "C:2373-2378"],
+  ["auctionHouse",     5,      2000,   "C:2394-2400"],
+  ["barracks",         5,      3000,   "C:2414-2420"],  // NEW in Playtest 2 (C:2404)
+  ["beacon",           5,      4000,   "C:2440-2446"],  // NEW in Playtest 2 (C:2424)
+  ["blacksmith",       4,      3000,   "C:2467-2472"],
+  ["bookseller",       6,      3000,   "C:2487-2494"],
+  ["crypt",            5,      2000,   "C:2521-2527"],
+  ["enchanter",        4,      3000,   "C:2546-2551"],
+  ["generalStore",     3,      1000,   "C:2565-2569"],
+  ["inn",              5,      1000,   "C:2589-2595"],
+  ["stables",          5,      2000,   "C:2612-2618"],
+  ["temple",           6,      2000,   "C:2639-2646"]   // 6th row is unpriced — see below
 ];
+
+const ADVANCEMENT_FRAGMENTS = Object.freeze({
+  alchemist: /Item Prerequisites[\s\S]*\| 4th \| 6,000 gc \| 4 alchemy expertise uses \|/,
+  auctionHouse: /Valued \| Unique[\s\S]*\| 5th \| 4,000 gc \| 35% \| 25% \|/,
+  barracks: /Maximum Power[\s\S]*\| 5th \| 6,000 gc \| 10 \|/,
+  beacon: /Fire Effective Radius[\s\S]*\| 5th \| 12,000 gc \| 5 hexes \|/,
+  blacksmith: /Item Prerequisites[\s\S]*\| 4th \| 6,000 gc \| 4 blacksmithing expertise uses<br>3 enchanting expertise uses \|/,
+  bookseller: /Spellbook Rank Sold[\s\S]*\| 6th \| 12,000 gc \| Rank 5 \|/,
+  crypt: /\| Lvl \| Price \|[\s\S]*\| 5th \| 4,000 gc \|/,
+  enchanter: /Item Prerequisites[\s\S]*\| 4th \| 6,000 gc \| 4 enchantment expertise uses \|/,
+  generalStore: /Item Quality Available[\s\S]*\| 3rd \| 3,000 gc \| masterwork \|/,
+  inn: /Max Bet[\s\S]*\| 5th \| 2,000 gc \| 60 \+ Prosperity gc \|/,
+  stables: /Maximum Power[\s\S]*\| 5th \| 6,000 gc \| 10 \|/,
+  temple: /\| Lvl \| Price \|[\s\S]*\| 6th \| - \|/
+});
 
 describe("institutions — the advancement tables", () => {
   test("there are exactly twelve, and no PT1 phantoms survive", () => {
@@ -73,6 +120,10 @@ describe("institutions — the advancement tables", () => {
 
   for (const [key, levels, founding, source] of LEVEL_COUNTS) {
     test(`${key}: ${levels} levels, ${founding} gc to found (${source})`, () => {
+      const sourceRows = sourceTableRows(assertSource(source, ADVANCEMENT_FRAGMENTS[key]));
+      const expectedRowNames = Array.from({ length: levels }, (_, i) => `${i + 1}${i === 0 ? "st" : i === 1 ? "nd" : i === 2 ? "rd" : "th"}`);
+      assert.equal(sourceRows.length, levels, `${source} row count`);
+      assert.deepEqual(sourceRows.map(([name]) => name), expectedRowNames, `${source} row names`);
       assert.equal(institutionMaxLevel(key), levels);
       assert.equal(foundingPrice(key), founding);
       const rows = INSTITUTIONS[key].advancement;
@@ -84,17 +135,17 @@ describe("institutions — the advancement tables", () => {
 
   test("upgrade prices match the tables", () => {
     // Two spot checks per shape, so a transposed column cannot pass.
-    assert.equal(upgradePrice("bookseller", 6), 12000);   // C:2910
-    assert.equal(upgradePrice("bookseller", 2), 750);     // C:2906
-    assert.equal(upgradePrice("beacon", 5), 12000);       // C:2836
-    assert.equal(upgradePrice("generalStore", 3), 3000);  // C:3014
-    assert.equal(upgradePrice("crypt", 5), 4000);         // C:2961
-    assert.equal(upgradePrice("inn", 5), 2000);           // C:3092
+    assert.equal(upgradePrice("bookseller", 6), 12000);   // C:2494
+    assert.equal(upgradePrice("bookseller", 2), 750);     // C:2490
+    assert.equal(upgradePrice("beacon", 5), 12000);       // C:2446
+    assert.equal(upgradePrice("generalStore", 3), 3000);  // C:2569
+    assert.equal(upgradePrice("crypt", 5), 4000);         // C:2527
+    assert.equal(upgradePrice("inn", 5), 2000);           // C:2595
   });
 
-  test("the temple's 6th level exists but cannot be bought (C:3135)", () => {
+  test("the temple's 6th level exists but cannot be bought (C:2646)", () => {
     // The table has six rows; the sixth has no price because you only reach it
-    // through Higher Authority (C:3120), never by paying. A `maxLevel` that
+    // through Higher Authority (C:2635), never by paying. A `maxLevel` that
     // ignored this would let a party buy a level for `null` gc.
     assert.equal(institutionMaxLevel("temple"), 6);
     assert.equal(institutionPurchasableMaxLevel("temple"), 5);
@@ -105,16 +156,16 @@ describe("institutions — the advancement tables", () => {
     }
   });
 
-  test("starting village: five seeded institutions plus one chosen (C:2549)", () => {
+  test("starting village: five seeded institutions plus one chosen (C:2232)", () => {
     assert.deepEqual([...STARTING_INSTITUTIONS], ["blacksmith", "crypt", "generalStore", "inn", "temple"]);
     for (const k of STARTING_INSTITUTIONS) assert.ok(INSTITUTIONS[k], k);
   });
 
-  test("the temple is an artisan now and sells no crafting materials (C:3104)", () => {
+  test("the temple is an artisan now and sells no crafting materials (C:2626)", () => {
     assert.ok(ARTISANS.includes("temple"));
     assert.deepEqual([...INSTITUTIONS.temple.craftsExpertises], ["alchemy", "blacksmithing", "enchanting"]);
     assert.equal(INSTITUTIONS.temple.sellsCraftingMaterials, false);
-    // The blacksmith still does (C:2853) — the change is the temple's alone.
+    // The blacksmith still does (C:2459) — the change is the temple's alone.
     assert.equal(INSTITUTIONS.blacksmith.sellsCraftingMaterials, true);
   });
 
@@ -132,6 +183,28 @@ describe("institutions — the advancement tables", () => {
   test("INSTITUTION_TYPES is a label map over exactly the same keys", () => {
     assert.deepEqual(Object.keys(INSTITUTION_TYPES).sort(), [...INSTITUTION_KEYS].sort());
     assert.equal(INSTITUTION_TYPES.generalStore, "General Store");
+  });
+});
+
+describe("village source anchors", () => {
+  test("the cycle length is anchored to the Village Cycle text", () => {
+    assert.equal(CYCLE_DAYS, 10);
+    assertSource("C:2251", /A village cycle is 10 days long\./);
+  });
+
+  test("Prosperity bounds and merchant-spend threshold are anchored", () => {
+    assertSource("C:2261", /spend at least 10,000 gc.*prosperity increases by 1/i);
+    assertSource("C:2261", /highest Prosperity.*10\./i);
+    assertSource("C:2265", /lowest Prosperity.*-10\./i);
+  });
+
+  test("founding and upgrading defer operation until the next cycle", () => {
+    assertSource("C:2350", /pay to establish an institution.*doesn.t start operating until the start of the next village cycle/i);
+    assertSource("C:2353", /pay to upgrade an institution.*doesn.t start operating at its new level until the start of the next village cycle/i);
+  });
+
+  test("founding another village is anchored to its price and time", () => {
+    assertSource("C:2676", /spending 15,000 gc.*ten days.*starting institutions/i);
   });
 });
 
@@ -163,8 +236,8 @@ describe("availability (changelog: no longer a roll, save at the auction house)"
   });
 
   test("the temple is the one merchant with no catalogue to gate", () => {
-    // Its services scale off the level directly (wounds healed C:3114, blessing
-    // days C:3116, Prayer of Returning's reach C:3118), so there is no item
+    // Its services scale off the level directly (wounds healed C:2632, blessing
+    // days C:2633, Prayer of Returning's reach C:2634), so there is no item
     // list an availability lookup could apply to. Asserted rather than left
     // implicit, because a null availability otherwise reads as an omission.
     const catalogueless = MERCHANTS.filter(k => !INSTITUTIONS[k].availability);
@@ -181,10 +254,10 @@ describe("availability (changelog: no longer a roll, save at the auction house)"
     const chance = itemAvailability("auctionHouse", 1, { kind: "valued" });
     assert.equal(chance.deterministic, false);
     assert.equal(chance.available, undefined, "an auction result must not read as a verdict");
-    assert.equal(chance.chancePercent, 15);   // C:2796
+    assert.equal(chance.chancePercent, 15);   // C:2396
   });
 
-  test("auction house percentages by level (C:2794-2800)", () => {
+  test("auction house percentages by level (C:2394-2400)", () => {
     const valued = [15, 20, 25, 30, 35];
     const unique = [5, 10, 15, 20, 25];
     for (let lvl = 1; lvl <= 5; lvl++) {
@@ -193,14 +266,14 @@ describe("availability (changelog: no longer a roll, save at the auction house)"
     }
   });
 
-  test("alchemist stocks by expertise uses required (C:2718)", () => {
+  test("alchemist stocks by expertise uses required (C:2365)", () => {
     for (let lvl = 1; lvl <= 4; lvl++) {
       assert.equal(itemAvailability("alchemist", lvl, { uses: lvl }).available, true);
       assert.equal(itemAvailability("alchemist", lvl, { uses: lvl + 1 }).available, false);
     }
   });
 
-  test("the blacksmith's enchanting column starts a level late (C:2851, C:2873)", () => {
+  test("the blacksmith's enchanting column starts a level late (C:2458, C:2470)", () => {
     // A 1st-level blacksmith deals in blacksmithing items but NO magic arms:
     // the enchanting column is blank on row 1. Reusing `level` for both axes
     // would silently sell a magic sword out of a village forge on day one.
@@ -214,17 +287,17 @@ describe("availability (changelog: no longer a roll, save at the auction house)"
   });
 
   test("bookseller ranks, general store quality, pet and hireling power", () => {
-    assert.equal(itemAvailability("bookseller", 1, { rank: 0 }).available, true);   // C:2905
+    assert.equal(itemAvailability("bookseller", 1, { rank: 0 }).available, true);   // C:2489
     assert.equal(itemAvailability("bookseller", 1, { rank: 1 }).available, false);
-    assert.equal(itemAvailability("bookseller", 6, { rank: 5 }).available, true);   // C:2910
+    assert.equal(itemAvailability("bookseller", 6, { rank: 5 }).available, true);   // C:2494
 
     assert.equal(itemAvailability("generalStore", 1, { quality: "fine" }).available, false);
     assert.equal(itemAvailability("generalStore", 2, { quality: "fine" }).available, true);
     assert.equal(itemAvailability("generalStore", 3, { quality: "masterwork" }).available, true);
 
-    assert.equal(itemAvailability("stables", 3, { power: 6 }).available, true);     // C:3075
+    assert.equal(itemAvailability("stables", 3, { power: 6 }).available, true);     // C:2616
     assert.equal(itemAvailability("stables", 3, { power: 7 }).available, false);
-    assert.equal(itemAvailability("barracks", 5, { power: 10 }).available, true);   // C:2783
+    assert.equal(itemAvailability("barracks", 5, { power: 10 }).available, true);   // C:2420
   });
 
   test("a closed institution stocks nothing", () => {
@@ -233,23 +306,23 @@ describe("availability (changelog: no longer a roll, save at the auction house)"
     assert.equal(r.closed, true);
   });
 
-  test("inn max bet is level base plus Prosperity (C:3086)", () => {
+  test("inn max bet is level base plus Prosperity (C:2589)", () => {
     assert.equal(innMaxBet(1, 0), 15);
     assert.equal(innMaxBet(1, 10), 25);
     assert.equal(innMaxBet(5, 10), 70);
     assert.equal(innMaxBet(3, -10), 25);
-    // Minimum bet is 1 gc (C:3037), so 0 is not a legal bet at any level.
+    // Minimum bet is 1 gc (C:2580), so 0 is not a legal bet at any level.
     assert.equal(itemAvailability("inn", 5, { bet: 0, prosperity: 10 }).available, false);
     assert.equal(itemAvailability("inn", 5, { bet: 70, prosperity: 10 }).available, true);
     assert.equal(itemAvailability("inn", 5, { bet: 71, prosperity: 10 }).available, false);
   });
 
   test("beacon radius tracks level, and Burn Bright needs BOTH level 5 and Prosperity 10", () => {
-    for (let lvl = 1; lvl <= 5; lvl++) assert.equal(beaconRadius(lvl, 0), lvl);   // C:2832-2836
+    for (let lvl = 1; lvl <= 5; lvl++) assert.equal(beaconRadius(lvl, 0), lvl);   // C:2440-2446
     assert.equal(beaconRadius(5, 9), 5, "Prosperity 9 is not 10");
     assert.equal(beaconRadius(4, 10), 4, "level 4 is not level 5");
-    assert.equal(beaconRadius(5, 10), 6);                                          // C:2822
-    assert.equal(beaconTransportCost(3), 300);                                     // C:2818
+    assert.equal(beaconRadius(5, 10), 6);                                          // C:2436
+    assert.equal(beaconTransportCost(3), 300);                                     // C:2433
     assert.equal(beaconTransportCost(0), 0);
   });
 });
@@ -261,13 +334,13 @@ describe("availability (changelog: no longer a roll, save at the auction house)"
 describe("effective institution level", () => {
   const inst = (over = {}) => ({ type: "generalStore", level: 2, operatingFromCycle: 0, pendingLevel: null, pendingFromCycle: null, ...over });
 
-  test("a paid-for upgrade does not operate until its cycle arrives (C:2704)", () => {
+  test("a paid-for upgrade does not operate until its cycle arrives (C:2353)", () => {
     const i = inst({ level: 2, pendingLevel: 3, pendingFromCycle: 5 });
     assert.equal(effectiveInstitutionLevel(i, { cycle: 4 }).level, 2);
     assert.equal(effectiveInstitutionLevel(i, { cycle: 5 }).level, 3);
   });
 
-  test("a newly founded institution is closed until it opens (C:2698)", () => {
+  test("a newly founded institution is closed until it opens (C:2350)", () => {
     const i = inst({ level: 1, operatingFromCycle: 7 });
     const before = effectiveInstitutionLevel(i, { cycle: 6 });
     assert.equal(before.closed, true);
@@ -276,7 +349,7 @@ describe("effective institution level", () => {
     assert.equal(effectiveInstitutionLevel(i, { cycle: 7 }).level, 1);
   });
 
-  test("event modifiers move level, and 0 is closed rather than level 1 (C:2673)", () => {
+  test("event modifiers move level, and 0 is closed rather than level 1 (C:2323)", () => {
     const i = inst({ level: 3 });
     assert.equal(effectiveInstitutionLevel(i, { cycle: 1, modifiers: [{ delta: -3 }] }).closed, true);
     assert.equal(effectiveInstitutionLevel(i, { cycle: 1, modifiers: [{ delta: -3 }] }).level, 0);
@@ -295,7 +368,7 @@ describe("effective institution level", () => {
     assert.equal(itemAvailability("generalStore", 4, { quality: "masterwork" }).available, true);
   });
 
-  test("only the crypt and the temple get a Prosperity-10 LEVEL bump (C:2943, C:3120)", () => {
+  test("only the crypt and the temple get a Prosperity-10 LEVEL bump (C:2517, C:2635)", () => {
     const crypt = { type: "crypt", level: 5, operatingFromCycle: 0 };
     assert.equal(effectiveInstitutionLevel(crypt, { cycle: 1, prosperity: 10 }).level, 6);
     assert.equal(effectiveInstitutionLevel(crypt, { cycle: 1, prosperity: 9 }).level, 5);
@@ -330,14 +403,14 @@ describe("effective institution level", () => {
 /* ========================================================================== */
 
 describe("prosperity", () => {
-  test("bounds are -10..10 (C:2595, C:2599)", () => {
+  test("bounds are -10..10 (C:2261, C:2265)", () => {
     assert.equal(PROSPERITY_MIN, -10);
     assert.equal(PROSPERITY_MAX, 10);
     assert.equal(clampProsperity(50), 10);
     assert.equal(clampProsperity(-50), -10);
   });
 
-  test("10,000 gc of merchant spending in a cycle raises it by 1 (C:2593)", () => {
+  test("10,000 gc of merchant spending in a cycle raises it by 1 (C:2261)", () => {
     assert.equal(SPEND_FOR_PROSPERITY, 10000);
     let v = { spentThisCycle: 0, spendBonusAwarded: false };
     v = { ...v, ...pick(recordMerchantSpend(v, 4000)) };
@@ -359,7 +432,7 @@ describe("prosperity", () => {
     assert.equal(recordMerchantSpend(v, 10000).prosperityDelta, 0);
   });
 
-  test("a cycle with nothing to raise it costs 1 (C:2599)", () => {
+  test("a cycle with nothing to raise it costs 1 (C:2265)", () => {
     assert.equal(prosperityAtCycleEnd(4, { raisingEventOccurred: false }), 3);
     assert.equal(prosperityAtCycleEnd(4, { raisingEventOccurred: true }), 4);
     assert.equal(prosperityAtCycleEnd(-10, { raisingEventOccurred: false }), -10, "floors, never wraps");
@@ -368,7 +441,7 @@ describe("prosperity", () => {
     assert.equal(prosperityAtCycleEnd(10, { raisingEventOccurred: true }), 10);
   });
 
-  test("sale percentages (C:2627-2636), including every band boundary", () => {
+  test("sale percentages (C:2289-2299), including every band boundary", () => {
     const expected = new Map([
       [-10, 30], [-9, 40], [-6, 40], [-5, 45], [-2, 45],
       [-1, 50], [1, 50], [2, 55], [5, 55], [6, 60], [9, 60], [10, 70]
@@ -376,7 +449,7 @@ describe("prosperity", () => {
     for (const [p, pct] of expected) assert.equal(sellPercentage(p), pct, `prosperity ${p}`);
   });
 
-  test("auction sale, price swing and buy-back (C:2753, C:2757)", () => {
+  test("auction sale, price swing and buy-back (C:2387, C:2389)", () => {
     assert.equal(auctionSalePercentage(7, 3), 91);        // 7 x (10 + 3)
     assert.equal(auctionSalePercentage(1, -10), 0);       // 1 x (10 - 10)
     assert.equal(auctionPriceMultiplier(2, 3), 0.7);      // even -> -30%
@@ -384,7 +457,7 @@ describe("prosperity", () => {
     assert.equal(auctionBuybackPrice(500, 1000), 600);
   });
 
-  test("monster parts trade generically, five for one (C:2575)", () => {
+  test("monster parts trade generically, five for one (C:2245)", () => {
     assert.deepEqual(monsterPartTrade(5), { spent: 5, received: 1 });
     assert.deepEqual(monsterPartTrade(12), { spent: 10, received: 2 });
     assert.deepEqual(monsterPartTrade(4), { spent: 0, received: 0 });
@@ -395,7 +468,44 @@ describe("prosperity", () => {
 /*  Village events                                                            */
 /* ========================================================================== */
 
-describe("village event table (C:2653-2684)", () => {
+const EVENT_SOURCE_ROWS = [
+  ["C:2314", "-9", /monster attack destroys an institution/i],
+  ["C:2315", "-8", /seriously damages two institutions.*levels decrease by 1/i],
+  ["C:2316", "-7", /bandits raid an institution.*level decreases by 1/i],
+  ["C:2317", "-6", /monster attack leaves many folk dead.*Prosperity by 1/i],
+  ["C:2318", "-5", /villagers blame the PCs.*founding a new institution/i],
+  ["C:2319", "-4", /quarters.*vandalized.*mundane item.*destroyed/i],
+  ["C:2320", "-3", /slight recession.*sale percentage reduced by 5%/i],
+  ["C:2321", "-2", /steward.*murdered.*ceases all operations for the next cycle/i],
+  ["C:2322", "-1", /vandalize an artisan institution.*can.t make any crafting rolls/i],
+  ["C:2323", "0", /devastating robbery.*level decreases by 3.*closed for business/i],
+  ["C:2324", "1–2", /small thefts.*level decreases by 1.*closed for business/i],
+  ["C:2325", "3–4", /low on supplies.*30% chance.*item in stock/i],
+  ["C:2326", "5–6", /low on stock.*same effect as 3.4.*sale percentage.*increases by 5%/i],
+  ["C:2327", "7–8", /small surplus.*1 level higher/i],
+  ["C:2328", "9–10", /6 rations each/i],
+  ["C:2329", "11", /surplus.*2 levels higher/i],
+  ["C:2330", "12", /100 gc in credit.*expire at the end/i],
+  ["C:2331", "13", /artisan institution hires more help.*two crafting rolls a day/i],
+  ["C:2332", "14", /healing potion.*each PC/i],
+  ["C:2333", "15", /economic boom.*sale percentage.*increased by 5%/i],
+  ["C:2334", "16", /merchant festival.*each merchant institution as 1 level higher/i],
+  ["C:2335", "17", /abnormally prosperous cycle.*Prosperity by 1.*already 10.*10%/i],
+  ["C:2336", "18", /500 gc in credit.*expire at the end/i],
+  ["C:2337", "19", /institution with a level lower than 5.*level increases by 1/i],
+  ["C:2338", "20", /villagers.*found an institution.*PCs/i]
+];
+
+describe("village event table (C:2312-2338)", () => {
+  test("source table has the expected rows and roll labels", () => {
+    const source = assertSource("C:2312-2338", /\| d10 \+ Prosperity \| Event \|[\s\S]*\| 20 \|/);
+    const sourceRows = sourceTableRows(source);
+    assert.equal(sourceRows.length, EVENT_SOURCE_ROWS.length, "C:2312-2338 row count");
+    assert.deepEqual(sourceRows.map(([label]) => label), EVENT_SOURCE_ROWS.map(([, label]) => label),
+      "C:2312-2338 row labels");
+    for (const [locator, , fragment] of EVENT_SOURCE_ROWS) assertSource(locator, fragment);
+  });
+
   test("covers -9..20 with no gap and no overlap", () => {
     // d10 (1..10) + Prosperity (-10..10) spans exactly this range, so a gap is
     // a table that returns undefined at a total the dice can actually produce.
@@ -429,26 +539,26 @@ describe("village event table (C:2653-2684)", () => {
     const robbery = villageEventFor(0);
     assert.equal(robbery.id, "devastatingRobbery");
     assert.equal(robbery.effect.kind, "merchantLevel");
-    assert.equal(robbery.effect.delta, -3);              // C:2673
+    assert.equal(robbery.effect.delta, -3);              // C:2323
     assert.equal(robbery.effect.closedAtZero, true);
 
     const thefts = villageEventFor(1);
-    assert.equal(thefts.effect.delta, -1);               // C:2674
+    assert.equal(thefts.effect.delta, -1);               // C:2324
     assert.equal(villageEventFor(2).id, thefts.id, "1-2 is one bucket");
 
-    assert.equal(villageEventFor(7).effect.delta, 1);    // C:2680
+    assert.equal(villageEventFor(7).effect.delta, 1);    // C:2327
     assert.equal(villageEventFor(8).id, villageEventFor(7).id);
-    assert.equal(villageEventFor(11).effect.delta, 2);   // C:2683
+    assert.equal(villageEventFor(11).effect.delta, 2);   // C:2329
   });
 
-  test("the festival hits every merchant, not one (C:2676)", () => {
+  test("the festival hits every merchant, not one (C:2334)", () => {
     const festival = villageEventFor(16);
     assert.equal(festival.id, "merchantFestival");
     assert.equal(festival.effect.scope, "all");
     assert.equal(festival.effect.delta, 1);
   });
 
-  test("a prosperous cycle at the cap converts to a sale bonus (C:2677)", () => {
+  test("a prosperous cycle at the cap converts to a sale bonus (C:2335)", () => {
     const e = villageEventFor(17);
     assert.equal(e.effect.kind, "prosperity");
     assert.equal(e.effect.delta, 1);
@@ -477,7 +587,7 @@ describe("village event table (C:2653-2684)", () => {
 /* ========================================================================== */
 
 describe("other villages and retirement", () => {
-  test("a foreign village can't be invested in and isn't tracked (C:2543)", () => {
+  test("a foreign village can't be invested in and isn't tracked (C:2226)", () => {
     const v = makeForeignVillage({ name: "Ashfall", prosperity: 3 });
     assert.equal(v.canInvest, false);
     assert.equal(v.tracksCycles, false);
@@ -486,27 +596,27 @@ describe("other villages and retirement", () => {
     assert.equal(makeForeignVillage({ prosperity: 99 }).prosperity, 10, "still clamped");
   });
 
-  test("founding another village costs 15,000 gc and ten days (C:3168)", () => {
+  test("founding another village costs 15,000 gc and ten days (C:2676)", () => {
     const q = foundVillageQuote();
     assert.equal(q.price, 15000);
     assert.equal(q.days, 10);
     assert.deepEqual(q.startingInstitutions, [...STARTING_INSTITUTIONS]);
   });
 
-  test("retirement benefits scale at 60,000 and 100,000 TXP (C:3148, C:3150)", () => {
+  test("retirement benefits scale at 60,000 and 100,000 TXP (C:2656, C:2658)", () => {
     assert.equal(retirementBenefitCount(59999), 0);
     assert.equal(retirementBenefitCount(60000), 1);
     assert.equal(retirementBenefitCount(99999), 1);
     assert.equal(retirementBenefitCount(100000), 2);
   });
 
-  test("NPC connection benefits are all cited (C:2551)", () => {
+  test("NPC connection benefits are all cited (C:2234)", () => {
     assert.ok(CONNECTION_BENEFITS.length >= 10);
     for (const b of CONNECTION_BENEFITS) assert.match(b.source, /^C:\d+$/, b.id);
   });
 });
 
-describe("village crafting (C:2639-2649)", () => {
+describe("village crafting (C:2301-2308)", () => {
   test("full price, one roll a day, at a bonus equal to the institution's level", () => {
     const q = villageCraftingQuote("blacksmith", 3, 500);
     assert.equal(q.cost, 500);
@@ -515,13 +625,13 @@ describe("village crafting (C:2639-2649)", () => {
     assert.equal(q.materialsRequired, true);
   });
 
-  test("a rush job is double the money and double the rolls (C:2647)", () => {
+  test("a rush job is double the money and double the rolls (C:2307)", () => {
     const q = villageCraftingQuote("blacksmith", 3, 500, { rush: true });
     assert.equal(q.cost, 1000);
     assert.equal(q.rollsPerDay, 2);
   });
 
-  test("only artisans take commissions — and the temple now does (C:3104)", () => {
+  test("only artisans take commissions — and the temple now does (C:2626)", () => {
     assert.equal(villageCraftingQuote("temple", 2, 100).ok, true);
     assert.equal(villageCraftingQuote("generalStore", 2, 100).ok, false);
     assert.equal(villageCraftingQuote("auctionHouse", 2, 100).ok, false);
@@ -529,7 +639,7 @@ describe("village crafting (C:2639-2649)", () => {
 
   test("workshops rent for 5 gc a day at a bonus equal to level; the temple has none", () => {
     const w = workshopRental("blacksmith", 4);
-    assert.equal(w.pricePerDay, 5);       // C:2859
+    assert.equal(w.pricePerDay, 5);       // C:2462
     assert.equal(w.craftingBonus, 4);
     assert.equal(workshopRental("temple", 5).ok, false);
   });
@@ -616,7 +726,7 @@ describe("crafting rolls (R:1697-1709)", () => {
     assert.equal(craftingRollBonus({ mind: 1, expertisesApplied: 2, doubleEdge: true }).total, 13);
   });
 
-  test("institution and connection bonuses are plain addends (C:2645, C:2561)", () => {
+  test("institution and connection bonuses are plain addends (C:2306, C:2241)", () => {
     assert.equal(craftingRollBonus({ mind: 2, institutionBonus: 3 }).total, 5);
   });
 
@@ -682,8 +792,8 @@ describe("IDing magic items (R:1719-1733)", () => {
 /*  Hirelings                                                                 */
 /* ========================================================================== */
 
-describe("hirelings — employment terms (C:2503-2511)", () => {
-  test("daily wage is power x 10, minimum 10 (C:2507)", () => {
+describe("hirelings — employment terms (C:2201-2205)", () => {
+  test("daily wage is power x 10, minimum 10 (C:2203)", () => {
     assert.equal(dailyWage(0), 10, "the minimum bites below power 1");
     assert.equal(dailyWage(1), 10);
     assert.equal(dailyWage(2), 20);
@@ -694,7 +804,7 @@ describe("hirelings — employment terms (C:2503-2511)", () => {
     assert.deepEqual(dailyUpkeep(4), { gc: 40, rations: 1 });
   });
 
-  test("death payment is power x 500 (C:2509)", () => {
+  test("death payment is power x 500 (C:2204)", () => {
     assert.equal(deathPayment(4), 2000);
     assert.equal(deathPayment(0), 0);
   });
@@ -712,7 +822,7 @@ describe("hirelings — employment terms (C:2503-2511)", () => {
     assert.equal(bill.payableOn, "return");
   });
 
-  test("a missed payment ends the contract and blackballs the whole party (C:2511)", () => {
+  test("a missed payment ends the contract and blackballs the whole party (C:2205)", () => {
     const e = newEmployment({ employerId: "pc1", power: 3, hiredInVillage: "Ashfall" });
     const after = applyMissedPayment(e);
     assert.equal(after.status, "left");
@@ -734,7 +844,7 @@ describe("hirelings — employment terms (C:2503-2511)", () => {
     assert.equal(canHireWhileInDebt(0), true);
   });
 
-  test("hirelings follow PC rules except XP (C:2517)", () => {
+  test("hirelings follow PC rules except XP (C:2211)", () => {
     assert.equal(HIRELING_CONTROL.followsPCRules, true);
     assert.equal(HIRELING_CONTROL.noXP, true);
     assert.equal(HIRELING_CONTROL.mayUseEquipment, true);
@@ -745,7 +855,7 @@ describe("hirelings — employment terms (C:2503-2511)", () => {
   });
 });
 
-describe("hirelings — the barracks supplies them (C:2773-2783)", () => {
+describe("hirelings — the barracks supplies them (C:2414-2420)", () => {
   test("maximum power is twice the barracks level", () => {
     const expected = [2, 4, 6, 8, 10];
     for (let lvl = 1; lvl <= 5; lvl++) assert.equal(hireableMaxPower(lvl), expected[lvl - 1]);
@@ -758,7 +868,7 @@ describe("hirelings — the barracks supplies them (C:2773-2783)", () => {
     assert.equal(canHireFromBarracks({ power: 1 }, 0).ok, false);
   });
 
-  test("Provisions needs BOTH level 5 and Prosperity 10 (C:2769)", () => {
+  test("Provisions needs BOTH level 5 and Prosperity 10 (C:2410)", () => {
     assert.equal(hirelingStartingRations(5, 10), PROVISIONS_RATIONS);
     assert.equal(hirelingStartingRations(5, 9), 0);
     assert.equal(hirelingStartingRations(4, 10), 0);
@@ -767,7 +877,7 @@ describe("hirelings — the barracks supplies them (C:2773-2783)", () => {
   });
 });
 
-describe("hirelings — death of the employer (C:2533)", () => {
+describe("hirelings — death of the employer (C:2215)", () => {
   const employed = () => newEmployment({ employerId: "pc1", power: 3, hiredInVillage: "Ashfall" });
 
   test("a willing survivor inherits the contract on the same terms", () => {

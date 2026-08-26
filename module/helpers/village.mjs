@@ -1,9 +1,9 @@
 /**
  * Village — prosperity, cycles, trade, and the twelve institutions.
  *
- * Playtest 2 rewrite. Citations are `C:<line>` into the Characters book
- * (`02 Crows Characters Book for Playtest 2.md`); the village chapter runs
- * C:2535-3179. Every number below was read off that text, not carried over
+ * Playtest 2 rewrite. Citations use the `C:` line prefix into the Characters
+ * book (`02 Crows Characters Book for Playtest 2.md`); the village chapter
+ * runs C:2219-2678. Every number below was read off that text, not carried over
  * from Playtest 1 — the level counts changed and the PT1 registry contained
  * four institutions (herbalist, market, mageGuild, scriptorium) that do not
  * exist and was missing three that do (alchemist, auctionHouse, stables).
@@ -15,20 +15,20 @@
  *    is now entirely dependent on the merchant institution's level, save for
  *    some items at the auction house."* `rollAvailability()` is DELETED.
  *    `itemAvailability()` replaces it and is a pure function of level —
- *    except for the auction house, whose advancement table (C:2796) is
+ *    except for the auction house, whose advancement table (C:2394-2400) is
  *    literally a column of percentages, so it returns a chance instead of a
  *    verdict. That exception is the changelog's, not ours; see
  *    `AVAILABILITY_IS_A_ROLL`.
  *
  * 2. **Village events move effective LEVEL, not availability percentages.**
- *    C:2673 "their level decreases by 3 until the end of the cycle", C:2680
- *    "treat them as 1 level higher", C:2676 "treat each merchant institution
+ *    C:2323 "their level decreases by 3 until the end of the cycle", C:2327
+ *    "treat them as 1 level higher", C:2334 "treat each merchant institution
  *    as 1 level higher". A merchant reduced to level 0 is *closed*, which is
  *    a state PT1 could not express.
  *
- * 3. **Founding and upgrading are deferred.** C:2698 / C:2704 — you pay now,
+ * 3. **Founding and upgrading are deferred.** C:2350 / C:2353 — you pay now,
  *    it opens at its new level at the *start of the next cycle*. Prosperity,
- *    by contrast, rises immediately (C:2593). So an institution carries both
+ *    by contrast, rises immediately (C:2261). So an institution carries both
  *    an operating `level` and a paid-for `pendingLevel`.
  *
  * The pure half of this file (tables, level maths, event lookup, prosperity
@@ -39,17 +39,17 @@
 const NS = "crows";
 const KEY_VILLAGE = "village";
 
-export const PROSPERITY_MIN = -10;          // C:2599
-export const PROSPERITY_MAX = 10;           // C:2595
-export const CYCLE_DAYS = 10;               // C:2583
-export const SPEND_FOR_PROSPERITY = 10000;  // C:2593 — 10,000 gc in a cycle -> +1
-export const FOUND_VILLAGE_PRICE = 15000;   // C:3168
-export const FOUND_VILLAGE_DAYS = 10;       // C:3168
-export const RETIREMENT_TXP = 60000;        // C:3148
-export const RETIREMENT_TXP_TWO_BENEFITS = 100000; // C:3150
+export const PROSPERITY_MIN = -10;          // C:2265
+export const PROSPERITY_MAX = 10;           // C:2261
+export const CYCLE_DAYS = 10;               // C:2251
+export const SPEND_FOR_PROSPERITY = 10000;  // C:2261 — 10,000 gc in a cycle -> +1
+export const FOUND_VILLAGE_PRICE = 15000;   // C:2676
+export const FOUND_VILLAGE_DAYS = 10;       // C:2676
+export const RETIREMENT_TXP = 60000;        // C:2656
+export const RETIREMENT_TXP_TWO_BENEFITS = 100000; // C:2658
 
 /* -------------------------------------------------------------------------- */
-/*  Institutions (C:2690-3137)                                                 */
+/*  Institutions (C:2342-2646)                                                  */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -70,105 +70,105 @@ export const RETIREMENT_TXP_TWO_BENEFITS = 100000; // C:3150
 export const INSTITUTIONS = Object.freeze({
   alchemist: Object.freeze({
     key: "alchemist", label: "Alchemist",
-    source: "C:2706", foundingPrice: 3000,
+    source: "C:2357", foundingPrice: 3000,
     roles: Object.freeze(["artisan", "merchant"]),
-    // C:2712 — crafting rolls at a bonus equal to level; C:2724 workshop, 5 gc/day.
+    // C:2361 — crafting rolls at a bonus equal to level; C:2368 workshop, 5 gc/day.
     craftsExpertises: Object.freeze(["alchemy"]),
     workshop: Object.freeze({ pricePerDay: 5, expertises: Object.freeze(["alchemy"]) }),
-    // C:2718 — availability by the number of Alchemy uses needed to craft the item.
+    // C:2365 — availability by the number of Alchemy uses needed to craft the item.
     availability: Object.freeze({ axis: "expertiseUses", expertise: "alchemy" }),
-    advancement: Object.freeze([                                   // C:2734-2739
+    advancement: Object.freeze([                                   // C:2373-2378
       Object.freeze({ level: 1, price: null, expertiseUses: 1 }),
       Object.freeze({ level: 2, price: 1500, expertiseUses: 2 }),
       Object.freeze({ level: 3, price: 3000, expertiseUses: 3 }),
       Object.freeze({ level: 4, price: 6000, expertiseUses: 4 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 4, id: "loyaltyHealthPotions", source: "C:2726",
+    prosperity10: Object.freeze({ atLevel: 4, id: "loyaltyHealthPotions", source: "C:2369",
       text: "The first time each cycle you buy something, they give you a free healing potion." })
   }),
 
   auctionHouse: Object.freeze({
     key: "auctionHouse", label: "Auction House",
-    source: "C:2745", foundingPrice: 2000,
+    source: "C:2382", foundingPrice: 2000,
     roles: Object.freeze(["merchant"]),
-    // C:2753 — the ONE institution whose availability is still a percentage.
-    // C:2757 still BUYS monster parts; the changelog only removed selling them.
+    // C:2394-2400 — the ONE institution whose availability is still a percentage.
+    // C:2387/C:2389 cover its valued-item and sell-anything services.
     availability: Object.freeze({ axis: "percentChance", kinds: Object.freeze(["valued", "unique"]) }),
     sellsMonsterParts: false,                                      // changelog
-    advancement: Object.freeze([                                   // C:2794-2800
+    advancement: Object.freeze([                                   // C:2394-2400
       Object.freeze({ level: 1, price: null, valued: 15, unique: 5 }),
       Object.freeze({ level: 2, price: 500, valued: 20, unique: 10 }),
       Object.freeze({ level: 3, price: 1000, valued: 25, unique: 15 }),
       Object.freeze({ level: 4, price: 2000, valued: 30, unique: 20 }),
       Object.freeze({ level: 5, price: 4000, valued: 35, unique: 25 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 5, id: "highRollerAuction", source: "C:2786",
+    prosperity10: Object.freeze({ atLevel: 5, id: "highRollerAuction", source: "C:2390",
       text: "Once per cycle, an item that would sell for under 80% of its sale price sells for 80% instead." })
   }),
 
   barracks: Object.freeze({
     key: "barracks", label: "Barracks",
-    source: "C:2759", foundingPrice: 3000,                         // NEW in Playtest 2
+    source: "C:2404", foundingPrice: 3000,                         // NEW in Playtest 2
     roles: Object.freeze(["merchant"]),
-    // C:2773 — maximum POWER of a hireling you can hire here.
+    // C:2414-2420 — maximum POWER of a hireling you can hire here.
     availability: Object.freeze({ axis: "maxPower" }),
-    advancement: Object.freeze([                                   // C:2777-2783
+    advancement: Object.freeze([                                   // C:2414-2420
       Object.freeze({ level: 1, price: null, maxPower: 2 }),
       Object.freeze({ level: 2, price: 750, maxPower: 4 }),
       Object.freeze({ level: 3, price: 1500, maxPower: 6 }),
       Object.freeze({ level: 4, price: 3000, maxPower: 8 }),
       Object.freeze({ level: 5, price: 6000, maxPower: 10 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 5, id: "provisions", source: "C:2769",
+    prosperity10: Object.freeze({ atLevel: 5, id: "provisions", source: "C:2410",
       text: "Each hireling you hire arrives with an additional 12 rations." })
   }),
 
   beacon: Object.freeze({
     key: "beacon", label: "Beacon",
-    source: "C:2806", foundingPrice: 4000,                         // NEW in Playtest 2
+    source: "C:2424", foundingPrice: 4000,                         // NEW in Playtest 2
     roles: Object.freeze(["merchant"]),
-    // C:2814 — the village hex and every hex within the radius is free of Miasma.
+    // C:2430 — the village hex and every hex within the radius is free of Miasma.
     availability: Object.freeze({ axis: "hexRadius" }),
-    transportCostPerHex: 100,                                      // C:2818
-    transportCapacity: 5,                                          // C:2818 — you + 4 others
-    advancement: Object.freeze([                                   // C:2830-2836
+    transportCostPerHex: 100,                                      // C:2433
+    transportCapacity: 5,                                          // C:2433 — you + 4 others
+    advancement: Object.freeze([                                   // C:2440-2446
       Object.freeze({ level: 1, price: null, hexRadius: 1 }),
       Object.freeze({ level: 2, price: 1500, hexRadius: 2 }),
       Object.freeze({ level: 3, price: 3000, hexRadius: 3 }),
       Object.freeze({ level: 4, price: 6000, hexRadius: 4 }),
       Object.freeze({ level: 5, price: 12000, hexRadius: 5 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 5, id: "burnBright", source: "C:2822",
+    prosperity10: Object.freeze({ atLevel: 5, id: "burnBright", source: "C:2436",
       hexRadius: 6, text: "The fire's effective radius is 6 hexes." })
   }),
 
   blacksmith: Object.freeze({
     key: "blacksmith", label: "Blacksmith",
-    source: "C:2839", foundingPrice: 3000,
+    source: "C:2450", foundingPrice: 3000,
     roles: Object.freeze(["artisan", "merchant"]),
-    craftsExpertises: Object.freeze(["blacksmithing"]),            // C:2845
-    workshop: Object.freeze({ pricePerDay: 5, expertises: Object.freeze(["blacksmithing"]) }), // C:2859
-    // C:2851 — TWO axes: blacksmithing items, and magic arms/armour by enchanting
+    craftsExpertises: Object.freeze(["blacksmithing"]),            // C:2454
+    workshop: Object.freeze({ pricePerDay: 5, expertises: Object.freeze(["blacksmithing"]) }), // C:2462
+    // C:2458 — TWO axes: blacksmithing items, and magic arms/armour by enchanting
     // uses. The enchanting column starts one level late, which is why it is a
     // separate number and not `level` reused.
     availability: Object.freeze({ axis: "expertiseUses", expertise: "blacksmithing", alsoStocks: Object.freeze(["enchanting"]) }),
-    sellsCraftingMaterials: true,                                  // C:2853
-    advancement: Object.freeze([                                   // C:2869-2877
+    sellsCraftingMaterials: true,                                  // C:2459
+    advancement: Object.freeze([                                   // C:2467-2472
       Object.freeze({ level: 1, price: null, expertiseUses: 1, enchantingUses: 0 }),
       Object.freeze({ level: 2, price: 1500, expertiseUses: 2, enchantingUses: 1 }),
       Object.freeze({ level: 3, price: 3000, expertiseUses: 3, enchantingUses: 2 }),
       Object.freeze({ level: 4, price: 6000, expertiseUses: 4, enchantingUses: 3 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 4, id: "honeWeapon", source: "C:2861",
+    prosperity10: Object.freeze({ atLevel: 4, id: "honeWeapon", source: "C:2463",
       text: "Hone a non-unarmed weapon for 500 gc: +1 damage, lost on a doom." })
   }),
 
   bookseller: Object.freeze({
     key: "bookseller", label: "Bookseller",
-    source: "C:2883", foundingPrice: 3000,
+    source: "C:2476", foundingPrice: 3000,
     roles: Object.freeze(["merchant"]),
-    availability: Object.freeze({ axis: "spellRank" }),            // C:2891
-    advancement: Object.freeze([                                   // C:2903-2910
+    availability: Object.freeze({ axis: "spellRank" }),            // C:2481
+    advancement: Object.freeze([                                   // C:2487-2494
       Object.freeze({ level: 1, price: null, spellRank: 0 }),
       Object.freeze({ level: 2, price: 750, spellRank: 1 }),
       Object.freeze({ level: 3, price: 1500, spellRank: 2 }),
@@ -176,94 +176,94 @@ export const INSTITUTIONS = Object.freeze({
       Object.freeze({ level: 5, price: 6000, spellRank: 4 }),
       Object.freeze({ level: 6, price: 12000, spellRank: 5 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 6, id: "readALittleLonger", source: "C:2895",
+    prosperity10: Object.freeze({ atLevel: 6, id: "readALittleLonger", source: "C:2483",
       text: "250 gc buys a spellbook +1 UD until it expires; does not return on a rest." })
   }),
 
   crypt: Object.freeze({
     key: "crypt", label: "Crypt",
-    source: "C:2913", foundingPrice: 2000,
+    source: "C:2498", foundingPrice: 2000,
     roles: Object.freeze([]),                                      // neither merchant nor artisan
-    advancement: Object.freeze([                                   // C:2955-2961
+    advancement: Object.freeze([                                   // C:2521-2527
       Object.freeze({ level: 1, price: null }),
       Object.freeze({ level: 2, price: 500 }),
       Object.freeze({ level: 3, price: 1000 }),
       Object.freeze({ level: 4, price: 2000 }),
       Object.freeze({ level: 5, price: 4000 })
     ]),
-    // C:2943 — "considered 6th level for boon effects". A real level bump.
-    prosperity10: Object.freeze({ atLevel: 5, id: "sixthForBoons", source: "C:2943",
+    // C:2517 — "considered 6th level for boon effects". A real level bump.
+    prosperity10: Object.freeze({ atLevel: 5, id: "sixthForBoons", source: "C:2517",
       effectiveLevel: 6, text: "Counts as 6th level for boon effects." })
   }),
 
   enchanter: Object.freeze({
     key: "enchanter", label: "Enchanter",
-    source: "C:2964", foundingPrice: 3000,
+    source: "C:2531", foundingPrice: 3000,
     roles: Object.freeze(["artisan", "merchant"]),
-    craftsExpertises: Object.freeze(["enchanting"]),               // C:2970
-    workshop: Object.freeze({ pricePerDay: 5, expertises: Object.freeze(["enchanting"]) }), // C:2980
-    availability: Object.freeze({ axis: "expertiseUses", expertise: "enchanting" }), // C:2976
-    advancement: Object.freeze([                                   // C:2984-2989
+    craftsExpertises: Object.freeze(["enchanting"]),               // C:2535
+    workshop: Object.freeze({ pricePerDay: 5, expertises: Object.freeze(["enchanting"]) }), // C:2541
+    availability: Object.freeze({ axis: "expertiseUses", expertise: "enchanting" }), // C:2539
+    advancement: Object.freeze([                                   // C:2546-2551
       Object.freeze({ level: 1, price: null, expertiseUses: 1 }),
       Object.freeze({ level: 2, price: 1500, expertiseUses: 2 }),
       Object.freeze({ level: 3, price: 3000, expertiseUses: 3 }),
       Object.freeze({ level: 4, price: 6000, expertiseUses: 4 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 4, id: "ward", source: "C:3017",
+    prosperity10: Object.freeze({ atLevel: 4, id: "ward", source: "C:2542",
       text: "500 gc buys a creature a personal ward: 10 AD until removed by damage." })
   }),
 
   generalStore: Object.freeze({
     key: "generalStore", label: "General Store",
-    source: "C:2992", foundingPrice: 1000,
+    source: "C:2555", foundingPrice: 1000,
     roles: Object.freeze(["merchant"]),
-    availability: Object.freeze({ axis: "quality" }),              // C:3000
-    advancement: Object.freeze([                                   // C:3010-3014
+    availability: Object.freeze({ axis: "quality" }),              // C:2560
+    advancement: Object.freeze([                                   // C:2565-2569
       Object.freeze({ level: 1, price: null, quality: "standard" }),
       Object.freeze({ level: 2, price: 1500, quality: "fine" }),
       Object.freeze({ level: 3, price: 3000, quality: "masterwork" })
     ]),
-    prosperity10: Object.freeze({ atLevel: 3, id: "buyThreeGetOne", source: "C:3002",
+    prosperity10: Object.freeze({ atLevel: 3, id: "buyThreeGetOne", source: "C:2561",
       text: "Buy 3 rations, oil pints, or torches of any quality and get a 4th free." })
   }),
 
   inn: Object.freeze({
     key: "inn", label: "Inn",
-    source: "C:3027", foundingPrice: 1000,
+    source: "C:2573", foundingPrice: 1000,
     roles: Object.freeze(["merchant"]),
-    nightlyRate: 5,                                                // C:3033
-    availability: Object.freeze({ axis: "maxBet" }),               // C:3037
-    advancement: Object.freeze([                                   // C:3086-3092
+    nightlyRate: 5,                                                // C:2577
+    availability: Object.freeze({ axis: "maxBet" }),               // C:2580
+    advancement: Object.freeze([                                   // C:2589-2595
       Object.freeze({ level: 1, price: null, maxBetBase: 15 }),
       Object.freeze({ level: 2, price: 250, maxBetBase: 25 }),
       Object.freeze({ level: 3, price: 500, maxBetBase: 35 }),
       Object.freeze({ level: 4, price: 1000, maxBetBase: 45 }),
       Object.freeze({ level: 5, price: 2000, maxBetBase: 60 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 5, id: "findItHere", source: "C:3045",
+    prosperity10: Object.freeze({ atLevel: 5, id: "findItHere", source: "C:2585",
       text: "Once per cycle, buy any priced item from a travelling merchant at +25% cost." })
   }),
 
   stables: Object.freeze({
     key: "stables", label: "Stables",
-    source: "C:3047", foundingPrice: 2000,
+    source: "C:2599", foundingPrice: 2000,
     roles: Object.freeze(["merchant"]),
-    availability: Object.freeze({ axis: "maxPower" }),             // C:3067 — pets by power
-    advancement: Object.freeze([                                   // C:3071-3077
+    availability: Object.freeze({ axis: "maxPower" }),             // C:2604 — pets by power
+    advancement: Object.freeze([                                   // C:2612-2618
       Object.freeze({ level: 1, price: null, maxPower: 2 }),
       Object.freeze({ level: 2, price: 750, maxPower: 4 }),
       Object.freeze({ level: 3, price: 1500, maxPower: 6 }),
       Object.freeze({ level: 4, price: 3000, maxPower: 8 }),
       Object.freeze({ level: 5, price: 6000, maxPower: 10 })
     ]),
-    prosperity10: Object.freeze({ atLevel: 5, id: "buyThreeGetOneFeed", source: "C:3063",
+    prosperity10: Object.freeze({ atLevel: 5, id: "buyThreeGetOneFeed", source: "C:2608",
       text: "Buy 3 days of animal feed and get a 4th free." })
   }),
 
   temple: Object.freeze({
     key: "temple", label: "Temple",
-    source: "C:3098", foundingPrice: 2000,
-    // C:3104 — the temple is an ARTISAN now. It crafts alchemy, blacksmithing
+    source: "C:2622", foundingPrice: 2000,
+    // C:2626 — the temple is an ARTISAN now. It crafts alchemy, blacksmithing
     // AND enchanting items, the only institution that spans all three, and it
     // no longer sells crafting materials (changelog).
     roles: Object.freeze(["artisan", "merchant"]),
@@ -271,11 +271,11 @@ export const INSTITUTIONS = Object.freeze({
     workshop: null,                                                // no rentable workshop
     sellsCraftingMaterials: false,                                 // changelog
     // The one merchant with NO availability axis: it stocks no catalogue. Its
-    // services scale off the level directly — wounds healed (C:3114), blessing
-    // days (C:3116), how far back Prayer of Returning reaches (C:3118) — so
+    // services scale off the level directly — wounds healed (C:2632), blessing
+    // days (C:2633), how far back Prayer of Returning reaches (C:2634) — so
     // there is nothing for an availability lookup to gate.
     availability: null,
-    // C:3128-3135 — SIX rows, but the 6th has no price. It exists only so the
+    // C:2639-2646 — SIX rows, but the 6th has no price. It exists only so the
     // Higher Authority capstone has a row to point at; you cannot buy it.
     advancement: Object.freeze([
       Object.freeze({ level: 1, price: null }),
@@ -285,7 +285,7 @@ export const INSTITUTIONS = Object.freeze({
       Object.freeze({ level: 5, price: 4000 }),
       Object.freeze({ level: 6, price: null })
     ]),
-    prosperity10: Object.freeze({ atLevel: 5, id: "higherAuthority", source: "C:3120",
+    prosperity10: Object.freeze({ atLevel: 5, id: "higherAuthority", source: "C:2635",
       effectiveLevel: 6, text: "Counts as 6th level for its services." })
   })
 });
@@ -298,7 +298,7 @@ export const INSTITUTION_TYPES = Object.freeze(
 );
 
 /**
- * C:2549 — "your village institutions include a blacksmith, crypt, general
+ * C:2232 — "your village institutions include a blacksmith, crypt, general
  * store, inn, and temple. As a group, choose one other institution already
  * established in your village. All these institutions are 1st level."
  *
@@ -307,9 +307,9 @@ export const INSTITUTION_TYPES = Object.freeze(
 export const STARTING_INSTITUTIONS = Object.freeze(["blacksmith", "crypt", "generalStore", "inn", "temple"]);
 export const STARTING_INSTITUTION_CHOICES = 1;
 
-/** Institutions that can craft for you (C:2641). */
+/** Institutions that can craft for you (C:2303). */
 export const ARTISANS = Object.freeze(INSTITUTION_KEYS.filter(k => INSTITUTIONS[k].roles.includes("artisan")));
-/** Institutions that buy and sell (C:2611). */
+/** Institutions that buy and sell (C:2277). */
 export const MERCHANTS = Object.freeze(INSTITUTION_KEYS.filter(k => INSTITUTIONS[k].roles.includes("merchant")));
 
 /**
@@ -330,7 +330,7 @@ export function institutionMaxLevel(key) {
 
 /**
  * The highest level you can actually BUY. Differs from `institutionMaxLevel`
- * only for the temple, whose 6th row exists but has no price (C:3135) — pay
+ * only for the temple, whose 6th row exists but has no price (C:2646) — pay
  * for it and you would be paying `null` gc for a level the rules only grant
  * through Prosperity.
  */
@@ -349,7 +349,7 @@ export function upgradePrice(key, level) {
   return INSTITUTIONS[key]?.advancement.find(r => r.level === level)?.price ?? null;
 }
 
-/** Cost to establish the institution (C:2698). */
+/** Cost to establish the institution (C:2350). */
 export function foundingPrice(key) {
   return INSTITUTIONS[key]?.foundingPrice ?? null;
 }
@@ -372,15 +372,15 @@ export function advancementRow(key, level) {
  * Three things move it, and they compose in this order:
  *
  *   1. `pendingLevel` — paid for, but only live from `pendingFromCycle`
- *      (C:2704). Before that cycle the institution still runs at `level`.
- *   2. event modifiers — C:2673 (-3), C:2674 (-1), C:2680 (+1), C:2683 (+2),
- *      C:2676 (festival, +1 to every merchant). These are cycle-scoped deltas.
+ *      (C:2353). Before that cycle the institution still runs at `level`.
+ *   2. event modifiers — C:2323 (-3), C:2324 (-1), C:2327 (+1), C:2329 (+2),
+ *      C:2334 (festival, +1 to every merchant). These are cycle-scoped deltas.
  *   3. the Prosperity-10 capstone, but ONLY for the crypt and the temple,
- *      which are the two whose text says "considered 6th level" (C:2943,
- *      C:3120). It is a floor, not a delta — a temple already pushed to 6 by
+ *      which are the two whose text says "considered 6th level" (C:2517,
+ *      C:2635). It is a floor, not a delta — a temple already pushed to 6 by
  *      a festival does not become 7.
  *
- * Dropping to 0 or below is *closed for business*, not level 1 (C:2673).
+ * Dropping to 0 or below is *closed for business*, not level 1 (C:2323).
  * Rising above the table's last row is legal and left unclamped — a festival
  * on a maxed merchant is meant to do something — but flagged via
  * `aboveTableMax` so an availability lookup knows it is off the end.
@@ -396,7 +396,7 @@ export function effectiveInstitutionLevel(inst, { prosperity = 0, cycle = null, 
     base = Math.max(base, Math.floor(Number(inst.pendingLevel) || 0));
   }
 
-  // Not yet open at all (C:2698 — founding does not start operating until the
+  // Not yet open at all (C:2350 — founding does not start operating until the
   // next cycle). `operatingFromCycle` is set when the institution is founded.
   const notYetOpen = cycle != null && inst.operatingFromCycle != null && cycle < inst.operatingFromCycle;
 
@@ -424,7 +424,7 @@ export function effectiveInstitutionLevel(inst, { prosperity = 0, cycle = null, 
   };
 }
 
-/** Is the institution's Prosperity-10 capstone perk live? (C:2726 and kin.) */
+/** Is the institution's Prosperity-10 capstone perk live? (C:2369 and kin.) */
 export function capstoneActive(key, level, prosperity) {
   const c = INSTITUTIONS[key]?.prosperity10;
   if (!c) return false;
@@ -435,7 +435,7 @@ export function capstoneActive(key, level, prosperity) {
 /*  Availability — a level lookup, not a roll                                  */
 /* -------------------------------------------------------------------------- */
 
-const QUALITY_ORDER = ["standard", "fine", "masterwork"];   // C:3012-3014
+const QUALITY_ORDER = ["standard", "fine", "masterwork"];   // C:2565-2569
 
 /**
  * Can you buy this from that institution at that level?
@@ -443,7 +443,7 @@ const QUALITY_ORDER = ["standard", "fine", "masterwork"];   // C:3012-3014
  * Returns one of two shapes, and the difference is the whole point:
  *
  *   { deterministic: true,  available: boolean }   — every merchant but one
- *   { deterministic: false, chancePercent: n }     — the auction house (C:2753)
+ *   { deterministic: false, chancePercent: n }     — the auction house (C:2394-2400)
  *
  * A caller that treats the second as the first will silently sell unique
  * artefacts over the counter, so the shape is discriminated rather than
@@ -474,7 +474,7 @@ export function itemAvailability(key, level, criteria = {}) {
     case "expertiseUses": {
       const uses = Math.floor(Number(criteria.uses) || 0);
       // The blacksmith stocks magic arms and armour on a SECOND, later-starting
-      // column (C:2851/C:2873): 1 enchanting use only from 2nd level.
+      // column (C:2458/C:2470): 1 enchanting use only from 2nd level.
       const wantsAlt = criteria.expertise && criteria.expertise !== def.availability.expertise;
       if (wantsAlt) {
         if (!def.availability.alsoStocks?.includes(criteria.expertise)) {
@@ -502,7 +502,7 @@ export function itemAvailability(key, level, criteria = {}) {
       return { ok: true, deterministic: true, available: power <= allowed, allowed };
     }
     case "maxBet": {
-      // C:3088 — "15 + Prosperity gc". Minimum bet is 1 gc (C:3037).
+      // C:2591 — "15 + Prosperity gc". Minimum bet is 1 gc (C:2580).
       const prosperity = Math.floor(Number(criteria.prosperity) || 0);
       const allowed = (row.maxBetBase ?? 0) + prosperity;
       const bet = Math.floor(Number(criteria.bet) || 0);
@@ -524,12 +524,12 @@ export function itemAvailability(key, level, criteria = {}) {
   }
 }
 
-/** Maximum gamble at the inn (C:3086). Minimum bet is always 1 gc (C:3037). */
+/** Maximum gamble at the inn (C:2589). Minimum bet is always 1 gc (C:2580). */
 export function innMaxBet(level, prosperity = 0) {
   return (advancementRow("inn", level)?.maxBetBase ?? 0) + Math.floor(Number(prosperity) || 0);
 }
 
-/** Beacon Miasma-free radius in hexes (C:2830, C:2822). */
+/** Beacon Miasma-free radius in hexes (C:2440, C:2436). */
 export function beaconRadius(level, prosperity = 0) {
   const row = advancementRow("beacon", level);
   if (!row) return 0;
@@ -538,7 +538,7 @@ export function beaconRadius(level, prosperity = 0) {
     : row.hexRadius;
 }
 
-/** Beacon transport fee: hexes travelled x 100 gc, up to five creatures (C:2818). */
+/** Beacon transport fee: hexes travelled x 100 gc, up to five creatures (C:2433). */
 export function beaconTransportCost(hexes) {
   return Math.max(0, Math.floor(Number(hexes) || 0)) * INSTITUTIONS.beacon.transportCostPerHex;
 }
@@ -548,7 +548,7 @@ export function beaconTransportCost(hexes) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Sale Percentages (C:2627-2636). Unchanged from PT1 in value; restated here
+ * Sale Percentages (C:2289-2299). Unchanged from PT1 in value; restated here
  * against the PT2 table so it is pinned rather than assumed.
  */
 export function sellPercentage(prosperity = 0) {
@@ -563,7 +563,7 @@ export function sellPercentage(prosperity = 0) {
 }
 
 /**
- * Auction-house sale percentage (C:2757): `1d10 x (10 + Prosperity)%`.
+ * Auction-house sale percentage (C:2389): `1d10 x (10 + Prosperity)%`.
  * Pure — takes the d10 rather than rolling it, so it is testable and so the
  * caller owns the dice. Once committed, the sale happens at whatever this
  * returns; buy-back is the price paid plus 10% of the item's value.
@@ -572,13 +572,13 @@ export function auctionSalePercentage(d10, prosperity = 0) {
   return Math.max(0, Math.floor(Number(d10) || 0)) * (10 + Math.floor(Number(prosperity) || 0));
 }
 
-/** C:2757 — buy back what you auctioned for the hammer price + 10% of value. */
+/** C:2389 — buy back what you auctioned for the hammer price + 10% of value. */
 export function auctionBuybackPrice(soldFor, itemValue) {
   return Math.round((Number(soldFor) || 0) + 0.1 * (Number(itemValue) || 0));
 }
 
 /**
- * Auction-house price swing (C:2753): even -> discounted by 1d6 x 10%,
+ * Auction-house price swing (C:2387): even -> discounted by 1d6 x 10%,
  * odd -> costs 1d6 x 10% more. Pure; the caller supplies both dice.
  */
 export function auctionPriceMultiplier(anyDie, d6) {
@@ -596,7 +596,7 @@ export function clampProsperity(v) {
 }
 
 /**
- * C:2593 — "If you spend at least 10,000 gc in a village during a cycle on
+ * C:2261 — "If you spend at least 10,000 gc in a village during a cycle on
  * goods from merchant institutions, the village's prosperity increases by 1."
  *
  * "at least ... during a cycle" is a per-cycle threshold crossing, not a
@@ -617,7 +617,7 @@ export function recordMerchantSpend(village, amount) {
 }
 
 /**
- * C:2599 — "When a village ends a cycle during which nothing occurred that
+ * C:2265 — "When a village ends a cycle during which nothing occurred that
  * could raise its Prosperity, its Prosperity decreases by 1."
  *
  * NB "nothing that COULD raise it", not "Prosperity did not rise". A village
@@ -629,7 +629,7 @@ export function prosperityAtCycleEnd(prosperity, { raisingEventOccurred = false 
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Village events (C:2653-2684)                                               */
+/*  Village events (C:2312-2338)                                               */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -645,79 +645,79 @@ export function prosperityAtCycleEnd(prosperity, { raisingEventOccurred = false 
  * can consume it without parsing prose. `scope: "all"` means every merchant.
  */
 export const VILLAGE_EVENTS = Object.freeze([
-  { min: -9, max: -9, id: "monsterDestroysInstitution", source: "C:2655",
+  { min: -9, max: -9, id: "monsterDestroysInstitution", source: "C:2314",
     effect: { kind: "destroyInstitution", count: 1 },
     text: "A monster attack destroys an institution." },
-  { min: -8, max: -8, id: "monsterDamagesTwo", source: "C:2656",
+  { min: -8, max: -8, id: "monsterDamagesTwo", source: "C:2315",
     effect: { kind: "institutionLevel", delta: -1, count: 2, duration: "permanent", destroyIfAllFirstLevel: true },
     text: "A monster attack seriously damages two institutions. Each level decreases by 1. If both are 1st level before the decrease, one is destroyed instead." },
-  { min: -7, max: -7, id: "banditRaid", source: "C:2657",
+  { min: -7, max: -7, id: "banditRaid", source: "C:2316",
     effect: { kind: "institutionLevel", delta: -1, count: 1, duration: "permanent", destroyIfFirstLevel: true },
     text: "Bandits raid an institution, killing members and stealing supplies. Its level decreases by 1; if it was 1st level, it is destroyed." },
-  { min: -6, max: -6, id: "monsterAttackDead", source: "C:2658",
+  { min: -6, max: -6, id: "monsterAttackDead", source: "C:2317",
     effect: { kind: "prosperity", delta: -1, destroyInstitutionIfAtFloor: true },
     text: "A monster attack leaves many dead and homes destroyed. Prosperity decreases by 1; if already -10, an institution is destroyed instead." },
-  { min: -5, max: -5, id: "villagersBlamePCs", source: "C:2659",
+  { min: -5, max: -5, id: "villagersBlamePCs", source: "C:2318",
     effect: { kind: "boycott", clearedBy: "foundInstitution" },
     text: "Villagers blame the PCs for drawing monsters to the town. Until the PCs found a new institution, no one does business with them." },
-  { min: -4, max: -4, id: "quartersVandalized", source: "C:2660",
+  { min: -4, max: -4, id: "quartersVandalized", source: "C:2319",
     effect: { kind: "destroyItem", count: 1, itemClass: "mundane" },
     text: "A PC's quarters are broken into and vandalized. A mundane item in storage or their possession is destroyed." },
-  { min: -3, max: -3, id: "recession", source: "C:2661",
+  { min: -3, max: -3, id: "recession", source: "C:2320",
     effect: { kind: "sellPercentage", delta: -5, duration: "cycle", scope: "all" },
     text: "A slight recession. Items sold to institutions have their sale percentage reduced by 5%." },
-  { min: -2, max: -2, id: "stewardMurdered", source: "C:2662",
+  { min: -2, max: -2, id: "stewardMurdered", source: "C:2321",
     effect: { kind: "ceaseOperations", count: 1, duration: "cycle", excludeRetiredPC: true },
     text: "An institution's steward is murdered. It ceases all operations for the next cycle. The murdered steward can't be a retired PC." },
-  { min: -1, max: -1, id: "artisanVandalized", source: "C:2671",
+  { min: -1, max: -1, id: "artisanVandalized", source: "C:2322",
     effect: { kind: "artisanShutdown", count: 1, duration: "cycle" },
     text: "Villagers vandalize an artisan institution. Next cycle it can't make crafting rolls or sell tools or crafting materials." },
-  { min: 0, max: 0, id: "devastatingRobbery", source: "C:2672",
+  { min: 0, max: 0, id: "devastatingRobbery", source: "C:2323",
     effect: { kind: "merchantLevel", delta: -3, count: 1, duration: "cycle", closedAtZero: true },
     text: "A merchant institution suffers a devastating robbery. Its level decreases by 3 until the end of the cycle; if that takes it to 0, it is closed for business." },
-  { min: 1, max: 2, id: "smallThefts", source: "C:2674",
+  { min: 1, max: 2, id: "smallThefts", source: "C:2324",
     effect: { kind: "merchantLevel", delta: -1, count: 1, duration: "cycle", closedAtZero: true },
     text: "A merchant institution suffers small thefts. Its level decreases by 1 until the end of the cycle; if that takes it to 0, it is closed for business." },
-  { min: 3, max: 4, id: "lowOnSupplies", source: "C:2676",
+  { min: 3, max: 4, id: "lowOnSupplies", source: "C:2325",
     effect: { kind: "outOfStockChance", percent: 30, count: 1, duration: "cycle" },
     text: "A merchant institution is low on supplies. There is a 30% chance any item you try to buy there is out of stock." },
-  { min: 5, max: 6, id: "lowStockButAffluent", source: "C:2678",
+  { min: 5, max: 6, id: "lowStockButAffluent", source: "C:2326",
     effect: { kind: "outOfStockChance", percent: 30, count: 1, duration: "cycle", sellPercentageDelta: 5 },
     text: "A merchant institution is low on stock but can afford more: as low on supplies, except the sale percentage of goods they buy increases by 5%." },
-  { min: 7, max: 8, id: "smallSurplus", source: "C:2680",
+  { min: 7, max: 8, id: "smallSurplus", source: "C:2327",
     effect: { kind: "merchantLevel", delta: 1, count: 1, duration: "cycle" },
     text: "A merchant institution has a small surplus. Treat it as 1 level higher until the end of the cycle." },
-  { min: 9, max: 10, id: "gratefulRations", source: "C:2681",
+  { min: 9, max: 10, id: "gratefulRations", source: "C:2328",
     effect: { kind: "grantItem", item: "ration", perPC: 6 },
     text: "Grateful villagers supply the PCs with 6 rations each for their next outing." },
-  { min: 11, max: 11, id: "surplus", source: "C:2683",
+  { min: 11, max: 11, id: "surplus", source: "C:2329",
     effect: { kind: "merchantLevel", delta: 2, count: 1, duration: "cycle" },
     text: "A merchant institution has a surplus. Treat it as 2 levels higher until the end of the cycle." },
-  { min: 12, max: 12, id: "credit100", source: "C:2671",
+  { min: 12, max: 12, id: "credit100", source: "C:2330",
     effect: { kind: "credit", perPC: 100, duration: "cycle", scope: "one" },
     text: "A merchant institution gives each PC 100 gc of credit, expiring at the end of the cycle." },
-  { min: 13, max: 13, id: "artisanHiresHelp", source: "C:2673",
+  { min: 13, max: 13, id: "artisanHiresHelp", source: "C:2331",
     effect: { kind: "craftingRollsPerDay", value: 2, count: 1, duration: "cycle" },
     text: "An artisan institution hires more help: it makes two crafting rolls a day toward each item it crafts next cycle." },
-  { min: 14, max: 14, id: "healingPotions", source: "C:2674",
+  { min: 14, max: 14, id: "healingPotions", source: "C:2332",
     effect: { kind: "grantItem", item: "healingPotion", perPC: 1 },
     text: "Grateful villagers buy a healing potion for each PC." },
-  { min: 15, max: 15, id: "economicBoom", source: "C:2675",
+  { min: 15, max: 15, id: "economicBoom", source: "C:2333",
     effect: { kind: "sellPercentage", delta: 5, duration: "cycle", scope: "all" },
     text: "A slight economic boom. All items sold to institutions have their sale percentage increased by 5%." },
-  { min: 16, max: 16, id: "merchantFestival", source: "C:2676",
+  { min: 16, max: 16, id: "merchantFestival", source: "C:2334",
     effect: { kind: "merchantLevel", delta: 1, scope: "all", duration: "cycle" },
     text: "A merchant festival! Treat EVERY merchant institution as 1 level higher until the end of the cycle." },
-  { min: 17, max: 17, id: "prosperousCycle", source: "C:2677",
+  { min: 17, max: 17, id: "prosperousCycle", source: "C:2335",
     effect: { kind: "prosperity", delta: 1, atCapInstead: { kind: "sellPercentage", delta: 10, duration: "cycle", scope: "all" } },
     text: "An abnormally prosperous cycle. Prosperity increases by 1; if already 10, sale percentages increase by 10% next cycle instead." },
-  { min: 18, max: 18, id: "credit500", source: "C:2679",
+  { min: 18, max: 18, id: "credit500", source: "C:2336",
     effect: { kind: "credit", perPC: 500, duration: "cycle", scope: "one" },
     text: "A merchant institution gives each PC 500 gc of credit, expiring at the end of the cycle." },
-  { min: 19, max: 19, id: "profitableCycle", source: "C:2682",
+  { min: 19, max: 19, id: "profitableCycle", source: "C:2337",
     effect: { kind: "institutionLevel", delta: 1, count: 1, duration: "permanent", onlyBelowLevel: 5 },
     text: "An institution below 5th level had an extremely profitable cycle. Its level increases by 1." },
-  { min: 20, max: 20, id: "villagersFound", source: "C:2684",
+  { min: 20, max: 20, id: "villagersFound", source: "C:2338",
     effect: { kind: "foundInstitution", chosenBy: "pcs" },
     text: "Villagers with money to spare found an institution the PCs suggest." }
 ]);
@@ -737,41 +737,41 @@ export function eventIsBoon(event) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  NPC connection (C:2551) and retirement (C:3146)                            */
+/*  NPC connection (C:2234) and retirement (C:2654)                            */
 /* -------------------------------------------------------------------------- */
 
-/** C:2555-2579 — the eleven connection benefits, one chosen at creation. */
+/** C:2238-2247 — the ten connection benefits, one chosen at creation. */
 export const CONNECTION_BENEFITS = Object.freeze([
-  { id: "animalLover", label: "Animal Lover", source: "C:2555",
+  { id: "animalLover", label: "Animal Lover", source: "C:2238",
     text: "Looks after your pets for free. Animals resting with them heal 2 extra wounds, or 3 if Prosperity is 6+." },
-  { id: "caretaker", label: "Caretaker", source: "C:2557",
+  { id: "caretaker", label: "Caretaker", source: "C:2239",
     text: "Rest in their home: heal 2 extra wounds, or 3 if Prosperity is 6+." },
-  { id: "concerned", label: "Concerned", source: "C:2559",
+  { id: "concerned", label: "Concerned", source: "C:2240",
     text: "Once per cycle when you leave the village, they give you 1 torch." },
-  { id: "crafty", label: "Crafty", source: "C:2561",
+  { id: "crafty", label: "Crafty", source: "C:2241",
     text: "+2 bonus on crafting rolls you make in the village." },
-  { id: "foodie", label: "Foodie", source: "C:2563",
+  { id: "foodie", label: "Foodie", source: "C:2242",
     text: "Once per cycle when you leave, rations equal to half the village's Prosperity (minimum 1)." },
-  { id: "magicEnthusiast", label: "Magic Enthusiast", source: "C:2565",
+  { id: "magicEnthusiast", label: "Magic Enthusiast", source: "C:2243",
     text: "Each day, identifies magic items equal to the village's Prosperity (minimum 1)." },
-  { id: "moneyBags", label: "Money Bags", source: "C:2567",
+  { id: "moneyBags", label: "Money Bags", source: "C:2244",
     text: "Lends up to 100 x Prosperity gc (minimum 100). No second loan until the first is repaid." },
-  { id: "monsterCollector", label: "Monster Collector", source: "C:2569",
+  { id: "monsterCollector", label: "Monster Collector", source: "C:2245",
     text: "Trades 1 monster part of a specific monster type for 5 monster parts of another type." },
-  { id: "rival", label: "Rival", source: "C:2577",
+  { id: "rival", label: "Rival", source: "C:2246",
     text: "Once per cycle, a 50 gc bet on whose delve is more profitable, settled on any die: even you win, odd they win." },
-  { id: "smartyPants", label: "Smarty Pants", source: "C:2579",
+  { id: "smartyPants", label: "Smarty Pants", source: "C:2247",
     text: "Researches one question at a time; the answer arrives 1 day later." }
 ]);
 
-/** Crafty (C:2561) — +2 on crafting rolls made in the village. */
+/** Crafty (C:2241) — +2 on crafting rolls made in the village. */
 export const CONNECTION_CRAFTING_BONUS = 2;
 
-/** Monster Collector (C:2575) — the generic-parts exchange rate. */
+/** Monster Collector (C:2245) — the generic-parts exchange rate. */
 export const MONSTER_PART_TRADE_RATE = Object.freeze({ give: 5, receive: 1 });
 
 /**
- * C:2569/2575 — parts are generic per monster TYPE now, not named organs.
+ * C:2245 — parts are generic per monster TYPE now, not named organs.
  * Five of anything buys one of what you need.
  */
 export function monsterPartTrade(partsOffered) {
@@ -779,21 +779,21 @@ export function monsterPartTrade(partsOffered) {
   return { spent: n - (n % MONSTER_PART_TRADE_RATE.give), received: Math.floor(n / MONSTER_PART_TRADE_RATE.give) };
 }
 
-/** C:3154-3176 — retirement benefits. Two of them if you have 100,000 TXP. */
+/** C:2662-2666 — retirement benefits. Two of them if you have 100,000 TXP. */
 export const RETIREMENT_BENEFITS = Object.freeze([
-  { id: "bestStewardEver", label: "Best Steward Ever", source: "C:3154",
+  { id: "bestStewardEver", label: "Best Steward Ever", source: "C:2662",
     text: "Your retired PC stewards an institution, which always operates as if Prosperity were 10." },
-  { id: "crowDaddy", label: "Crow Daddy", source: "C:3156",
+  { id: "crowDaddy", label: "Crow Daddy", source: "C:2663",
     text: "New PCs from the village may start with one starting trait your retired PC knows. A 0-TXP PC may start with at most three traits." },
-  { id: "generousBenefactor", label: "Generous Benefactor", source: "C:3172",
+  { id: "generousBenefactor", label: "Generous Benefactor", source: "C:2664",
     text: "Once per cycle, the PCs receive a gift rolled on the Minor Things table." },
-  { id: "masterMentor", label: "Master Mentor", source: "C:3174",
+  { id: "masterMentor", label: "Master Mentor", source: "C:2665",
     text: "Up to three of your retired PC's traits cost other PCs half the usual XP." },
-  { id: "workWithMyHands", label: "Work With My Hands", source: "C:3176",
+  { id: "workWithMyHands", label: "Work With My Hands", source: "C:2666",
     text: "An artisan institution gains +4 to crafting rolls and grants +4 to anyone renting its workshop." }
 ]);
 
-/** How many retirement benefits this TXP total buys (C:3150). */
+/** How many retirement benefits this TXP total buys (C:2658). */
 export function retirementBenefitCount(txp = 0) {
   const t = Math.floor(Number(txp) || 0);
   if (t >= RETIREMENT_TXP_TWO_BENEFITS) return 2;
@@ -802,11 +802,11 @@ export function retirementBenefitCount(txp = 0) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Other villages (C:2541, C:3158, C:3164)                                    */
+/*  Other villages (C:2225-2228, C:2668-2670)                                  */
 /* -------------------------------------------------------------------------- */
 
 /**
- * C:2543 / C:3160 — a village that isn't yours works identically, except you
+ * C:2226 / C:2670 — a village that isn't yours works identically, except you
  * cannot invest in it and the Ref does not track its Prosperity or events. Its
  * institution levels are whatever the Ref says.
  *
@@ -819,29 +819,29 @@ export function makeForeignVillage({ name = "Unnamed Village", prosperity = 0, i
     isHome: false,
     prosperity: clampProsperity(prosperity),
     cycle: 0,
-    tracksCycles: false,          // C:2543 — the Ref doesn't track these
-    canInvest: false,             // C:2543 — "you can't invest in them"
+    tracksCycles: false,          // C:2226 — the Ref doesn't track these
+    canInvest: false,             // C:2226 — "you can't invest in them"
     institutions: institutions.map(i => ({ ...i })),
     spentThisCycle: 0,
     spendBonusAwarded: false
   };
 }
 
-/** C:3168 — 15,000 gc and ten days founds a new village, which becomes home. */
+/** C:2676 — 15,000 gc and ten days founds a new village, which becomes home. */
 export function foundVillageQuote() {
   return { price: FOUND_VILLAGE_PRICE, days: FOUND_VILLAGE_DAYS, startingInstitutions: [...STARTING_INSTITUTIONS] };
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Village crafting (C:2639-2649)                                             */
+/*  Village crafting (C:2301-2308)                                             */
 /* -------------------------------------------------------------------------- */
 
 /**
  * What an artisan institution charges to craft an item for you, and how fast.
  *
- * C:2643 — materials plus the item's FULL price up front.
- * C:2645 — one crafting roll per day, at a bonus equal to the institution's level.
- * C:2647 — pay twice as much and it becomes two rolls a day.
+ * C:2305 — materials plus the item's FULL price up front.
+ * C:2306 — one crafting roll per day, at a bonus equal to the institution's level.
+ * C:2307 — pay twice as much and it becomes two rolls a day.
  *
  * The rolls themselves belong to `crafting.mjs`; this returns the terms.
  */
@@ -862,7 +862,7 @@ export function villageCraftingQuote(key, level, itemPrice, { rush = false, extr
   };
 }
 
-/** Daily cost and bonus for renting an artisan's workshop (C:2724, C:2859, C:2980). */
+/** Daily cost and bonus for renting an artisan's workshop (C:2368, C:2462, C:2541). */
 export function workshopRental(key, level) {
   const def = INSTITUTIONS[key];
   if (!def?.workshop) return { ok: false, error: `${def?.label ?? key} has no workshop to rent` };
@@ -893,7 +893,7 @@ export function defaultVillage() {
     id: `seed-${idx}-${type}`,
     type,
     name: INSTITUTION_TYPES[type],
-    level: 1,                     // C:2549 — all starting institutions are 1st level
+    level: 1,                     // C:2232 — all starting institutions are 1st level
     steward: "",
     foundedOnCycle: 0,
     operatingFromCycle: 0,        // the starting five are open on day one
@@ -903,12 +903,12 @@ export function defaultVillage() {
   return {
     name: "Unnamed Village",
     isHome: true,
-    prosperity: 0,                // C:2589
+    prosperity: 0,                // C:2257
     cycle: 0,
     tracksCycles: true,
     canInvest: true,
     raisingEventThisCycle: true,  // start true so the first end-of-cycle is not a penalty
-    spentThisCycle: 0,            // C:2593
+    spentThisCycle: 0,            // C:2261
     spendBonusAwarded: false,
     institutions,
     activeEffects: [],            // event effects live until the end of their cycle
@@ -935,14 +935,14 @@ export async function setVillage(patch = {}) {
 }
 
 /**
- * Found an institution. Prosperity rises immediately (C:2593); the institution
- * does not open until the start of the next cycle (C:2698).
+ * Found an institution. Prosperity rises immediately (C:2261); the institution
+ * does not open until the start of the next cycle (C:2350).
  */
 export async function foundInstitution({ type, name = null, steward = "", level = 1 }) {
   const def = INSTITUTIONS[type];
   if (!def) return { ok: false, error: `unknown institution: ${type}` };
   const v = getVillage();
-  if (!v.canInvest) return { ok: false, error: "you can't invest in a village that isn't your home (C:2543)" };
+  if (!v.canInvest) return { ok: false, error: "you can't invest in a village that isn't your home (C:2226)" };
 
   const inst = {
     id: `inst-${foundry.utils.randomID(10)}`,
@@ -951,14 +951,14 @@ export async function foundInstitution({ type, name = null, steward = "", level 
     level: Math.max(1, Math.min(institutionPurchasableMaxLevel(type), Math.floor(Number(level) || 1))),
     steward,
     foundedOnCycle: v.cycle,
-    operatingFromCycle: v.cycle + 1,   // C:2698
+    operatingFromCycle: v.cycle + 1,   // C:2350
     pendingLevel: null,
     pendingFromCycle: null
   };
   v.institutions.push(inst);
   v.prosperity = clampProsperity(v.prosperity + 1);
   v.raisingEventThisCycle = true;
-  // C:2659 — founding a new institution is what lifts the boycott.
+  // C:2318 — founding a new institution is what lifts the boycott.
   v.activeEffects = (v.activeEffects ?? []).filter(e => e.kind !== "boycott");
   await save(v);
 
@@ -974,11 +974,11 @@ export async function foundInstitution({ type, name = null, steward = "", level 
 
 /**
  * Pay to upgrade. Prosperity rises now; the new level operates from the next
- * cycle (C:2704), so the level is parked in `pendingLevel` until `endCycle`.
+ * cycle (C:2353), so the level is parked in `pendingLevel` until `endCycle`.
  */
 export async function upgradeInstitution(id) {
   const v = getVillage();
-  if (!v.canInvest) return { ok: false, error: "you can't invest in a village that isn't your home (C:2543)" };
+  if (!v.canInvest) return { ok: false, error: "you can't invest in a village that isn't your home (C:2226)" };
   const inst = v.institutions.find(i => i.id === id);
   if (!inst) return { ok: false, error: "no such institution" };
 
@@ -1003,7 +1003,7 @@ export async function upgradeInstitution(id) {
   return { ok: true, institution: inst, prosperity: v.prosperity, price, operatingFromCycle: inst.pendingFromCycle };
 }
 
-/** Demote or destroy (C:2656, C:2657). A 1st-level institution is destroyed. */
+/** Demote or destroy (C:2315, C:2316). A 1st-level institution is destroyed. */
 export async function damageInstitution(id, { destroy = false } = {}) {
   const v = getVillage();
   const idx = v.institutions.findIndex(i => i.id === id);
@@ -1046,7 +1046,7 @@ export async function setProsperity(value, { silent = false } = {}) {
 
 /**
  * Record a purchase from a merchant institution. Crossing 10,000 gc in a cycle
- * raises Prosperity by 1, once (C:2593).
+ * raises Prosperity by 1, once (C:2261).
  */
 export async function recordSpend(amount, { silent = false } = {}) {
   const v = getVillage();
@@ -1079,7 +1079,7 @@ export async function endCycle({ skipEvent = false } = {}) {
   const prevProsperity = v.prosperity;
   const nextCycle = (v.cycle ?? 0) + 1;
 
-  // C:2704 — paid-for levels go live at the start of the new cycle.
+  // C:2353 — paid-for levels go live at the start of the new cycle.
   const promoted = [];
   for (const inst of v.institutions) {
     if (inst.pendingLevel != null && nextCycle >= (inst.pendingFromCycle ?? Infinity)) {
@@ -1093,7 +1093,7 @@ export async function endCycle({ skipEvent = false } = {}) {
   v.prosperity = prosperityAtCycleEnd(v.prosperity, { raisingEventOccurred: !!v.raisingEventThisCycle });
   v.cycle = nextCycle;
   v.raisingEventThisCycle = false;
-  v.spentThisCycle = 0;                    // C:2593 — "during a cycle"
+  v.spentThisCycle = 0;                    // C:2261 — "during a cycle"
   v.spendBonusAwarded = false;
   v.activeEffects = (v.activeEffects ?? []).filter(e => e.duration !== "cycle");
 
@@ -1143,7 +1143,7 @@ export async function rollVillageEvent({ silent = false } = {}) {
 /**
  * The operating level of an institution by type, including pending upgrades,
  * active event modifiers, and the Prosperity-10 capstone. `crypt.mjs` reads
- * this, which is why the crypt's "considered 6th level" (C:2943) has to live
+ * this, which is why the crypt's "considered 6th level" (C:2517) has to live
  * in `effectiveInstitutionLevel` rather than in the caller.
  */
 export function getInstitutionLevel(type) {
