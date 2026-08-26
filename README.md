@@ -1,6 +1,7 @@
 # MCDM Crows — Foundry VTT System
 
-A community-built Foundry VTT system for the **MCDM Crows TTRPG public playtest** (May–June 2026).
+A community-built Foundry VTT system for the **MCDM Crows TTRPG public playtest**, tracking the
+**second playtest packet (August–September 2026)**.
 
 > **Disclaimer.** This is a fan-made implementation. *Crows* is © MCDM Productions. This system exists to make the playtest playable at the virtual table — playtests need to be played for MCDM to get feedback. If MCDM requests changes or removal, that will be honored.
 
@@ -8,9 +9,14 @@ A community-built Foundry VTT system for the **MCDM Crows TTRPG public playtest*
 
 The rulebooks, character sheet, and other reference documents are **not** distributed here. Grab them directly from MCDM:
 
-> **[Crows May/June 2026 Playtest Packet (Patreon)](https://www.patreon.com/posts/crows-may-2026-158948625)**
+> **[MCDM Productions on Patreon](https://www.patreon.com/c/MCDM)** — look for the **Crows August/September 2026 playtest packet**.
 
 This system implements those rules. You need the packet to read what the game *is*; this repo gives you the table to play it on.
+
+> **Playtest 1 → 2 is not a patch.** Conditions were rebuilt, the chaos count was replaced,
+> initiative changed shape entirely, and every compendium pack was re-transcribed from the new
+> books. A world built on the Playtest 1 version of this system migrates, but expect to re-check
+> characters against the new rules.
 
 ---
 
@@ -24,72 +30,73 @@ https://github.com/DimitroffVodka/crows_playtest/releases/latest/download/system
 
 Or download a release zip directly from the [Releases page](https://github.com/DimitroffVodka/crows_playtest/releases).
 
-**Compatibility:** Foundry v13 minimum, verified on v14.
+**Compatibility:** Foundry **v14 minimum, verified on v14**.
 
 ---
 
 ## What's in the box
 
 ### Rules pipeline
-- **2d10 tier-roll engine** — Tier 1 ≤11, Tier 2 12–16, Tier 3 17+. Auto doom/crit on raw faces. Mod-chain chat cards.
-- **Slot inventory** — hand/head/neck/waist/belt/arms/finger/feet equipped + 10-slot backpack. Wounds occupy backpack slots from the bottom.
-- **Conditions** — Blessed/Boned (leveled, auto-applied to test rolls), Grabbed, Prone, Unconscious (auto-doom on Agi/Str, target auto-tier-3, +1/-1 melee/ranged mods, etc.) — bidirectionally synced with Active Effects.
+- **2d10 tier-roll engine** — Tier 1 ≤11, Tier 2 12–16, Tier 3 17+. Auto doom/crit on raw faces. Mod-chain chat cards with an explicit commit point, so an expertise can be spent *after* the roll and before anything downstream fires.
+- **Slot inventory** — 2 hand, 4 belt, 10 backpack, plus six worn magic slots (head/neck/waist/arms/finger/feet). Multi-slot items must be contiguous; wounds fill backpack slots. Cards drag between slots, swap when you drop one onto another, and can be added or removed in place.
+- **Conditions** — six, and **none of them have levels**: `blessed`, `grabbed`, `prone`, `unconscious`, `vulnerable`, `weakened`. Bidirectionally synced with Active Effects and token statuses. (Playtest 1's `boned` is gone — it split into `weakened` and `vulnerable`.)
 - **Damage application** — Armor Dice → Stamina → Wounds, with multi-armor priority dialog (shield → light → medium → heavy) and Piercing (bypasses AD).
-- **Spellcasting** — full pipeline with Usage-Die-on-cast, Chaos Count (GM-secret world counter, threshold-triggered Backlash from d100+rank table), doom-on-cast = immediate backlash.
-- **Dungeon Turn** — counter, end-of-DT pipeline (UD rolls, blessed/boned reset, encounter check), GM-callable.
+- **Spellcasting** — full pipeline with Usage-Die-on-cast, the **per-cast chaos roll** (1d6 on a non-doom tier 1; a 1 triggers a backlash), doom-on-cast = immediate backlash, and a d100+rank backlash table.
+- **Combat and initiative** — **side-based, per the rules**: one 1d10 at the start of every round decides whether the crows or their enemies act first, re-rolled each round, with order *within* a side chosen rather than rolled. Ships a replacement combat tracker with the side roll, per-side grouping, manual reordering, and **Surprised** (skipped in round 1, +1 to attacks against them).
+- **Dungeon Turn** — counter, end-of-DT pipeline (UD rolls, expiry of `blessed`/`vulnerable`/`weakened`, encounter check), GM-callable.
 - **Rest** — 6-hour rest with auto-restore, encounter checks every 2h (skipped in town), rest activities: Tend Wounds / Identify Item / Prepare for Task / Craft Equipment / Harvest.
 
-### Downtime systems (Rules p.1115+)
-- **Miasma** — outdoor 24h resist test (2d10 + M + Endurance), Effects table dispatch with effect-id dedup, catastrophic 13+ → permanent NPC.
+### Downtime systems
+- **Miasma** — outdoor 24h resist test (2d10 + M + Endurance), Effects table dispatch with effect-id dedup, cruelty accumulation, catastrophic result → permanent NPC.
 - **Crypt boons** — 10-boon institution with internment registry, once-per-cycle prayer, mechanical hooks for Vitality / Fury / Swiftness boons; chat-card scaffolds for the rest.
-- **Village** — Prosperity tracker (-10..+10), 10-day cycles, institution registry, end-of-cycle event roll (d10 + Prosperity → 20-bucket table), GM management dialog.
+- **Village** — Prosperity tracker (−10..+10), 10-day cycles, institution registry, end-of-cycle event roll (d10 + Prosperity), GM management dialog.
 - **Crafting** — projects with prereqs/materials/goal, special-Mind crafting roll (doom=0, crit=re-roll, min 1), Identify Item 2d10+M tiered test.
-- **Advancement** — TXP threshold table for skill/stam and characteristic bonuses, trait-tree purchase UI (4×3 grid per tree, connectsTo gating), XP-grant macros.
+- **Advancement** — TXP threshold table for expertise/stamina and characteristic bonuses, trait-tree purchase UI (4×3 grid per tree, `connectsTo` gating), XP-grant macros.
+- **Pets** — taming, bonding, ownership transfer, and combat commands, with the command test the rules require.
 
 ### Character creator
-- 2d6 background roll or pick from all 36, with live preview of stats/trait/description.
-- Characteristic spread (+1 primary, optional secondary +1 with -1 dump on the third).
-- Auto-applies background skills/stamina/equipment/starting-trait + universal starter items (bedroll, coin purse, knife, rope, 6 rations).
+- Roll 2d6 for a background or pick from all 36.
+- **Characteristics are set, not incremented.** Your background makes one characteristic a **2**; some fix which one, some offer a choice. You then pick a spread for the other two: **1 / 0** or **2 / −1**.
+- Applies the background's expertise **uses**, stamina, equipment, spellbooks and starting trait, plus the universal kit — **coin purse, knife, rope, six rations, and 3d6 gc** (some backgrounds add coins on top).
+- The four backgrounds that grant an animal spawn it as an Actor, bonded to the crow.
 
 ### Sheets
-- **Crow PC sheet** — laid out to match the official paper character sheet, with tabs: Main / Equipment / Inventory / Advancement / Downtime / Bio.
+- **Crow PC sheet** — tabs: **Main / Equipment / Inventory / Pets / Advancement / Downtime / Bio**. The Bio tab records what your background granted.
 - **Monster sheet** — rulebook stat-block format with inline GM edits, attack roll buttons, condition toggles, apply-damage dialog.
+- **Item cards** — printed-card layouts per item type.
 
 ### Compendium content
-- 11 packs: backgrounds (36), traits (~276 across 23 trees), weapons, armor, gear, consumables, ammunition, spellbooks, monsters, loot, rules-reference journal.
-- All content transcribed from the playtest packet; cross-validated against the consolidated rulebook markdown.
+- **12 packs**: backgrounds (36), traits (276 across 23 trees), weapons, armor, gear, consumables, ammunition, spellbooks, monsters (71), loot, the rules-reference journal, and **31 rollable tables** (backlashes, miasma effects, encounters, weather, interesting things, dungeon hooks and more).
+- All content transcribed from the Playtest 2 packet and cross-checked against the books. Where a card and a rulebook disagree, the card wins and the divergence is recorded in `docs/discrepancies/`.
 
 ### Bundled play assets
 
 `playtest-packet/` ships a few play-time assets so you don't have to bring your own:
 
-- **`Art/`** — monster portraits (Blood Creatures, Ring Collector) and scene art (Blood Library Entrance) — drop straight onto tokens or scenes.
-- **`Maps/`** — Blood Library starter-dungeon battlemaps (both labeled and unlabeled, including the 8k versions).
-- **`Crows Character & Inventory Sheets.xlsx`** — the official paper character sheet, for groups that want a hard copy alongside the digital sheet.
+- **`Art/`** — monster portraits and scene art — drop straight onto tokens or scenes.
+- **`Maps/`** — Blood Library starter-dungeon battlemaps (labeled and unlabeled, including 8k).
+- **`Crows Character & Inventory Sheets.xlsx`** — the official paper character sheet.
 
-The rulebooks, monster cards, loot cards, and cheat sheet are **not** bundled — grab them from the Patreon link above. (These are images/maps for the table; the rules text lives with MCDM.)
-
-These assets are repo-only — they aren't included in the Foundry install zip.
+The rulebooks, monster cards, loot cards, and cheat sheet are **not** bundled — grab them from MCDM. These assets are repo-only; they aren't in the Foundry install zip.
 
 ---
 
 ## GM Quickstart
 
-A 5-minute setup for new GMs:
-
 1. **Install the system** via the manifest URL above; create a new world using "MCDM Crows (Playtest)".
 2. **Configure world settings** (Game Settings → Configure Settings → System Settings):
    - **Default Dungeon EN** — the 1d6 threshold for encounter checks (default 6 = lenient, lower = more encounters).
-   - **Party is in the Miasma** — toggle ON when the party is overland in Cornath; OFF when they're indoors / in town.
-   - **Crypt Level** — fallback when no Village institution yet; once the Village is set up, Crypt level is read from there.
-3. **Create the village** — open any crow's character sheet → Downtime tab → click **Manage…** on the Village strip. Set name, prosperity, found/upgrade institutions, advance cycles, roll events.
-4. **Make a player character** — drag-create a new Actor (type: crow), open the sheet → Bio tab → **Open Character Creator** → roll 2d6 or pick a background, assign characteristics, name + feature. Background applies skills/stamina/equipment/starting trait automatically + adds universal starter items.
-5. **Run combat** — drag a monster from `Crows Monsters` compendium onto the scene. Target a token with `T`. Click an attack on the monster sheet or use a PC's weapon. The chat card shows Apply T2 / Apply T3 buttons; selecting a target token + clicking applies damage through the AD → Stamina → Wounds pipeline.
-6. **End-of-DT** — the GM **End DT** button on any Crow sheet's Time strip rolls all DT-expiry usage dice, resets blessed/boned, and rolls an encounter check.
-7. **Rest** — the **Rest…** button opens a dialog: pick the rest activity (None / Tend Wounds / Identify Item / Prepare for Task / Craft Equipment / Harvest), tick **Town rest** to skip encounter checks. Outdoor non-town rests auto-roll a Miasma resist if the world flag is on.
-8. **End Village Cycle** — Downtime tab → Manage → End Cycle. Docks Prosperity by 1 if no institution was founded/upgraded, then rolls a d10+Prosperity Village Event.
+   - **Party is in the Miasma** — ON when the party is overland in Cornath; OFF indoors or in town.
+   - **Crypt Level** — fallback when there is no Village yet; once the Village exists, Crypt level is read from there.
+3. **Create the village** — any crow's sheet → Downtime tab → **Manage…** on the Village strip.
+4. **Make a player character** — create an Actor (type: crow) → Bio tab → **Open Character Creator**. Roll or pick a background, set the characteristic it grants and choose your spread, name the crow and its NPC connection.
+5. **Run combat** — drag a monster onto the scene and add both sides to the tracker. Click **Roll for the round**: a 6+ puts the crows first, 5 or lower the enemies. Walk the turns; the next round re-rolls. Mark anyone caught unaware as **Surprised** — they are skipped in round 1 and attacks against them gain +1.
+6. **Attack** — put a weapon in a **hand** slot (only a wielded weapon can attack; the sheet says so on any weapon that isn't). Target a token with `T`, or just click Attack and pick from the prompt. The chat card's Apply T2 / Apply T3 buttons run damage through AD → Stamina → Wounds.
+7. **End-of-DT** — the GM **End DT** button on any crow's Time strip rolls DT-expiry usage dice, clears `blessed`/`vulnerable`/`weakened`, and rolls an encounter check.
+8. **Rest** — the **Rest…** dialog picks the activity and offers **Town rest** to skip encounter checks. Outdoor non-town rests auto-roll a Miasma resist when the world flag is on.
+9. **End Village Cycle** — Downtime → Manage → End Cycle. Docks Prosperity if nothing was founded or upgraded, then rolls the event.
 
-The `game.crows.*` API is exposed for macros: `game.crows.dt.end()`, `game.crows.chaos.show()`, `game.crows.village.found(...)`, `game.crows.creator.open(actor)`, etc. See `module/crows.mjs` for the full surface.
+The `game.crows.*` API is exposed for macros — `game.crows.dt.end()`, `game.crows.creator.open(actor)`, `game.crows.village.found(...)`, `game.crows.miasma.resist(...)`, `game.crows.crypt.pray(...)`, `game.crows.rollTest(...)`. See `module/crows.mjs` for the full surface.
 
 ---
 
@@ -99,11 +106,16 @@ Issues and PRs welcome. Source content lives under `src/packs/` as YAML; built L
 
 ```bash
 npm install
-npm run pack       # build all packs
-npm run unpack     # extract LevelDB → YAML (rare, for round-tripping)
+npm run pack       # build every pack from src/packs
+npm run unpack     # extract LevelDB -> YAML (rare, for round-tripping)
+npm test           # the suite
+./verify.sh --strict
+npm run release    # gated build of dist/crows.zip
 ```
 
-You'll need a copy of [`@foundryvtt/foundryvtt-cli`](https://github.com/foundryvtt/foundryvtt-cli), installed via `npm install`.
+**Foundry holds an exclusive lock on the LevelDB packs while a world is open**, so return to Setup before rebuilding or packing will fail.
+
+You'll need [`@foundryvtt/foundryvtt-cli`](https://github.com/foundryvtt/foundryvtt-cli), installed via `npm install`.
 
 ---
 
@@ -111,7 +123,8 @@ You'll need a copy of [`@foundryvtt/foundryvtt-cli`](https://github.com/foundryv
 
 - *Crows* TTRPG by **MCDM Productions** — see [mcdmproductions.com](https://mcdmproductions.com/).
 - Foundry VTT system implementation by **dimit** (with significant pair-programming assistance from Claude / Anthropic).
-- Built and tested on Foundry v14.361+.
+- Background icons from [game-icons.net](https://game-icons.net), CC BY 3.0 — see [`NOTICE.md`](NOTICE.md).
+- Built and tested on Foundry **v14.367**.
 
 ## License
 
