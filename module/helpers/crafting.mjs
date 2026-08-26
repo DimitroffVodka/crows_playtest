@@ -28,6 +28,10 @@
  *   R:1691 still calls them organs and vials of blood in flavour text, but the
  *   crafting requirement is a count).
  * - **Surplus points roll into another copy** of the same item (R:1709).
+ * - **Interim material planning stays playable.** Until the dependent
+ *   material-transaction ticket registers its inventory planner, a
+ *   material-bearing project retains PT1's one-set default. Once registered,
+ *   that planner owns strict set authorization (including zero).
  *
  * The pure half — prerequisites, point arithmetic, tier lookup — is what
  * `test/village.test.mjs` exercises; the `Roll` / `ChatMessage` half is below it.
@@ -65,9 +69,11 @@ export const CRAFTING_PROJECT_STATUSES = Object.freeze(["active", "blocked", "pe
 
 /**
  * The material vocabulary belongs to the material planner, but project records
- * need to carry it before that planner is installed. Keeping the vocabulary in
- * this helper means the shape migration and the roll state machine can agree
- * without importing the Foundry data model from the pure arithmetic tests.
+ * need to carry it before that planner is installed. Keeping the currently
+ * recognised aliases in this helper means the shape migration and the roll
+ * state machine can agree without importing the Foundry data model from the
+ * pure arithmetic tests. This list is deliberately not a closed vocabulary:
+ * categories unknown to this ticket remain unresolved text for the planner.
  */
 export const CRAFTING_MATERIAL_IDENTITIES = Object.freeze([
   "bloodhide", "undeadBone", "demonHide", "angelHide",
@@ -162,10 +168,12 @@ export function normalizeCraftingMaterialRequirement(material, index = 0) {
   const fallbackId = `req-${Math.max(0, Math.floor(Number(index) || 0)) + 1}`;
   if (material && typeof material === "object" && !Array.isArray(material)) {
     const source = cloneValue(material) ?? {};
-    const label = String(source.label ?? source.legacyText ?? "").trim();
+    const rawIdentity = String(source.identity ?? "").trim();
+    const label = String(source.label ?? source.legacyText ?? rawIdentity).trim();
     const identity = materialIdentity(source.identity);
     const form = materialForm(source.form);
     const size = materialSize(source.size);
+    const providedLegacyText = String(source.legacyText ?? "").trim();
     return {
       id: String(source.id ?? fallbackId),
       quantity: Math.max(1, nonNegativeInteger(source.quantity, 1)),
@@ -173,7 +181,7 @@ export function normalizeCraftingMaterialRequirement(material, index = 0) {
       form,
       size,
       label,
-      legacyText: String(source.legacyText ?? (!identity && label ? label : ""))
+      legacyText: identity ? providedLegacyText : (providedLegacyText || label || rawIdentity)
     };
   }
 
@@ -290,16 +298,20 @@ function materialSetsFrom(options, actor, project) {
     return plan;
   }
   // A project with no material requirements has an unbounded number of
-  // authorized sets. A material-bearing project must wait for the planner;
-  // treating it as one set would recreate the original free-completion bug.
+  // authorized sets. Until the material-transaction ticket registers its
+  // planner, retain PT1's playable one-set default for material-bearing
+  // projects. Once a planner is registered it owns this value, including a
+  // strict zero when no matching set exists.
   return Array.isArray(project?.materials) && project.materials.length === 0
-    ? Number.POSITIVE_INFINITY : undefined;
+    ? Number.POSITIVE_INFINITY : 1;
 }
 
 /**
  * Resolve the current production planner, if the material ticket has wired
- * one onto the shared crafting API. This fallback is intentionally narrow:
- * it authorizes no material-bearing project until that planner returns a set.
+ * one onto the shared crafting API. The interim fallback is deliberately
+ * permissive so this lifecycle ticket does not make existing projects
+ * unplayable; the material-transaction ticket flips the behavior by
+ * registering a planner that returns the actually authorized set count.
  */
 export function craftingMaterialSetsFor(actor, project) {
   const configured = globalThis.game?.crows?.crafting;
@@ -308,19 +320,20 @@ export function craftingMaterialSetsFor(actor, project) {
     const plan = planner(actor, project);
     if (plan && typeof plan === "object") return plan.availableSets ?? plan.materialSets ?? 0;
     if (plan !== undefined && plan !== null) return plan;
+    return 0;
   }
   return Array.isArray(project?.materials) && project.materials.length === 0
-    ? Number.POSITIVE_INFINITY : 0;
+    ? Number.POSITIVE_INFINITY : 1;
 }
 
 /**
  * Pure lifecycle reconciliation seam.
  *
  * A material planner may supply `materialSets` (or `{availableSets}`) through
- * the optional third argument. Without that explicit authorization this
- * function only normalizes durable state; it cannot turn banked goal points
- * into a free completion. The planner/Item transaction remains another
- * ticket's responsibility.
+ * the optional third argument. Before that planner is installed, the
+ * interim-compatible one-set fallback keeps existing crafting playable; the
+ * planner/Item transaction ticket then owns strict authorization. In either
+ * mode, the output Item remains the Ref's responsibility.
  */
 export function reconcileCraftingProject(actor, project, options = {}) {
   const before = normalizeCraftingProject(project, options?.index ?? 0);

@@ -112,6 +112,9 @@ const CRAFTING_MATERIAL_IDENTITIES = new Set([
   "yew", "archmageWillow", "necromancerDeathtree", "starwood",
   "elementalEssence"
 ]);
+// This is the currently recognised equipment vocabulary, not a closed union.
+// Unknown categories stay in `legacyText` so a later material planner can
+// resolve them without data loss.
 const CRAFTING_MATERIAL_FORMS = new Set(["", "bar", "log", "part"]);
 const CRAFTING_MATERIAL_SIZES = new Set(["", "tiny", "small", "medium", "large"]);
 const CRAFTING_MATERIAL_ALIASES = [
@@ -210,8 +213,10 @@ export function migrateCraftingProject(project, index = 0) {
 function migrateCraftingMaterial(material, index = 0) {
   const id = `req-${Math.max(0, Math.floor(Number(index) || 0)) + 1}`;
   if (isObject(material)) {
-    const label = String(material.label ?? material.legacyText ?? "").trim();
+    const rawIdentity = String(material.identity ?? "").trim();
+    const label = String(material.label ?? material.legacyText ?? rawIdentity).trim();
     const identity = craftingIdentity(material.identity);
+    const providedLegacyText = String(material.legacyText ?? "").trim();
     return {
       id: String(material.id ?? id),
       quantity: Math.max(1, toCount(material.quantity) || 1),
@@ -219,7 +224,7 @@ function migrateCraftingMaterial(material, index = 0) {
       form: craftingForm(material.form),
       size: craftingSize(material.size),
       label,
-      legacyText: String(material.legacyText ?? (!identity && label ? label : ""))
+      legacyText: identity ? providedLegacyText : (providedLegacyText || label || rawIdentity)
     };
   }
 

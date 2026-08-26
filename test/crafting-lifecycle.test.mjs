@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import {
   accrueCraftingPoints,
   completeProject,
+  craftingMaterialSetsFor,
   makeCraftingRoll,
   normalizeCraftingProject,
   reconcileCraftingProject
@@ -135,17 +136,38 @@ describe("durable crafting roll and finalize", () => {
     }, { total: 250, dice: [10, 10] });
   });
 
-  test("a material-bearing project gets no implicit set from the roll helper", async () => {
+  test("a material-bearing project keeps the interim one-set default", async () => {
     const actor = actorWith({
       id: "p1", name: "Blade", goal: 100, points: 0, completed: 0,
       materials: [{ id: "req-1", quantity: 1, identity: "iron", form: "bar", size: "", label: "iron bar" }]
     });
     await withCraftingGlobals(async () => {
       const result = await makeCraftingRoll(actor, "p1");
-      assert.equal(result.project.completed, 0);
-      assert.equal(result.project.points, 100);
-      assert.equal(result.project.status, "blocked");
+      assert.equal(result.project.completed, 1);
+      assert.equal(result.project.points, 0);
+      assert.equal(result.project.status, "pending");
     });
+  });
+
+  test("a registered material planner owns strict set authorization", async () => {
+    const previousGame = globalThis.game;
+    globalThis.game = { crows: { crafting: { planMaterials: () => 0 } } };
+    const actor = actorWith({
+      id: "p1", name: "Blade", goal: 100, points: 0, completed: 0,
+      materials: [{ id: "req-1", quantity: 1, identity: "iron", form: "bar", size: "", label: "iron bar" }]
+    });
+    try {
+      assert.equal(craftingMaterialSetsFor(actor, actor.system.crafting.projects[0]), 0);
+      await withCraftingGlobals(async () => {
+        const result = await makeCraftingRoll(actor, "p1");
+        assert.equal(result.project.completed, 0);
+        assert.equal(result.project.points, 100);
+        assert.equal(result.project.status, "blocked");
+      });
+    } finally {
+      if (previousGame === undefined) delete globalThis.game;
+      else globalThis.game = previousGame;
+    }
   });
 
   test("completeProject refuses an incomplete project without an update or chat", async () => {
@@ -201,6 +223,23 @@ describe("crafting project shape migration", () => {
     assert.equal(migrated.materials[1].identity, "");
     assert.equal(migrated.materials[1].legacyText, "mystery material");
     assert.equal(normalizeCraftingProject(migrated).output.kind, "equipment");
+  });
+
+  test("unknown material categories remain unresolved instead of being dropped", () => {
+    const migrated = migrateCraftingProject({
+      id: "p1", name: "Ward", goal: 100,
+      materials: [{ identity: "angel parts", quantity: 5 }]
+    });
+    assert.equal(migrated.materials[0].identity, "");
+    assert.equal(migrated.materials[0].label, "angel parts");
+    assert.equal(migrated.materials[0].legacyText, "angel parts");
+
+    const normalized = normalizeCraftingProject({
+      id: "p2", name: "Ward", goal: 100,
+      materials: [{ identity: "blood creature parts", quantity: 10 }]
+    });
+    assert.equal(normalized.materials[0].identity, "");
+    assert.equal(normalized.materials[0].legacyText, "blood creature parts");
   });
 
   test("migrateCrowSystem applies the project shape migration idempotently", () => {
