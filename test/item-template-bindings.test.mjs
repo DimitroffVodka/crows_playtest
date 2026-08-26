@@ -30,6 +30,12 @@ function schemaFields(type) {
 
 const templates = readdirSync(TEMPLATES).filter((f) => f.endsWith(".hbs"));
 
+/**
+ * Sheets for content authored in YAML and rebuilt by `npm run pack`. An edit
+ * made on one is discarded at the next build, so they offer no controls.
+ */
+const READ_ONLY = ["background.hbs", "trait.hbs"];
+
 describe("item template bindings match their data model", () => {
   test("guard: templates and models were both found", () => {
     assert.ok(templates.length >= 8, `only ${templates.length} item templates`);
@@ -66,7 +72,7 @@ describe("item template bindings match their data model", () => {
     // that is the designer's call, not the implementer's.
     const src = readFileSync(join(TEMPLATES, "background.hbs"), "utf8");
     const face = src.slice(src.indexOf("<article"), src.indexOf("</article>"));
-    const sections = [...face.matchAll(/bg-notelabel">\{\{localize "([^"]+)"/g)].map((m) => m[1]);
+    const sections = [...face.matchAll(/cf-notelabel">\{\{localize "([^"]+)"/g)].map((m) => m[1]);
     assert.deepEqual(sections, [
       "CROWS.Background.Expertises",
       "CROWS.Background.Equipment",
@@ -74,25 +80,27 @@ describe("item template bindings match their data model", () => {
     ]);
   });
 
-  test("the background sheet is READ-ONLY — it writes nothing", () => {
+  test("the shipped-content sheets are READ-ONLY — they write nothing", () => {
     // Backgrounds are shipped compendium content authored in YAML and rebuilt
     // by `npm run pack`. An edit made on this sheet is discarded at the next
     // build, so offering controls promises a persistence that does not exist.
-    const src = readFileSync(join(TEMPLATES, "background.hbs"), "utf8")
-      .replace(/\{\{!--[\s\S]*?--\}\}/g, "");
-    for (const control of ["<input", "<textarea", "<select", 'name="', "data-edit"]) {
-      assert.ok(!src.includes(control), `background.hbs still carries ${control}`);
+    for (const file of READ_ONLY) {
+      const src = readFileSync(join(TEMPLATES, file), "utf8")
+        .replace(/\{\{!--[\s\S]*?--\}\}/g, "");
+      for (const control of ["<input", "<textarea", "<select", 'name="', "data-edit"]) {
+        assert.ok(!src.includes(control), `${file} still carries ${control}`);
+      }
+      assert.ok(!src.includes("<form"), `${file} should not be a form`);
     }
-    assert.ok(!src.includes("<form"), "a read-only sheet should not be a form");
   });
 
   test("nothing else lost an editor by accident", () => {
     // The other seven item sheets ARE editors; this is a guard that the
     // read-only decision stayed scoped to backgrounds.
     const editable = templates
-      .filter((f) => f !== "background.hbs")
+      .filter((f) => !READ_ONLY.includes(f))
       .filter((f) => /name="system\./.test(readFileSync(join(TEMPLATES, f), "utf8")));
-    assert.equal(editable.length, templates.length - 1,
-      "every non-background item sheet should still bind fields");
+    assert.equal(editable.length, templates.length - READ_ONLY.length,
+      "every sheet that is not shipped-content should still bind fields");
   });
 });

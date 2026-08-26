@@ -1,35 +1,75 @@
-<form class="crows-item trait ci-card">
+{{!--
+  systems/crows/templates/item/trait.hbs
+  Same printed-card anatomy as background.hbs (see mockup 3a).
 
-  {{#> "systems/crows/templates/partials/card-head.hbs" kw=system.tree label="Perk"}}
-    <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9678;</span> Tier</dt><dd>{{system.tier}} &middot; column {{system.column}}</dd></div>
-    {{#if system.restActivity}}
-      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9203;</span> Rest</dt><dd>Rest activity</dd></div>
+  Needs, in order:
+    1. css/crows-card-face.css appended to (or @imported by) css/crows.css
+    2. css/crows-trait.css after it
+  ADAPTED. Three of the handoff's assumptions do not hold here:
+
+    * `CROWS.traitTrees` is an ARRAY of 23 names, so its `Object.keys()` are
+      "0".."22", not tree keys.
+    * `CROWS.traitTierCost` does not exist — the XP table is `traitTierXP`,
+      with the same 500/1000/1500/2000 values.
+    * 23 `CROWS.Sheet.Crow.tree.*` keys already ship, so a new `CROWS.Tree.*`
+      family would duplicate every one of them.
+
+  READ-ONLY, like the background sheet. Traits are compendium content authored
+  in src/packs/crows-traits/*.yaml and rebuilt by `npm run pack`, so an edit
+  made here is discarded at the next build. It also removes a real corruption
+  path: `connectsTo` is a StringField ARRAY, and the handoff's comma-separated
+  text input would submit a STRING — it says so itself, asking for a split-on-
+  comma handler. Not offering the control is safer than writing one.
+
+  Icons are per-TRAIT here, not per-tree as the handoff suggests: all 276 carry
+  their own glyph.
+
+  The rules text is {{{rules}}} — enriched HTML, not a textarea. A textarea prints the
+  raw <p> tags on the card face.
+--}}
+<div class="crows-item card-face trait">
+  <article class="cf-card">
+
+    <header class="cf-head">
+      <div class="cf-titleline">
+        <div class="cf-title">{{item.name}}</div>
+        <span class="cf-kind">{{localize "TYPES.Item.trait"}}</span>
+      </div>
+
+      <div class="cf-origin">
+        <div class="cf-glyph">
+          <img src="{{item.img}}" alt="">
+        </div>
+        <div class="cf-originbody">
+          <div class="cf-action">{{treeLabel}}</div>
+          <div class="cf-meta">
+            {{!-- column is a tree-layout coordinate, not player-facing: All fields only --}}
+            <span>&#10711; {{localize "CROWS.Trait.Tier"}}
+              <span class="cf-num">{{system.tier}}</span>
+            </span>
+            <span>&#9678; <span class="cf-xp">{{xpCost}}</span> {{localize "CROWS.Trait.Xp"}}</span>
+            {{#if system.isStarting}}
+              <span class="tr-starting">&#10022; {{localize "CROWS.Trait.StartingTrait"}}</span>
+            {{/if}}
+            {{#if system.restActivity}}
+              <span class="tr-starting">&#10022; {{localize "CROWS.Trait.RestActivity"}}</span>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    {{!-- enriched, not raw: a textarea here prints the <p> tags on the card --}}
+    <div class="cf-rules">{{{rules}}}</div>
+
+    {{#if leadsTo.length}}
+      <section class="cf-note tr-leads">
+        <p><span class="cf-runin">{{localize "CROWS.Trait.LeadsTo"}}</span>
+          {{#each leadsTo as |t|}}{{t}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
+      </section>
     {{/if}}
-    {{#if system.isStarting}}
-      <div class="ci-meta-row"><dt><span class="ci-sym" aria-hidden="true">&#9860;</span> Grant</dt><dd>Starting trait</dd></div>
-    {{/if}}
-  {{/"systems/crows/templates/partials/card-head.hbs"}}
 
-  <div class="ci-stats">
-    <div class="ci-stat"><span class="ci-stat-label">Tree</span><span class="ci-stat-value">{{system.tree}}</span></div>
-    <div class="ci-stat"><span class="ci-stat-label">Tier</span><span class="ci-stat-value">{{system.tier}}</span></div>
-    <div class="ci-stat"><span class="ci-stat-label">XP cost</span><span class="ci-stat-value">{{system.xpCost}}</span></div>
-  </div>
+    <div class="cf-foot"></div>
+  </article>
 
-  <section class="ci-note">
-    <h2 class="ci-note-title">{{item.name}}</h2>
-    <textarea name="system.description" aria-label="Description" placeholder="No description yet — click to add one.">{{system.description}}</textarea>
-  </section>
-
-  <details class="ci-more">
-    <summary>All fields</summary>
-    <div class="ci-body">
-      <label>Tree <select name="system.tree">{{#each CROWS.traitTrees as |t|}}<option value="{{t}}" {{#if (eq t ../system.tree)}}selected{{/if}}>{{t}}</option>{{/each}}</select></label>
-      <label>Tier <input type="number" name="system.tier" value="{{system.tier}}"></label>
-      <label>Column <input type="number" name="system.column" value="{{system.column}}"></label>
-      <label><input type="checkbox" name="system.isStarting" {{#if system.isStarting}}checked{{/if}}> Starting</label>
-      <label><input type="checkbox" name="system.restActivity" {{#if system.restActivity}}checked{{/if}}> Rest activity</label>
-    </div>
-  </details>
-
-</form>
+</div>

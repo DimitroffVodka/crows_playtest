@@ -24,24 +24,24 @@
       src/packs/crows-backgrounds/*.yaml and rebuilt by `npm run pack`, so any
       edit made here is discarded at the next build. The sheet is the printed
       card a player reads, not an editor. --}}
-<div class="crows-item background">
-  <article class="bg-card">
+<div class="crows-item card-face background">
+  <article class="cf-card">
 
-    <header class="bg-head">
-      <div class="bg-titleline">
-        <div class="bg-title">{{item.name}}</div>
-        <span class="bg-kind">{{localize "TYPES.Item.background"}}</span>
+    <header class="cf-head">
+      <div class="cf-titleline">
+        <div class="cf-title">{{item.name}}</div>
+        <span class="cf-kind">{{localize "TYPES.Item.background"}}</span>
       </div>
 
-      <div class="bg-origin">
-        <div class="bg-glyph">
+      <div class="cf-origin">
+        <div class="cf-glyph">
           <img src="{{item.img}}" alt="">
         </div>
-        <div class="bg-originbody">
-          <div class="bg-action">{{localize "CROWS.Background.Origin"}}</div>
-          <div class="bg-meta">
+        <div class="cf-originbody">
+          <div class="cf-action">{{localize "CROWS.Background.Origin"}}</div>
+          <div class="cf-meta">
             <span>&#10711; {{localize "CROWS.Stamina"}}
-              <span class="bg-num">{{system.stamina}}</span>
+              <span class="cf-num">{{system.stamina}}</span>
             </span>
             <span>&#9678; {{#if bg.characteristic.isAny}}{{localize "CROWS.Background.AnyCharacteristic"}}{{else}}{{bg.characteristic.labelText}}{{/if}}
               {{localize "CROWS.Background.AtTwo"}}
@@ -52,29 +52,29 @@
 
     </header>
 
-    <p class="bg-flavor">{{system.flavor}}</p>
+    <p class="cf-flavor">{{system.flavor}}</p>
 
-    <section class="bg-note">
-      <div class="bg-notelabel">{{localize "CROWS.Background.Expertises"}}</div>
-      <p>{{#each bg.expertises as |e|}}{{e.label}}{{#if e.many}} <span class="bg-uses">({{e.uses}} {{localize "CROWS.Uses"}})</span>{{/if}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
+    <section class="cf-note">
+      <div class="cf-notelabel">{{localize "CROWS.Background.Expertises"}}</div>
+      <p>{{#each bg.expertises as |e|}}{{e.label}}{{#if e.many}} <span class="cf-uses">({{e.uses}} {{localize "CROWS.Uses"}})</span>{{/if}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
     </section>
 
-    <section class="bg-note">
-      <div class="bg-notelabel">{{localize "CROWS.Background.Equipment"}}</div>
+    <section class="cf-note">
+      <div class="cf-notelabel">{{localize "CROWS.Background.Equipment"}}</div>
       <p>{{#each system.equipment as |e|}}{{e}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
       {{#if system.spellbooks.length}}
-        <p class="bg-books"><span class="bg-runin">{{localize "CROWS.Background.Spellbooks"}}</span> {{#each system.spellbooks as |sb|}}{{sb}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
+        <p class="cf-books"><span class="cf-runin">{{localize "CROWS.Background.Spellbooks"}}</span> {{#each system.spellbooks as |sb|}}{{sb}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
       {{/if}}
     </section>
 
     {{#if system.startingTrait}}
-      <section class="bg-note">
-        <div class="bg-notelabel">{{localize "CROWS.Background.StartingTrait"}}</div>
+      <section class="cf-note">
+        <div class="cf-notelabel">{{localize "CROWS.Background.StartingTrait"}}</div>
         <p>{{system.startingTrait}}</p>
       </section>
     {{/if}}
 
-    <div class="bg-foot"></div>
+    <div class="cf-foot"></div>
   </article>
 
 </div>

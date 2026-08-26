@@ -35,6 +35,22 @@ export class CrowsItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     ctx.item = this.document;
     ctx.CROWS = CROWS;
 
+    if (this.document.type === "trait") {
+      const sys = this.document.system;
+      // `CROWS.traitTrees` is an ARRAY of names, so Object.keys() would give
+      // "0".."22". The 23 tree labels already ship as CROWS.Sheet.Crow.tree.*;
+      // a new CROWS.Tree.* family would duplicate every one of them.
+      ctx.treeLabel = t(`CROWS.Sheet.Crow.tree.${sys.tree}`);
+      // The XP table is `traitTierXP`, not the `traitTierCost` the handoff names.
+      ctx.xpCost = CROWS.traitTierXP?.[sys.tier] ?? (Number(sys.tier) || 1) * 500;
+      ctx.leadsTo = sys.connectsTo ?? [];
+      // The card prints ENRICHED html. A textarea here renders the literal <p>
+      // tags on the card face, which is what the first build did.
+      ctx.rules = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+        sys.description ?? "", { relativeTo: this.document, secrets: this.document.isOwner }
+      );
+    }
+
     if (this.document.type === "background") {
       // Same shaper the crow sheet's Bio tab uses, so the two surfaces cannot
       // disagree about what a background grants.

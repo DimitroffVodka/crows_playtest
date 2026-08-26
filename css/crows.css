@@ -3256,19 +3256,22 @@
 
 .cc-origin-hint { margin: 8px 0 0; font-size: var(--crows-text-tiny); opacity: 0.65; }
 
-/* ── Background item card ───────────────────────────────────────────────────
-   From the design handoff, revision 3. Self-contained: no CSS variables, all
-   selectors scoped under .crows-item, and the three brand faces it asks for are
-   already declared as @font-face in this file.
+/* ── Printed card face (backgrounds + traits) ───────────────────────────────
+   Design handoff revision 4. The card face is now SHARED: the selector moved
+   from `.crows-item.background` to `.crows-item.card-face` and the `bg-*`
+   prefix became `cf-*`, so one anatomy serves both sheets with different data
+   in the black header.
+
+   Self-contained: no CSS variables, all selectors scoped under .crows-item,
+   and the three brand faces it asks for are already @font-face'd in this file.
 
    Rev 2 replaced a `brightness(0) invert(1)` glyph filter with
    `mix-blend-mode: screen` — the filter whitened the opaque black ground that
    game-icons files ship with and rendered a solid white diamond.
-   Rev 3 dropped the `⚄ + [M]IND` line: on a weapon or spell it means "add this
-   characteristic to the roll", but a background never rolls, so it only
-   repeated the `◎ MIND AT 2` line two rows above it. */
+   Rev 3 dropped the `⚄ + [M]IND` line: a background never rolls, so it only
+   repeated the line two rows above it. */
 /* CROWS — Background item sheet.
-   Append to css/crows.css, or @import it there. Scoped to .crows-item.background so
+   Append to css/crows.css, or @import it there. Scoped to .crows-item.card-face so
    nothing here can leak into the other item sheets.
 
    The card face is ink + bone + blood on purpose: it is printed matter, not parchment,
@@ -3277,12 +3280,12 @@
    Fonts: the display and title faces are the brand faces, not Foundry's Signika.
    If crows.css does not already declare them, add the @font-face block first. */
 
-.crows-item.background {
+.crows-item.card-face {
   padding: 14px;
   background: #000;                       /* window content behind the card */
 }
 
-.crows-item.background .bg-card {
+.crows-item.card-face .cf-card {
   background: #f7f5f0;
   color: #0a0a0a;
   border: 1px solid #000;
@@ -3293,23 +3296,22 @@
 
 /* ---------- header block ---------- */
 
-.crows-item.background .bg-head {
+.crows-item.card-face .cf-head {
   background: #000;
   color: #f7f5f0;
   padding: 10px 12px 12px;
 }
 
-.crows-item.background .bg-titleline {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-}
+/* title centred over the full width, keyword line right-aligned beneath it — the
+   printed cards' construction (see the Mace card) */
+.crows-item.card-face .cf-titleline { display: block; }
 
 /* textarea, not input — long names wrap instead of clipping */
-.crows-item.background .bg-title {
-  flex: 1;
-  min-width: 0;
+.crows-item.card-face .cf-title {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
   field-sizing: content;                  /* Chromium 123+; the min-height below is the fallback */
   min-height: 1.1em;
   margin: 0;
@@ -3325,13 +3327,15 @@
   text-transform: uppercase;
   text-wrap: balance;
 }
-.crows-item.background .bg-title:focus {
+.crows-item.card-face .cf-title:focus {
   outline: 1px solid #e10600;
   outline-offset: 2px;
 }
 
-.crows-item.background .bg-kind {
-  flex: 0 0 auto;
+.crows-item.card-face .cf-kind {
+  display: block;
+  margin-top: 4px;
+  text-align: right;
   font-family: "Grenze Gotisch", serif;
   font-size: 12px;
   letter-spacing: 0.14em;
@@ -3341,14 +3345,14 @@
 
 /* ---------- glyph + origin line ---------- */
 
-.crows-item.background .bg-origin {
+.crows-item.card-face .cf-origin {
   display: flex;
   align-items: flex-start;
   gap: 14px;
   margin-top: 12px;
 }
 
-.crows-item.background .bg-glyph {
+.crows-item.card-face .cf-glyph {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
@@ -3358,7 +3362,7 @@
   border: 1px solid #fff;
   transform: rotate(45deg);
 }
-.crows-item.background .bg-glyph img {
+.crows-item.card-face .cf-glyph img {
   width: 27px;
   height: 27px;
   transform: rotate(-45deg);
@@ -3368,9 +3372,9 @@
   mix-blend-mode: screen;
 }
 
-.crows-item.background .bg-originbody { flex: 1; min-width: 0; }
+.crows-item.card-face .cf-originbody { flex: 1; min-width: 0; }
 
-.crows-item.background .bg-action {
+.crows-item.card-face .cf-action {
   font-family: "Uncial Antiqua", serif;
   font-size: 19px;
   line-height: 1.1;
@@ -3379,7 +3383,7 @@
   padding-bottom: 3px;
 }
 
-.crows-item.background .bg-meta {
+.crows-item.card-face .cf-meta {
   font-family: "Grenze Gotisch", serif;
   font-size: 15px;
   letter-spacing: 0.1em;
@@ -3390,8 +3394,8 @@
 }
 
 /* inputs inside the header read as type, not as form fields */
-.crows-item.background .bg-num,
-.crows-item.background .bg-sel {
+.crows-item.card-face .cf-num,
+.crows-item.card-face .cf-sel {
   width: auto;
   /* both of these matter: height:auto lets Electron render the select as an open
      listbox, and appearance:none kills the native chrome that would show a caret
@@ -3410,18 +3414,38 @@
   letter-spacing: 0;
   text-transform: none;
 }
-.crows-item.background .bg-num { width: 3ch; text-align: left; }
-.crows-item.background .bg-num::-webkit-outer-spin-button,
-.crows-item.background .bg-num::-webkit-inner-spin-button { appearance: none; margin: 0; }
-.crows-item.background .bg-sel option { background: #0a0a0a; color: #f7f5f0; }
-.crows-item.background .bg-num:hover,
-.crows-item.background .bg-sel:hover { box-shadow: inset 0 -1px 0 #b9b2a3; }
-.crows-item.background .bg-num:focus,
-.crows-item.background .bg-sel:focus { outline: 1px solid #e10600; }
+.crows-item.card-face .cf-num { width: 3ch; text-align: left; }
+.crows-item.card-face .cf-num::-webkit-outer-spin-button,
+.crows-item.card-face .cf-num::-webkit-inner-spin-button { appearance: none; margin: 0; }
+.crows-item.card-face .cf-sel option { background: #0a0a0a; color: #f7f5f0; }
+.crows-item.card-face .cf-num:hover,
+.crows-item.card-face .cf-sel:hover { box-shadow: inset 0 -1px 0 #b9b2a3; }
+.crows-item.card-face .cf-num:focus,
+.crows-item.card-face .cf-sel:focus { outline: 1px solid #e10600; }
 
 /* ---------- paper body ---------- */
 
-.crows-item.background .bg-flavor {
+/* enriched rules HTML — one centred note, the printed cards' body copy */
+.crows-item.card-face .cf-rules {
+  padding: 14px 20px 0;
+  text-align: center;
+  font-size: 16.5px;
+  line-height: 1.45;
+}
+.crows-item.card-face .cf-rules p { margin: 0 0 8px; }
+.crows-item.card-face .cf-rules p:last-child { margin-bottom: 0; }
+.crows-item.card-face .cf-rules ul {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  display: inline-block;
+}
+.crows-item.card-face .cf-rules li::before { content: "\2022  "; }
+.crows-item.card-face .cf-rules a { color: inherit; text-decoration: underline; }
+
+
+.crows-item.card-face .cf-flavor {
   width: 100%;
   height: auto;
   margin: 0;
@@ -3433,15 +3457,15 @@
   font: italic 16px/1.45 "EB Garamond", Georgia, serif;
   text-align: center;
 }
-.crows-item.background .bg-flavor:focus { outline: 1px solid #c4262e; }
+.crows-item.card-face .cf-flavor:focus { outline: 1px solid #c4262e; }
 
-.crows-item.background .bg-note {
+.crows-item.card-face .cf-note {
   padding: 14px 18px 0;
   text-align: center;
 }
-.crows-item.background .bg-note:first-of-type { padding-top: 14px; }
+.crows-item.card-face .cf-note:first-of-type { padding-top: 14px; }
 
-.crows-item.background .bg-notelabel {
+.crows-item.card-face .cf-notelabel {
   font-family: "Grenze Gotisch", serif;
   font-weight: 700;
   font-size: 14.5px;
@@ -3449,19 +3473,19 @@
   text-transform: uppercase;
 }
 
-.crows-item.background .bg-note p {
+.crows-item.card-face .cf-note p {
   margin: 3px 0 0;
   font-size: 16.5px;
   line-height: 1.4;
 }
 /* pack data stores spell names lowercase ("fire hands") — set them Title Case */
-.crows-item.background .bg-note .bg-books {
+.crows-item.card-face .cf-note .cf-books {
   font-style: italic;
   text-transform: capitalize;
 }
 
 /* run-in label, the rulebook's bold lead-in pattern */
-.crows-item.background .bg-runin {
+.crows-item.card-face .cf-runin {
   font-family: "Grenze Gotisch", serif;
   font-weight: 700;
   font-size: 13px;
@@ -3470,36 +3494,36 @@
   text-transform: uppercase;
 }
 
-.crows-item.background .bg-uses {
+.crows-item.card-face .cf-uses {
   font-family: Georgia, serif;
   font-weight: 700;
   font-size: 14px;
 }
 
-.crows-item.background .bg-foot { height: 16px; }
+.crows-item.card-face .cf-foot { height: 16px; }
 
 /* ---------- all-fields disclosure ---------- */
 
-.crows-item.background .bg-all {
+.crows-item.card-face .cf-all {
   margin-top: 12px;
   border-top: 1px solid #2c2c2c;
   padding-top: 8px;
   color: #b9b2a3;
 }
-.crows-item.background .bg-all summary {
+.crows-item.card-face .cf-all summary {
   cursor: pointer;
   font-family: "Grenze Gotisch", serif;
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.crows-item.background .bg-all label {
+.crows-item.card-face .cf-all label {
   display: block;
   margin-top: 8px;
   font-size: 12px;
 }
-.crows-item.background .bg-all input,
-.crows-item.background .bg-all textarea {
+.crows-item.card-face .cf-all input,
+.crows-item.card-face .cf-all textarea {
   width: 100%;
   box-sizing: border-box;
   background: transparent;
@@ -3509,3 +3533,58 @@
   font-family: "EB Garamond", Georgia, serif;
   font-size: 14px;
 }
+
+/* CROWS — Trait item sheet.
+   Load AFTER crows-card-face.css: the card anatomy, the fonts, the black header, the
+   diamond glyph and the paper body all come from there. This file is only the deltas.
+
+   Deliberately short. If it grows, the thing being added probably belongs on the shared
+   card face instead, so the Background sheet gets it too. */
+
+/* third and fourth meta lines — the flags, set apart from the tier/XP data lines */
+.crows-item.trait .tr-starting {
+  color: #b9b2a3;
+  font-size: 13.5px;
+}
+
+/* XP is a number, so it takes the numeral face like Stamina does on a Background */
+.crows-item.trait .cf-xp {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* tier is a single digit inline in a sentence, so it needs no reserved width */
+.crows-item.trait .cf-num { width: 2ch; text-align: center; }
+
+/* the tree graph, printed small at the foot the way a card prints its set line */
+.crows-item.trait .tr-leads {
+  margin-top: 4px;
+  border-top: 1px solid rgba(10, 10, 10, 0.14);
+  padding-top: 11px;
+}
+.crows-item.trait .tr-leads p {
+  font-size: 15px;
+  font-style: italic;
+  color: #4a463f;
+}
+.crows-item.trait .tr-leads .cf-runin { color: #0a0a0a; }
+
+/* checkboxes in the disclosure sit on the label line, not above it */
+.crows-item.trait .cf-all label.tr-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.crows-item.trait .cf-all label.tr-check input { width: auto; }
+.crows-item.trait .cf-all select {
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #3e3e3e;
+  color: #f7f5f0;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 14px;
+}
+.crows-item.trait .cf-all select option { background: #0a0a0a; color: #f7f5f0; }

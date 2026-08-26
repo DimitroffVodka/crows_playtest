@@ -582,5 +582,10 @@
   "CROWS.Background.namePlaceholder": "Background name",
   "CROWS.Background.FlavorPlaceholder": "One line of flavor.",
   "CROWS.Background.AnyCharacteristic": "Any characteristic",
-  "CROWS.Background.Spellbooks": "Spellbooks"
+  "CROWS.Background.Spellbooks": "Spellbooks",
+  "CROWS.Trait.Tier": "Tier",
+  "CROWS.Trait.Xp": "XP",
+  "CROWS.Trait.StartingTrait": "Starting trait",
+  "CROWS.Trait.RestActivity": "Rest activity",
+  "CROWS.Trait.LeadsTo": "Leads to"
 }

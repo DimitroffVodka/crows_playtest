@@ -90,7 +90,7 @@ describe("background icons", () => {
     // black ground against the black header and leaves the silhouette, so the
     // SVGs need no modification.
     const css = readFileSync("css/crows.css", "utf8");
-    const rule = css.slice(css.indexOf(".crows-item.background .bg-glyph img"));
+    const rule = css.slice(css.indexOf(".crows-item.card-face .cf-glyph img"));
     const body = rule.slice(0, rule.indexOf("}"));
     assert.match(body, /mix-blend-mode:\s*screen/, "glyph must composite with screen");
     assert.ok(!/filter:\s*brightness\(0\)\s*invert\(1\)/.test(body),
