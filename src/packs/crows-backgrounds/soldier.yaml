@@ -1,6 +1,7 @@
 _id: crowsbgsoldier01
 _key: "!items!crowsbgsoldier01"
 name: Soldier
+img: systems/crows/icons/backgrounds/crested-helmet.svg
 type: background
 system:
   flavor: "You served as a soldier in an army dedicated to protecting others from the threats of the wilderness."

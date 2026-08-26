@@ -1,6 +1,7 @@
 _id: crowsbgpyromncr1
 _key: "!items!crowsbgpyromncr1"
 name: Pyromancer
+img: systems/crows/icons/backgrounds/fireball.svg
 type: background
 system:
   flavor: "You learned how to cast elemental spells that create and harness fire."

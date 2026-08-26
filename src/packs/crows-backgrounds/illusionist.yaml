@@ -1,6 +1,7 @@
 _id: crowsbgillusnt01
 _key: "!items!crowsbgillusnt01"
 name: Illusionist
+img: systems/crows/icons/backgrounds/prism.svg
 type: background
 system:
   flavor: "You studied illusion magic."

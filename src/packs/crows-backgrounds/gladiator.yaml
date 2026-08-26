@@ -1,6 +1,7 @@
 _id: crowsbggladitr01
 _key: "!items!crowsbggladitr01"
 name: Gladiator
+img: systems/crows/icons/backgrounds/barbute.svg
 type: background
 system:
   flavor: "You fought deadly battles for entertainment of others."

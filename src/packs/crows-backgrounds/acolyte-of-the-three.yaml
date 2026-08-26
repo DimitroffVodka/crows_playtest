@@ -1,6 +1,7 @@
 _id: crowsbgacolthre1
 _key: "!items!crowsbgacolthre1"
 name: Acolyte of the Three
+img: systems/crows/icons/backgrounds/triple-skulls.svg
 type: background
 system:
   flavor: "You served the god of death, greed, and knowledge."

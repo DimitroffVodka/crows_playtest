@@ -1,6 +1,7 @@
 _id: crowsbgmerchnt01
 _key: "!items!crowsbgmerchnt01"
 name: Merchant
+img: systems/crows/icons/backgrounds/scales.svg
 type: background
 system:
   flavor: "You were a merchant who traveled from village to village, trading your wares."

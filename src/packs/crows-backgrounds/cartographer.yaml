@@ -1,6 +1,7 @@
 _id: crowsbgcartogr01
 _key: "!items!crowsbgcartogr01"
 name: Cartographer
+img: systems/crows/icons/backgrounds/treasure-map.svg
 type: background
 system:
   flavor: "You drew maps of villages, ruins, or wilderness areas so others could find their way."

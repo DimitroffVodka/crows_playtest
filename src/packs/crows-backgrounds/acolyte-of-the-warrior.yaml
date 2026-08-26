@@ -1,6 +1,7 @@
 _id: crowsbgacolwarr1
 _key: "!items!crowsbgacolwarr1"
 name: Acolyte of the Warrior
+img: systems/crows/icons/backgrounds/battle-axe.svg
 type: background
 system:
   flavor: "You served the god of war."

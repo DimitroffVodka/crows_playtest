@@ -1,6 +1,7 @@
 _id: crowsbgminer0001
 _key: "!items!crowsbgminer0001"
 name: Miner
+img: systems/crows/icons/backgrounds/mining-helmet.svg
 type: background
 system:
   flavor: "You worked in mines, digging and hauling ore."

@@ -1,6 +1,7 @@
 _id: crowsbgacolhealr
 _key: "!items!crowsbgacolhealr"
 name: Acolyte of the Healer
+img: systems/crows/icons/backgrounds/healing.svg
 type: background
 system:
   flavor: "You served the god of healing."

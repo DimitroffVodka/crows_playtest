@@ -1,6 +1,7 @@
 _id: crowsbghydromcr1
 _key: "!items!crowsbghydromcr1"
 name: Hydromancer
+img: systems/crows/icons/backgrounds/water-splash.svg
 type: background
 system:
   flavor: "You learned how to cast elemental spells that create and harness water."

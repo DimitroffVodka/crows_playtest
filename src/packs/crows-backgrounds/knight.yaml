@@ -1,6 +1,7 @@
 _id: crowsbgknight001
 _key: "!items!crowsbgknight001"
 name: Knight
+img: systems/crows/icons/backgrounds/mounted-knight.svg
 type: background
 system:
   flavor: "You were a knight in the service of a noble or a hedge knight in service to no one other than yourself."

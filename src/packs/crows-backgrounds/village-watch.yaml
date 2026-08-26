@@ -1,6 +1,7 @@
 _id: crowsbgvlgwatch1
 _key: "!items!crowsbgvlgwatch1"
 name: Village Watch
+img: systems/crows/icons/backgrounds/lantern.svg
 type: background
 system:
   flavor: "You kept a settlement safe."

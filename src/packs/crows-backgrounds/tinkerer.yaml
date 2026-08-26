@@ -1,6 +1,7 @@
 _id: crowsbgtinkrer01
 _key: "!items!crowsbgtinkrer01"
 name: Tinkerer
+img: systems/crows/icons/backgrounds/gears.svg
 type: background
 system:
   flavor: "You created magic and mechanical inventions."

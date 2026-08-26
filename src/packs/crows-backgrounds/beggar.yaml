@@ -1,6 +1,7 @@
 _id: crowsbgbeggar001
 _key: "!items!crowsbgbeggar001"
 name: Beggar
+img: systems/crows/icons/backgrounds/bindle.svg
 type: background
 system:
   flavor: "You relied on the kindness of strangers to scrape together enough coins to live."

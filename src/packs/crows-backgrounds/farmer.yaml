@@ -1,6 +1,7 @@
 _id: crowsbgfarmer001
 _key: "!items!crowsbgfarmer001"
 name: Farmer
+img: systems/crows/icons/backgrounds/pitchfork.svg
 type: background
 system:
   flavor: "You plowed the fields and raise animals."

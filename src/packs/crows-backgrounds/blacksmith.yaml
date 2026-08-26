@@ -1,6 +1,7 @@
 _id: crowsbgblksmith1
 _key: "!items!crowsbgblksmith1"
 name: Blacksmith
+img: systems/crows/icons/backgrounds/anvil.svg
 type: background
 system:
   flavor: "You forged and sold items made from metal."

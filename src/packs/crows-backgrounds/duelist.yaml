@@ -1,6 +1,7 @@
 _id: crowsbgduelist01
 _key: "!items!crowsbgduelist01"
 name: Duelist
+img: systems/crows/icons/backgrounds/crossed-sabres.svg
 type: background
 system:
   flavor: "You dedicated your youth to fencing in noble courts."

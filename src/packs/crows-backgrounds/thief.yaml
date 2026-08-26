@@ -1,6 +1,7 @@
 _id: crowsbgthief0001
 _key: "!items!crowsbgthief0001"
 name: Thief
+img: systems/crows/icons/backgrounds/lockpicks.svg
 type: background
 system:
   flavor: "You burgled places for money, either on your own or as part of a guild."

@@ -1,6 +1,7 @@
 _id: crowsbgacolsmth1
 _key: "!items!crowsbgacolsmth1"
 name: Acolyte of the Smith
+img: systems/crows/icons/backgrounds/hammer-drop.svg
 type: background
 system:
   flavor: "You served the god of creativity."

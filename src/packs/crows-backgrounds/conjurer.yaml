@@ -1,6 +1,7 @@
 _id: crowsbgconjurer1
 _key: "!items!crowsbgconjurer1"
 name: Conjurer
+img: systems/crows/icons/backgrounds/portal.svg
 type: background
 system:
   flavor: "You studied conjuration magic."

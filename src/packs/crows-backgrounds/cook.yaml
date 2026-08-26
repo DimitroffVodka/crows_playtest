@@ -1,6 +1,7 @@
 _id: crowsbgcook00001
 _key: "!items!crowsbgcook00001"
 name: Cook
+img: systems/crows/icons/backgrounds/cooking-pot.svg
 type: background
 system:
   flavor: "You worked as a cook at a tavern or organization."

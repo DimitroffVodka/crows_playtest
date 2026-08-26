@@ -1,6 +1,7 @@
 _id: crowsbgacolgardr
 _key: "!items!crowsbgacolgardr"
 name: Acolyte of the Gardner
+img: systems/crows/icons/backgrounds/sprout.svg
 type: background
 system:
   flavor: "You served the god of nature."

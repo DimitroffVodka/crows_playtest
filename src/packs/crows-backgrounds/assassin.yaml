@@ -1,6 +1,7 @@
 _id: crowsbgassassin1
 _key: "!items!crowsbgassassin1"
 name: Assassin
+img: systems/crows/icons/backgrounds/hooded-assassin.svg
 type: background
 system:
   flavor: "You were a killer who either worked paid contracts or served a higher purpose in a shady organization."

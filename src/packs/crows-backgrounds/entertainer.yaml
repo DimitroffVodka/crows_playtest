@@ -1,6 +1,7 @@
 _id: crowsbgentrtain1
 _key: "!items!crowsbgentrtain1"
 name: Entertainer
+img: systems/crows/icons/backgrounds/guitar.svg
 type: background
 system:
   flavor: "You were an acrobat, dancer, and/or musician."

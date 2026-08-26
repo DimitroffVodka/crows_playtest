@@ -1,6 +1,7 @@
 _id: crowsbgbodygrd01
 _key: "!items!crowsbgbodygrd01"
 name: Bodyguard
+img: systems/crows/icons/backgrounds/roman-shield.svg
 type: background
 system:
   flavor: "You protected a person of importance."

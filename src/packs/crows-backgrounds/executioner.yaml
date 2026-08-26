@@ -1,6 +1,7 @@
 _id: crowsbgexecutnr1
 _key: "!items!crowsbgexecutnr1"
 name: Executioner
+img: systems/crows/icons/backgrounds/executioner-hood.svg
 type: background
 system:
   flavor: "You carried out capital punishment."

@@ -1,6 +1,7 @@
 _id: crowsbgpugilist1
 _key: "!items!crowsbgpugilist1"
 name: Pugilist
+img: systems/crows/icons/backgrounds/punch.svg
 type: background
 system:
   flavor: "You made a living battling it out with bare knuckles."

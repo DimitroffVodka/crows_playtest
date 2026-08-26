@@ -1,6 +1,7 @@
 _id: crowsbgarcher000
 _key: "!items!crowsbgarcher000"
 name: Archer
+img: systems/crows/icons/backgrounds/bowman.svg
 type: background
 system:
   flavor: "You served as a soldier or member of the watch who was specially trained with a bow."

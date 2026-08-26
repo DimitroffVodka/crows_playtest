@@ -31,7 +31,7 @@ STAGE="$DIST/.stage"
 #   fonts/  IS required — css/crows.css references all four woff2 files.
 #   playtest-packet/  is NOT — 73M of MCDM art and maps that nothing references.
 #   src/ test/ docs/ .planning/  are contributor material, not runtime.
-PAYLOAD=(system.json module css fonts lang packs templates LICENSE README.md)
+PAYLOAD=(system.json module css fonts icons lang packs templates LICENSE NOTICE.md README.md)
 
 say() { printf '  %s\n' "$*"; }
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }

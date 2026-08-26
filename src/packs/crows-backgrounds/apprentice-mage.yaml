@@ -1,6 +1,7 @@
 _id: crowsbgapprmage1
 _key: "!items!crowsbgapprmage1"
 name: Apprentice Mage
+img: systems/crows/icons/backgrounds/pointy-hat.svg
 type: background
 system:
   flavor: "You studied several magic disciplines under a more experienced tutor."

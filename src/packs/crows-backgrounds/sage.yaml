@@ -1,6 +1,7 @@
 _id: crowsbgsage00001
 _key: "!items!crowsbgsage00001"
 name: Sage
+img: systems/crows/icons/backgrounds/open-book.svg
 type: background
 system:
   flavor: "You studied all subjects with a tutor or by burying your nose in many books (likely both)."

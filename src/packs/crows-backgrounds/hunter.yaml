@@ -1,6 +1,7 @@
 _id: crowsbghunter001
 _key: "!items!crowsbghunter001"
 name: Hunter
+img: systems/crows/icons/backgrounds/wolf-trap.svg
 type: background
 system:
   flavor: "You tracked animals in the wild and foraged for food."

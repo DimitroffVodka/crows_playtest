@@ -1,6 +1,7 @@
 _id: crowsbgnoble0001
 _key: "!items!crowsbgnoble0001"
 name: Noble
+img: systems/crows/icons/backgrounds/crown.svg
 type: background
 system:
   flavor: "You grew up in a family that had wealth and power."
