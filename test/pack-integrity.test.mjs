@@ -20,9 +20,11 @@ import { ClassicLevel } from "classic-level";
  * document count, and compares source-authored identity/system fields in the
  * serialized document hierarchy. The traversal mirrors the Foundry CLI's
  * `applyHierarchy`: `_key` is a build-only source field and embedded documents
- * are stored under their own LevelDB keys. Only fields a source author owns —
- * `_id`, `name`, `type`, `img`, and deep `system` — are compared; Foundry's
- * runtime metadata is deliberately outside this guard's staleness contract.
+ * are stored under their own LevelDB keys. Only checked fields a source author
+ * actually declares — `_id`, `name`, `type`, `img`, and deep `system` — are
+ * compared. An absent source field is unconstrained because Foundry may supply
+ * a platform default when it opens the pack; explicit `null` and `""` values
+ * remain claims because `Object.hasOwn` treats them as declared.
  *
  * Rejected alternatives:
  * - source-only corpus assertions cannot see a stale compiled artifact;
@@ -43,7 +45,8 @@ import { ClassicLevel } from "classic-level";
 
 const SYSTEM = JSON.parse(await fs.readFile("system.json", "utf8"));
 const PACKS = SYSTEM.packs;
-const AUTHORED_FIELDS = ["_id", "name", "type", "img", "system"];
+const CHECKED_FIELDS = ["_id", "name", "type", "img", "system"];
+const FOUNDRY_MANAGED_FIELDS = new Set(["_stats", "ownership", "sort", "folder", "flags"]);
 
 /** The hierarchy used by @foundryvtt/foundryvtt-cli/lib/package.mjs. */
 const HIERARCHY = {
@@ -82,13 +85,15 @@ async function sourceFiles(pack) {
 }
 
 /**
- * Keep only fields whose values are authored in source and meaningful for
- * staleness. Foundry stamps `_stats`, ownership, sorting, folders, and flags
- * as it opens packs, so those fields must not turn a healthy artifact red.
+ * Keep only the requested fields that this document actually declares.
+ * Foundry stamps `_stats`, ownership, sorting, folders, and flags as it opens
+ * packs, so the explicit denylist keeps those fields out even if a future
+ * source file happens to contain one accidentally.
  */
-function authoredFields(document) {
+function authoredFields(document, fields = CHECKED_FIELDS) {
   const value = {};
-  for (const field of AUTHORED_FIELDS) {
+  for (const field of fields) {
+    if (FOUNDRY_MANAGED_FIELDS.has(field)) continue;
     if (Object.hasOwn(document ?? {}, field)) value[field] = structuredClone(document[field]);
   }
   return value;
@@ -107,7 +112,8 @@ function expectedEntries(sources, packName) {
     assert.equal(expected.has(key), false, `${packName}: duplicate source _key ${key}`);
 
     const collection = key.split("!")[1];
-    expected.set(key, authoredFields(document));
+    const fields = CHECKED_FIELDS.filter(field => Object.hasOwn(document, field));
+    expected.set(key, { fields, value: authoredFields(document, fields) });
 
     for (const [embedded, kind] of Object.entries(HIERARCHY[collection] ?? {})) {
       const children = document[embedded];
@@ -127,6 +133,8 @@ async function readCompiledEntries(pack) {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "crows-pack-integrity-"));
   const copy = path.join(tempRoot, pack.name);
   let db;
+  let entries;
+  let failure;
   try {
     await fs.cp(pack.path, copy, { recursive: true });
     db = new ClassicLevel(copy, {
@@ -134,17 +142,28 @@ async function readCompiledEntries(pack) {
       valueEncoding: "json",
       createIfMissing: false
     });
-    const entries = new Map();
+    entries = new Map();
     for await (const [key, value] of db.iterator()) entries.set(key, value);
-    return entries;
   } catch (error) {
-    throw new Error(`${pack.name}: unable to read compiled pack ${pack.path}: ${error.message}`, {
-      cause: error
-    });
+    failure = error;
   } finally {
-    if (db) await db.close();
-    await fs.rm(tempRoot, { recursive: true, force: true });
+    try {
+      if (db) await db.close();
+    } catch (error) {
+      failure ??= error;
+    }
+    try {
+      await fs.rm(tempRoot, { recursive: true, force: true });
+    } catch (error) {
+      failure ??= error;
+    }
   }
+  if (failure) {
+    throw new Error(`${pack.name}: unable to read compiled pack ${pack.path}: ${failure.message}`, {
+      cause: failure
+    });
+  }
+  return entries;
 }
 
 function differingPaths(expected, actual, prefix = "", paths = []) {
@@ -206,14 +225,14 @@ describe("compiled packs match their source corpus", () => {
         failures.push(`record count expected ${expected.size}, compiled ${actual.size}`);
       }
 
-      for (const [key, value] of expected) {
+      for (const [key, expectedDocument] of expected) {
         if (!actual.has(key)) {
           failures.push(`missing ${key}`);
           continue;
         }
-        const actualValue = authoredFields(actual.get(key));
-        if (!isDeepStrictEqual(value, actualValue)) {
-          const paths = differingPaths(value, actualValue);
+        const actualValue = authoredFields(actual.get(key), expectedDocument.fields);
+        if (!isDeepStrictEqual(expectedDocument.value, actualValue)) {
+          const paths = differingPaths(expectedDocument.value, actualValue);
           failures.push(`${key} diverged in ${paths.join(", ") || "document fields"}`);
         }
       }
