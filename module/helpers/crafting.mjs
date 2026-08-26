@@ -35,12 +35,13 @@
  *
  * ## Deliberate concurrency boundary
  *
- * The transaction is recoverable and idempotent by its durable journal, but it
- * does not claim cross-client atomicity or a designated-writer lease. Foundry
- * v14's `activeGM` is a selector, not a fence, and supplies no compare-and-swap
- * primitive. `craftingWriterAuthority` is the single future choke point for the
- * authority decision; until the Commerce C1 epoch/fence contract is settled,
- * this module only performs local preflight and post-write reconciliation.
+ * The settled option-(b) boundary uses deterministic `activeGM` designation,
+ * mandatory `txId`/expected revision, durable receipts, live re-resolution
+ * immediately before each write, and post-hoc reconciliation. This module does
+ * not invent a lease, epoch, fence, or compare-and-swap; the residual
+ * GM-transition window is therefore detectable and recoverable rather than
+ * claimed atomic. `craftingWriterAuthority` is the single choke point for the
+ * future authority check.
  *
  * The pure half — prerequisites, point arithmetic, tier lookup — is what
  * `test/village.test.mjs` exercises; the `Roll` / `ChatMessage` half is below it.
