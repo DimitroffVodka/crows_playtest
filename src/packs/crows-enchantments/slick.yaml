@@ -1,0 +1,15 @@
+_id: crowsenchant0014
+_key: "!items!crowsenchant0014"
+name: "Slick"
+img: systems/crows/icons/enchantments/armor-slick.svg
+type: enchantment
+system:
+  key: "slick"
+  kind: armor
+  price: 1000
+  uses: 1
+  applies: "suit"
+  materials: "5 blood creature parts"
+  goal: 50
+  description: "<p>This armor secretes a non-flammable oil. While wearing it, you can move 1 additional square when you use the Shift maneuver and you gain a +1 bonus to the Escape Grab maneuver’s test. When you roll a doom on an Agility or Strength test, you fall prone.</p>"
+

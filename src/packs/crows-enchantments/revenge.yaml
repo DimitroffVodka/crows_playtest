@@ -1,0 +1,15 @@
+_id: crowsenchant0012
+_key: "!items!crowsenchant0012"
+name: "Revenge"
+img: systems/crows/icons/enchantments/armor-revenge.svg
+type: enchantment
+system:
+  key: "revenge"
+  kind: armor
+  price: 10000
+  uses: 4
+  applies: "suit"
+  materials: "20 demon parts"
+  goal: 500
+  description: "<p>When you take damage while wearing this armor it gains 1d6 charges. When you hit a creature with a melee attack, you can expend all charges built up in the armor and deal additional damage equal to the charges spent. If the charges reach 12 or higher, they are all expended and you take P damage equal to the charges spent. All charges in the armor disappear at the end of a DT.</p>"
+

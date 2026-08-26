@@ -11,7 +11,7 @@ system:
   damage: { t2: "4 + S", t3: "7 + S" }
   qualities: [pummeling]
   parryValue: 0
-  enchantment: Vicious
+  enchantments: [vicious]
   qualityTier: standard
   slots: 2
   stackMax: 1

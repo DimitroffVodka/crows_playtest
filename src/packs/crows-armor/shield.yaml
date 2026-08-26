@@ -8,7 +8,7 @@ system:
   armorType: shield
   ad: 5
   worn: false
-  enchantment: ""
+  enchantments: []
   qualityTier: standard
   slots: 1
   stackMax: 1

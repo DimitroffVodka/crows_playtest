@@ -1,0 +1,15 @@
+_id: crowsenchant0040
+_key: "!items!crowsenchant0040"
+name: "Weakening"
+img: systems/crows/icons/enchantments/weapon-weakening.svg
+type: enchantment
+system:
+  key: "weakening"
+  kind: weapon
+  price: 7500
+  uses: 4
+  applies: ""
+  materials: "20 plant parts"
+  goal: 375
+  description: "<p>When you hit a creature with a tier 3 attack made with this weapon and do so again before the end of your next combat turn, the creature is weakened. When you get a doom on an attack with this weapon, you are weakened.</p>"
+

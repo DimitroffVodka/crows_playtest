@@ -1,0 +1,15 @@
+_id: crowsenchant0002
+_key: "!items!crowsenchant0002"
+name: "Climbing"
+img: systems/crows/icons/enchantments/armor-climbing.svg
+type: enchantment
+system:
+  key: "climbing"
+  kind: armor
+  price: 7500
+  uses: 4
+  applies: "suit"
+  materials: "20 plant parts"
+  goal: 375
+  description: "<p>While you wear this armor, you gain a climbing speed equal to your walking speed. If you are knocked prone while climbing, you immediately fall and this armor’s enchantment ceases to function until the end of the DT.</p>"
+

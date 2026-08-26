@@ -1,0 +1,15 @@
+_id: crowsenchant0030
+_key: "!items!crowsenchant0030"
+name: "Impact"
+img: systems/crows/icons/enchantments/weapon-impact.svg
+type: enchantment
+system:
+  key: "impact"
+  kind: weapon
+  price: 1000
+  uses: 1
+  applies: ""
+  materials: "5 undead parts"
+  goal: 50
+  description: "<p>When you get a tier 3 result on an attack with this weapon and the target isn’t force moved, you can push the target 1 square. If the target is already force moved by the attack, you can force move them 1 additional square. If you get a doom on an attack with this weapon, the Ref slides you 1d10 squares.</p>"
+

@@ -1,0 +1,15 @@
+_id: crowsenchant0023
+_key: "!items!crowsenchant0023"
+name: "Defending"
+img: systems/crows/icons/enchantments/weapon-defending.svg
+type: enchantment
+system:
+  key: "defending"
+  kind: weapon
+  price: 1000
+  uses: 1
+  applies: ""
+  materials: "10 undead parts"
+  goal: 50
+  description: "<p>The weapon gains the Parry 5 quality or if it already has the quality, it increases by 5. When the weapon’s AD is 0, it takes a -2 damage penalty.</p>"
+

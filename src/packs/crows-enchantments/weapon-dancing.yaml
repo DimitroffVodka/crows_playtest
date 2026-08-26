@@ -1,0 +1,14 @@
+_id: crowsenchant0022
+_key: "!items!crowsenchant0022"
+name: "Dancing"
+img: systems/crows/icons/enchantments/weapon-dancing.svg
+type: enchantment
+system:
+  key: "weapon-dancing"
+  kind: weapon
+  price: 5000
+  uses: 3
+  applies: ""
+  materials: "10 angel parts"
+  goal: 250
+  description: "<p>As a maneuver while wielding this weapon, you command it to float in the air and follow and fight for you, freeing it from your hand slot(s) though you are still considered wielding it, until the end of the DT. A creature who scores a crit against you while the weapon is floating can grab it and wield it (no action required), causing the weapon to stop floating. If the weapon is ever more than 1 square from you, it stops floating. The weapon can’t be made to float again until you finish a rest. You can only have one dancing weapon active at a time.</p>"

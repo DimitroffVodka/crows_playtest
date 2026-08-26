@@ -1,0 +1,14 @@
+_id: crowsenchant0003
+_key: "!items!crowsenchant0003"
+name: "Dancing"
+img: systems/crows/icons/enchantments/armor-dancing.svg
+type: enchantment
+system:
+  key: "armor-dancing"
+  kind: armor
+  price: 5000
+  uses: 3
+  applies: "shield"
+  materials: "10 angel parts"
+  goal: 250
+  description: "<p>As a maneuver while wielding this shield, you command it to float in the air and follow and protect you, freeing it from your hand slot though you are still considered wielding it, until the end of the DT. A creature who scores a crit against you while the shield is floating can grab it and wield it (no action required), causing the shield to stop floating. The shield can’t be made to float again until you finish a rest. You can only have one dancing shield active at a time.</p>"

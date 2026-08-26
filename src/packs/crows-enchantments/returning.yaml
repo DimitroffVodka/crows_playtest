@@ -1,0 +1,15 @@
+_id: crowsenchant0035
+_key: "!items!crowsenchant0035"
+name: "Returning"
+img: systems/crows/icons/enchantments/weapon-returning.svg
+type: enchantment
+system:
+  key: "returning"
+  kind: weapon
+  price: 7500
+  uses: 4
+  applies: ""
+  materials: "20 plant parts"
+  goal: 375
+  description: "<p>This enchantment can only be added to non-bow weapons. The weapon’s ranged attack range increases by 5 and after you use it to make a ranged attack, the weapon returns to your hand slot(s). If you get a doom on a ranged attack made with the weapon, it deals its tier 3 damage to you when it returns.</p>"
+

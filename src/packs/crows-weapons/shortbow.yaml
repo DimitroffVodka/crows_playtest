@@ -11,7 +11,7 @@ system:
   damage: { t2: "1 + A", t3: "2 + A" }
   qualities: [cumbersome]
   parryValue: 0
-  enchantment: ""
+  enchantments: []
   qualityTier: standard
   slots: 1
   stackMax: 1

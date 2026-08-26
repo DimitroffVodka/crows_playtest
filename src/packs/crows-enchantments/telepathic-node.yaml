@@ -1,0 +1,15 @@
+_id: crowsenchant0018
+_key: "!items!crowsenchant0018"
+name: "Telepathic Node"
+img: systems/crows/icons/enchantments/armor-telepathic-node.svg
+type: enchantment
+system:
+  key: "telepathic-node"
+  kind: armor
+  price: 2000
+  uses: 2
+  applies: "suit"
+  materials: "5 angel parts"
+  goal: 100
+  description: "<p>As a rest activity while wearing this armor, you can choose up to five other willing humans who rest with you to become connected to the armor until you use this rest activity again or die. While you wear this armor, any of the creatures connected to the armor can communicate telepathically with each other and you as long as they have line of effect to you and you can communicate telepathically with them regardless of distance or obstacles. If a creature connected to the armor dies, you and the other creatures connected take 1d10 P damage. If you die, connected creatures take 2d10 P damage.</p>"
+

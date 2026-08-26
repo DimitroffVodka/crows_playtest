@@ -1,0 +1,15 @@
+_id: crowsenchant0032
+_key: "!items!crowsenchant0032"
+name: "Lightning"
+img: systems/crows/icons/enchantments/weapon-lightning.svg
+type: enchantment
+system:
+  key: "lightning"
+  kind: weapon
+  price: 2000
+  uses: 2
+  applies: ""
+  materials: "5 angel parts"
+  goal: 100
+  description: "<p>When you hit a target with an attack with this weapon, you can choose a second target within 3 squares of the first. That creature also takes the attack’s damage. This effect has 1 UD rolled on use and recharges on rest. When the UD are 0, you are weakened.</p>"
+

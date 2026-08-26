@@ -1,0 +1,15 @@
+_id: crowsenchant0024
+_key: "!items!crowsenchant0024"
+name: "Exploding"
+img: systems/crows/icons/enchantments/weapon-exploding.svg
+type: enchantment
+system:
+  key: "exploding"
+  kind: weapon
+  price: 2000
+  uses: 2
+  applies: ""
+  materials: "5 blood creature parts"
+  goal: 100
+  description: "<p>When you kill a creature with this weapon, they explode. Each creature within 1 square of them takes 1d6 damage. If the creature already explodes on death, any damage they deal is increased by 1d6. When you get a doom on an attack with this weapon, a mundane item you carry (chosen by the Ref) is destroyed.</p>"
+

@@ -1,0 +1,15 @@
+_id: crowsenchant0017
+_key: "!items!crowsenchant0017"
+name: "Sustaining"
+img: systems/crows/icons/enchantments/armor-sustaining.svg
+type: enchantment
+system:
+  key: "sustaining"
+  kind: armor
+  price: 5000
+  uses: 3
+  applies: "suit"
+  materials: "10 plant parts"
+  goal: 250
+  description: "<p>While you wear this armor, you don’t need to eat to avoid starvation or gain the benefits of a rest. If you die while wearing this armor, it consumes any items you have in your hand and belt slots when you die.</p>"
+

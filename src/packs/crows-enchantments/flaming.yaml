@@ -1,0 +1,15 @@
+_id: crowsenchant0025
+_key: "!items!crowsenchant0025"
+name: "Flaming"
+img: systems/crows/icons/enchantments/weapon-flaming.svg
+type: enchantment
+system:
+  key: "flaming"
+  kind: weapon
+  price: 5000
+  uses: 3
+  applies: ""
+  materials: "10 demon parts"
+  goal: 250
+  description: "<p>As a maneuver while wielding this weapon, you can command it to ignite in a magical fire that gives the weapon a +2 damage bonus and causes it to shed light 5/5. You can use another maneuver to extinguish the flames. When you get a doom on an attack with this weapon, you take 1d10 damage as the weapon suddenly bursts with flame and then its fire goes out and you can’t ignite it again until the end of the DT.</p>"
+

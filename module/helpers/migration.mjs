@@ -106,6 +106,81 @@ function normalizeName(name) {
   return String(name ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+/**
+ * Enchanting expertise uses by catalogue key (C:1921–1943, C:2080–2102).
+ *
+ * Item data stores only these stable keys. The catalogue is a compendium and
+ * therefore cannot be looked up from a synchronous `prepareDerivedData` call;
+ * keeping the small numeric index here gives WeaponData and ArmorData the same
+ * answer without reaching for `game` or making the data models test-hostile.
+ * Armor and weapon Dancing deliberately use kind-qualified keys, and remain
+ * two separate catalogue documents because their descriptions differ.
+ */
+export const ENCHANTMENT_USES = Object.freeze({
+  // Armor enchantments
+  banishing: 3,
+  climbing: 4,
+  dancing: 3,
+  "armor-dancing": 3,
+  "weapon-dancing": 3,
+  deep: 2,
+  "demons-head": 1,
+  feather: 1,
+  flying: 4,
+  glow: 1,
+  heavy: 1,
+  luring: 1,
+  passthrough: 4,
+  revenge: 4,
+  silent: 1,
+  slick: 1,
+  speedy: 3,
+  "spell-storing": 1,
+  sustaining: 3,
+  "telepathic-node": 2,
+  victory: 3,
+  waterwalking: 1,
+
+  // Weapon enchantments
+  absorbing: 1,
+  defending: 1,
+  exploding: 2,
+  flaming: 3,
+  frosty: 2,
+  gashing: 4,
+  hewing: 4,
+  hungry: 3,
+  impact: 1,
+  infinity: 3,
+  lightning: 2,
+  poisoning: 2,
+  raging: 1,
+  returning: 4,
+  slaying: 1,
+  "sworn-foe": 2,
+  teleporting: 4,
+  vicious: 1,
+  weakening: 4
+});
+
+/** Convert a printed enchantment name into its durable catalogue key. */
+export function slugifyEnchantment(value) {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/** Sum catalogue uses for the keys attached to one weapon or suit of armor. */
+export function enchantmentUsesFor(keys = []) {
+  if (!Array.isArray(keys)) return 0;
+  return keys.reduce((total, key) => total + (ENCHANTMENT_USES[slugifyEnchantment(key)] ?? 0), 0);
+}
+
 /** Codepoint tie-break order, with the 30 known keys pinned by the contract. */
 function alphabeticalRank(key) {
   const i = EXPERTISES_ALPHABETICAL.indexOf(key);
@@ -1119,4 +1194,38 @@ export function liftGrantsOutOfEquipment(source) {
     bonusGold: Number(source.bonusGold) || gold,
     pets: (Array.isArray(source.pets) && source.pets.length) ? source.pets : pets
   };
+}
+
+/**
+ * Promote the legacy singular item enchantment into the PT2 key array.
+ *
+ * This is intentionally a shape-only transform: it runs from a data model's
+ * `migrateData` on every load and on partial update deltas. An already migrated
+ * `enchantments` array is authoritative, so the old field is removed without
+ * appending to it. That makes the transform idempotent and prevents a second
+ * load from turning one enchantment into two copies.
+ */
+export function migrateEnchantmentSystem(source, { kind = "" } = {}) {
+  if (!isObject(source)) return source;
+  const hasLegacy = Object.prototype.hasOwnProperty.call(source, "enchantment");
+  if (!hasLegacy) return source;
+
+  const out = cloneData(source);
+  if (Array.isArray(out.enchantments)) {
+    // New content wins when both shapes coexist (for example, a partial update
+    // assembled from a migrated document and a stale legacy delta).
+    delete out.enchantment;
+    return out;
+  }
+
+  const slug = slugifyEnchantment(out.enchantment);
+  // Dancing is the one printed name represented by two catalogue documents.
+  // The data model knows whether it is migrating an armor or weapon system;
+  // generic callers retain the plain slug for backwards compatibility.
+  const key = slug === "dancing" && (kind === "armor" || kind === "weapon")
+    ? `${kind}-dancing`
+    : slug;
+  out.enchantments = key ? [key] : [];
+  delete out.enchantment;
+  return out;
 }

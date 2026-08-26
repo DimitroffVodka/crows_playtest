@@ -11,7 +11,7 @@ system:
   damage: { t2: "3 + S", t3: "7 + S" }
   qualities: [brutal]
   parryValue: 0
-  enchantment: ""
+  enchantments: []
   qualityTier: standard
   slots: 1
   stackMax: 1

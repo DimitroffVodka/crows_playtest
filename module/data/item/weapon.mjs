@@ -2,8 +2,13 @@ const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
 import { CROWS } from "../../config.mjs";
 import { physicalItemFields } from "../../helpers/schema.mjs";
+import { enchantmentUsesFor, migrateEnchantmentSystem } from "../../helpers/migration.mjs";
 
 export class WeaponData extends TypeDataModel {
+  static migrateData(source) {
+    return super.migrateData(migrateEnchantmentSystem(source, { kind: "weapon" }));
+  }
+
   static defineSchema() {
     return {
       ...physicalItemFields(),
@@ -21,8 +26,12 @@ export class WeaponData extends TypeDataModel {
       qualities: new fields.ArrayField(new fields.StringField({ choices: CROWS.weaponQualities })),
       piercing: new fields.BooleanField({ initial: false }),                 // "P" damage — ignores AD
       parryValue: new fields.NumberField({ initial: 0, min: 0, integer: true }),
-      enchantment: new fields.StringField({ required: false, blank: true }),
+      enchantments: new fields.ArrayField(new fields.StringField(), { initial: [] }),
       qualityTier: new fields.StringField({ initial: "standard", choices: CROWS.qualityTiers })
     };
+  }
+
+  prepareDerivedData() {
+    this.enchantmentUses = enchantmentUsesFor(this.enchantments);
   }
 }

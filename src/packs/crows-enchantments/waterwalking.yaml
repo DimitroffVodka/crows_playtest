@@ -1,0 +1,15 @@
+_id: crowsenchant0020
+_key: "!items!crowsenchant0020"
+name: "Waterwalking"
+img: systems/crows/icons/enchantments/armor-waterwalking.svg
+type: enchantment
+system:
+  key: "waterwalking"
+  kind: armor
+  price: 500
+  uses: 1
+  applies: "suit"
+  materials: "5 blood creature parts"
+  goal: 25
+  description: "<p>While wearing this armor, you can walk on the surface of any liquid as if it were solid ground. If you fall prone while standing on liquid, this armor’s enchantment ceases to function until the end of the DT and you take a -2 penalty on tests made to swim.</p>"
+

@@ -1,0 +1,15 @@
+_id: crowsenchant0007
+_key: "!items!crowsenchant0007"
+name: "Flying"
+img: systems/crows/icons/enchantments/armor-flying.svg
+type: enchantment
+system:
+  key: "flying"
+  kind: armor
+  price: 7500
+  uses: 4
+  applies: "shield"
+  materials: "20 angel parts"
+  goal: 375
+  description: "<p>As a maneuver while wielding this shield, you can place it on the ground and make it hover. While hovering, a Medium or smaller creature can ride on the shield and gains a flying speed equal to their walking speed and counts as wielding the shield. The shield can fly until the end of the DT or until it loses all of its AD, at which point it and any creature using it to fly falls. Any attacks or damaging effects made against the creature flying that originate from below first damage the shield before any other armor the creature wears. The shield can’t be made to fly again until you finish a rest.</p>"
+

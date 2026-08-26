@@ -603,27 +603,16 @@ export async function expireDungeonTurnConditions(actor) {
 /**
  * C:2140 — does this actor wear Silent armor?
  *
- * DATA GAP: `ArmorData` has no `qualities` field (weapons have one, armor does
- * not), so there is nowhere to record the quality. Reads `qualities` if a later
- * task adds it, and falls back to the item name. Reported to the coordinator.
+ * The field stores catalogue keys, so this helper only recognizes the explicit
+ * `silent` key and does not infer an enchantment from an item's display name.
  */
 export function wearsSilentArmor(actor) {
   for (const i of actor?.items ?? []) {
     if (i.type !== "armor" || !i.system?.worn) continue;
-    // Silent is an armor ENCHANTMENT (C:1908, table row at C:1933), and
-    // `ArmorData.enchantment` is a blank-allowed StringField with no `choices`,
-    // so it can hold this today. Read it first.
-    if (String(i.system?.enchantment ?? "").trim().toLowerCase() === "silent") return true;
-    // The old first check read `system.qualities`, which ArmorData DOES NOT
-    // DEFINE — only weapons carry qualities. It was unreachable: the field is
-    // permanently undefined for armor, so that branch could never return true.
-    // Removed rather than left as decoration.
-    //
-    // The name match stays as a fallback for hand-built armor a GM named rather
-    // than enchanted. It is the weaker signal and must not be the ONLY one —
-    // that is the Coin Purse bug, where a name match stood in for data the
-    // document should have carried.
-    if (/\bsilent\b/i.test(i.name ?? "")) return true;
+    // Silent is an armor ENCHANTMENT (C:1908, table row at C:1933). Item data
+    // stores stable catalogue keys, so this is an identity check rather than a
+    // name comparison that can be defeated by capitalization or whitespace.
+    if ((i.system?.enchantments ?? []).includes("silent")) return true;
   }
   return false;
 }

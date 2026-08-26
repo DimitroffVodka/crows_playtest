@@ -1,0 +1,15 @@
+_id: crowsenchant0001
+_key: "!items!crowsenchant0001"
+name: "Banishing"
+img: systems/crows/icons/enchantments/armor-banishing.svg
+type: enchantment
+system:
+  key: "banishing"
+  kind: armor
+  price: 5000
+  uses: 3
+  applies: "both"
+  materials: "10 undead parts"
+  goal: 250
+  description: "<p>When a creature hits you with a melee attack while you wear or wield this armor, you can use a reaction to push them 1d6 squares. If a creature gets a crit on a melee attack against you while you wear or wield this armor, you fly vertically up 1d6 × 10 feet and then fall and can’t use your reaction to activate this armor in response to the attack.</p>"
+

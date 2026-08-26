@@ -1,0 +1,15 @@
+_id: crowsenchant0029
+_key: "!items!crowsenchant0029"
+name: "Hungry"
+img: systems/crows/icons/enchantments/weapon-hungry.svg
+type: enchantment
+system:
+  key: "hungry"
+  kind: weapon
+  price: 5000
+  uses: 3
+  applies: ""
+  materials: "10 undead parts"
+  goal: 250
+  description: "<p>When you kill a creature with this weapon, you gain 3 AD. AD gained this way disappears at the end of the DT. If you wield the weapon in a combat encounter and the encounter ends without you having killed anything with it, you take 1d6 P damage.</p>"
+

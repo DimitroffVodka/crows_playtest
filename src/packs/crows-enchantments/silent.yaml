@@ -1,0 +1,15 @@
+_id: crowsenchant0013
+_key: "!items!crowsenchant0013"
+name: "Silent"
+img: systems/crows/icons/enchantments/armor-silent.svg
+type: enchantment
+system:
+  key: "silent"
+  kind: armor
+  price: 1000
+  uses: 1
+  applies: "suit"
+  materials: "5 undead parts"
+  goal: 50
+  description: "<p>While wearing this armor, you gain a +1 bonus to tests made to hide and sneak. If you get a tier 1 result on a test made to hide or sneak, you are weakened.</p>"
+

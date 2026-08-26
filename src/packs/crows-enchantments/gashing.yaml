@@ -1,0 +1,15 @@
+_id: crowsenchant0027
+_key: "!items!crowsenchant0027"
+name: "Gashing"
+img: systems/crows/icons/enchantments/weapon-gashing.svg
+type: enchantment
+system:
+  key: "gashing"
+  kind: weapon
+  price: 10000
+  uses: 4
+  applies: ""
+  materials: "20 demon parts"
+  goal: 500
+  description: "<p>When you get a tier 3 result on an attack with this weapon against a creature, the creature gains a bleeding gash. The gash deals 1d6 P damage to a creature at the start of their combat turns. If the target receives magic healing or the gash’s damage result is 6, the gash stops dealing damage to the target. When you get a doom on an attack with the weapon, you get a gash.</p>"
+

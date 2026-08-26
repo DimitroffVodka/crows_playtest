@@ -1,0 +1,15 @@
+_id: crowsenchant0031
+_key: "!items!crowsenchant0031"
+name: "Infinity"
+img: systems/crows/icons/enchantments/weapon-infinity.svg
+type: enchantment
+system:
+  key: "infinity"
+  kind: weapon
+  price: 5000
+  uses: 3
+  applies: ""
+  materials: "10 angel parts"
+  goal: 250
+  description: "<p>This enchantment can only be added to bow weapons. If you don’t load ammunition into this weapon, it generates its own phantom ammunition that can be used to make attacks. The ammunition has a -1 damage penalty.</p>"
+

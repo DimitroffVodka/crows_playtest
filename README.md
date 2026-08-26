@@ -66,7 +66,7 @@ Or download a release zip directly from the [Releases page](https://github.com/D
 - **Item cards** — printed-card layouts per item type.
 
 ### Compendium content
-- **12 packs**: backgrounds (36), traits (276 across 23 trees), weapons, armor, gear, consumables, ammunition, spellbooks, monsters (71), loot, the rules-reference journal, and **31 rollable tables** (backlashes, miasma effects, encounters, weather, interesting things, dungeon hooks and more).
+- **13 packs**: backgrounds (36), traits (276 across 23 trees), weapons, armor, **enchantments (40)**, gear, consumables, ammunition, spellbooks, monsters (71), loot, the rules-reference journal, and **31 rollable tables** (backlashes, miasma effects, encounters, weather, interesting things, dungeon hooks and more).
 - All content transcribed from the Playtest 2 packet and cross-checked against the books. Where a card and a rulebook disagree, the card wins and the divergence is recorded in `docs/discrepancies/`.
 
 ### Bundled play assets

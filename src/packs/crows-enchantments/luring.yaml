@@ -1,0 +1,15 @@
+_id: crowsenchant0010
+_key: "!items!crowsenchant0010"
+name: "Luring"
+img: systems/crows/icons/enchantments/armor-luring.svg
+type: enchantment
+system:
+  key: "luring"
+  kind: armor
+  price: 1000
+  uses: 1
+  applies: "both"
+  materials: "5 angel parts"
+  goal: 50
+  description: "<p>When another creature hits you with a melee attack while you wear or wield this armor, you can use a reaction to slide them 1 square. If a creature gets a crit against you with an attack, you can’t use this enchantment’s reaction until the end of the DT and the creature can slide you 1 square.</p>"
+

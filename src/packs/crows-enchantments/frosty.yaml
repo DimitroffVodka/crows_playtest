@@ -1,0 +1,15 @@
+_id: crowsenchant0026
+_key: "!items!crowsenchant0026"
+name: "Frosty"
+img: systems/crows/icons/enchantments/weapon-frosty.svg
+type: enchantment
+system:
+  key: "frosty"
+  kind: weapon
+  price: 4000
+  uses: 2
+  applies: ""
+  materials: "10 demon parts"
+  goal: 200
+  description: "<p>When you get a tier 3 result on an attack with this weapon against a creature, the creature’s speed is reduced by 1. This effect can’t reduce a creature’s speed below 2. When you get a doom result on an attack with this weapon, your speed is reduced to 2 (if it isn’t already lower) until the end of the DT.</p>"
+

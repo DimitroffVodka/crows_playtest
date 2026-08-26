@@ -11,7 +11,7 @@ system:
   damage: { t2: "3 + S", t3: "6 + S" }
   qualities: [disengage, parry]
   parryValue: 4
-  enchantment: ""
+  enchantments: []
   qualityTier: standard
   slots: 1
   stackMax: 1

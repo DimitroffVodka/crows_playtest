@@ -1,0 +1,15 @@
+_id: crowsenchant0028
+_key: "!items!crowsenchant0028"
+name: "Hewing"
+img: systems/crows/icons/enchantments/weapon-hewing.svg
+type: enchantment
+system:
+  key: "hewing"
+  kind: weapon
+  price: 7500
+  uses: 4
+  applies: ""
+  materials: "20 angel parts"
+  goal: 375
+  description: "<p>This enchantment can only be added to non-bow weapons. As an action, you can use this weapon to make a hole in a wall, floor, or ceiling that has a circumference of 1d10 feet and a depth of 1d10 feet. This effect has 1 UD rolled on use and recharges on rest. When the UD are 0, you are vulnerable.</p>"
+

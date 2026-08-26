@@ -4,6 +4,7 @@ import { CrowData } from "./data/actor/crow.mjs";
 import { MonsterData } from "./data/actor/monster.mjs";
 import { WeaponData } from "./data/item/weapon.mjs";
 import { ArmorData } from "./data/item/armor.mjs";
+import { EnchantmentData } from "./data/item/enchantment.mjs";
 import { AmmunitionData } from "./data/item/ammunition.mjs";
 import { ConsumableData } from "./data/item/consumable.mjs";
 import { GearData } from "./data/item/gear.mjs";
@@ -152,6 +153,7 @@ Hooks.once("init", () => {
   // extended these registries; replacing either object erases their models.
   CONFIG.Item.dataModels.weapon = WeaponData;
   CONFIG.Item.dataModels.armor = ArmorData;
+  CONFIG.Item.dataModels.enchantment = EnchantmentData;
   CONFIG.Item.dataModels.ammunition = AmmunitionData;
   CONFIG.Item.dataModels.consumable = ConsumableData;
   CONFIG.Item.dataModels.gear = GearData;

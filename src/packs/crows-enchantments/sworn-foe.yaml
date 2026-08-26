@@ -1,0 +1,15 @@
+_id: crowsenchant0037
+_key: "!items!crowsenchant0037"
+name: "Sworn Foe"
+img: systems/crows/icons/enchantments/weapon-sworn-foe.svg
+type: enchantment
+system:
+  key: "sworn-foe"
+  kind: weapon
+  price: 2000
+  uses: 2
+  applies: ""
+  materials: "5 undead parts"
+  goal: 100
+  description: "<p>As a maneuver while wielding this weapon, you can choose a creature within 10 squares of you. You deal an additional 2 damage on attacks with this weapon against that creature. If that creature counters you, you take 2 additional damage. If you choose a new creature, the effects of this weapon no longer apply to the old creature.</p>"
+

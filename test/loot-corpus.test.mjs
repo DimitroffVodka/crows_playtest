@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { join } from "node:path";
 import { readFileSync, readdirSync } from "node:fs";
 import yaml from "js-yaml";
+import { migrateEnchantmentSystem } from "../module/helpers/migration.mjs";
 
 const LOOT_DIR = "src/packs/crows-loot";
 const LEGAL_EXPIRY = new Set(["useless", "refuel", "rest", "activate", "dt"]);
@@ -16,10 +17,10 @@ const PRESERVED_IDS = new Map([
 ]);
 
 const PREMADE_WEAPONS = new Map([
-  ["Steel Knife", { t2: "3 + A or S", t3: "5 + A or S", enchantment: "", material: true }],
-  ["Steel Axe", { t2: "4 + S", t3: "8 + S", enchantment: "", material: true }],
-  ["Exploding Greatsword", { t2: "4 + S", t3: "8 + S", enchantment: "Exploding", material: false }],
-  ["Vicious Steel Flail", { t2: "4 + S", t3: "7 + S", enchantment: "Vicious", material: true }]
+  ["Steel Knife", { t2: "3 + A or S", t3: "5 + A or S", enchantments: [], material: true }],
+  ["Steel Axe", { t2: "4 + S", t3: "8 + S", enchantments: [], material: true }],
+  ["Exploding Greatsword", { t2: "4 + S", t3: "8 + S", enchantments: ["exploding"], material: false }],
+  ["Vicious Steel Flail", { t2: "4 + S", t3: "7 + S", enchantments: ["vicious"], material: true }]
 ]);
 
 function shippedLoot() {
@@ -69,19 +70,21 @@ describe("shipped Playtest 2 loot corpus", () => {
 
     for (const weapon of weapons) {
       const expected = PREMADE_WEAPONS.get(weapon.name);
+      const system = migrateEnchantmentSystem(weapon.system);
       assert.equal(weapon.type, "weapon", `${weapon.name}: loot weapon document type`);
       assert.equal(weapon.system.qualityTier, "standard",
         `${weapon.name}: material upgrades do not use gear qualityTier`);
       assert.deepEqual(weapon.system.damage, { t2: expected.t2, t3: expected.t3 },
         `${weapon.name}: printed upgraded damage`);
-      assert.equal(weapon.system.enchantment, expected.enchantment,
-        `${weapon.name}: printed enchantment`);
+      assert.deepEqual(system.enchantments, expected.enchantments,
+        `${weapon.name}: printed enchantments`);
 
       if (expected.material) {
         assert.match(weapon.system.description, /Steel/, `${weapon.name}: Steel is explicit in description`);
       }
-      if (expected.enchantment) {
-        assert.match(weapon.system.description, new RegExp(expected.enchantment),
+      if (expected.enchantments.length) {
+        const printed = expected.enchantments[0][0].toUpperCase() + expected.enchantments[0].slice(1);
+        assert.match(weapon.system.description, new RegExp(printed),
           `${weapon.name}: enchantment is explicit in description`);
       }
     }

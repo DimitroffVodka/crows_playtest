@@ -1,0 +1,15 @@
+_id: crowsenchant0004
+_key: "!items!crowsenchant0004"
+name: "Deep"
+img: systems/crows/icons/enchantments/armor-deep.svg
+type: enchantment
+system:
+  key: "deep"
+  kind: armor
+  price: 3000
+  uses: 2
+  applies: "suit"
+  materials: "10 blood creature parts"
+  goal: 150
+  description: "<p>While wearing this armor, you gain a swimming speed equal to your walking speed and can’t suffocate. When you fall while wearing this armor, the fall damage increases by 1d6.</p>"
+

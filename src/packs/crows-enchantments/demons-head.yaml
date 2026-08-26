@@ -1,0 +1,15 @@
+_id: crowsenchant0005
+_key: "!items!crowsenchant0005"
+name: "Demon’s Head"
+img: systems/crows/icons/enchantments/armor-demons-head.svg
+type: enchantment
+system:
+  key: "demons-head"
+  kind: armor
+  price: 1000
+  uses: 1
+  applies: "shield"
+  materials: "5 demon parts"
+  goal: 50
+  description: "<p>A demon’s head is emblazoned on both sides of this shield. While you wield it, you deal additional damage with a counter equal to your Agility or Strength (your choice) as the outer face bites your target. When you take damage from a counter, you take an additional 1 damage as the inner face bites you.</p>"
+

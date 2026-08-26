@@ -1,0 +1,15 @@
+_id: crowsenchant0021
+_key: "!items!crowsenchant0021"
+name: "Absorbing"
+img: systems/crows/icons/enchantments/weapon-absorbing.svg
+type: enchantment
+system:
+  key: "absorbing"
+  kind: weapon
+  price: 500
+  uses: 1
+  applies: ""
+  materials: "5 plant parts"
+  goal: 25
+  description: "<p>When you get a crit on an attack with this weapon against a creature, you can choose one attack from the creature’s stat block and make that attack using the creature’s stats this turn. When you get a doom on an attack made with this weapon, you can’t make attacks with it until the end of your next combat turn.</p>"
+

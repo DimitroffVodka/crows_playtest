@@ -1,0 +1,15 @@
+_id: crowsenchant0015
+_key: "!items!crowsenchant0015"
+name: "Speedy"
+img: systems/crows/icons/enchantments/armor-speedy.svg
+type: enchantment
+system:
+  key: "speedy"
+  kind: armor
+  price: 5000
+  uses: 3
+  applies: "suit"
+  materials: "10 angel parts"
+  goal: 250
+  description: "<p>While you wear this armor, your speed increases by 1. If an attack against you is a crit, your speed is reduced to 0 until the end of your next combat turn.</p>"
+

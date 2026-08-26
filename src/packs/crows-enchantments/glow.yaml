@@ -1,0 +1,15 @@
+_id: crowsenchant0008
+_key: "!items!crowsenchant0008"
+name: "Glow"
+img: systems/crows/icons/enchantments/armor-glow.svg
+type: enchantment
+system:
+  key: "glow"
+  kind: armor
+  price: 1000
+  uses: 1
+  applies: "both"
+  materials: "5 undead parts"
+  goal: 50
+  description: "<p>While you wear or wield this armor, you can use a maneuver to make it glow, giving off light 5/5. This effect has 2 UD and the UD recharge when you finish a rest. Once you turn this effect on, it can’t be turned off until the UD expire. If you roll a doom while wearing, wielding, or carrying the armor and the light effect is available but hasn’t been turned off, the effect activates.</p>"
+

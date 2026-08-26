@@ -376,6 +376,75 @@ The 25 SVG files in `icons/equipment/` are from **game-icons.net** under the sam
 
 - `shield.svg` — Shield
 
+## Enchantment icons — game-icons.net
+
+The 40 SVG files in `icons/enchantments/` are from **game-icons.net** and are
+used under the **Creative Commons Attribution 3.0 Unported (CC BY 3.0)**
+licence, unmodified. Source repository: <https://github.com/game-icons/icons>.
+
+The requested enchantment names were resolved against the repository tree
+before download. The repository has no exact filename for 38 of the requested
+names; those entries use the closest available icon and the source filename is
+recorded below. The two exact filename matches are Feather and Infinity.
+
+### caro-asercion — https://game-icons.net/about.html#authors (1 icon)
+
+- `armor-climbing.svg` — Climbing (`mountain-climbing.svg`)
+
+### carl-olsen — https://game-icons.net (1 icon)
+
+- `weapon-vicious.svg` — Vicious (`brutal-helm.svg`)
+
+### delapouite — https://delapouite.com (16 icons)
+
+- `armor-banishing.svg` — Banishing (`barrier.svg`)
+- `armor-dancing.svg` — Dancing (`floating-platforms.svg`)
+- `armor-deep.svg` — Deep (`black-sea.svg`)
+- `armor-demons-head.svg` — Demon’s Head (`devil-mask.svg`)
+- `armor-glow.svg` — Glow (`glowing-artifact.svg`)
+- `armor-heavy.svg` — Heavy (`weight.svg`)
+- `armor-luring.svg` — Luring (`fishing-lure.svg`)
+- `armor-speedy.svg` — Speedy (`running-shoe.svg`)
+- `armor-victory.svg` — Victory (`trophy-cup.svg`)
+- `weapon-defending.svg` — Defending (`attached-shield.svg`)
+- `weapon-hewing.svg` — Hewing (`dig-hole.svg`)
+- `weapon-hungry.svg` — Hungry (`eating.svg`)
+- `weapon-raging.svg` — Raging (`enrage.svg`)
+- `weapon-returning.svg` — Returning (`boomerang.svg`)
+- `weapon-sworn-foe.svg` — Sworn Foe (`confrontation.svg`)
+- `weapon-weakening.svg` — Weakening (`armor-downgrade.svg`)
+
+### lorc — https://lorcblog.blogspot.com (20 icons)
+
+- `armor-feather.svg` — Feather (`feather.svg`)
+- `armor-flying.svg` — Flying (`winged-shield.svg`)
+- `armor-passthrough.svg` — Passthrough (`magic-portal.svg`)
+- `armor-revenge.svg` — Revenge (`shield-reflect.svg`)
+- `armor-silent.svg` — Silent (`silence.svg`)
+- `armor-slick.svg` — Slick (`oily-spiral.svg`)
+- `armor-spell-storing.svg` — Spell-Storing (`spell-book.svg`)
+- `armor-sustaining.svg` — Sustaining (`life-support.svg`)
+- `armor-telepathic-node.svg` — Telepathic Node (`telepathy.svg`)
+- `armor-waterwalking.svg` — Waterwalking (`water-splash.svg`)
+- `weapon-absorbing.svg` — Absorbing (`transfuse.svg`)
+- `weapon-dancing.svg` — Dancing (`floating-crystal.svg`)
+- `weapon-exploding.svg` — Exploding (`explosion-rays.svg`)
+- `weapon-flaming.svg` — Flaming (`flaming-arrow.svg`)
+- `weapon-frosty.svg` — Frosty (`snowflake-1.svg`)
+- `weapon-gashing.svg` — Gashing (`bleeding-wound.svg`)
+- `weapon-impact.svg` — Impact (`impact-point.svg`)
+- `weapon-lightning.svg` — Lightning (`lightning-arc.svg`)
+- `weapon-slaying.svg` — Slaying (`deadly-strike.svg`)
+- `weapon-teleporting.svg` — Teleporting (`teleport.svg`)
+
+### sbed — https://opengameart.org/content/95-game-icons (1 icon)
+
+- `weapon-poisoning.svg` — Poisoning (`poison.svg`)
+
+### various-artists — https://game-icons.net/about.html#authors (1 icon)
+
+- `weapon-infinity.svg` — Infinity (`infinity.svg`)
+
 ## Everything else
 
 All other icon paths in this system point at Foundry VTT's own bundled icon

@@ -1,0 +1,15 @@
+_id: crowsenchant0038
+_key: "!items!crowsenchant0038"
+name: "Teleporting"
+img: systems/crows/icons/enchantments/weapon-teleporting.svg
+type: enchantment
+system:
+  key: "teleporting"
+  kind: weapon
+  price: 10000
+  uses: 4
+  applies: ""
+  materials: "20 angel parts"
+  goal: 500
+  description: "<p>When you deal damage to another creature with this weapon, it gains 1d6 charges. As a maneuver, you can expend all charges from it and teleport up to a number of squares equal to the charges spent. If the charges reach 12 or higher, they are all expended and you take P damage equal to the charges spent. All charges in the weapon disappear at the end of a DT.</p>"
+

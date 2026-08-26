@@ -1,0 +1,15 @@
+_id: crowsenchant0011
+_key: "!items!crowsenchant0011"
+name: "Passthrough"
+img: systems/crows/icons/enchantments/armor-passthrough.svg
+type: enchantment
+system:
+  key: "passthrough"
+  kind: armor
+  price: 7500
+  uses: 4
+  applies: "suit"
+  materials: "20 blood creature parts"
+  goal: 375
+  description: "<p>While you wear this armor, you use a maneuver to move up to your speed. While you move, mundane walls and other obstructions can’t hamper your movement. If you end this move inside of a solid object, you are shunted back to the space where you entered it and take 1d6 P damage for each space you are moved through on your way back. This maneuver has a 1 UD that must be rolled after activating the effect. The UD recharge when you finish a rest.</p>"
+

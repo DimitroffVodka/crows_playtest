@@ -1,0 +1,15 @@
+_id: crowsenchant0033
+_key: "!items!crowsenchant0033"
+name: "Poisoning"
+img: systems/crows/icons/enchantments/weapon-poisoning.svg
+type: enchantment
+system:
+  key: "poisoning"
+  kind: weapon
+  price: 2000
+  uses: 2
+  applies: ""
+  materials: "5 blood creature parts"
+  goal: 100
+  description: "<p>As a maneuver, you can command this weapon to drip poison, an effect that has 1 UD to be rolled on use and which recharges on rest. If the next attack you make with your weapon is a hit, the target is weakened. If you miss with your next attack, you are vulnerable.</p>"
+

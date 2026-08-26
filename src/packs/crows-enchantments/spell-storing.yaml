@@ -1,0 +1,15 @@
+_id: crowsenchant0016
+_key: "!items!crowsenchant0016"
+name: "Spell-Storing"
+img: systems/crows/icons/enchantments/armor-spell-storing.svg
+type: enchantment
+system:
+  key: "spell-storing"
+  kind: armor
+  price: 1000
+  uses: 1
+  applies: "both"
+  materials: "5 plant parts"
+  goal: 50
+  description: "<p>As a rest activity or as part of the Repair Armor rest activity while repairing this armor, you can touch a spellbook to it. While you wear or wield the armor, you can cast the spell as if you were holding the spellbook. If you roll a doom on any test while wearing, wielding, or carrying the armor, the spell is immediately cast, and the Ref picks the targets. If there are no viable targets, add 1d6 to the chaos count and the spell is expended from the armor. Once you cast the spell, it is gone from the armor. The armor can only store one spell at a time. When a spell is placed in it, any old spells are gone from the armor.</p>"
+

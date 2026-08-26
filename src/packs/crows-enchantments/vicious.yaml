@@ -1,0 +1,15 @@
+_id: crowsenchant0039
+_key: "!items!crowsenchant0039"
+name: "Vicious"
+img: systems/crows/icons/enchantments/weapon-vicious.svg
+type: enchantment
+system:
+  key: "vicious"
+  kind: weapon
+  price: 500
+  uses: 1
+  applies: ""
+  materials: "5 undead parts"
+  goal: 25
+  description: "<p>When you get a crit on an attack with this weapon, you deal an additional 1d10 damage. When you get a doom on an attack with this weapon, you take 1d10 P damage.</p>"
+

@@ -1,0 +1,15 @@
+_id: crowsenchant0036
+_key: "!items!crowsenchant0036"
+name: "Slaying"
+img: systems/crows/icons/enchantments/weapon-slaying.svg
+type: enchantment
+system:
+  key: "slaying"
+  kind: weapon
+  price: 1000
+  uses: 1
+  applies: ""
+  materials: "5 parts of the enchantment’s creature type"
+  goal: 50
+  description: "<p>You choose a specific creature type when you place this enchantment on a weapon. The weapon gains a +1 bonus on attacks against creatures of that type and a -1 penalty on attacks against all other creatures. You can only place one slaying enchantment on a weapon.</p>"
+

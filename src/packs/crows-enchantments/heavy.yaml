@@ -1,0 +1,15 @@
+_id: crowsenchant0009
+_key: "!items!crowsenchant0009"
+name: "Heavy"
+img: systems/crows/icons/enchantments/armor-heavy.svg
+type: enchantment
+system:
+  key: "heavy"
+  kind: armor
+  price: 500
+  uses: 1
+  applies: "suit"
+  materials: "5 undead parts"
+  goal: 25
+  description: "<p>While you wear this armor and are force moved, you reduce the move by 1. If you are knocked prone, you must use your action to stand up instead of a maneuver.</p>"
+

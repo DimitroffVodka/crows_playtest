@@ -1,0 +1,15 @@
+_id: crowsenchant0019
+_key: "!items!crowsenchant0019"
+name: "Victory"
+img: systems/crows/icons/enchantments/armor-victory.svg
+type: enchantment
+system:
+  key: "victory"
+  kind: armor
+  price: 5000
+  uses: 3
+  applies: "suit"
+  materials: "10 demon parts"
+  goal: 250
+  description: "<p>When you kill another creature while wearing this armor, you are blessed. If you have a wound while wearing this armor, you can’t be blessed by any effect.</p>"
+

@@ -1,0 +1,15 @@
+_id: crowsenchant0034
+_key: "!items!crowsenchant0034"
+name: "Raging"
+img: systems/crows/icons/enchantments/weapon-raging.svg
+type: enchantment
+system:
+  key: "raging"
+  kind: weapon
+  price: 1000
+  uses: 1
+  applies: ""
+  materials: "5 demon parts"
+  goal: 50
+  description: "<p>When you kill another creature with this weapon, you can use a reaction to enter a rage that lasts until the end of the DT. While in the rage, you gain a +2 bonus to damage on attacks with this weapon and a +1 bonus to speed while you wield this weapon. When the rage ends, you are weakened.</p>"
+
