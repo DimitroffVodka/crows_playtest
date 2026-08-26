@@ -19,6 +19,6 @@ system:
       uses: 2
     - key: elemental
       uses: 2
-  equipment: ["magnifying glass", "smoke bomb", "string", "torch"]
-  spellbooks: ["fire hands", "fire lance"]
+  equipment: ["Magnifying Glass", "Smoke Bomb", "String", "Torch"]
+  spellbooks: ["Fire Hands", "Fire Lance"]
   startingGold: "3d6"

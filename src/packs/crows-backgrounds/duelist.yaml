@@ -15,6 +15,6 @@ system:
       uses: 1
     - key: slashing
       uses: 1
-  equipment: ["light armor", "lore book (historical lore)", "mirror", "sword", "torch"]
+  equipment: ["Light Armor", "Lore Book (Historical Lore)", "Mirror", "Sword", "Torch"]
   spellbooks: []
   startingGold: "3d6"

@@ -19,6 +19,6 @@ system:
       uses: 1
     - key: bashing
       uses: 1
-  equipment: ["bear trap", "blacksmith's tools", "chain", "maul", "torch"]
+  equipment: ["Bear Trap", "Blacksmith's Tools", "Chain", "Maul", "Torch"]
   spellbooks: []
   startingGold: "3d6"

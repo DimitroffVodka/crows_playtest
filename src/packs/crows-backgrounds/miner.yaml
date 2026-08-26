@@ -19,6 +19,6 @@ system:
       uses: 1
     - key: stabbing
       uses: 1
-  equipment: ["chalk", "grappling hook", "lantern", "oil flask", "shovel", "warpick"]
+  equipment: ["Chalk", "Grappling Hook", "Lantern", "Oil Flask", "Shovel", "Warpick"]
   spellbooks: []
   startingGold: "3d6"

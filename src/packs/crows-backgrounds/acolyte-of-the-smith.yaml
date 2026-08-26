@@ -19,6 +19,6 @@ system:
       uses: 1
     - key: benefaction
       uses: 1
-  equipment: ["blacksmith's tools", "holy symbol", "torch"]
-  spellbooks: ["minor healing", "summon object"]
+  equipment: ["Blacksmith's Tools", "Holy Symbol", "Torch"]
+  spellbooks: ["Minor Healing", "Summon Object"]
   startingGold: "3d6"

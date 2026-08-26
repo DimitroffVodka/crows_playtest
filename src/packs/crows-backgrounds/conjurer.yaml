@@ -19,6 +19,6 @@ system:
       uses: 1
     - key: conjuration
       uses: 2
-  equipment: ["chain", "torch"]
-  spellbooks: ["jaunt", "summon object", "teleport object"]
+  equipment: ["Chain", "Torch"]
+  spellbooks: ["Jaunt", "Summon Object", "Teleport Object"]
   startingGold: "3d6"

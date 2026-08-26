@@ -19,7 +19,7 @@ system:
       uses: 1
     - key: thievery
       uses: 1
-  equipment: ["journal", "lantern", "merchant's scales", "oil flask", "quill and ink pot"]
+  equipment: ["Journal", "Lantern", "Merchant's Scales", "Oil Flask", "Quill & Inkpot"]
   bonusGold: 50
   spellbooks: []
   startingGold: "3d6"

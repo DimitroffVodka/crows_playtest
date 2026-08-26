@@ -15,6 +15,6 @@ system:
       uses: 1
     - key: stabbing
       uses: 1
-  equipment: ["light armor", "quiver of arrows", "shortbow", "spear", "torch"]
+  equipment: ["Light Armor", "Quiver of Arrows", "Shortbow", "Spear", "Torch"]
   spellbooks: []
   startingGold: "3d6"

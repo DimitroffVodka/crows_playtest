@@ -23,6 +23,6 @@ system:
       uses: 2
     - key: illusion
       uses: 1
-  equipment: ["alteration stone"]
-  spellbooks: ["jaunt", "light", "spark", "take shape", "thunder"]
+  equipment: ["Alteration Stone"]
+  spellbooks: ["Jaunt", "Light", "Spark", "Take Shape", "Thunder"]
   startingGold: "3d6"

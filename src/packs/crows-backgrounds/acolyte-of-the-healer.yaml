@@ -17,6 +17,6 @@ system:
       uses: 2
     - key: benefaction
       uses: 2
-  equipment: ["holy symbol", "surgical kit", "torch"]
-  spellbooks: ["minor blessing", "minor healing"]
+  equipment: ["Holy Symbol", "Surgical Kit", "Torch"]
+  spellbooks: ["Minor Blessing", "Minor Healing"]
   startingGold: "3d6"

@@ -21,6 +21,6 @@ system:
       uses: 2
     - key: slashing
       uses: 2
-  equipment: ["extra knife", "poison vial", "quiver of arrows", "shortbow", "torch"]
+  equipment: ["Extra Knife", "Poison Vial", "Quiver of Arrows", "Shortbow", "Torch"]
   spellbooks: []
   startingGold: "3d6"

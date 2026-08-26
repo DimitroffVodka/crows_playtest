@@ -21,6 +21,6 @@ system:
       uses: 1
     - key: thievery
       uses: 2
-  equipment: ["11-foot pole", "mirror", "musical instrument (lute)", "smoke bomb", "torch"]
+  equipment: ["11-Foot Pole", "Mirror", "Musical Instrument (lute)", "Smoke Bomb", "Torch"]
   spellbooks: []
   startingGold: "3d6"

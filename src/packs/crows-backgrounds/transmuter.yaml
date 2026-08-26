@@ -21,6 +21,6 @@ system:
       uses: 1
     - key: alteration
       uses: 2
-  equipment: ["chalk", "torch"]
-  spellbooks: ["jaunt", "animal form", "repair", "take shape"]
+  equipment: ["Chalk", "Torch"]
+  spellbooks: ["Jaunt", "Animal Form", "Repair", "Take Shape"]
   startingGold: "3d6"

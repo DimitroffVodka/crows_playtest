@@ -15,6 +15,6 @@ system:
       uses: 1
     - key: slashing
       uses: 1
-  equipment: ["ball bearings", "light armor", "shield", "sword", "torch"]
+  equipment: ["Ball Bearings", "Light Armor", "Shield", "Sword", "Torch"]
   spellbooks: []
   startingGold: "3d6"

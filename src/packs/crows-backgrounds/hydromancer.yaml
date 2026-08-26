@@ -19,6 +19,6 @@ system:
       uses: 1
     - key: elemental
       uses: 2
-  equipment: ["gluepot", "journal", "quill and inkpot", "torch"]
-  spellbooks: ["create water", "stream"]
+  equipment: ["Glue Pot", "Journal", "Quill & Inkpot", "Torch"]
+  spellbooks: ["Create Water", "Stream"]
   startingGold: "3d6"

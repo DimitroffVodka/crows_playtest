@@ -21,6 +21,6 @@ system:
       uses: 1
     - key: illusion
       uses: 2
-  equipment: ["card deck", "smoke bomb", "whistle"]
-  spellbooks: ["cacophony", "light", "minor phantasm"]
+  equipment: ["Card Deck", "Smoke Bomb", "Whistle"]
+  spellbooks: ["Cacophony", "Light", "Minor Phantasm"]
   startingGold: "3d6"

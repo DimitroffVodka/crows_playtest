@@ -19,6 +19,6 @@ system:
       uses: 2
     - key: thievery
       uses: 2
-  equipment: ["crowbar", "extra knife", "grappling hook", "lockpick set", "smoke bomb", "torch"]
+  equipment: ["Crowbar", "Extra Knife", "Grappling Hook", "Lockpick Set", "Smoke Bomb", "Torch"]
   spellbooks: []
   startingGold: "3d6"

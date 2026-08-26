@@ -334,7 +334,7 @@ describe("backgroundSummary", () => {
     const noble = loadAll(BACKGROUNDS).find((b) => b.name === "Noble");
     const s = backgroundSummary(noble.system, t);
     assert.equal(s.bonusGold, 50, "the Noble's 50 gc must be visible to the player");
-    assert.deepEqual(s.pets, ["riding horse"]);
+    assert.deepEqual(s.pets, ["Riding Horse"]);
     assert.ok(!s.equipment.some((e) => /gold coins|\(pet\)/i.test(e)),
       "equipment must no longer carry them");
   });

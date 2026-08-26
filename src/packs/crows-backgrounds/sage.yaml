@@ -23,6 +23,6 @@ system:
       uses: 1
     - key: thievery
       uses: 1
-  equipment: ["ball bearings", "journal", "lore book (monster lore)", "lore book (nature lore)", "quill and ink pot", "torch"]
+  equipment: ["Ball Bearings", "Journal", "Lore Book (Monster Lore)", "Lore Book (Nature Lore)", "Quill & Inkpot", "Torch"]
   spellbooks: []
   startingGold: "3d6"

@@ -23,6 +23,6 @@ system:
       uses: 2
     - key: elemental
       uses: 2
-  equipment: ["holy symbol", "torch"]
-  spellbooks: ["fire hands", "minor healing", "spark"]
+  equipment: ["Holy Symbol", "Torch"]
+  spellbooks: ["Fire Hands", "Minor Healing", "Spark"]
   startingGold: "3d6"

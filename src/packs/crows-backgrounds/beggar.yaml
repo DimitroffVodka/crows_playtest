@@ -17,6 +17,6 @@ system:
       uses: 2
     - key: stealth
       uses: 2
-  equipment: ["gluepot", "padlock", "pot", "string", "tent", "torch"]
+  equipment: ["Glue Pot", "Padlock", "Pot", "String", "Tent", "Torch"]
   spellbooks: []
   startingGold: "3d6"

@@ -17,6 +17,6 @@ system:
       uses: 2
     - key: unarmed
       uses: 1
-  equipment: ["bear trap", "quiver of arrows", "shortbow", "spyglass", "torch"]
+  equipment: ["Bear Trap", "Quiver of Arrows", "Shortbow", "Spyglass", "Torch"]
   spellbooks: []
   startingGold: "3d6"

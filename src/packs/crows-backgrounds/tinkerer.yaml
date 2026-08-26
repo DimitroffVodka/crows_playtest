@@ -21,6 +21,6 @@ system:
       uses: 2
     - key: chopping
       uses: 1
-  equipment: ["alchemist's tools", "blacksmith's tools", "handaxe", "lockpick set", "soap", "torch"]
+  equipment: ["Alchemist's Tools", "Blacksmith's Tools", "Handaxe", "Lockpick Set", "Soap", "Torch"]
   spellbooks: []
   startingGold: "3d6"

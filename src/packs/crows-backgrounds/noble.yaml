@@ -19,8 +19,8 @@ system:
       uses: 1
     - key: bow
       uses: 1
-  equipment: ["animal feed (6)", "lantern", "lore book (historical lore)", "oil flask"]
+  equipment: ["Animal Feed (6)", "Lantern", "Lore Book (Historical Lore)", "Oil Flask"]
   bonusGold: 50
-  pets: ["riding horse"]
+  pets: ["Riding Horse"]
   spellbooks: []
   startingGold: "3d6"

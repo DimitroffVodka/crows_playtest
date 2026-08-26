@@ -23,6 +23,6 @@ system:
       uses: 1
     - key: thievery
       uses: 2
-  equipment: ["acid vial", "alchemist's tools", "bucket", "healing potion", "lantern", "oil flask", "smoke bomb"]
+  equipment: ["Acid Vial", "Alchemist's Tools", "Bucket", "Healing Potion", "Lantern", "Oil Flask", "Smoke Bomb"]
   spellbooks: []
   startingGold: "3d6"

@@ -15,6 +15,6 @@ system:
       uses: 1
     - key: chopping
       uses: 1
-  equipment: ["axe", "holy symbol", "torch"]
-  spellbooks: ["minor healing", "minor ward"]
+  equipment: ["Axe", "Holy Symbol", "Torch"]
+  spellbooks: ["Minor Healing", "Minor Ward"]
   startingGold: "3d6"

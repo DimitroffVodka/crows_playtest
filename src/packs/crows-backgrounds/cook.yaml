@@ -19,6 +19,6 @@ system:
       uses: 2
     - key: slashing
       uses: 1
-  equipment: ["cook's utensils", "hearty ration (2)", "pot", "torch"]
+  equipment: ["Cook's Utensils", "Hearty Ration (2)", "Pot", "Torch"]
   spellbooks: []
   startingGold: "3d6"

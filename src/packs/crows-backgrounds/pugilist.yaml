@@ -13,6 +13,6 @@ system:
       uses: 1
     - key: unarmed
       uses: 2
-  equipment: ["chalk", "light armor", "lore book (monster lore)", "net", "rage potion", "torch"]
+  equipment: ["Chalk", "Light Armor", "Lore Book (Monster Lore)", "Net", "Rage Potion", "Torch"]
   spellbooks: []
   startingGold: "3d6"

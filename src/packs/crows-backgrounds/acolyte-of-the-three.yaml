@@ -19,6 +19,6 @@ system:
       uses: 2
     - key: chopping
       uses: 1
-  equipment: ["axe", "torch"]
-  spellbooks: ["bone capture", "minor curse", "monster sense"]
+  equipment: ["Axe", "Torch"]
+  spellbooks: ["Bone Capture", "Minor Curse", "Monster Sense"]
   startingGold: "3d6"

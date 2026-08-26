@@ -19,6 +19,6 @@ system:
       uses: 2
     - key: search
       uses: 1
-  equipment: ["compass", "journal", "lantern", "lore book (historical lore)", "oil flask", "quill and inkpot"]
+  equipment: ["Compass", "Journal", "Lantern", "Lore Book (Historical Lore)", "Oil Flask", "Quill & Inkpot"]
   spellbooks: []
   startingGold: "3d6"

@@ -19,6 +19,6 @@ system:
       uses: 2
     - key: bashing
       uses: 1
-  equipment: ["mace", "net", "torch"]
-  spellbooks: ["spark", "thunder"]
+  equipment: ["Mace", "Net", "Torch"]
+  spellbooks: ["Spark", "Thunder"]
   startingGold: "3d6"
