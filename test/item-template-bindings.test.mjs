@@ -31,8 +31,25 @@ function schemaFields(type) {
 const templates = readdirSync(TEMPLATES).filter((f) => f.endsWith(".hbs"));
 
 /**
- * Sheets for content authored in YAML and rebuilt by `npm run pack`. An edit
- * made on one is discarded at the next build, so they offer no controls.
+ * Sheets that offer no controls at all. DECIDED 2026-08-25; the two entries are
+ * read-only for DIFFERENT reasons, and the weaker one is the trait.
+ *
+ * `background.hbs` — a background Item is never embedded. Dropping one on a
+ * crow calls applyBackground and returns null (crow-sheet.mjs), copying the
+ * grants and discarding the item, so the only copy that exists lives in the
+ * compendium and is rebuilt by `npm run pack`. Editing it could not persist.
+ *
+ * `trait.hbs` — traits ARE embedded: purchaseTrait calls
+ * createEmbeddedDocuments (advancement.mjs) and applyBackground embeds the
+ * starting trait. Those copies live on the actor and `npm run pack` never
+ * touches them, so read-only here DOES cost something — a GM cannot fix or
+ * homebrew a trait on one character. That was weighed and accepted: traits are
+ * edited in YAML and the pack rebuilt.
+ *
+ * If this is ever reversed, do NOT restore the handoff's All-fields control for
+ * `connectsTo`. It binds a comma-separated text input to a StringField ARRAY
+ * and would submit a string; the handoff's own README asks for a split-on-comma
+ * handler it does not provide.
  */
 const READ_ONLY = ["background.hbs", "trait.hbs"];
 

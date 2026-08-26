@@ -738,3 +738,36 @@ as literally written, Gate D would block a release forever on someone else's boo
 Scratch directory removed, second instance stopped, the copied licence deleted from it. The
 main Foundry instance (pid 956, port 30000) was never touched. `dist/` is gitignored, so the
 artifact does not enter the repo.
+
+---
+
+## 12. Decision — the item sheets for shipped content are read-only, 2026-08-25
+
+Both `background.hbs` and `trait.hbs` render a printed card and offer **no controls at
+all** — no input, textarea, select, `name=` binding or `data-edit`. Enforced by
+`test/item-template-bindings.test.mjs`, which also asserts the other six item sheets DO
+still bind fields, so the decision cannot spread by copy-paste.
+
+**They are read-only for different reasons, and the trait one is weaker.**
+
+`background` is free: a background Item is never embedded. Dropping one on a crow calls
+`applyBackground` and returns null — the grants are copied and the item discarded — so the
+only copy that exists is in the compendium and `npm run pack` rebuilds it. An edit could
+never have persisted.
+
+`trait` costs something. Traits **are** embedded: `purchaseTrait` calls
+`createEmbeddedDocuments` and `applyBackground` embeds the starting trait. Those copies
+live on the actor and the packer never touches them. So a GM cannot fix a bad trait on one
+character, or homebrew one, without editing YAML and rebuilding — **and that will not
+update trait items already embedded on existing crows.** Asked directly, the call was:
+leave it read-only, edit traits in YAML.
+
+⚠️ **If this is reversed, do not restore the design handoff's `connectsTo` control.** It
+binds a comma-separated text input to a StringField ARRAY, which submits a string and
+corrupts the field. The handoff's own README asks for a split-on-comma handler it does not
+supply. The same shape was rejected for `system.pets` on the background sheet for the same
+reason.
+
+The generalisation that produced this entry is worth keeping: **"it is shipped content, so
+editing is pointless" is true of backgrounds and only half true of traits.** The difference
+is whether the document is ever embedded, and that is not visible from the sheet.
