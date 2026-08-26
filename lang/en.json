@@ -565,5 +565,20 @@
   "CROWS.Sheet.Crow.origin.goldBonus": "{formula} plus {bonus} gc from the background",
   "CROWS.Sheet.Crow.origin.unmatched": "This name does not match a background in the compendium, so nothing below is shown.",
   "CROWS.Sheet.Crow.origin.hint": "A record of what this background granted at creation. It does not change your character.",
-  "CROWS.Sheet.Crow.origin.characteristic": "Characteristic"
+  "CROWS.Sheet.Crow.origin.characteristic": "Characteristic",
+  "CROWS.Stamina": "Stamina",
+  "CROWS.Uses": "uses",
+  "CROWS.Description": "Description",
+  "CROWS.AllFields": "All fields",
+  "CROWS.Background.Origin": "Origin",
+  "CROWS.Background.AtTwo": "at 2",
+  "CROWS.Background.Expertises": "Expertises",
+  "CROWS.Background.Equipment": "Equipment",
+  "CROWS.Background.StartingTrait": "Starting Trait",
+  "CROWS.Background.Pets": "Animal",
+  "CROWS.Background.Gold": "Starting gold",
+  "CROWS.Background.BonusGold": "Bonus gold",
+  "CROWS.Background.CharacteristicOptions": "Characteristics this background can set to 2",
+  "CROWS.Background.namePlaceholder": "Background name",
+  "CROWS.Background.FlavorPlaceholder": "One line of flavor."
 }

@@ -330,6 +330,11 @@ export function backgroundSummary(sys, t = (k) => k) {
     labels: options.map((k) => t(`CROWS.Characteristic.${k}`)),
     // Joined here for the same reason — no `join` helper exists.
     labelText: options.map((k) => t(`CROWS.Characteristic.${k}`)).join(", "),
+    // The item card prints the characteristic as a drop-cap: "[M]IND". Only
+    // meaningful when the background fixes ONE — a choice has no single letter
+    // to cap, so `initial` is left blank and the card falls back to labelText.
+    initial: options.length === 1 ? (t(`CROWS.Characteristic.${options[0]}`)[0] ?? "") : "",
+    rest: options.length === 1 ? (t(`CROWS.Characteristic.${options[0]}`).slice(1) ?? "") : "",
     isChoice: options.length > 1,
     isAny: options.length >= 3
   };

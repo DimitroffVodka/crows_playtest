@@ -1,6 +1,14 @@
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 import { CROWS } from "../config.mjs";
+import { backgroundSummary } from "../helpers/creation.mjs";
+
+/** Localize, tolerating a missing i18n (tests, early init). */
+function t(key, data = null) {
+  const i18n = globalThis.game?.i18n;
+  if (!i18n) return key;
+  return data ? i18n.format(key, data) : i18n.localize(key);
+}
 
 export class CrowsItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -26,6 +34,21 @@ export class CrowsItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     ctx.system = this.document.system;
     ctx.item = this.document;
     ctx.CROWS = CROWS;
+
+    if (this.document.type === "background") {
+      // Same shaper the crow sheet's Bio tab uses, so the two surfaces cannot
+      // disagree about what a background grants.
+      ctx.bg = backgroundSummary(this.document.system, t);
+      // PT2 backgrounds SET a characteristic to 2, and some offer a CHOICE
+      // (C:28) — so this is an array, not a single key. The old sheet bound a
+      // <select> to `system.characteristicBonus`, a PT1 field that no longer
+      // exists: it displayed nothing and wrote to a path the DataModel drops.
+      ctx.characteristicChoices = Object.keys(CROWS.characteristics).map((key) => ({
+        key,
+        label: t(`CROWS.Characteristic.${key}`),
+        selected: (this.document.system.characteristicOptionsAt2 ?? []).includes(key)
+      }));
+    }
     return ctx;
   }
 
