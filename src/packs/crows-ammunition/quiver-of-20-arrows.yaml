@@ -1,7 +1,7 @@
 _id: crowsammoquivr01
 _key: "!items!crowsammoquivr01"
 name: Quiver of 20 Arrows
-img: icons/containers/ammunition/arrows-quiver-brown.webp
+img: systems/crows/icons/equipment/quiver.svg
 type: ammunition
 system:
   description: "<p>Ammunition for shortbows and longbows.</p>"

@@ -180,3 +180,68 @@ describe("trait icons", () => {
     assert.ok(worst <= 4, `one icon serves ${worst} traits — too generic to be meaningful`);
   });
 });
+
+/* -------------------------------------------------------------------------- */
+
+const EQUIP_PACKS = ["crows-weapons", "crows-armor", "crows-ammunition"];
+const EQUIP_ICONS = "icons/equipment";
+const loadEquip = () => EQUIP_PACKS.flatMap((pack) =>
+  readdirSync(`src/packs/${pack}`)
+    .filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"))
+    .map((f) => ({ pack, file: f, doc: yaml.load(readFileSync(join("src/packs", pack, f), "utf8")) })));
+
+/**
+ * Weapons, armour and ammunition — 25 cards, one icon each.
+ *
+ * Unlike backgrounds and traits these were NOT iconless before: they pointed at
+ * Foundry's stock `icons/weapons/*.webp`. So this is a swap to the same
+ * game-icons family the other two sets use, and the test that matters most is
+ * that no document was left behind pointing at the old library.
+ */
+describe("equipment icons", () => {
+  test("all 25 weapons, armour and ammunition declare a system icon", () => {
+    const all = loadEquip();
+    assert.equal(all.length, 25);
+    const stray = all.filter(({ doc }) => !/^systems\/crows\/icons\/equipment\//.test(doc.img ?? ""));
+    assert.deepEqual(stray.map(({ pack, doc }) => `${pack}/${doc.name}: ${doc.img}`), []);
+  });
+
+  test("every declared icon file exists", () => {
+    const broken = loadEquip()
+      .filter(({ doc }) => !existsSync(doc.img.replace(/^systems\/crows\//, "")))
+      .map(({ doc }) => `${doc.name}: ${doc.img}`);
+    assert.deepEqual(broken, []);
+  });
+
+  test("each card has a DISTINCT icon", () => {
+    const seen = new Map();
+    for (const { doc } of loadEquip()) {
+      assert.ok(!seen.has(doc.img), `${doc.name} reuses ${seen.get(doc.img)}'s icon`);
+      seen.set(doc.img, doc.name);
+    }
+    assert.equal(seen.size, 25);
+  });
+
+  test("no vendored equipment icon is unused", () => {
+    const used = new Set(loadEquip().map(({ doc }) => doc.img.split("/").pop()));
+    const onDisk = readdirSync(EQUIP_ICONS).filter((f) => f.endsWith(".svg"));
+    assert.deepEqual(onDisk.filter((f) => !used.has(f)), []);
+    assert.equal(onDisk.length, 25);
+  });
+
+  test("every shipped equipment icon is credited in NOTICE.md", () => {
+    const notice = readFileSync("NOTICE.md", "utf8");
+    const uncredited = readdirSync(EQUIP_ICONS)
+      .filter((f) => f.endsWith(".svg")).filter((f) => !notice.includes(f));
+    assert.deepEqual(uncredited, []);
+  });
+
+  test("equipment icons are real SVGs, script-free, with their ground rect", () => {
+    for (const f of readdirSync(EQUIP_ICONS).filter((x) => x.endsWith(".svg"))) {
+      const svg = readFileSync(join(EQUIP_ICONS, f), "utf8");
+      assert.match(svg, /^<svg[^>]*xmlns="http:\/\/www\.w3\.org\/2000\/svg"/, `${f} is not an SVG`);
+      assert.ok(!/<script/i.test(svg), `${f} contains a script tag`);
+      assert.match(svg, /<path d="M0 0h512v512H0z"/, `${f} lost its ground rect`);
+    }
+  });
+});

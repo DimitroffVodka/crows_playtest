@@ -2,7 +2,7 @@ _id: crowsweap0axe001
 _key: "!items!crowsweap0axe001"
 name: Axe
 type: weapon
-img: icons/weapons/axes/axe-battle-worn.webp
+img: systems/crows/icons/equipment/wood-axe.svg
 system:
   description: "<p>A heavy one-handed chopping axe. Dismember.</p>"
   type: chopping

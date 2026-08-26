@@ -2,7 +2,7 @@ _id: crowsweap0shtbw1
 _key: "!items!crowsweap0shtbw1"
 name: Shortbow
 type: weapon
-img: icons/weapons/bows/shortbow-leather.webp
+img: systems/crows/icons/equipment/pocket-bow.svg
 system:
   description: "<p>A compact bow. Cumbersome.</p>"
   type: bow

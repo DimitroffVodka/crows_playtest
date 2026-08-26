@@ -2,7 +2,7 @@ _id: crowsweap0stilet
 _key: "!items!crowsweap0stilet"
 name: Stiletto
 type: weapon
-img: icons/weapons/daggers/dagger-straight-blue.webp
+img: systems/crows/icons/equipment/stiletto.svg
 system:
   description: "<p>A slender stabbing blade, light enough to throw. Brutal.</p>"
   type: stabbing

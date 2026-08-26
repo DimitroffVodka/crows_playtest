@@ -2,7 +2,7 @@ _id: crowsweap0hammer
 _key: "!items!crowsweap0hammer"
 name: Hammer
 type: weapon
-img: icons/weapons/hammers/hammer-war-rounding.webp
+img: systems/crows/icons/equipment/flat-hammer.svg
 system:
   description: "<p>A versatile hammer effective at both close quarters and thrown at range.</p>"
   type: bashing

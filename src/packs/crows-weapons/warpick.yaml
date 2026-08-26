@@ -2,7 +2,7 @@ _id: crowsweap0warpik
 _key: "!items!crowsweap0warpik"
 name: Warpick
 type: weapon
-img: icons/weapons/axes/axe-pick-white.webp
+img: systems/crows/icons/equipment/war-pick.svg
 system:
   description: "<p>A heavy two-handed pick designed to punch through armor. Brutal.</p>"
   type: stabbing

@@ -1,7 +1,7 @@
 _id: crowsarmrheavy01
 _key: "!items!crowsarmrheavy01"
 name: Heavy Armor
-img: icons/equipment/chest/breastplate-banded-blue.webp
+img: systems/crows/icons/equipment/armor-vest.svg
 type: armor
 system:
   description: ""

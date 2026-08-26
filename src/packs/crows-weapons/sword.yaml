@@ -2,7 +2,7 @@ _id: crowsweap0sword1
 _key: "!items!crowsweap0sword1"
 name: Sword
 type: weapon
-img: icons/weapons/swords/sword-broad-worn.webp
+img: systems/crows/icons/equipment/pointy-sword.svg
 system:
   description: "<p>A reliable one-handed blade. Parry 4.</p>"
   type: slashing

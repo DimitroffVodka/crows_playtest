@@ -2,7 +2,7 @@ _id: crowsweap0mace02
 _key: "!items!crowsweap0mace02"
 name: Flail
 type: weapon
-img: icons/weapons/maces/mace-round-spiked-black.webp
+img: systems/crows/icons/equipment/flail.svg
 system:
   description: "<p>A two-handed flail with extended reach. Bashing, Pummeling.</p>"
   type: bashing

@@ -2,7 +2,7 @@ _id: crowsweap0halbrd
 _key: "!items!crowsweap0halbrd"
 name: Halberd
 type: weapon
-img: icons/weapons/polearms/halberd-crescent-glowing.webp
+img: systems/crows/icons/equipment/halberd.svg
 system:
   description: "<p>A two-handed chopping polearm with extended reach. Dismember.</p>"
   type: chopping

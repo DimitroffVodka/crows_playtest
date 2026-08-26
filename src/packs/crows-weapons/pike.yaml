@@ -2,7 +2,7 @@ _id: crowsweap0pike01
 _key: "!items!crowsweap0pike01"
 name: Pike
 type: weapon
-img: icons/weapons/polearms/pike-flared-brown.webp
+img: systems/crows/icons/equipment/pikeman.svg
 system:
   description: "<p>A two-handed stabbing polearm with extended reach. Brutal.</p>"
   type: stabbing

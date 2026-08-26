@@ -334,6 +334,48 @@ trait where the mechanic repeats across trees (a "Split X" in three magic trees,
 
 - `chain-mail.svg` — Second Skin
 
+## Weapon, armour and ammunition icons — game-icons.net
+
+The 25 SVG files in `icons/equipment/` are from **game-icons.net** under the same
+**CC BY 3.0** licence, unmodified. One per shipped weapon, armour and ammunition card.
+
+### carl-olsen — https://game-icons.net (1 icons)
+
+- `crossbow.svg` — Crossbow
+
+### delapouite — https://delapouite.com (9 icons)
+
+- `bow-arrow.svg` — Longbow
+- `flail.svg` — Flail
+- `flanged-mace.svg` — Mace
+- `glaive.svg` — Glaive
+- `hatchet.svg` — Handaxe
+- `pikeman.svg` — Pike
+- `quiver.svg` — Quiver of 20 Arrows
+- `thor-hammer.svg` — Maul
+- `war-pick.svg` — Warpick
+
+### lorc — https://lorcblog.blogspot.com (14 icons)
+
+- `armor-vest.svg` — Heavy Armor
+- `arrowhead.svg` — Case of 20 Bolts
+- `axe-swing.svg` — Greataxe
+- `bowie-knife.svg` — Knife
+- `broadsword.svg` — Greatsword
+- `flat-hammer.svg` — Hammer
+- `halberd.svg` — Halberd
+- `leather-vest.svg` — Light Armor
+- `mail-shirt.svg` — Medium Armor
+- `pocket-bow.svg` — Shortbow
+- `pointy-sword.svg` — Sword
+- `stiletto.svg` — Stiletto
+- `stone-spear.svg` — Spear
+- `wood-axe.svg` — Axe
+
+### sbed — https://opengameart.org/content/95-game-icons (1 icons)
+
+- `shield.svg` — Shield
+
 ## Everything else
 
 All other icon paths in this system point at Foundry VTT's own bundled icon

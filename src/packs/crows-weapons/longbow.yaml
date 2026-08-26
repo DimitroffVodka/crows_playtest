@@ -2,7 +2,7 @@ _id: crowsweap0lngbow
 _key: "!items!crowsweap0lngbow"
 name: Longbow
 type: weapon
-img: icons/weapons/bows/longbow-recurve.webp
+img: systems/crows/icons/equipment/bow-arrow.svg
 system:
   description: "<p>A tall war bow with exceptional range.</p>"
   type: bow

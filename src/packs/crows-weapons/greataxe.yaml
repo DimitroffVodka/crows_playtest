@@ -2,7 +2,7 @@ _id: crowsweap0graxe1
 _key: "!items!crowsweap0graxe1"
 name: Greataxe
 type: weapon
-img: icons/weapons/axes/axe-double.webp
+img: systems/crows/icons/equipment/axe-swing.svg
 system:
   description: "<p>A two-handed axe capable of devastating chopping blows. Dismember.</p>"
   type: chopping

@@ -2,7 +2,7 @@ _id: crowsweap0mace01
 _key: "!items!crowsweap0mace01"
 name: Mace
 type: weapon
-img: icons/weapons/maces/mace-round-steel.webp
+img: systems/crows/icons/equipment/flanged-mace.svg
 system:
   description: "<p>A one-handed mace. Heavy enough to punish, light enough to swing in one hand.</p>"
   type: bashing

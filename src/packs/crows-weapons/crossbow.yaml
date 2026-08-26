@@ -2,7 +2,7 @@ _id: crowsweap0crsbow
 _key: "!items!crowsweap0crsbow"
 name: Crossbow
 type: weapon
-img: icons/weapons/crossbows/crossbow-simple-brown.webp
+img: systems/crows/icons/equipment/crossbow.svg
 system:
   description: "<p>A mechanical ranged weapon. Reload required between shots.</p>"
   type: bow

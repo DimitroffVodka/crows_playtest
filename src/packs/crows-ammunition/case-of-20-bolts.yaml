@@ -1,7 +1,7 @@
 _id: crowsammocaseblt
 _key: "!items!crowsammocaseblt"
 name: Case of 20 Bolts
-img: icons/containers/ammunition/arrows-quiver-grey-brass.webp
+img: systems/crows/icons/equipment/arrowhead.svg
 type: ammunition
 system:
   description: "<p>Ammunition for crossbows.</p>"
