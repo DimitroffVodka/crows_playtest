@@ -182,7 +182,8 @@ export function getCryptBoonLevel() {
 export async function setRawCryptInstitutionLevel(lvl) {
   const rawLevel = Math.max(0, Math.min(5, Math.floor(Number(lvl) || 0)));
   const village = getVillage();
-  const index = village.institutions?.findIndex?.(institution => institution.type === "crypt") ?? -1;
+  const index = village.institutions?.findIndex?.(institution =>
+    institution.type === "crypt" && institution.destroyed !== true) ?? -1;
   if (index < 0) throw new Error("Cannot set Crypt level: the village has no Crypt institution");
   const institutions = village.institutions.map((institution, i) => i === index
     ? { ...institution, level: rawLevel }

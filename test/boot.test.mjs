@@ -426,7 +426,10 @@ describe("module/crows.mjs imports resolve", () => {
     );
 
     // Exercise the world-version gate itself. The first ready-equivalent call
-    // advances 0.1.3 to 0.2.0; the second is a strict no-op.
+    // advances 0.1.3 to the 0.2.2 Village schema target; the second is a
+    // strict no-op. The fixture's package version is intentionally 0.2.0 so
+    // the test catches a migration that stamps the lower runtime version and
+    // would therefore run forever.
     const settingStore = new Map([
       ["systemMigrationVersion", "0.1.3"],
       ["migrationExpertiseBudget", "report-only"]
@@ -447,6 +450,6 @@ describe("module/crows.mjs imports resolve", () => {
     const firstMigration = await game.crows.runWorldMigration();
     const secondMigration = await game.crows.runWorldMigration();
     assert.equal(firstMigration.ran, true);
-    assert.deepEqual(secondMigration, { ran: false, reason: "current", stored: "0.2.0" });
+    assert.deepEqual(secondMigration, { ran: false, reason: "current", stored: "0.2.2" });
   });
 });
