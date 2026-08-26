@@ -24,9 +24,6 @@ system:
     form: ""
     size: small
     creatureType: ""
-  treasure:
-    size: small
-    value: 0
   slots: 1
   stackMax: 1
   quantity: 1
