@@ -1,0 +1,58 @@
+{{!--
+  systems/crows/templates/item/enchantment.hbs
+
+  READ-ONLY catalogue card. These 40 entries are shipped compendium content
+  authored in src/packs/crows-enchantments/*.yaml and rebuilt by `npm run pack`.
+  The sheet is a Ref-facing view of the catalogue, not an editor: attached
+  enchantment instances belong to armor/weapon Items and are deliberately not
+  represented here.
+
+  `description` is enriched by CrowsItemSheet._prepareContext before it reaches
+  this template. `materials` is intentionally printed as the one source string;
+  this view does not parse or reinterpret the material vocabulary.
+--}}
+<div class="crows-item card-face enchantment" autocomplete="off">
+  <article class="cf-card">
+
+    <header class="cf-head">
+      <div class="cf-titleline">
+        <div class="cf-title">{{item.name}}</div>
+        <span class="cf-kind">{{localize "TYPES.Item.enchantment"}}</span>
+      </div>
+
+      <div class="cf-origin">
+        <div class="cf-glyph">
+          <img src="{{item.img}}" alt="">
+        </div>
+        <div class="cf-originbody">
+          <div class="cf-action">{{localize "CROWS.Enchantment.Label"}}</div>
+          <div class="cf-meta">
+            <span><span class="cf-runin">{{localize "CROWS.Enchantment.Kind"}}</span> {{system.kind}}</span>
+            <span><span class="cf-runin">{{localize "CROWS.Enchantment.Key"}}</span> {{system.key}}</span>
+            <span><span class="cf-runin">{{localize "CROWS.Enchantment.Applies"}}</span> {{#if system.applies}}{{system.applies}}{{else}}&mdash;{{/if}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cf-meta en-economy">
+        <span><span class="cf-runin">{{localize "CROWS.Enchantment.Price"}}</span> <span class="cf-num">{{system.price}}</span> gc</span>
+        <span><span class="cf-runin">{{localize "CROWS.Uses"}}</span> <span class="cf-num">{{system.uses}}</span></span>
+      </div>
+    </header>
+
+    {{!-- This is enriched HTML, never the stored source string. --}}
+    <div class="cf-rules">{{{description}}}</div>
+
+    <section class="cf-note">
+      <div class="cf-notelabel">{{localize "CROWS.Enchantment.Materials"}}</div>
+      <p>{{system.materials}}</p>
+    </section>
+
+    <section class="cf-note">
+      <div class="cf-notelabel">{{localize "CROWS.Enchantment.Goal"}}</div>
+      <p><span class="cf-num">{{system.goal}}</span> pts</p>
+    </section>
+
+    <div class="cf-foot"></div>
+  </article>
+</div>
