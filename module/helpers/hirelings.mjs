@@ -2,7 +2,7 @@
  * Hirelings — new in Playtest 2.
  *
  * Citations are `C:<line>` into the Characters book: the hireling rules are
- * C:2499-2533, and the barracks that supplies them is C:2759-2783.
+ * C:2499-2533, and the barracks that supplies them is C:2404-2420.
  *
  * A hireling is an ordinary creature actor (its stat block lives in the
  * Bestiary, so `MonsterData`), not a new document type. What makes it a
@@ -115,10 +115,10 @@ export function payDebt(employment = {}, amount = 0) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Availability from the barracks (C:2773-2783)                               */
+/*  Availability from the barracks (C:2414-2420)                               */
 /* -------------------------------------------------------------------------- */
 
-/** C:2777 — the highest-power hireling the barracks can supply at this level. */
+/** C:2414-2420 — the highest-power hireling the barracks can supply at this level. */
 export function hireableMaxPower(barracksLevel = 0) {
   const lvl = Math.floor(Number(barracksLevel) || 0);
   if (lvl <= 0) return 0;                 // no barracks, or closed for business
@@ -133,7 +133,7 @@ export function canHireFromBarracks({ power = 0 } = {}, barracksLevel = 0) {
 }
 
 /**
- * C:2769 — at barracks level 5 with Prosperity 10, each hireling arrives with
+ * C:2410 — at barracks level 5 with Prosperity 10, each hireling arrives with
  * 12 rations of their own, which they eat before you start owing them food.
  */
 export const PROVISIONS_RATIONS = 12;
@@ -254,7 +254,7 @@ async function writeEmployment(actor, employment) {
 
 /**
  * Hire a creature from the barracks. Refuses above the barracks' maximum power
- * (C:2777) and while the party owes a hireling debt (C:2511).
+ * (C:2414-2420) and while the party owes a hireling debt (C:2511).
  */
 export async function hire(hirelingActor, {
   employer, barracksLevel = 0, prosperity = 0, village = null, cycle = 0, outstandingDebt = 0
@@ -284,7 +284,7 @@ export async function hire(hirelingActor, {
       <header><strong>${employer?.name ?? "A crow"}</strong> hires <strong>${hirelingActor.name}</strong> (power ${power})</header>
       <div>Daily terms: <strong>${upkeep.gc} gc</strong> and ${upkeep.rations} ration, paid at the start of each day.</div>
       <div>If they die: ${deathPayment(power)} gc plus equipment and salary paid, owed to their family in ${village ?? "the village where they were hired"}.</div>
-      ${employment.startingRations ? `<div>Arrives with ${employment.startingRations} rations of their own (C:2769).</div>` : ""}
+      ${employment.startingRations ? `<div>Arrives with ${employment.startingRations} rations of their own (C:2410).</div>` : ""}
     </div>`,
     speaker: { alias: "Barracks" }
   });

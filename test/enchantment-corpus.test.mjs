@@ -79,10 +79,15 @@ describe("enchantment catalogue", () => {
   });
 
   test("descriptions are verbatim against the cited source ranges", () => {
+    const armor = sourceBullets(1896, 1915);
+    const weapons = sourceBullets(2055, 2074);
+    assert.equal(armor.length, 20, "C:1896-1915 must contain 20 armor enchantments");
+    assert.equal(weapons.length, 20, "C:2055-2074 must contain 20 weapon enchantments");
     const expected = [
-      ...sourceBullets(1896, 1915),
-      ...sourceBullets(2055, 2074)
+      ...armor,
+      ...weapons
     ];
+    assert.equal(expected.length, 40, "the cited ranges must account for all 40 enchantments");
     const actual = docsIn().map(({ doc }) => [doc.name, doc.system.description]);
     for (const [name, description] of expected) {
       assert.ok(actual.some(([actualName, actualDescription]) =>

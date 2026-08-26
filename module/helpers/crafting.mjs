@@ -373,7 +373,7 @@ export function actorHasTool(actor, toolName) {
  * mechanics rather than adding to them, so no numeric edge value is consulted.
  *
  * `institutionBonus` covers the artisan crafting for you (C:2645), the rented
- * workshop (C:2724) and the Crafty connection (C:2561) — all plain addends.
+ * workshop (C:2368) and the Crafty connection (C:2561) — all plain addends.
  */
 export function craftingRollBonus({
   mind = 0, expertisesApplied = 0, doubleEdge = false, doubleBane = false, institutionBonus = 0
