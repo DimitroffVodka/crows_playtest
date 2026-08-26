@@ -40,13 +40,7 @@
             <span>&#10231; {{localize "CROWS.Stamina"}}
               <input type="number" name="system.stamina" value="{{system.stamina}}" class="bg-num">
             </span>
-            <span>&#9678;
-              <select name="system.characteristicOptionsAt2" class="bg-sel" multiple
-                      size="3" aria-label="{{localize "CROWS.Background.CharacteristicOptions"}}">
-                {{#each characteristicChoices as |c|}}
-                  <option value="{{c.key}}" {{#if c.selected}}selected{{/if}}>{{c.label}}</option>
-                {{/each}}
-              </select>
+            <span>&#9678; {{#if bg.characteristic.isAny}}{{localize "CROWS.Background.AnyCharacteristic"}}{{else}}{{bg.characteristic.labelText}}{{/if}}
               {{localize "CROWS.Background.AtTwo"}}
             </span>
           </div>
@@ -54,7 +48,7 @@
       </div>
 
       <div class="bg-dice">&#9092; +
-        <span class="bg-key">{{characteristic.initial}}</span>{{characteristic.rest}}
+        {{#if bg.characteristic.initial}}<span class="bg-key">{{bg.characteristic.initial}}</span>{{bg.characteristic.rest}}{{else}}{{bg.characteristic.labelText}}{{/if}}
       </div>
     </header>
 
@@ -63,7 +57,7 @@
 
     <section class="bg-note">
       <div class="bg-notelabel">{{localize "CROWS.Background.Expertises"}}</div>
-      <p>{{#each bg.expertises as |e|}}{{e.label}}{{#if e.uses}} <span class="bg-uses">({{e.uses}} {{localize "CROWS.Uses"}})</span>{{/if}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
+      <p>{{#each bg.expertises as |e|}}{{e.label}}{{#if e.many}} <span class="bg-uses">({{e.uses}} {{localize "CROWS.Uses"}})</span>{{/if}}{{#unless @last}} &middot; {{/unless}}{{/each}}</p>
     </section>
 
     <section class="bg-note">
@@ -103,6 +97,13 @@
     <summary>{{localize "CROWS.AllFields"}}</summary>
     <label>{{localize "CROWS.Background.StartingTrait"}}
       <input type="text" name="system.startingTrait" value="{{system.startingTrait}}">
+    </label>
+    <label>{{localize "CROWS.Background.CharacteristicOptions"}}
+      <select name="system.characteristicOptionsAt2" multiple size="3">
+        {{#each characteristicChoices as |c|}}
+          <option value="{{c.key}}" {{#if c.selected}}selected{{/if}}>{{c.label}}</option>
+        {{/each}}
+      </select>
     </label>
     <label>{{localize "CROWS.Background.Gold"}}
       <input type="text" name="system.startingGold" value="{{system.startingGold}}">

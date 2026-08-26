@@ -83,6 +83,23 @@ describe("background icons", () => {
     assert.ok(entries.includes("NOTICE.md"), "NOTICE.md missing from the release payload");
   });
 
+  test("no icon still carries game-icons' opaque background rect", () => {
+    // These ship as a white silhouette on a BLACK 512x512 rect. The card CSS
+    // forces the glyph to bone white with `brightness(0) invert(1)`, which
+    // turns that rect white too and renders a solid white diamond — which is
+    // exactly what shipped the first time. The rect is stripped; keep it so.
+    const withRect = readdirSync(ICONS)
+      .filter((f) => f.endsWith(".svg"))
+      .filter((f) => /<path d="M0 0h512v512H0z"/.test(readFileSync(join(ICONS, f), "utf8")));
+    assert.deepEqual(withRect, [], "background rect must be stripped");
+  });
+
+  test("NOTICE.md declares the modification — CC BY requires indicating changes", () => {
+    const notice = readFileSync("NOTICE.md", "utf8");
+    assert.match(notice, /Modified/i);
+    assert.ok(!/They are unmodified/.test(notice), "NOTICE still claims they are unmodified");
+  });
+
   test("the SVGs are real and unmodified-looking", () => {
     for (const f of readdirSync(ICONS).filter((x) => x.endsWith(".svg"))) {
       const svg = readFileSync(join(ICONS, f), "utf8");

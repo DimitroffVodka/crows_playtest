@@ -580,5 +580,6 @@
   "CROWS.Background.BonusGold": "Bonus gold",
   "CROWS.Background.CharacteristicOptions": "Characteristics this background can set to 2",
   "CROWS.Background.namePlaceholder": "Background name",
-  "CROWS.Background.FlavorPlaceholder": "One line of flavor."
+  "CROWS.Background.FlavorPlaceholder": "One line of flavor.",
+  "CROWS.Background.AnyCharacteristic": "Any characteristic"
 }

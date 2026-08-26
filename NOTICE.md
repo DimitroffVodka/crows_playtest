@@ -8,7 +8,14 @@ under the **Creative Commons Attribution 3.0 Unported (CC BY 3.0)** licence:
 
 Source repository: <https://github.com/game-icons/icons>
 
-They are unmodified. Attribution by author, with the background each is used for:
+**Modified.** game-icons.net ships each icon as a white silhouette drawn on an opaque
+black background rect (`<path d="M0 0h512v512H0z"/>`). That rect has been removed from
+all 36 files, and the silhouette's explicit `fill="#fff"` dropped, so the glyph has a
+transparent ground and takes its colour from the sheet. Nothing else was changed — no
+path data was altered. CC BY 3.0 requires that modifications be indicated, which is what
+this paragraph is for.
+
+Attribution by author, with the background each is used for:
 
 ### darkzaitzev — https://github.com/DarkZaitzev
 
