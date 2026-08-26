@@ -5,6 +5,74 @@ import {
 } from "../../config.mjs";
 import { migrateCrowSystem, expertiseOverBudget } from "../../helpers/migration.mjs";
 
+const CRAFTING_PROJECT_STATUSES = ["active", "blocked", "pending"];
+const CRAFTING_MATERIAL_IDENTITIES = [
+  "", "bloodhide", "undeadBone", "demonHide", "angelHide",
+  "iron", "hickory", "treatedIron",
+  "steel", "archmageObsidian", "necromancerSilver", "starDiamond",
+  "yew", "archmageWillow", "necromancerDeathtree", "starwood",
+  "elementalEssence"
+];
+const CRAFTING_MATERIAL_FORMS = ["", "bar", "log", "part"];
+const CRAFTING_MATERIAL_SIZES = ["", "tiny", "small", "medium", "large"];
+
+function craftingMaterialField() {
+  return new fields.SchemaField({
+    id: new fields.StringField({ initial: "" }),
+    quantity: new fields.NumberField({ initial: 1, min: 1, integer: true }),
+    identity: new fields.StringField({ initial: "", blank: true, choices: CRAFTING_MATERIAL_IDENTITIES }),
+    form: new fields.StringField({ initial: "", blank: true, choices: CRAFTING_MATERIAL_FORMS }),
+    size: new fields.StringField({ initial: "", blank: true, choices: CRAFTING_MATERIAL_SIZES }),
+    label: new fields.StringField({ initial: "", blank: true }),
+    legacyText: new fields.StringField({ initial: "", blank: true })
+  });
+}
+
+function craftingTargetField() {
+  return new fields.SchemaField({
+    actorUuid: new fields.StringField({ initial: "", blank: true }),
+    itemId: new fields.StringField({ initial: "", blank: true }),
+    itemUuidAtStart: new fields.StringField({ initial: "", blank: true }),
+    fingerprint: new fields.StringField({ initial: "", blank: true })
+  });
+}
+
+// A few lightweight schema-bound probes intentionally provide only the fields
+// needed by the existing actor model. Foundry v14 has ObjectField, but falling
+// back to a StringField keeps those probes able to exercise the lifecycle
+// schema without changing their minimal runtime contract. Production Foundry
+// always takes the ObjectField branch and preserves the Ref descriptor object.
+function craftingObjectField() {
+  const Field = fields.ObjectField ?? fields.StringField;
+  return new Field({ initial: {} });
+}
+
+function craftingOutputField() {
+  return new fields.SchemaField({
+    kind: new fields.StringField({ initial: "equipment", choices: ["equipment", "enchantment"] }),
+    name: new fields.StringField({ initial: "", blank: true }),
+    label: new fields.StringField({ initial: "", blank: true }),
+    // The Ref-facing template is intentionally opaque to this actor model;
+    // it is a descriptor, never an embedded output Item.
+    template: craftingObjectField(),
+    target: craftingTargetField()
+  });
+}
+
+function craftingOutputClaimField() {
+  return new fields.SchemaField({
+    id: new fields.StringField({ initial: "" }),
+    projectId: new fields.StringField({ initial: "" }),
+    copy: new fields.NumberField({ initial: 1, min: 1, integer: true }),
+    kind: new fields.StringField({ initial: "equipment", choices: ["equipment", "enchantment"] }),
+    name: new fields.StringField({ initial: "", blank: true }),
+    label: new fields.StringField({ initial: "", blank: true }),
+    output: craftingObjectField(),
+    target: craftingTargetField(),
+    state: new fields.StringField({ initial: "ready", choices: ["ready", "attached", "attach-failed"] })
+  });
+}
+
 /**
  * Crow (PC) data model — Playtest 2.
  *
@@ -188,11 +256,17 @@ export class CrowData extends TypeDataModel {
           expertise: new fields.StringField({ initial: "" }),
           goal: new fields.NumberField({ initial: 100, min: 1, integer: true }),
           points: new fields.NumberField({ initial: 0, min: 0, integer: true }),
-          prereqBonus: new fields.NumberField({ initial: 0, min: 0, max: 2, integer: true }),
-          materials: new fields.ArrayField(new fields.StringField(), { initial: [] }),
-          hasRecipe: new fields.BooleanField({ initial: false }),
+          // `points` is surplus toward the next copy. Completed copies are
+          // durable and therefore remain visible after an exact-goal roll.
+          completed: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+          status: new fields.StringField({ initial: "active", choices: CRAFTING_PROJECT_STATUSES }),
+          materials: new fields.ArrayField(craftingMaterialField(), { initial: [] }),
+          output: craftingOutputField(),
           notes: new fields.StringField({ initial: "" })
-        }), { initial: [] })
+        }), { initial: [] }),
+        // Finalize records a Ref-facing handoff here. It does not embed or
+        // grant the finished Item; the Ref/GM performs that terminal action.
+        outputClaims: new fields.ArrayField(craftingOutputClaimField(), { initial: [] })
       })
     };
   }

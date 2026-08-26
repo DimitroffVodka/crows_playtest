@@ -33,7 +33,7 @@ import {
 } from "../helpers/village.mjs";
 import {
   CRAFTING_EXPERTISES, startCraftingProject, cancelProject, makeCraftingRoll,
-  completeProject, identifyMagicItem
+  completeProject, identifyMagicItem, reconcileCraftingProjects, craftingMaterialSetsFor
 } from "../helpers/crafting.mjs";
 import { openCharacterCreator } from "../helpers/character-creator.mjs";
 
@@ -420,6 +420,11 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _prepareContext(options) {
     const ctx = await super._prepareContext(options);
     const actor = this.document;
+    // A material grant can make a previously blocked goal finalizable without
+    // another roll. Reconcile before taking the system snapshot used below so
+    // a reload/render reads the durable completion count rather than deriving
+    // completion from points.
+    await reconcileCraftingProjects(actor, { materialSetsFor: craftingMaterialSetsFor });
     const system = actor.system;
     const inventory = inventoryView(actor);
     const advancement = advancementOptions(actor);
@@ -494,12 +499,26 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ctx.dungeonEN = 6;
     }
 
-    ctx.craftingProjects = (system.crafting?.projects ?? []).map(project => ({
-      ...project,
-      expertiseLabel: project.expertise ? t(`CROWS.Expertise.${project.expertise}`) : "—",
-      complete: (project.points ?? 0) >= (project.goal ?? 1),
-      pct: Math.min(100, Math.round(((project.points ?? 0) / (project.goal || 1)) * 100))
-    }));
+    ctx.craftingProjects = (system.crafting?.projects ?? []).map(project => {
+      const goal = Math.max(1, Number(project.goal) || 1);
+      const points = Math.max(0, Number(project.points) || 0);
+      const completed = Math.max(0, Number(project.completed) || 0);
+      return {
+        ...project,
+        expertiseLabel: project.expertise ? t(`CROWS.Expertise.${project.expertise}`) : "—",
+        // `completed` is the durable source of truth. Points are surplus for
+        // the next copy and may be zero on an exact-goal completion.
+        complete: completed > 0,
+        // Active projects can keep rolling even when a legacy goal-sized point
+        // bank has not yet been proven as a completion. A blocked project has
+        // reached a goal but is waiting for an authorized material set;
+        // pending copies remain rollable toward their next copy.
+        canRoll: project.status === "active" || completed > 0,
+        pct: Math.min(100, Math.round((points / goal) * 100)),
+        materialLabels: (project.materials ?? []).map(material =>
+          typeof material === "object" ? (material.label || material.legacyText || "") : String(material ?? ""))
+      };
+    });
 
     try {
       const village = getVillage();

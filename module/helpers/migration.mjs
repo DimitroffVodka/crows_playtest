@@ -101,6 +101,168 @@ function humanizeKey(key) {
     .replace(/^./, (c) => c.toUpperCase());
 }
 
+/* -------------------------------------------------------------------------- */
+/* Crafting project shape                                                     */
+/* -------------------------------------------------------------------------- */
+
+const CRAFTING_MATERIAL_IDENTITIES = new Set([
+  "bloodhide", "undeadBone", "demonHide", "angelHide",
+  "iron", "hickory", "treatedIron",
+  "steel", "archmageObsidian", "necromancerSilver", "starDiamond",
+  "yew", "archmageWillow", "necromancerDeathtree", "starwood",
+  "elementalEssence"
+]);
+const CRAFTING_MATERIAL_FORMS = new Set(["", "bar", "log", "part"]);
+const CRAFTING_MATERIAL_SIZES = new Set(["", "tiny", "small", "medium", "large"]);
+const CRAFTING_MATERIAL_ALIASES = [
+  ["archmage obsidian", "archmageObsidian"],
+  ["necromancer silver", "necromancerSilver"],
+  ["star diamond", "starDiamond"],
+  ["archmage willow", "archmageWillow"],
+  ["necromancer deathtree", "necromancerDeathtree"],
+  ["star wood", "starwood"],
+  ["starwood", "starwood"],
+  ["elemental essence", "elementalEssence"],
+  ["elemental tree", "elementalEssence"],
+  ["undead bone", "undeadBone"],
+  ["demon hide", "demonHide"],
+  ["angel hide", "angelHide"],
+  ["blood hide", "bloodhide"],
+  ["treated iron", "treatedIron"],
+  ["bloodhide", "bloodhide"],
+  ["undeadbone", "undeadBone"],
+  ["demonhide", "demonHide"],
+  ["angelhide", "angelHide"],
+  ["treatediron", "treatedIron"],
+  ["steel", "steel"],
+  ["iron", "iron"],
+  ["hickory", "hickory"],
+  ["yew", "yew"]
+];
+
+function craftingWords(value) {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+function craftingIdentity(value) {
+  const words = craftingWords(value);
+  if (!words) return "";
+  const alias = CRAFTING_MATERIAL_ALIASES.find(([name]) =>
+    words === name || words.includes(`${name} `) || words.includes(` ${name}`)
+  );
+  return alias?.[1] ?? (CRAFTING_MATERIAL_IDENTITIES.has(value) ? value : "");
+}
+
+function craftingForm(value) {
+  const form = craftingWords(value).replace(/s$/, "");
+  return CRAFTING_MATERIAL_FORMS.has(form) ? form : "";
+}
+
+function craftingSize(value) {
+  const size = craftingWords(value);
+  return CRAFTING_MATERIAL_SIZES.has(size) ? size : "";
+}
+
+/**
+ * Shape-only migration for one project. It never decides that old points
+ * prove a completed copy: material availability was not persisted by PT1.
+ */
+export function migrateCraftingProject(project, index = 0) {
+  if (!isObject(project)) return project;
+  const p = { ...project };
+  // PT1-only recipe/prerequisite fields have no PT2 destination. Leaving them
+  // in the raw object invites a later merge to resurrect a deleted concept;
+  // the data model also omits them from its canonical project schema.
+  delete p.prereqBonus;
+  delete p.hasRecipe;
+  const goal = Math.max(1, toCount(p.goal) || 100);
+  const points = toCount(p.points);
+  const completed = toCount(p.completed);
+  if (!("completed" in p)) p.completed = 0;
+  else p.completed = completed;
+  if (p.status !== "pending" && p.status !== "blocked" && p.status !== "active") {
+    p.status = completed > 0 ? "pending" : "active";
+  } else if (completed > 0) {
+    p.status = "pending";
+  } else if (p.status === "pending") {
+    // A pending label without a durable copy cannot authorize Finalize.
+    p.status = "active";
+  } else if (p.status === "blocked" && points < goal) {
+    p.status = "active";
+  }
+  if (Array.isArray(p.materials)) {
+    p.materials = p.materials.map((material, materialIndex) => migrateCraftingMaterial(material, materialIndex));
+  } else if (!("materials" in p)) p.materials = [];
+  p.output = isObject(p.output)
+    ? migrateCraftingOutput(p.output, p.name)
+    : migrateCraftingOutput({}, p.name);
+  if (!p.id) p.id = `proj-${Math.max(0, Math.floor(Number(index) || 0)) + 1}`;
+  return p;
+}
+
+function migrateCraftingMaterial(material, index = 0) {
+  const id = `req-${Math.max(0, Math.floor(Number(index) || 0)) + 1}`;
+  if (isObject(material)) {
+    const label = String(material.label ?? material.legacyText ?? "").trim();
+    const identity = craftingIdentity(material.identity);
+    return {
+      id: String(material.id ?? id),
+      quantity: Math.max(1, toCount(material.quantity) || 1),
+      identity,
+      form: craftingForm(material.form),
+      size: craftingSize(material.size),
+      label,
+      legacyText: String(material.legacyText ?? (!identity && label ? label : ""))
+    };
+  }
+
+  const label = String(material ?? "").trim();
+  const quantityMatch = label.match(/^(\d+)\s+/);
+  const quantity = Math.max(1, toCount(quantityMatch?.[1]) || 1);
+  const description = quantityMatch ? label.slice(quantityMatch[0].length) : label;
+  const words = craftingWords(description);
+  const form = craftingForm(words.match(/\b(bars?|logs?|parts?)\b/)?.[1]);
+  const size = craftingSize(words.match(/\b(tiny|small|medium|large)\b/)?.[1]);
+  const identity = craftingIdentity(description);
+  return {
+    id,
+    quantity,
+    identity,
+    form,
+    size,
+    label,
+    legacyText: identity ? "" : label
+  };
+}
+
+function migrateCraftingOutput(output, projectName = "") {
+  const source = { ...output };
+  const kind = source.kind === "enchantment" ? "enchantment" : "equipment";
+  const name = String(source.name ?? source.label ?? projectName ?? "").trim();
+  const label = String(source.label ?? name ?? projectName ?? "").trim();
+  const target = isObject(source.target) ? source.target : {};
+  return {
+    ...source,
+    kind,
+    name,
+    label,
+    template: source.template && typeof source.template === "object" ? cloneData(source.template) : {},
+    target: {
+      actorUuid: String(target.actorUuid ?? ""),
+      itemId: String(target.itemId ?? ""),
+      itemUuidAtStart: String(target.itemUuidAtStart ?? ""),
+      fingerprint: String(target.fingerprint ?? "")
+    }
+  };
+}
+
 /** Case-insensitive, whitespace-insensitive name key for background lookup. */
 function normalizeName(name) {
   return String(name ?? "").trim().toLowerCase().replace(/\s+/g, " ");
@@ -424,21 +586,29 @@ export function migrateCrowSystem(source) {
   }
 
   // --- crafting.projects[].skill -> .expertise ------------------------------
-  // The FIELD rename is data migration and belongs here; the crafting rules
-  // that read it are T1.6's.
+  // The FIELD rename and durable project shape are data migration and belong
+  // here; runtime arithmetic remains in crafting.mjs. This branch is guarded
+  // by the whole `projects` array so a partial delta can still be handled
+  // without guessing at absent sibling fields.
   if (isObject(out.crafting) && Array.isArray(out.crafting.projects)) {
-    out.crafting = {
+    const crafting = {
       ...out.crafting,
-      projects: out.crafting.projects.map((proj) => {
-        if (!isObject(proj) || !("skill" in proj)) return proj;
+      projects: out.crafting.projects.map((proj, index) => {
+        if (!isObject(proj)) return proj;
         const p = { ...proj };
-        if (p.expertise === undefined || p.expertise === "") {
-          p.expertise = SKILL_TO_EXPERTISE[p.skill] ?? p.skill ?? "";
+        if ("skill" in p) {
+          if (p.expertise === undefined || p.expertise === "") {
+            p.expertise = SKILL_TO_EXPERTISE[p.skill] ?? p.skill ?? "";
+          }
+          delete p.skill;
         }
-        delete p.skill;
-        return p;
+        return migrateCraftingProject(p, index);
       })
     };
+    if ("outputClaims" in out.crafting && Array.isArray(out.crafting.outputClaims)) {
+      crafting.outputClaims = out.crafting.outputClaims;
+    }
+    out.crafting = crafting;
   }
 
   // --- coins -> currency ----------------------------------------------------

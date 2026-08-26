@@ -60,6 +60,322 @@ export const MAX_EXPERTISES_PER_CRAFTING_ROLL = 2;
 /** R:1701 — the floor on a crafting roll, unless it is a doom. */
 export const CRAFTING_MIN_POINTS = 1;
 
+/** Durable lifecycle values written to `crafting.projects[].status`. */
+export const CRAFTING_PROJECT_STATUSES = Object.freeze(["active", "blocked", "pending"]);
+
+/**
+ * The material vocabulary belongs to the material planner, but project records
+ * need to carry it before that planner is installed. Keeping the vocabulary in
+ * this helper means the shape migration and the roll state machine can agree
+ * without importing the Foundry data model from the pure arithmetic tests.
+ */
+export const CRAFTING_MATERIAL_IDENTITIES = Object.freeze([
+  "bloodhide", "undeadBone", "demonHide", "angelHide",
+  "iron", "hickory", "treatedIron",
+  "steel", "archmageObsidian", "necromancerSilver", "starDiamond",
+  "yew", "archmageWillow", "necromancerDeathtree", "starwood",
+  "elementalEssence"
+]);
+export const CRAFTING_MATERIAL_FORMS = Object.freeze(["", "bar", "log", "part"]);
+export const CRAFTING_MATERIAL_SIZES = Object.freeze(["", "tiny", "small", "medium", "large"]);
+
+const MATERIAL_IDENTITY_ALIASES = Object.freeze([
+  ["archmage obsidian", "archmageObsidian"],
+  ["necromancer silver", "necromancerSilver"],
+  ["star diamond", "starDiamond"],
+  ["archmage willow", "archmageWillow"],
+  ["necromancer deathtree", "necromancerDeathtree"],
+  ["star wood", "starwood"],
+  ["starwood", "starwood"],
+  ["elemental essence", "elementalEssence"],
+  ["elemental tree", "elementalEssence"],
+  ["undead bone", "undeadBone"],
+  ["demon hide", "demonHide"],
+  ["angel hide", "angelHide"],
+  ["blood hide", "bloodhide"],
+  ["treated iron", "treatedIron"],
+  ["necromancer deathtree", "necromancerDeathtree"],
+  ["bloodhide", "bloodhide"],
+  ["undeadbone", "undeadBone"],
+  ["demonhide", "demonHide"],
+  ["angelhide", "angelHide"],
+  ["treatediron", "treatedIron"],
+  ["steels", "steel"],
+  ["steel", "steel"],
+  ["iron", "iron"],
+  ["hickory", "hickory"],
+  ["yew", "yew"]
+]);
+
+function cloneValue(value) {
+  try {
+    return structuredClone(value);
+  } catch {
+    try { return JSON.parse(JSON.stringify(value)); } catch { return value; }
+  }
+}
+
+function nonNegativeInteger(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
+}
+
+function normalizedWords(value) {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+function materialIdentity(value) {
+  const words = normalizedWords(value);
+  if (!words) return "";
+  const alias = MATERIAL_IDENTITY_ALIASES.find(([name]) =>
+    new RegExp(`(?:^| )${name.replace(/ /g, " ")}(?:$| )`).test(words)
+  );
+  return alias?.[1] ?? (CRAFTING_MATERIAL_IDENTITIES.includes(value) ? value : "");
+}
+
+function materialForm(value) {
+  const form = normalizedWords(value).replace(/s$/, "");
+  return CRAFTING_MATERIAL_FORMS.includes(form) ? form : "";
+}
+
+function materialSize(value) {
+  const size = normalizedWords(value);
+  return CRAFTING_MATERIAL_SIZES.includes(size) ? size : "";
+}
+
+/**
+ * Convert one legacy/display material into the durable requirement shape.
+ *
+ * This is deliberately only shape work. An empty `identity` means that a Ref
+ * still has to identify the generic card; no caller may treat it as a wildcard
+ * or consume an arbitrary material for it. The material-consumption ticket
+ * owns matching and expenditure.
+ */
+export function normalizeCraftingMaterialRequirement(material, index = 0) {
+  const fallbackId = `req-${Math.max(0, Math.floor(Number(index) || 0)) + 1}`;
+  if (material && typeof material === "object" && !Array.isArray(material)) {
+    const source = cloneValue(material) ?? {};
+    const label = String(source.label ?? source.legacyText ?? "").trim();
+    const identity = materialIdentity(source.identity);
+    const form = materialForm(source.form);
+    const size = materialSize(source.size);
+    return {
+      id: String(source.id ?? fallbackId),
+      quantity: Math.max(1, nonNegativeInteger(source.quantity, 1)),
+      identity,
+      form,
+      size,
+      label,
+      legacyText: String(source.legacyText ?? (!identity && label ? label : ""))
+    };
+  }
+
+  const text = String(material ?? "").trim();
+  const quantityMatch = text.match(/^(\d+)\s+/);
+  const quantity = quantityMatch ? Math.max(1, nonNegativeInteger(quantityMatch[1], 1)) : 1;
+  const description = quantityMatch ? text.slice(quantityMatch[0].length) : text;
+  const identity = materialIdentity(description);
+  const formWord = normalizedWords(description).match(/\b(bars?|logs?|parts?)\b/)?.[1] ?? "";
+  const sizeWord = normalizedWords(description).match(/\b(tiny|small|medium|large)\b/)?.[1] ?? "";
+  return {
+    id: fallbackId,
+    quantity,
+    identity,
+    form: materialForm(formWord),
+    size: materialSize(sizeWord),
+    label: text,
+    legacyText: identity ? "" : text
+  };
+}
+
+function materialLabel(material) {
+  if (material && typeof material === "object") {
+    return String(material.label ?? material.legacyText ?? "").trim();
+  }
+  return String(material ?? "").trim();
+}
+
+/** Normalize a project output handoff without embedding an Item document. */
+export function normalizeCraftingOutput(output, projectName = "") {
+  const source = output && typeof output === "object" && !Array.isArray(output)
+    ? cloneValue(output) : {};
+  const kind = source.kind === "enchantment" ? "enchantment" : "equipment";
+  const name = String(source.name ?? source.label ?? projectName ?? "").trim();
+  const label = String(source.label ?? name ?? projectName ?? "").trim();
+  const targetSource = source.target && typeof source.target === "object" ? source.target : {};
+  const target = {
+    actorUuid: String(targetSource.actorUuid ?? ""),
+    itemId: String(targetSource.itemId ?? ""),
+    itemUuidAtStart: String(targetSource.itemUuidAtStart ?? ""),
+    fingerprint: String(targetSource.fingerprint ?? "")
+  };
+  return {
+    ...source,
+    kind,
+    name,
+    label,
+    template: cloneValue(source.template ?? {}),
+    target
+  };
+}
+
+/**
+ * Normalize the durable project shape at every Foundry boundary.
+ *
+ * Missing lifecycle fields are intentionally conservative: an old project
+ * with `points >= goal` is not fabricated into a completion, because there is
+ * no persisted proof that its material set was available.
+ */
+export function normalizeCraftingProject(project = {}, index = 0) {
+  const source = project && typeof project === "object" && !Array.isArray(project)
+    ? cloneValue(project) : {};
+  const goal = Math.max(1, nonNegativeInteger(source.goal, 100));
+  const points = nonNegativeInteger(source.points, 0);
+  const completed = nonNegativeInteger(source.completed, 0);
+  const materials = Array.isArray(source.materials)
+    ? source.materials.map((material, materialIndex) => normalizeCraftingMaterialRequirement(material, materialIndex))
+    : [];
+  const status = completed > 0
+    ? "pending"
+    : source.status === "blocked" && points >= goal
+      ? "blocked"
+      : "active";
+  return {
+    ...source,
+    id: String(source.id ?? `proj-${Math.max(0, Math.floor(Number(index) || 0)) + 1}`),
+    name: String(source.name ?? ""),
+    expertise: String(source.expertise ?? ""),
+    goal,
+    points,
+    completed,
+    status,
+    materials,
+    output: normalizeCraftingOutput(source.output, source.name),
+    notes: String(source.notes ?? "")
+  };
+}
+
+/** Derive the persisted status from durable completions and an optional plan. */
+export function craftingProjectStatus(project, { blockedOnMaterials = false } = {}) {
+  const completed = nonNegativeInteger(project?.completed, 0);
+  const goal = Math.max(1, nonNegativeInteger(project?.goal, 1));
+  const points = nonNegativeInteger(project?.points, 0);
+  if (completed > 0) return "pending";
+  if (blockedOnMaterials || (project?.status === "blocked" && points >= goal)) return "blocked";
+  return "active";
+}
+
+function materialSetsFrom(options, actor, project) {
+  if (Object.prototype.hasOwnProperty.call(options, "materialSets")
+      && options.materialSets !== undefined && options.materialSets !== null) {
+    return options.materialSets;
+  }
+  if (Object.prototype.hasOwnProperty.call(options, "availableSets")
+      && options.availableSets !== undefined && options.availableSets !== null) {
+    return options.availableSets;
+  }
+  const planner = options.materialPlan ?? options.planner ?? options.materialSetsFor;
+  if (typeof planner === "function") {
+    const plan = planner(actor, project);
+    if (plan && typeof plan === "object") {
+      return plan.availableSets ?? plan.materialSets;
+    }
+    return plan;
+  }
+  // A project with no material requirements has an unbounded number of
+  // authorized sets. A material-bearing project must wait for the planner;
+  // treating it as one set would recreate the original free-completion bug.
+  return Array.isArray(project?.materials) && project.materials.length === 0
+    ? Number.POSITIVE_INFINITY : undefined;
+}
+
+/**
+ * Resolve the current production planner, if the material ticket has wired
+ * one onto the shared crafting API. This fallback is intentionally narrow:
+ * it authorizes no material-bearing project until that planner returns a set.
+ */
+export function craftingMaterialSetsFor(actor, project) {
+  const configured = globalThis.game?.crows?.crafting;
+  const planner = configured?.planMaterials ?? configured?.materialSetsFor;
+  if (typeof planner === "function" && planner !== craftingMaterialSetsFor) {
+    const plan = planner(actor, project);
+    if (plan && typeof plan === "object") return plan.availableSets ?? plan.materialSets ?? 0;
+    if (plan !== undefined && plan !== null) return plan;
+  }
+  return Array.isArray(project?.materials) && project.materials.length === 0
+    ? Number.POSITIVE_INFINITY : 0;
+}
+
+/**
+ * Pure lifecycle reconciliation seam.
+ *
+ * A material planner may supply `materialSets` (or `{availableSets}`) through
+ * the optional third argument. Without that explicit authorization this
+ * function only normalizes durable state; it cannot turn banked goal points
+ * into a free completion. The planner/Item transaction remains another
+ * ticket's responsibility.
+ */
+export function reconcileCraftingProject(actor, project, options = {}) {
+  const before = normalizeCraftingProject(project, options?.index ?? 0);
+  const suppliedSets = materialSetsFrom(options ?? {}, actor, before);
+  let next = before;
+  let accrued = null;
+  const goal = Math.max(1, nonNegativeInteger(before.goal, 1));
+  const hasBankedGoal = nonNegativeInteger(before.points, 0) >= goal;
+  // Only a project already marked blocked (or one with pending copies) is
+  // eligible for a no-roll promotion. An old `active` project whose points
+  // happen to be at the goal has no durable proof that its materials were
+  // available, so Finalize/reload must not manufacture a completion from it.
+  const mayPromoteBankedGoal = !hasBankedGoal
+    || nonNegativeInteger(before.completed, 0) > 0
+    || before.status === "blocked";
+  if (suppliedSets !== undefined && suppliedSets !== null && mayPromoteBankedGoal) {
+    accrued = accrueCraftingPoints(before, 0, { materialSets: suppliedSets });
+    next = {
+      ...before,
+      points: accrued.points,
+      completed: accrued.completed,
+      status: craftingProjectStatus({ ...before, ...accrued }, {
+        blockedOnMaterials: accrued.blockedOnMaterials
+      })
+    };
+  } else {
+    next = { ...before, status: craftingProjectStatus(before) };
+  }
+  return {
+    ok: true,
+    actor,
+    project: next,
+    changed: JSON.stringify(before) !== JSON.stringify(next),
+    availableSets: suppliedSets === undefined || suppliedSets === null
+      ? null : Math.max(0, Math.floor(Number(suppliedSets) || 0)),
+    ...accrued
+  };
+}
+
+/** Reconcile all projects and persist only when the durable shape changed. */
+export async function reconcileCraftingProjects(actor, options = {}) {
+  if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
+  const current = Array.isArray(actor.system?.crafting?.projects)
+    ? actor.system.crafting.projects : [];
+  const next = current.map((project, index) => {
+    const perProject = { ...(options ?? {}), index };
+    return reconcileCraftingProject(actor, project, perProject).project;
+  });
+  const changed = JSON.stringify(current) !== JSON.stringify(next);
+  if (changed && options?.persist !== false && typeof actor.update === "function") {
+    await actor.update({ "system.crafting.projects": next });
+  }
+  return { ok: true, projects: next, changed };
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Prerequisites (R:1669-1687)                                                */
 /* -------------------------------------------------------------------------- */
@@ -169,7 +485,7 @@ export function accrueCraftingPoints({ points = 0, goal = 1, completed = 0 } = {
 
   return {
     points: banked,
-    completed: (Math.floor(Number(completed) || 0)) + made,
+    completed: Math.max(0, Math.floor(Number(completed) || 0)) + made,
     completedThisRoll: made,
     blockedOnMaterials
   };
@@ -213,15 +529,14 @@ export const IDENTIFY_OUTCOMES = Object.freeze({
 /**
  * Start a crafting project.
  *
- * NB the required-uses count is validated here and NOT persisted: `CrowData`'s
- * `crafting.projects` schema has no field for it (it still carries PT1's
- * `prereqBonus` and `hasRecipe`, which PT2 deleted), and an unknown key would
- * be stripped on write. The prerequisite is a gate at the moment you begin,
- * so nothing downstream re-reads it — but a later ticket that wants to
- * re-validate mid-project needs `expertiseUses` added to the schema.
+ * NB the required-uses count is validated here and NOT persisted: the
+ * prerequisite is a gate at the moment you begin, so nothing downstream
+ * re-reads it. The lifecycle state (`completed`, `status`, structured
+ * materials, and output handoff) is persisted by CrowData; PT1's deleted
+ * recipe fields are removed by migration rather than carried forward.
  */
 export async function startCraftingProject(actor, {
-  name, expertise, uses = 1, goal, materials = [], notes = "", hasTools = null
+  name, expertise, uses = 1, goal, materials = [], output = null, notes = "", hasTools = null
 } = {}) {
   if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
   if (!name || !expertise || !goal) return { ok: false, error: "need name, expertise, goal" };
@@ -234,12 +549,16 @@ export async function startCraftingProject(actor, {
 
   const project = {
     id: `proj-${foundry.utils.randomID(10)}`,
-    name,
-    expertise,
+    name: String(name),
+    expertise: String(expertise),
     goal: Math.max(1, Math.floor(Number(goal) || 100)),
     points: 0,
-    materials: Array.isArray(materials) ? materials.map(String) : [],
-    notes
+    completed: 0,
+    status: "active",
+    materials: Array.isArray(materials)
+      ? materials.map((material, index) => normalizeCraftingMaterialRequirement(material, index)) : [],
+    output: normalizeCraftingOutput(output, name),
+    notes: String(notes ?? "")
   };
   const next = [...(actor.system?.crafting?.projects ?? []), project];
   await actor.update({ "system.crafting.projects": next });
@@ -248,7 +567,8 @@ export async function startCraftingProject(actor, {
     content: `<div class="crows crafting-start">
       <header><strong>${actor.name}</strong> starts a crafting project: <strong>${name}</strong></header>
       <div>${expertise} (${prereq.required} use${prereq.required === 1 ? "" : "s"} required, ${prereq.owned} owned)
-        &middot; Goal: <strong>${project.goal}</strong> pts${project.materials.length ? ` &middot; Materials: ${project.materials.join(", ")}` : ""}</div>
+        &middot; Goal: <strong>${project.goal}</strong> pts${project.materials.length
+          ? ` &middot; Materials: ${project.materials.map(materialLabel).join(", ")}` : ""}</div>
     </div>`,
     speaker: ChatMessage.getSpeaker({ actor })
   });
@@ -278,16 +598,36 @@ export async function cancelProject(actor, id) {
  *
  * A crit lets you roll again for the same item within the same rest activity
  * (R:1701); that loop is the caller's — `rest.mjs` already runs it — so this
- * returns `crit` rather than recursing.
+ * returns `crit` rather than recursing. `materialSets` is an optional fresh
+ * planner result; when omitted, the shared planner seam is consulted and a
+ * material-bearing project receives no implicit set.
  */
 export async function makeCraftingRoll(actor, projectId, {
-  expertises = [], doubleEdge = false, doubleBane = false, institutionBonus = 0, materialSets = 1
+  expertises = [], doubleEdge = false, doubleBane = false, institutionBonus = 0, materialSets = undefined
 } = {}) {
   if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
   const projects = [...(actor.system?.crafting?.projects ?? [])];
   const idx = projects.findIndex(p => p.id === projectId);
   if (idx < 0) return { ok: false, error: "project not found" };
-  const project = { ...projects[idx] };
+  // Reconcile a previously blocked goal before constructing dice. The caller
+  // supplies the number of *unreserved* material sets; zero is the safe
+  // default until the inventory planner has authorized a set. Keeping this
+  // explicit prevents the old `materialSets = 1` default from minting a free
+  // completion for an actor with no matching material.
+  const authorizedMaterialSets = materialSets === undefined
+    ? craftingMaterialSetsFor(actor, projects[idx]) : materialSets;
+  const reconciliation = reconcileCraftingProject(actor, projects[idx], {
+    materialSets: authorizedMaterialSets
+  });
+  const project = { ...reconciliation.project };
+  // Reconciliation may promote a banked goal before this roll. Those copies
+  // already reserve sets from the planner result, so the dice contribution
+  // may spend only the remainder; otherwise a large surplus could authorize
+  // the same physical set twice in one call.
+  const reconciledCopies = reconciliation.completedThisRoll ?? 0;
+  const rollMaterialSets = authorizedMaterialSets === Number.POSITIVE_INFINITY
+    ? authorizedMaterialSets
+    : Math.max(0, Math.floor(Number(authorizedMaterialSets) || 0) - reconciledCopies);
 
   // Which requested spends are actually payable right now (R:1703 caps at two).
   const spends = [];
@@ -310,8 +650,10 @@ export async function makeCraftingRoll(actor, projectId, {
   const crit = CROWS.critFaces.includes(rawSum);
 
   const gained = craftingPointsFrom({ total: roll.total, doom });
-  const accrued = accrueCraftingPoints(project, gained, { materialSets });
+  const accrued = accrueCraftingPoints(project, gained, { materialSets: rollMaterialSets });
   project.points = accrued.points;
+  project.completed = accrued.completed;
+  project.status = craftingProjectStatus(project, { blockedOnMaterials: accrued.blockedOnMaterials });
 
   projects[idx] = project;
   const update = { "system.crafting.projects": projects };
@@ -353,25 +695,98 @@ export async function makeCraftingRoll(actor, projectId, {
   };
 }
 
+function randomId(prefix) {
+  const id = globalThis.foundry?.utils?.randomID?.(10)
+    ?? Math.random().toString(36).slice(2, 12);
+  return `${prefix}-${id}`;
+}
+
+/** Build one durable, non-Item handoff for a completed copy. */
+export function outputClaimFor(project, index = 0) {
+  const output = normalizeCraftingOutput(project?.output, project?.name);
+  return {
+    id: randomId("claim"),
+    projectId: String(project?.id ?? ""),
+    copy: Math.max(1, Math.floor(Number(index) || 0) + 1),
+    kind: output.kind,
+    name: output.name,
+    label: output.label,
+    output: cloneValue(output),
+    target: cloneValue(output.target),
+    state: "ready"
+  };
+}
+
 /**
- * Finalize a completed project: expend the materials, drop it off the list and
- * post the card. The finished Item is still the Ref's to grant.
+ * Finalize completed copies and post their Ref handoff.
+ *
+ * This function owns the durable completion guard and output claim only. It
+ * deliberately does not create an Item or consume material records: the
+ * dependent material-transaction ticket supplies that preflight/commit seam.
+ * The finished Item is still the Ref's to grant.
  */
-export async function completeProject(actor, projectId) {
+export async function completeProject(actor, projectId, options = {}) {
   if (!actor || actor.type !== "crow") return { ok: false, error: "not a crow" };
-  const projects = actor.system?.crafting?.projects ?? [];
-  const project = projects.find(p => p.id === projectId);
-  if (!project) return { ok: false, error: "not found" };
-  await actor.update({ "system.crafting.projects": projects.filter(p => p.id !== projectId) });
+  const projects = Array.isArray(actor.system?.crafting?.projects)
+    ? actor.system.crafting.projects : [];
+  const idx = projects.findIndex(project => project?.id === projectId);
+  if (idx < 0) return { ok: false, error: "not found" };
+
+  // Re-read the current project and reconcile in memory. In particular, a
+  // late material grant may have authorized a blocked goal; the caller can
+  // provide the planner's fresh `availableSets` here. No write occurs until
+  // the durable completion guard has passed.
+  const reconciliationOptions = { ...(options ?? {}) };
+  if (!Object.prototype.hasOwnProperty.call(reconciliationOptions, "materialSets")
+      && !Object.prototype.hasOwnProperty.call(reconciliationOptions, "availableSets")
+      && !reconciliationOptions.materialPlan && !reconciliationOptions.planner
+      && !reconciliationOptions.materialSetsFor) {
+    reconciliationOptions.materialSets = craftingMaterialSetsFor(actor, projects[idx]);
+  }
+  const reconciliation = reconcileCraftingProject(actor, projects[idx], reconciliationOptions);
+  const project = reconciliation.project;
+  const completed = nonNegativeInteger(project.completed, 0);
+  if (completed < 1) return { ok: false, error: "incomplete", project };
+
+  const claims = Array.from({ length: completed }, (_, copy) => outputClaimFor(project, copy));
+  const nextClaims = [
+    ...(Array.isArray(actor.system?.crafting?.outputClaims)
+      ? actor.system.crafting.outputClaims : []),
+    ...claims
+  ];
+
+  // Pending copies are handed to the Ref. Any below-goal points remain on the
+  // project for the next copy; only an empty remainder can be removed. A
+  // goal-sized remainder is retained as blocked until the material planner
+  // authorizes it, rather than being mistaken for another free completion.
+  const remainderPoints = nonNegativeInteger(project.points, 0);
+  const remainder = remainderPoints > 0
+    ? {
+      ...project,
+      completed: 0,
+      points: remainderPoints,
+      status: remainderPoints >= Math.max(1, nonNegativeInteger(project.goal, 1))
+        ? "blocked" : "active"
+    }
+    : null;
+  const nextProjects = remainder
+    ? projects.map((entry, entryIndex) => entryIndex === idx ? remainder : entry)
+    : projects.filter((_, entryIndex) => entryIndex !== idx);
+  const update = {
+    "system.crafting.projects": nextProjects,
+    "system.crafting.outputClaims": nextClaims
+  };
+  await actor.update(update);
   await ChatMessage.create({
     content: `<div class="crows crafting-done">
       <header><strong>${actor.name}</strong> finishes <strong>${project.name}</strong>!</header>
-      ${project.materials.length ? `<div>Materials expended: ${project.materials.join(", ")}</div>` : ""}
+      ${project.materials.length ? `<div>Materials expended: ${project.materials.map(materialLabel).join(", ")}</div>` : ""}
+      <div>${claims.length} output claim${claims.length === 1 ? "" : "s"} recorded for the Ref.</div>
       <em>The Ref grants the finished item.</em>
     </div>`,
     speaker: ChatMessage.getSpeaker({ actor })
   });
-  return { ok: true, project };
+  return { ok: true, project, claims, remainder };
 }
 
 /**

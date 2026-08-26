@@ -619,8 +619,8 @@
               <div class="ci-bar"><div class="ci-bar-fill" style="width: {{project.pct}}%"></div></div>
               <div class="ci-row">
                 <span class="ci-pts">{{localize "CROWS.Sheet.Crow.crafting.points" points=project.points goal=project.goal pct=project.pct}}</span>
-                {{#if project.materials.length}}<span class="ci-mat">{{localize "CROWS.Sheet.Crow.crafting.materials"}}: {{#each project.materials}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
-                <button type="button" data-action="craftRoll" data-project-id="{{project.id}}" {{#if project.complete}}disabled{{/if}}>{{localize "CROWS.Sheet.Crow.crafting.roll"}}</button>
+                {{#if project.materialLabels.length}}<span class="ci-mat">{{localize "CROWS.Sheet.Crow.crafting.materials"}}: {{#each project.materialLabels}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
+                <button type="button" data-action="craftRoll" data-project-id="{{project.id}}" {{#unless project.canRoll}}disabled{{/unless}}>{{localize "CROWS.Sheet.Crow.crafting.roll"}}</button>
                 {{#if project.complete}}<button type="button" data-action="craftComplete" data-project-id="{{project.id}}">{{localize "CROWS.Sheet.Crow.crafting.finalize"}}</button>{{/if}}
                 <button type="button" data-action="craftCancel" data-project-id="{{project.id}}">{{localize "CROWS.Sheet.Crow.crafting.cancel"}}</button>
               </div>
