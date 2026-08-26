@@ -10,7 +10,7 @@ results:
 - _id: res9b0cb3a364b64
   _key: '!tables.results!crowsrt3a2636f43.res9b0cb3a364b64'
   type: 0
-  text: 1 bear
+  name: 1 bear
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -22,7 +22,7 @@ results:
 - _id: resb5a0f576f50b5
   _key: '!tables.results!crowsrt3a2636f43.resb5a0f576f50b5'
   type: 0
-  text: 1d6 crocodiles
+  name: 1d6 crocodiles
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -34,7 +34,7 @@ results:
 - _id: res49224f113c28f
   _key: '!tables.results!crowsrt3a2636f43.res49224f113c28f'
   type: 0
-  text: 1d6 giant crows
+  name: 1d6 giant crows
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -46,7 +46,7 @@ results:
 - _id: resa634db7e57936
   _key: '!tables.results!crowsrt3a2636f43.resa634db7e57936'
   type: 0
-  text: 1 monitor lizard
+  name: 1 monitor lizard
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -58,7 +58,7 @@ results:
 - _id: res6b84a69837d6a
   _key: '!tables.results!crowsrt3a2636f43.res6b84a69837d6a'
   type: 0
-  text: 2 monitor lizards
+  name: 2 monitor lizards
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -70,7 +70,7 @@ results:
 - _id: res59eb4d0be4720
   _key: '!tables.results!crowsrt3a2636f43.res59eb4d0be4720'
   type: 0
-  text: 1 constrictor snake
+  name: 1 constrictor snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -82,7 +82,7 @@ results:
 - _id: resfa2f141b9c3e3
   _key: '!tables.results!crowsrt3a2636f43.resfa2f141b9c3e3'
   type: 0
-  text: 1 venomous snake
+  name: 1 venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -94,7 +94,7 @@ results:
 - _id: resbe24e2401a270
   _key: '!tables.results!crowsrt3a2636f43.resbe24e2401a270'
   type: 0
-  text: 1 giant venomous snake
+  name: 1 giant venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -106,7 +106,7 @@ results:
 - _id: res501ef06bfd04d
   _key: '!tables.results!crowsrt3a2636f43.res501ef06bfd04d'
   type: 0
-  text: 1 giant venomous snake and 1d6 venomous snakes
+  name: 1 giant venomous snake and 1d6 venomous snakes
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -118,7 +118,7 @@ results:
 - _id: res21d84939f3809
   _key: '!tables.results!crowsrt3a2636f43.res21d84939f3809'
   type: 0
-  text: 1 giant spider
+  name: 1 giant spider
   img: icons/svg/d20-black.svg
   weight: 1
   range:

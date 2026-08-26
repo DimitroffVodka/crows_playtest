@@ -10,7 +10,7 @@ results:
 - _id: resaf012c9eb99cf
   _key: '!tables.results!crowsrt7740512de.resaf012c9eb99cf'
   type: 0
-  text: 1 bear
+  name: 1 bear
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -22,7 +22,7 @@ results:
 - _id: resae533fd8f8ebd
   _key: '!tables.results!crowsrt7740512de.resae533fd8f8ebd'
   type: 0
-  text: 2 bears
+  name: 2 bears
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -34,7 +34,7 @@ results:
 - _id: res560ace4351bc3
   _key: '!tables.results!crowsrt7740512de.res560ace4351bc3'
   type: 0
-  text: 1 cave bear
+  name: 1 cave bear
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -46,7 +46,7 @@ results:
 - _id: res830f45f6e4b8e
   _key: '!tables.results!crowsrt7740512de.res830f45f6e4b8e'
   type: 0
-  text: 1 big cat
+  name: 1 big cat
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -58,7 +58,7 @@ results:
 - _id: res1bdeef36cd016
   _key: '!tables.results!crowsrt7740512de.res1bdeef36cd016'
   type: 0
-  text: 1d6 big cats
+  name: 1d6 big cats
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -70,7 +70,7 @@ results:
 - _id: res93ab741f3518b
   _key: '!tables.results!crowsrt7740512de.res93ab741f3518b'
   type: 0
-  text: 1 wildcat
+  name: 1 wildcat
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -82,7 +82,7 @@ results:
 - _id: resf2c544836dc18
   _key: '!tables.results!crowsrt7740512de.resf2c544836dc18'
   type: 0
-  text: 1d6 deer
+  name: 1d6 deer
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -94,7 +94,7 @@ results:
 - _id: res4e600c28af9f6
   _key: '!tables.results!crowsrt7740512de.res4e600c28af9f6'
   type: 0
-  text: 2d6 deer
+  name: 2d6 deer
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -106,7 +106,7 @@ results:
 - _id: res523caf6af31ec
   _key: '!tables.results!crowsrt7740512de.res523caf6af31ec'
   type: 0
-  text: 1 dog
+  name: 1 dog
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -118,7 +118,7 @@ results:
 - _id: res807a4c9a4cb78
   _key: '!tables.results!crowsrt7740512de.res807a4c9a4cb78'
   type: 0
-  text: 2d6 dogs
+  name: 2d6 dogs
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -130,7 +130,7 @@ results:
 - _id: res31c7f6ad682d8
   _key: '!tables.results!crowsrt7740512de.res31c7f6ad682d8'
   type: 0
-  text: 2d6 goats
+  name: 2d6 goats
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -142,7 +142,7 @@ results:
 - _id: res70d013c9902e2
   _key: '!tables.results!crowsrt7740512de.res70d013c9902e2'
   type: 0
-  text: 1 hawk
+  name: 1 hawk
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -154,7 +154,7 @@ results:
 - _id: res91b0e6e2efc6a
   _key: '!tables.results!crowsrt7740512de.res91b0e6e2efc6a'
   type: 0
-  text: 1 giant scorpion
+  name: 1 giant scorpion
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -166,7 +166,7 @@ results:
 - _id: res9a206728a5c88
   _key: '!tables.results!crowsrt7740512de.res9a206728a5c88'
   type: 0
-  text: 1 constrictor snake
+  name: 1 constrictor snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -178,7 +178,7 @@ results:
 - _id: resb8cdc2ff3589f
   _key: '!tables.results!crowsrt7740512de.resb8cdc2ff3589f'
   type: 0
-  text: 1 venomous snake
+  name: 1 venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -190,7 +190,7 @@ results:
 - _id: res5475c6a6210ee
   _key: '!tables.results!crowsrt7740512de.res5475c6a6210ee'
   type: 0
-  text: 1 giant venomous snake
+  name: 1 giant venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -202,7 +202,7 @@ results:
 - _id: res3a46e38f9327a
   _key: '!tables.results!crowsrt7740512de.res3a46e38f9327a'
   type: 0
-  text: 1 giant venomous snake and 1d6 venomous snakes
+  name: 1 giant venomous snake and 1d6 venomous snakes
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -214,7 +214,7 @@ results:
 - _id: res08b6a0839fc15
   _key: '!tables.results!crowsrt7740512de.res08b6a0839fc15'
   type: 0
-  text: 1 giant spider
+  name: 1 giant spider
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -226,7 +226,7 @@ results:
 - _id: res579cbf9f9c168
   _key: '!tables.results!crowsrt7740512de.res579cbf9f9c168'
   type: 0
-  text: 1d6 wolves
+  name: 1d6 wolves
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -238,7 +238,7 @@ results:
 - _id: res0cda59af266eb
   _key: '!tables.results!crowsrt7740512de.res0cda59af266eb'
   type: 0
-  text: 1 dire wolf and 1d6 wolves
+  name: 1 dire wolf and 1d6 wolves
   img: icons/svg/d20-black.svg
   weight: 1
   range:

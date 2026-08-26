@@ -10,7 +10,7 @@ results:
 - _id: res3c6c26f43ad86
   _key: '!tables.results!crowsrt15eca19a2.res3c6c26f43ad86'
   type: 0
-  text: 1 bear
+  name: 1 bear
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -22,7 +22,7 @@ results:
 - _id: resbbff407fe504f
   _key: '!tables.results!crowsrt15eca19a2.resbbff407fe504f'
   type: 0
-  text: 2 bears
+  name: 2 bears
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -34,7 +34,7 @@ results:
 - _id: rescc7c19da0e5ab
   _key: '!tables.results!crowsrt15eca19a2.rescc7c19da0e5ab'
   type: 0
-  text: 1 cave bear
+  name: 1 cave bear
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -46,7 +46,7 @@ results:
 - _id: res8e7bb3f8c35af
   _key: '!tables.results!crowsrt15eca19a2.res8e7bb3f8c35af'
   type: 0
-  text: 2 cave bears
+  name: 2 cave bears
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -58,7 +58,7 @@ results:
 - _id: resd45a0cb1a4a8a
   _key: '!tables.results!crowsrt15eca19a2.resd45a0cb1a4a8a'
   type: 0
-  text: 2d6 deer
+  name: 2d6 deer
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -70,7 +70,7 @@ results:
 - _id: resf3ce676765739
   _key: '!tables.results!crowsrt15eca19a2.resf3ce676765739'
   type: 0
-  text: 1d6 oxen
+  name: 1d6 oxen
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -82,7 +82,7 @@ results:
 - _id: rescc82de99129a2
   _key: '!tables.results!crowsrt15eca19a2.rescc82de99129a2'
   type: 0
-  text: 2d6 oxen
+  name: 2d6 oxen
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -94,7 +94,7 @@ results:
 - _id: rese64a0c577ecff
   _key: '!tables.results!crowsrt15eca19a2.rese64a0c577ecff'
   type: 0
-  text: 1d6 wolves
+  name: 1d6 wolves
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -106,7 +106,7 @@ results:
 - _id: resa50759abc68d7
   _key: '!tables.results!crowsrt15eca19a2.resa50759abc68d7'
   type: 0
-  text: 1 dire wolf
+  name: 1 dire wolf
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -118,7 +118,7 @@ results:
 - _id: resbc3ef7d81840e
   _key: '!tables.results!crowsrt15eca19a2.resbc3ef7d81840e'
   type: 0
-  text: 1 dire wolf and 1d6 wolves
+  name: 1 dire wolf and 1d6 wolves
   img: icons/svg/d20-black.svg
   weight: 1
   range:

@@ -10,7 +10,7 @@ results:
 - _id: res4ab2d0fc2c0c6
   _key: '!tables.results!crowsrt24fc03200.res4ab2d0fc2c0c6'
   type: 0
-  text: Nothing. The travelers have nothing to give or consider virtue its own reward.
+  name: Nothing. The travelers have nothing to give or consider virtue its own reward.
     Jerks.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -23,7 +23,7 @@ results:
 - _id: resd9e099a294552
   _key: '!tables.results!crowsrt24fc03200.resd9e099a294552'
   type: 0
-  text: A piece of useful information about a nearby POI, dungeon, village, or treasure.
+  name: A piece of useful information about a nearby POI, dungeon, village, or treasure.
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -35,7 +35,7 @@ results:
 - _id: resff106c7eb522e
   _key: '!tables.results!crowsrt24fc03200.resff106c7eb522e'
   type: 0
-  text: 1d6 × 100 gc
+  name: 1d6 × 100 gc
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -47,7 +47,7 @@ results:
 - _id: res489629b69e7b6
   _key: '!tables.results!crowsrt24fc03200.res489629b69e7b6'
   type: 0
-  text: 2d10 × 100 gc
+  name: 2d10 × 100 gc
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -59,7 +59,7 @@ results:
 - _id: resa300860a43433
   _key: '!tables.results!crowsrt24fc03200.resa300860a43433'
   type: 0
-  text: An item from the Minor Interesting Things table
+  name: An item from the Minor Interesting Things table
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -71,7 +71,7 @@ results:
 - _id: resa825a6e60e32b
   _key: '!tables.results!crowsrt24fc03200.resa825a6e60e32b'
   type: 0
-  text: An item from the Major Interesting Things table
+  name: An item from the Major Interesting Things table
   img: icons/svg/d20-black.svg
   weight: 1
   range:

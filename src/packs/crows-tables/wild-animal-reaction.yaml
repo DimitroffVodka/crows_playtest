@@ -10,7 +10,7 @@ results:
 - _id: rescb1a08ba587af
   _key: '!tables.results!crowsrtd4f7e669d.rescb1a08ba587af'
   type: 0
-  text: Asleep | An asleep animal is unconscious when the PCs find them in their path.
+  name: Asleep | An asleep animal is unconscious when the PCs find them in their path.
     Waking the animal causes them to become violent.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -23,7 +23,7 @@ results:
 - _id: resc4fd541e1f4ca
   _key: '!tables.results!crowsrtd4f7e669d.resc4fd541e1f4ca'
   type: 0
-  text: Attached | An attached animal becomes inexplicably attracted to a PC randomly
+  name: Attached | An attached animal becomes inexplicably attracted to a PC randomly
     chosen by the Ref. The animal follows the PC about and is friendly toward them,
     but frightened of all other PCs.
   img: icons/svg/d20-black.svg
@@ -37,7 +37,7 @@ results:
 - _id: resef061d6bae317
   _key: '!tables.results!crowsrtd4f7e669d.resef061d6bae317'
   type: 0
-  text: Curious | The animal is curious about what the PCs are and approaches them
+  name: Curious | The animal is curious about what the PCs are and approaches them
     cautiously but openly. Any aggressive or boisterous behavior causes the animal
     to become frightened. Calm behavior causes the animal to investigate for a few
     moments then leave. Generous behavior, such as sharing food with the animal, makes
@@ -53,7 +53,7 @@ results:
 - _id: res4aed8636ab963
   _key: '!tables.results!crowsrtd4f7e669d.res4aed8636ab963'
   type: 0
-  text: Embattled Animals | Pick or roll on an encounter table for one or more other
+  name: Embattled Animals | Pick or roll on an encounter table for one or more other
     animals, humans, or monsters that are battling the animal(s) you originally rolled
     for. If the players aid the original group, one animal in that group becomes friendly.
   img: icons/svg/d20-black.svg
@@ -67,7 +67,7 @@ results:
 - _id: resd69a057d92ba0
   _key: '!tables.results!crowsrtd4f7e669d.resd69a057d92ba0'
   type: 0
-  text: Friendly | A friendly animal happily follows the PCs around for an hour, and
+  name: Friendly | A friendly animal happily follows the PCs around for an hour, and
     a PC can make a test to become the animal’s owner (see Pets in Characters). If
     the PCs are mean or aggressive to the animal they flee.
   img: icons/svg/d20-black.svg
@@ -81,7 +81,7 @@ results:
 - _id: resc1f679d3a1392
   _key: '!tables.results!crowsrtd4f7e669d.resc1f679d3a1392'
   type: 0
-  text: Frightened | Frightened animals freeze and stare at the PCs, sizing them up.
+  name: Frightened | Frightened animals freeze and stare at the PCs, sizing them up.
     If approached with anything other than the utmost calm and caution, the animal
     either flees (if they are clearly no match for the PCs and have a way out) or
     fights until the PCs flee (if they have a chance against the PCs or are cornered).
@@ -98,7 +98,7 @@ results:
 - _id: resaf693ccd89191
   _key: '!tables.results!crowsrtd4f7e669d.resaf693ccd89191'
   type: 0
-  text: Hungry | Hungry animals approach when the PCs are eating, drawn by the smell
+  name: Hungry | Hungry animals approach when the PCs are eating, drawn by the smell
     of food. If given at least 1 ration’s worth of food, the animal becomes friendly.
     If the PCs don’t share their food, the animal attacks, attempting to get some
     food and run off with it.
@@ -113,7 +113,7 @@ results:
 - _id: res066063a4f6cb3
   _key: '!tables.results!crowsrtd4f7e669d.res066063a4f6cb3'
   type: 0
-  text: Injured | An injured animal has Stamina equal to half their maximum and is
+  name: Injured | An injured animal has Stamina equal to half their maximum and is
     visibly hurt. They are frightened and considered cornered, but any PC who heals
     them turns their attitude to friendly.
   img: icons/svg/d20-black.svg
@@ -127,7 +127,7 @@ results:
 - _id: resb383d39442833
   _key: '!tables.results!crowsrtd4f7e669d.resb383d39442833'
   type: 0
-  text: Playful | Playful animals want to catch sticks, be chased, give a ride, wrestle,
+  name: Playful | Playful animals want to catch sticks, be chased, give a ride, wrestle,
     or otherwise engage in fun with the PCs. They approach in an energetic manner,
     playing with other animals of their type if any are nearby. If the PCs engage
     in play with the animal, they become friendly. If not, the animal becomes violent.
@@ -142,7 +142,7 @@ results:
 - _id: res61d07f552fbb5
   _key: '!tables.results!crowsrtd4f7e669d.res61d07f552fbb5'
   type: 0
-  text: 'Protective | A protective animal is guarding something and attacks any creature
+  name: 'Protective | A protective animal is guarding something and attacks any creature
     they notice who attempts to get it. These animals stand their ground and fight
     to the death. Roll any die: On an even result, the animal is defending a nest
     that has 1d10 babies or eggs (or egg sacks), which can be sold to a village’s
@@ -159,7 +159,7 @@ results:
 - _id: res3f140d638d191
   _key: '!tables.results!crowsrtd4f7e669d.res3f140d638d191'
   type: 0
-  text: Stalking | Stalking animals attempt to stalk the PCs from hidden positions.
+  name: Stalking | Stalking animals attempt to stalk the PCs from hidden positions.
     They follow the group until one or two PCs are alone and then pounce. It may be
     that they view the PCs as a threat or food or both.
   img: icons/svg/d20-black.svg
@@ -173,7 +173,7 @@ results:
 - _id: res9d5846b04a4a6
   _key: '!tables.results!crowsrtd4f7e669d.res9d5846b04a4a6'
   type: 0
-  text: Starved | A starved animal is desperate for food, and the PCs have something
+  name: Starved | A starved animal is desperate for food, and the PCs have something
     (or are something) they want to eat. The skinny animal approaches the PCs while
     displaying aggressive behavior. The animal attacks unless given a day’s worth
     of food based on their size, at which point they gobble up the food then flee.
@@ -190,7 +190,7 @@ results:
 - _id: res095e9366ab13b
   _key: '!tables.results!crowsrtd4f7e669d.res095e9366ab13b'
   type: 0
-  text: Territorial | Territorial animals don’t want the PCs invading their home.
+  name: Territorial | Territorial animals don’t want the PCs invading their home.
     The animals follow the PCs, displaying signs of aggression and never getting too
     close. As long as the PCs keep moving through the area the animals stop pursuing
     them when they exit the hex where the encounter first occurs. Otherwise, the animals
@@ -206,7 +206,7 @@ results:
 - _id: res012472eae6cca
   _key: '!tables.results!crowsrtd4f7e669d.res012472eae6cca'
   type: 0
-  text: Treasure-Seeking | Treasure-seeking animals approach when a PC wears or holds
+  name: Treasure-Seeking | Treasure-seeking animals approach when a PC wears or holds
     an item that attracts the animal. It’s often something shiny or that looks like
     their food. The animal makes their interest in the item clear and if the PC doesn’t
     give it to them, the animal attacks.
@@ -221,7 +221,7 @@ results:
 - _id: res4bd0828435e21
   _key: '!tables.results!crowsrtd4f7e669d.res4bd0828435e21'
   type: 0
-  text: Violent | Violent animals are out for blood, perhaps due to past history with
+  name: Violent | Violent animals are out for blood, perhaps due to past history with
     humans or an incurable infection. Whatever the reason, they ambush and attack
     the PCs.
   img: icons/svg/d20-black.svg

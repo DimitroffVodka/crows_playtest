@@ -11,7 +11,7 @@ results:
 - _id: resa5378c0b6397f
   _key: '!tables.results!crowsrt97200d7ff.resa5378c0b6397f'
   type: 0
-  text: Angel Dungeon Encounters
+  name: Angel Dungeon Encounters
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -23,7 +23,7 @@ results:
 - _id: resccaf43e18904d
   _key: '!tables.results!crowsrt97200d7ff.resccaf43e18904d'
   type: 0
-  text: Blood Dungeon Encounters
+  name: Blood Dungeon Encounters
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -35,7 +35,7 @@ results:
 - _id: res44ae8261baf1c
   _key: '!tables.results!crowsrt97200d7ff.res44ae8261baf1c'
   type: 0
-  text: Demon Dungeon Encounters
+  name: Demon Dungeon Encounters
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -47,7 +47,7 @@ results:
 - _id: res1dae0331ed500
   _key: '!tables.results!crowsrt97200d7ff.res1dae0331ed500'
   type: 0
-  text: Plant Dungeon Encounters
+  name: Plant Dungeon Encounters
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -59,7 +59,7 @@ results:
 - _id: rese96b444424e04
   _key: '!tables.results!crowsrt97200d7ff.rese96b444424e04'
   type: 0
-  text: Undead Dungeon Encounters
+  name: Undead Dungeon Encounters
   img: icons/svg/d20-black.svg
   weight: 1
   range:

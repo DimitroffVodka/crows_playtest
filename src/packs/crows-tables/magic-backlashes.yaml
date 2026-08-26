@@ -11,7 +11,7 @@ results:
 - _id: resf0879d09072ba
   _key: '!tables.results!crowsrt6b9a91498.resf0879d09072ba'
   type: 0
-  text: Your head transforms into a donkey’s head. You can’t speak, only bray at a
+  name: Your head transforms into a donkey’s head. You can’t speak, only bray at a
     loud volume. This effect has 1 UD.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -24,7 +24,7 @@ results:
 - _id: rese72dafa5289e4
   _key: '!tables.results!crowsrt6b9a91498.rese72dafa5289e4'
   type: 0
-  text: Your magic makes you feels so good that you are compelled to dance at all
+  name: Your magic makes you feels so good that you are compelled to dance at all
     times. While under this effect, your speed is reduced by 2 and you take a bane
     to tests made to climb, hide, sneak, or swim. This effect has 1 UD.
   img: icons/svg/d20-black.svg
@@ -38,7 +38,7 @@ results:
 - _id: res985eaf534d2ab
   _key: '!tables.results!crowsrt6b9a91498.res985eaf534d2ab'
   type: 0
-  text: You summon a ghostly, self-playing accordion that can’t be destroyed and follows
+  name: You summon a ghostly, self-playing accordion that can’t be destroyed and follows
     you wherever you go and plays polka loudly until the end of this DT. It is impossible
     to go anywhere without notice as this accordion plays.
   img: icons/svg/d20-black.svg
@@ -52,7 +52,7 @@ results:
 - _id: resb0779d27e7bc3
   _key: '!tables.results!crowsrt6b9a91498.resb0779d27e7bc3'
   type: 0
-  text: Each time you speak between now and the end of this DT, roll a d10. On a 10,
+  name: Each time you speak between now and the end of this DT, roll a d10. On a 10,
     your words unleash a thunderous boom. Each creature within 3 squares of you takes
     1d6 damage. If you are already suffering this backlash, the damage increases by
     1d6.
@@ -67,7 +67,7 @@ results:
 - _id: resdd44b3671c1d8
   _key: '!tables.results!crowsrt6b9a91498.resdd44b3671c1d8'
   type: 0
-  text: Your mood becomes fiery and irritable. If you don’t harm another creature
+  name: Your mood becomes fiery and irritable. If you don’t harm another creature
     before the end of this DT, then the fire inside you makes you take 1d6 P damage.
     If you are already suffering this backlash, the damage increases by 1d6.
   img: icons/svg/d20-black.svg
@@ -81,7 +81,7 @@ results:
 - _id: res097cccee0cb4c
   _key: '!tables.results!crowsrt6b9a91498.res097cccee0cb4c'
   type: 0
-  text: Your body temperature drops, making you very cold until the end of this DT.
+  name: Your body temperature drops, making you very cold until the end of this DT.
     During this time, your speed is reduced by 1 and if you start your turn submerged
     in water or soaked with water, you take 1d6 P damage. If you are already suffering
     this backlash, then your speed is further reduced by 1.
@@ -96,7 +96,7 @@ results:
 - _id: resa3db421b57af3
   _key: '!tables.results!crowsrt6b9a91498.resa3db421b57af3'
   type: 0
-  text: Magic muddles your mind. You are weakened.
+  name: Magic muddles your mind. You are weakened.
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -108,7 +108,7 @@ results:
 - _id: resd2829138be10b
   _key: '!tables.results!crowsrt6b9a91498.resd2829138be10b'
   type: 0
-  text: Your body becomes seasoned by magic, making your bones and psyche brittle.
+  name: Your body becomes seasoned by magic, making your bones and psyche brittle.
     The next time you take damage before the end of the DT, you take twice as much
     as you normally would.
   img: icons/svg/d20-black.svg
@@ -122,7 +122,7 @@ results:
 - _id: res60e3cc6c5fc47
   _key: '!tables.results!crowsrt6b9a91498.res60e3cc6c5fc47'
   type: 0
-  text: Magic makes your body fragile. You are vulnerable.
+  name: Magic makes your body fragile. You are vulnerable.
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -134,7 +134,7 @@ results:
 - _id: res251ac3564c077
   _key: '!tables.results!crowsrt6b9a91498.res251ac3564c077'
   type: 0
-  text: A limb you use to hold items goes numb and can’t be moved. The Ref picks one
+  name: A limb you use to hold items goes numb and can’t be moved. The Ref picks one
     of your hand slots. You drop any item in that slot and you can’t use the hand
     slot until the end of the DT.
   img: icons/svg/d20-black.svg
@@ -148,7 +148,7 @@ results:
 - _id: res38aa76572e3c2
   _key: '!tables.results!crowsrt6b9a91498.res38aa76572e3c2'
   type: 0
-  text: Hungry magic erupts from your body and destroys the nearest 1d6 rations.
+  name: Hungry magic erupts from your body and destroys the nearest 1d6 rations.
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -160,7 +160,7 @@ results:
 - _id: resb5e98185cd6fe
   _key: '!tables.results!crowsrt6b9a91498.resb5e98185cd6fe'
   type: 0
-  text: Your magic creates a thunderous boom that can be heard by all creatures within
+  name: Your magic creates a thunderous boom that can be heard by all creatures within
     100 squares of you. The curious ones come to investigate.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -173,7 +173,7 @@ results:
 - _id: res9cc5d1173e96e
   _key: '!tables.results!crowsrt6b9a91498.res9cc5d1173e96e'
   type: 0
-  text: A powerful gust of wind pushes you and every creature within 10 squares of
+  name: A powerful gust of wind pushes you and every creature within 10 squares of
     you 1d6 squares in a random direction determined by the Ref.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -186,7 +186,7 @@ results:
 - _id: res7b5864446bca4
   _key: '!tables.results!crowsrt6b9a91498.res7b5864446bca4'
   type: 0
-  text: You infuse negative energy into yourself and take 1d6 damage.
+  name: You infuse negative energy into yourself and take 1d6 damage.
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -198,7 +198,7 @@ results:
 - _id: res2b7497eaf9b6e
   _key: '!tables.results!crowsrt6b9a91498.res2b7497eaf9b6e'
   type: 0
-  text: You teleport 1d6 squares in a direction chosen by the Ref into an unoccupied
+  name: You teleport 1d6 squares in a direction chosen by the Ref into an unoccupied
     space.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -211,7 +211,7 @@ results:
 - _id: resbadbff53fb7b4
   _key: '!tables.results!crowsrt6b9a91498.resbadbff53fb7b4'
   type: 0
-  text: Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of
+  name: Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of
     cards equal to the result from the top of the deck. The last card pulled is a
     piece of equipment that turns into a goat under the Ref’s control. The equipment
     remains a goat until the goat dies, at which point it transforms back into the
@@ -227,7 +227,7 @@ results:
 - _id: res9387a4c7df897
   _key: '!tables.results!crowsrt6b9a91498.res9387a4c7df897'
   type: 0
-  text: Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of
+  name: Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of
     cards equal to the result from the top of the deck. The last card pulled is a
     piece of equipment that is teleported into the possession of another creature
     randomly chosen by the Ref within 20 squares of you.
@@ -242,7 +242,7 @@ results:
 - _id: resc38327f2c5dc1
   _key: '!tables.results!crowsrt6b9a91498.resc38327f2c5dc1'
   type: 0
-  text: Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of
+  name: Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of
     cards equal to the result from the top of the deck. The last card pulled is a
     piece of equipment that transforms into a feather duster until the end of this
     DT.
@@ -257,7 +257,7 @@ results:
 - _id: rese36aff1a1111b
   _key: '!tables.results!crowsrt6b9a91498.rese36aff1a1111b'
   type: 0
-  text: A sticky goo falls from the sky onto your body. Until this goo disappears
+  name: A sticky goo falls from the sky onto your body. Until this goo disappears
     at the end of this DT, your speed is reduced by 2. If you are already suffering
     from the effect of this backlash, your speed is reduced an additional 2.
   img: icons/svg/d20-black.svg
@@ -271,7 +271,7 @@ results:
 - _id: res42a5a6006e09b
   _key: '!tables.results!crowsrt6b9a91498.res42a5a6006e09b'
   type: 0
-  text: A noxious, unpleasant-smelling cloud of gas forms around your head and follows
+  name: A noxious, unpleasant-smelling cloud of gas forms around your head and follows
     you wherever you go. This gas imposes a bane on all tests. This effect has 1 UD.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -284,7 +284,7 @@ results:
 - _id: res35121b3c4cb85
   _key: '!tables.results!crowsrt6b9a91498.res35121b3c4cb85'
   type: 0
-  text: You open a channel into the target of the spell’s mind and their worst fears
+  name: You open a channel into the target of the spell’s mind and their worst fears
     are shared with your allies within 10 squares of them. Each ally takes 1d6 P damage.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -297,7 +297,7 @@ results:
 - _id: res249b845d10919
   _key: '!tables.results!crowsrt6b9a91498.res249b845d10919'
   type: 0
-  text: You are compelled to speak only in rhyming couplets. If you fail to do so,
+  name: You are compelled to speak only in rhyming couplets. If you fail to do so,
     you take 1d6 P damage. This effect has 1 UD.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -310,7 +310,7 @@ results:
 - _id: res1889724140d1e
   _key: '!tables.results!crowsrt6b9a91498.res1889724140d1e'
   type: 0
-  text: Your body becomes porcelain. While in this form, whenever you take non-piercing
+  name: Your body becomes porcelain. While in this form, whenever you take non-piercing
     damage, you take twice as much. This effect has 1 UD.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -323,7 +323,7 @@ results:
 - _id: resf7ca8e6d6b41d
   _key: '!tables.results!crowsrt6b9a91498.resf7ca8e6d6b41d'
   type: 0
-  text: You are outlined in a supernatural light which makes it impossible for you
+  name: You are outlined in a supernatural light which makes it impossible for you
     to hide and easy to attack. Attacks against you gain +2 while this light is active.
     This effect has 1 UD.
   img: icons/svg/d20-black.svg
@@ -337,7 +337,7 @@ results:
 - _id: res058f5851022be
   _key: '!tables.results!crowsrt6b9a91498.res058f5851022be'
   type: 0
-  text: Fire erupts from your body. You and each creature within 2 squares of you
+  name: Fire erupts from your body. You and each creature within 2 squares of you
     takes 1d6 damage.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -350,7 +350,7 @@ results:
 - _id: res7c24438f7ebb1
   _key: '!tables.results!crowsrt6b9a91498.res7c24438f7ebb1'
   type: 0
-  text: 'You summon open a portal that unleashes a horde of demonic bees that flit
+  name: 'You summon open a portal that unleashes a horde of demonic bees that flit
     through the local area and then fly back through the portal before it closes.
     You and each creature within 3 squares of you must make a Might RR. • ≤11: 6 damage;
     weakened • 12–16: 3 damage • 17+: No effect'
@@ -365,7 +365,7 @@ results:
 - _id: resf4dced241ddde
   _key: '!tables.results!crowsrt6b9a91498.resf4dced241ddde'
   type: 0
-  text: Tentacles erupt from your body. You and each creature within 3 squares of
+  name: Tentacles erupt from your body. You and each creature within 3 squares of
     you takes 1d6 damage. The tentacles become nonfunctional immediately after emerging
     and you gain three special wounds. You or a creature who can reach you can remove
     a special wound’s worth of tentacles from your body with a bladed tool or weapon
@@ -382,7 +382,7 @@ results:
 - _id: res33a0c98f88ab4
   _key: '!tables.results!crowsrt6b9a91498.res33a0c98f88ab4'
   type: 0
-  text: 'You summon a load of dirt that falls from the sky, smashing down on you and
+  name: 'You summon a load of dirt that falls from the sky, smashing down on you and
     each creature within 2 squares of you. Each affected creature must make an Agility
     RR. • ≤11: 6 damage; prone • 12–16: 3 damage • 17+: No effect'
   img: icons/svg/d20-black.svg
@@ -396,7 +396,7 @@ results:
 - _id: res6aaa869a2e7d6
   _key: '!tables.results!crowsrt6b9a91498.res6aaa869a2e7d6'
   type: 0
-  text: Your magic summons 1d6 blood A creatures who appear in unoccupied spaces within
+  name: Your magic summons 1d6 blood A creatures who appear in unoccupied spaces within
     5 squares of you. These creatures are hostile to you.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -409,7 +409,7 @@ results:
 - _id: res3f6207c8fd5be
   _key: '!tables.results!crowsrt6b9a91498.res3f6207c8fd5be'
   type: 0
-  text: You are so overwhelmed with emotion that you fall prone and can’t stand up,
+  name: You are so overwhelmed with emotion that you fall prone and can’t stand up,
     crawling wherever you wish to go. This effect has 1 UD.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -422,7 +422,7 @@ results:
 - _id: res02b886a17fb45
   _key: '!tables.results!crowsrt6b9a91498.res02b886a17fb45'
   type: 0
-  text: Your hands become feet until the end of the DT. You gain +2 speed, but you
+  name: Your hands become feet until the end of the DT. You gain +2 speed, but you
     can’t hold or manipulate any objects with your hands while this effect lasts.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -435,7 +435,7 @@ results:
 - _id: resd6b152420c486
   _key: '!tables.results!crowsrt6b9a91498.resd6b152420c486'
   type: 0
-  text: 'The ground beneath you and within 1 square of you turns to quicksand. Each
+  name: 'The ground beneath you and within 1 square of you turns to quicksand. Each
     creature standing on the ground must make an Agility RR. • ≤11: The creature is
     grappled by the sand and takes 1d6 P dam at the end of each round they are grappled.
     • 12–16: The creature is grappled by the quicksand until the end of their next
@@ -453,7 +453,7 @@ results:
 - _id: res76254143f28f7
   _key: '!tables.results!crowsrt6b9a91498.res76254143f28f7'
   type: 0
-  text: You open a one-way viewing portal that follows you around wherever you go
+  name: You open a one-way viewing portal that follows you around wherever you go
     until the end of this DT. You can’t sense anything on the other side of the portal,
     but anyone on the other side can see and hear through the portal. The other side
     of the portal appears near a personal enemy or rival of the Ref’s choice.
@@ -468,7 +468,7 @@ results:
 - _id: res3bda0b564829c
   _key: '!tables.results!crowsrt6b9a91498.res3bda0b564829c'
   type: 0
-  text: You teleport up to 50 squares away in a horizontal direction chosen by the
+  name: You teleport up to 50 squares away in a horizontal direction chosen by the
     Ref into an unoccupied space.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -481,7 +481,7 @@ results:
 - _id: res0efa949b5d185
   _key: '!tables.results!crowsrt6b9a91498.res0efa949b5d185'
   type: 0
-  text: You take 1d6 damage and become encased in earth from the neck down and are
+  name: You take 1d6 damage and become encased in earth from the neck down and are
     grappled. Another creature must use an action to free you. Each time you start
     a combat round grappled, you take 1d6 damage.
   img: icons/svg/d20-black.svg
@@ -495,7 +495,7 @@ results:
 - _id: res0391dad97a1be
   _key: '!tables.results!crowsrt6b9a91498.res0391dad97a1be'
   type: 0
-  text: If the effect of the spell is good, you cast it and target the nearest enemy,
+  name: If the effect of the spell is good, you cast it and target the nearest enemy,
     regardless of the spell’s range. If the effect of the spell is bad, you cast it
     and target yourself, regardless of the spell’s range. The Ref determines if the
     spell is good or bad.
@@ -510,7 +510,7 @@ results:
 - _id: resf82cd75a7e86d
   _key: '!tables.results!crowsrt6b9a91498.resf82cd75a7e86d'
   type: 0
-  text: You get a full feeling in your stomach. At the start of each of your turns
+  name: You get a full feeling in your stomach. At the start of each of your turns
     in combat, you must roll any die. On an odd result, you spend the turn vomiting
     slugs and can do nothing else. This effect has 1 UD.
   img: icons/svg/d20-black.svg
@@ -524,7 +524,7 @@ results:
 - _id: res90bc2728b0b2a
   _key: '!tables.results!crowsrt6b9a91498.res90bc2728b0b2a'
   type: 0
-  text: The Ref randomly chooses 1d6 × 100 coins or a gem or other mundane treasure
+  name: The Ref randomly chooses 1d6 × 100 coins or a gem or other mundane treasure
     that you carry. It melts.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -537,7 +537,7 @@ results:
 - _id: resd5a2b09d35209
   _key: '!tables.results!crowsrt6b9a91498.resd5a2b09d35209'
   type: 0
-  text: You transform into a frog. Your size is Tiny, your Stamina maximum is reduced
+  name: You transform into a frog. Your size is Tiny, your Stamina maximum is reduced
     to 1, you have 0 slots, and you lose all your expertises. You have a climb and
     swim speed equal to your walking speed and Jump +2. This effect has 1 UD.
   img: icons/svg/d20-black.svg
@@ -551,7 +551,7 @@ results:
 - _id: res45c3f6ef45d79
   _key: '!tables.results!crowsrt6b9a91498.res45c3f6ef45d79'
   type: 0
-  text: Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of
+  name: Shuffle your inventory cards into a deck. Roll a d10. Then pull a number of
     cards equal to the result from the top of the deck. The last card pulled is a
     piece of equipment that is teleported off your person into a dungeon of the Ref’s
     choice.
@@ -566,7 +566,7 @@ results:
 - _id: rese77be1ca57375
   _key: '!tables.results!crowsrt6b9a91498.rese77be1ca57375'
   type: 0
-  text: Your mouth and ears meld shut until you finish a rest. During this time, you
+  name: Your mouth and ears meld shut until you finish a rest. During this time, you
     can’t speak or hear anything.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -579,7 +579,7 @@ results:
 - _id: resf5cd7735a907a
   _key: '!tables.results!crowsrt6b9a91498.resf5cd7735a907a'
   type: 0
-  text: Your eyes become light sensitive. You treat bright light as if it were darkness.
+  name: Your eyes become light sensitive. You treat bright light as if it were darkness.
     This effect has 2 UD.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -592,7 +592,7 @@ results:
 - _id: res8dd89e994a3e5
   _key: '!tables.results!crowsrt6b9a91498.res8dd89e994a3e5'
   type: 0
-  text: You summon a cloud of buzzing, stinging insects that follow you around and
+  name: You summon a cloud of buzzing, stinging insects that follow you around and
     don’t allow you to rest until you feed them 1,000 pounds of flesh.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -605,7 +605,7 @@ results:
 - _id: res0929cbffac6aa
   _key: '!tables.results!crowsrt6b9a91498.res0929cbffac6aa'
   type: 0
-  text: Your Strength score decreases by 1 until you finish a rest. This effect is
+  name: Your Strength score decreases by 1 until you finish a rest. This effect is
     cumulative.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -618,7 +618,7 @@ results:
 - _id: res386c826f83492
   _key: '!tables.results!crowsrt6b9a91498.res386c826f83492'
   type: 0
-  text: Your Agility score decreases by 1 until you finish a rest. This effect is
+  name: Your Agility score decreases by 1 until you finish a rest. This effect is
     cumulative.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -631,7 +631,7 @@ results:
 - _id: res106ae38688dec
   _key: '!tables.results!crowsrt6b9a91498.res106ae38688dec'
   type: 0
-  text: Your Mind score decreases by 1 until you finish a rest. This effect is cumulative.
+  name: Your Mind score decreases by 1 until you finish a rest. This effect is cumulative.
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -643,7 +643,7 @@ results:
 - _id: res607a74444a980
   _key: '!tables.results!crowsrt6b9a91498.res607a74444a980'
   type: 0
-  text: Magic bursts forth from inside your body, causing you to suffer 1d6 wounds.
+  name: Magic bursts forth from inside your body, causing you to suffer 1d6 wounds.
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -655,7 +655,7 @@ results:
 - _id: res7d0e1cd04093b
   _key: '!tables.results!crowsrt6b9a91498.res7d0e1cd04093b'
   type: 0
-  text: Lightning flies from your body. You and each creature within 5 squares of
+  name: Lightning flies from your body. You and each creature within 5 squares of
     you takes 3d6 damage.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -668,7 +668,7 @@ results:
 - _id: res07721009c3063
   _key: '!tables.results!crowsrt6b9a91498.res07721009c3063'
   type: 0
-  text: You become allergic to magic. Whenever you or any creature activates a magic
+  name: You become allergic to magic. Whenever you or any creature activates a magic
     item or casts a spell within 10 squares of you, you take 1d6 P damage. This effect
     has 2 UD.
   img: icons/svg/d20-black.svg
@@ -682,7 +682,7 @@ results:
 - _id: res236ea21e92cc4
   _key: '!tables.results!crowsrt6b9a91498.res236ea21e92cc4'
   type: 0
-  text: Whenever you cast a spell, the result is treated as one tier lower. If you
+  name: Whenever you cast a spell, the result is treated as one tier lower. If you
     get a tier 1 result, it is treated as a doom. This effect has 2 UD.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -695,7 +695,7 @@ results:
 - _id: res7b0e09b95295d
   _key: '!tables.results!crowsrt6b9a91498.res7b0e09b95295d'
   type: 0
-  text: Antlers grow from your head. If you cut these off, they instantly grow back.
+  name: Antlers grow from your head. If you cut these off, they instantly grow back.
     You can’t wear hats or any type of headgear that isn’t specially modified to fit
     your new noggin.
   img: icons/svg/d20-black.svg
@@ -709,7 +709,7 @@ results:
 - _id: res70007fd47f5c9
   _key: '!tables.results!crowsrt6b9a91498.res70007fd47f5c9'
   type: 0
-  text: Your mind is warped by magic. The Ref randomly chooses an expertise you have
+  name: Your mind is warped by magic. The Ref randomly chooses an expertise you have
     and one you don’t. You lose all uses of the expertise you have and gain an equivalent
     number of uses of the one you do not.
   img: icons/svg/d20-black.svg
@@ -723,7 +723,7 @@ results:
 - _id: resb3a5c1abf34e7
   _key: '!tables.results!crowsrt6b9a91498.resb3a5c1abf34e7'
   type: 0
-  text: Magic within your body reshapes one of your hands into a deadly weapon. The
+  name: Magic within your body reshapes one of your hands into a deadly weapon. The
     Ref randomly chooses a mundane 1-handed weapon. Your hand is now this weapon.
     You can’t ever use that hand slot to hold another object.
   img: icons/svg/d20-black.svg
@@ -737,7 +737,7 @@ results:
 - _id: rese05c354a72cf5
   _key: '!tables.results!crowsrt6b9a91498.rese05c354a72cf5'
   type: 0
-  text: Magic lighting wracks your body with pain. Your Stamina is reduce to 0 and
+  name: Magic lighting wracks your body with pain. Your Stamina is reduce to 0 and
     you gain 2d6 wounds.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -750,7 +750,7 @@ results:
 - _id: rese09bd40f52677
   _key: '!tables.results!crowsrt6b9a91498.rese09bd40f52677'
   type: 0
-  text: A portal to Hell opens beneath you and sucks you into it as a chorus of demons
+  name: A portal to Hell opens beneath you and sucks you into it as a chorus of demons
     laughs at your unfortunate fate. The portal shuts as your soul and body are forever
     sealed away.
   img: icons/svg/d20-black.svg

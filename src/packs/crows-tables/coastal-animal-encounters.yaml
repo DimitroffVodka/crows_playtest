@@ -10,7 +10,7 @@ results:
 - _id: res9b714ec049a8b
   _key: '!tables.results!crowsrtba047391b.res9b714ec049a8b'
   type: 0
-  text: 1 crocodile
+  name: 1 crocodile
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -22,7 +22,7 @@ results:
 - _id: rescd648ff2e35b4
   _key: '!tables.results!crowsrtba047391b.rescd648ff2e35b4'
   type: 0
-  text: 2 crocodiles
+  name: 2 crocodiles
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -34,7 +34,7 @@ results:
 - _id: res8e9e7ec9365b0
   _key: '!tables.results!crowsrtba047391b.res8e9e7ec9365b0'
   type: 0
-  text: 1d6 giant crows
+  name: 1d6 giant crows
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -46,7 +46,7 @@ results:
 - _id: resd910a733a1531
   _key: '!tables.results!crowsrtba047391b.resd910a733a1531'
   type: 0
-  text: 1 hawk
+  name: 1 hawk
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -58,7 +58,7 @@ results:
 - _id: res7e2838eca38e5
   _key: '!tables.results!crowsrtba047391b.res7e2838eca38e5'
   type: 0
-  text: 1 monitor lizard
+  name: 1 monitor lizard
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -70,7 +70,7 @@ results:
 - _id: resf25b4e5028809
   _key: '!tables.results!crowsrtba047391b.resf25b4e5028809'
   type: 0
-  text: 2 monitor lizards
+  name: 2 monitor lizards
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -82,7 +82,7 @@ results:
 - _id: res3dbd4f8b63514
   _key: '!tables.results!crowsrtba047391b.res3dbd4f8b63514'
   type: 0
-  text: 1 constrictor snake
+  name: 1 constrictor snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -94,7 +94,7 @@ results:
 - _id: res805b38f9cf69a
   _key: '!tables.results!crowsrtba047391b.res805b38f9cf69a'
   type: 0
-  text: 1 venomous snake
+  name: 1 venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -106,7 +106,7 @@ results:
 - _id: res6a9d152a9ab78
   _key: '!tables.results!crowsrtba047391b.res6a9d152a9ab78'
   type: 0
-  text: 1 giant venomous snake
+  name: 1 giant venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -118,7 +118,7 @@ results:
 - _id: res8c042ac2ca9dc
   _key: '!tables.results!crowsrtba047391b.res8c042ac2ca9dc'
   type: 0
-  text: 1 giant spider
+  name: 1 giant spider
   img: icons/svg/d20-black.svg
   weight: 1
   range:

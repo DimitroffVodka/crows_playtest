@@ -10,7 +10,7 @@ results:
 - _id: resaad26b209a48b
   _key: '!tables.results!crowsrtd3ffe74d9.resaad26b209a48b'
   type: 0
-  text: Bandits | The humans are bandits, and threaten to kill the PCs if they aren’t
+  name: Bandits | The humans are bandits, and threaten to kill the PCs if they aren’t
     given at least 10d10 × 10 gc worth of goods. The bandits only attack the PCs if
     not given the money and they believe they have the advantage in a fight.
   img: icons/svg/d20-black.svg
@@ -24,7 +24,7 @@ results:
 - _id: res7772c6d1ffd06
   _key: '!tables.results!crowsrtd3ffe74d9.res7772c6d1ffd06'
   type: 0
-  text: Cannibals | These humans want to eat the PCs. If they outnumber the PCs, they
+  name: Cannibals | These humans want to eat the PCs. If they outnumber the PCs, they
     set an ambush and attack. Otherwise, they approach as fellow travelers (perhaps
     as merchants or crows from another village), and then wait until the PCs are sleeping
     or in a bad spot and then attack. If they can take just one PC to eat, that’s
@@ -40,7 +40,7 @@ results:
 - _id: resfdf11d1b4eaee
   _key: '!tables.results!crowsrtd3ffe74d9.resfdf11d1b4eaee'
   type: 0
-  text: Competitive | The humans want to prove they are better than the PCs at something.
+  name: Competitive | The humans want to prove they are better than the PCs at something.
     It could be strength of arms, a foot race, or a trivia contest, whatever the PCs
     excel in. They challenge the PCs to the contest, making a wager on it. The winner
     can take any item from the loser. This is negotiable, as the NPCs mainly want
@@ -58,7 +58,7 @@ results:
 - _id: res6b2cfefd15680
   _key: '!tables.results!crowsrtd3ffe74d9.res6b2cfefd15680'
   type: 0
-  text: Cruel | The NPCs revel in cruelty for the sake of it. When the PCs find them,
+  name: Cruel | The NPCs revel in cruelty for the sake of it. When the PCs find them,
     there is a 50% chance that the NPCs have captured an animal, human, or monster
     of your choice and debate how to make the creature suffer. If not, they approach
     the PCs as friendly, planning to kidnap one of them when the moment presents itself.
@@ -73,7 +73,7 @@ results:
 - _id: resc33fd0d67dee3
   _key: '!tables.results!crowsrtd3ffe74d9.resc33fd0d67dee3'
   type: 0
-  text: Cultists | The NPCs are a cult of a Necromancer of your choice. They are willing
+  name: Cultists | The NPCs are a cult of a Necromancer of your choice. They are willing
     to trade anything in their possession or perform favors for necromancy spellbooks.
     They attempt to convert the PCs, and attack any who have stolen from or spoken
     ill of their Necromancer or their creations.
@@ -88,7 +88,7 @@ results:
 - _id: res28d81876fe66c
   _key: '!tables.results!crowsrtd3ffe74d9.res28d81876fe66c'
   type: 0
-  text: Death to the Gods | The humans hate all religion. They rant and rave about
+  name: Death to the Gods | The humans hate all religion. They rant and rave about
     the gods abandoning the world. If any PCs disagree or openly wear or carry religious
     material, the NPCs wait for an opportune moment to attack that PC. If the PCs
     agree, the NPCs are pleased, and can be convinced to offer some assistance, though
@@ -104,7 +104,7 @@ results:
 - _id: res997cecf74929f
   _key: '!tables.results!crowsrtd3ffe74d9.res997cecf74929f'
   type: 0
-  text: Deceitful | These humans enjoy deceiving others. When they meet the PCs, they
+  name: Deceitful | These humans enjoy deceiving others. When they meet the PCs, they
     make up fanciful tales about encounters they’ve had with nearby monsters, dungeons,
     villages, and landmarks. None of what they claim is true. If the PCs believe them,
     the NPCs attempt to lure them into a trap, where monsters, animals, or some other
@@ -121,7 +121,7 @@ results:
 - _id: res95a725a75e419
   _key: '!tables.results!crowsrtd3ffe74d9.res95a725a75e419'
   type: 0
-  text: Despondent | The humans trudge through the world, crying and upset. Nothing
+  name: Despondent | The humans trudge through the world, crying and upset. Nothing
     matters to them, though they will defend themselves if threatened. They also lash
     out at any other person who tries to comfort or bolster them, first verbally,
     then physically.
@@ -136,7 +136,7 @@ results:
 - _id: resb4356f7d1a657
   _key: '!tables.results!crowsrtd3ffe74d9.resb4356f7d1a657'
   type: 0
-  text: Destructive | The humans just want to break something ... or someone. The
+  name: Destructive | The humans just want to break something ... or someone. The
     NPCs simmer with rage and are confrontational and insulting, trying to bait the
     PCs into a fight. If the PCs agree with the NPCs and give their anger a direction
     at something or someone nearby, the PCs happily go off to destroy the thing. Otherwise
@@ -152,7 +152,7 @@ results:
 - _id: res3b49c44cdbe44
   _key: '!tables.results!crowsrtd3ffe74d9.res3b49c44cdbe44'
   type: 0
-  text: False Bravado | The humans claim to be brave crows looking for treasure and
+  name: False Bravado | The humans claim to be brave crows looking for treasure and
     adventure. They invite the PCs to come with them to confront monsters guarding
     a den of treasure. Together, they can defeat the threat and split the gold. Too
     bad these NPC cowards run off when any sort of fight starts.
@@ -167,7 +167,7 @@ results:
 - _id: resbf8b913aed3cf
   _key: '!tables.results!crowsrtd3ffe74d9.resbf8b913aed3cf'
   type: 0
-  text: Greedy | The humans want whatever they can get their hands on for as little
+  name: Greedy | The humans want whatever they can get their hands on for as little
     work as possible. They want food, shelter, supplies, and treasure. If the PCs
     outmatch them, they appear as beggars in need. If the PCs seem like they can be
     bullied, the NPCs approach as bandits.
@@ -182,7 +182,7 @@ results:
 - _id: res6fd1e27aeccc9
   _key: '!tables.results!crowsrtd3ffe74d9.res6fd1e27aeccc9'
   type: 0
-  text: Knowledge Seeker | The humans believe knowledge is power, and they want books
+  name: Knowledge Seeker | The humans believe knowledge is power, and they want books
     of lore and conversations with experts. They stop the PCs, asking to talk to them,
     peppering them with questions about lore until they are gifted a lore book, the
     day is done (cutting the PCs’ travel short), or the PCs try to leave, at which
@@ -199,7 +199,7 @@ results:
 - _id: res59e9727e2759d
   _key: '!tables.results!crowsrtd3ffe74d9.res59e9727e2759d'
   type: 0
-  text: Mage Hunter | The humans don’t trust mages, except for those among them who
+  name: Mage Hunter | The humans don’t trust mages, except for those among them who
     became mages only to hunt others. They attempt to separate and ambush any PCs
     openly carrying spellbooks. If none do, the NPCs approach and ask if the PCs know
     where to find any mages, revealing themselves as mage hunters if the PCs reveal
@@ -216,7 +216,7 @@ results:
 - _id: res5adddbf6f6e3c
   _key: '!tables.results!crowsrtd3ffe74d9.res5adddbf6f6e3c'
   type: 0
-  text: Monster Hatred | The humans hate a specific type of monster that lives in
+  name: Monster Hatred | The humans hate a specific type of monster that lives in
     a dungeon or POI nearby. They ask the PCs to accompany them to the area and help
     kill the monsters. As soon as they encounter such creatures, the NPCs rush in,
     eager to kill with no plan and no regard for their own or the PCs’ safety.
@@ -231,7 +231,7 @@ results:
 - _id: rese049fe624c181
   _key: '!tables.results!crowsrtd3ffe74d9.rese049fe624c181'
   type: 0
-  text: Monster Obsessed | The humans love a specific type of monster that lives in
+  name: Monster Obsessed | The humans love a specific type of monster that lives in
     a dungeon or POI nearby. They try to tempt the PCs into entering the place with
     rumors of treasure or cries of help. The NPCs have rigged the place with bear
     traps and watch their favorite monsters eat if the PCs enter.
@@ -246,7 +246,7 @@ results:
 - _id: res5c328bf689e48
   _key: '!tables.results!crowsrtd3ffe74d9.res5c328bf689e48'
   type: 0
-  text: Sluggish | The humans beg the PCs for help, claiming to be lost and trying
+  name: Sluggish | The humans beg the PCs for help, claiming to be lost and trying
     to find civilization. In truth, they have no destination in mind and wander the
     wild in a haze, caring only for themselves and no others. If the PCs agree to
     take them on, they slow the group’s travel by 1 hex each day. The NPCs leave happily
@@ -264,7 +264,7 @@ results:
 - _id: res6c87518b9a225
   _key: '!tables.results!crowsrtd3ffe74d9.res6c87518b9a225'
   type: 0
-  text: Suspicious | The humans are friendly at first, but quickly become suspicious
+  name: Suspicious | The humans are friendly at first, but quickly become suspicious
     of everything the PCs say and do. They believe the PCs have ill intentions, and
     quickly try to get a move on. If the PCs are clearly stronger, the NPCs flee quickly
     and prepare a guarded camp. If the NPCs believe they can overtake the PCs, they
@@ -280,7 +280,7 @@ results:
 - _id: resf26d04c3b65bc
   _key: '!tables.results!crowsrtd3ffe74d9.resf26d04c3b65bc'
   type: 0
-  text: Thieves | The humans attempt to befriend the PCs while eyeing up their possessions.
+  name: Thieves | The humans attempt to befriend the PCs while eyeing up their possessions.
     When an opportunity arises, they attempt to flee with one or more of the PCs'
     most valuable items.
   img: icons/svg/d20-black.svg
@@ -294,7 +294,7 @@ results:
 - _id: res55d0ac3914d71
   _key: '!tables.results!crowsrtd3ffe74d9.res55d0ac3914d71'
   type: 0
-  text: Tyrant | One of the humans in this group is a leader whom the others worship
+  name: Tyrant | One of the humans in this group is a leader whom the others worship
     as a tyrant. This NPC demands fealty from all they meet. Those who do not bow
     and call them their leader are captured and killed. Those who swear fealty are
     given a blessing and asked if they wish to join the company or start their own
@@ -312,7 +312,7 @@ results:
 - _id: res952c8ff4b50b5
   _key: '!tables.results!crowsrtd3ffe74d9.res952c8ff4b50b5'
   type: 0
-  text: Vane | These humans value appearance above all else. They praise well-groomed
+  name: Vane | These humans value appearance above all else. They praise well-groomed
     PCs. They suggest a bath to those covered in dirt, and plot to kidnap and clean
     those who refuse.
   img: icons/svg/d20-black.svg
@@ -326,7 +326,7 @@ results:
 - _id: res85c027bf61a90
   _key: '!tables.results!crowsrtd3ffe74d9.res85c027bf61a90'
   type: 0
-  text: Violent | These humans want to kill something. They attack PCs on the road,
+  name: Violent | These humans want to kill something. They attack PCs on the road,
     offering to stop the violence if just one of them agrees to die for the others.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -339,7 +339,7 @@ results:
 - _id: resd744620adb2bf
   _key: '!tables.results!crowsrtd3ffe74d9.resd744620adb2bf'
   type: 0
-  text: Wicked Crows | These humans are crows like the PCs, but they have been corrupted
+  name: Wicked Crows | These humans are crows like the PCs, but they have been corrupted
     by the Miasma. They ask to journey with the PCs to a dungeon and split the profits.
     Once inside, these crows work together to use the horrors of the dungeon to systematically
     eliminate the PCs one by one.

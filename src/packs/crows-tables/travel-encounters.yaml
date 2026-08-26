@@ -10,7 +10,7 @@ results:
 - _id: res28eba21b526fd
   _key: '!tables.results!crowsrt1838e438d.res28eba21b526fd'
   type: 0
-  text: Any Monster
+  name: Any Monster
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -22,7 +22,7 @@ results:
 - _id: resdaa4caf0fc47c
   _key: '!tables.results!crowsrt1838e438d.resdaa4caf0fc47c'
   type: 0
-  text: Bad Weather
+  name: Bad Weather
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -34,7 +34,7 @@ results:
 - _id: resefb853a209ad2
   _key: '!tables.results!crowsrt1838e438d.resefb853a209ad2'
   type: 0
-  text: Merchant
+  name: Merchant
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -46,7 +46,7 @@ results:
 - _id: res05adba841f707
   _key: '!tables.results!crowsrt1838e438d.res05adba841f707'
   type: 0
-  text: Miasma-Touched
+  name: Miasma-Touched
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -58,7 +58,7 @@ results:
 - _id: res1d984eb7fcb8d
   _key: '!tables.results!crowsrt1838e438d.res1d984eb7fcb8d'
   type: 0
-  text: Monster from Nearby
+  name: Monster from Nearby
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -70,7 +70,7 @@ results:
 - _id: res5d1182f5efe94
   _key: '!tables.results!crowsrt1838e438d.res5d1182f5efe94'
   type: 0
-  text: Strong Miasma
+  name: Strong Miasma
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -82,7 +82,7 @@ results:
 - _id: res72965758bc3f3
   _key: '!tables.results!crowsrt1838e438d.res72965758bc3f3'
   type: 0
-  text: Traveler
+  name: Traveler
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -94,7 +94,7 @@ results:
 - _id: resf1095a95713e5
   _key: '!tables.results!crowsrt1838e438d.resf1095a95713e5'
   type: 0
-  text: Wild Animal
+  name: Wild Animal
   img: icons/svg/d20-black.svg
   weight: 1
   range:

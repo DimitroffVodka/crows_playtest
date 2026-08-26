@@ -64,11 +64,36 @@ describe("roll tables are rollable", () => {
     assert.equal(Math.max(...bl.results.map((r) => r.range[1])), 105);
   });
 
-  test("every result has text and a stable id", () => {
+  test("results use v14's `name`, never the removed `text` field", () => {
+    // TableResult's v14 schema is _id, type, NAME, img, DESCRIPTION, documentUuid,
+    // weight, range, drawn, flags, _stats. `text` was removed. Authoring it meant
+    // Foundry migrated the value into `description` — an HTMLField — which escaped
+    // "Traveling >2 hexes" into "Traveling &gt;2 hexes", and left `name`, the field
+    // v14 actually renders, empty on all 519 rows.
+    for (const { file, t } of tables) {
+      for (const r of t.results) {
+        assert.ok(!("text" in r), `${file}: uses the removed \`text\` field`);
+        assert.ok(String(r.name ?? "").trim(), `${file}: a result has no name`);
+      }
+    }
+  });
+
+  test("no result smuggles an HTML entity into plain text", () => {
+    // `name` is a StringField and renders literally, so "&gt;" would display as
+    // those four characters.
+    const bad = [];
+    for (const { file, t } of tables) {
+      for (const r of t.results) {
+        if (/&(?:amp|lt|gt|quot|#39);/.test(r.name)) bad.push(`${file}: ${r.name.slice(0, 50)}`);
+      }
+    }
+    assert.deepEqual(bad, []);
+  });
+
+  test("every result has a stable id", () => {
     for (const { file, t } of tables) {
       assert.ok(t._id && t._key?.startsWith("!tables!"), `${file}: bad table id`);
       for (const r of t.results) {
-        assert.ok(String(r.text ?? "").trim(), `${file}: empty result text`);
         assert.ok(r._key?.startsWith("!tables.results!"), `${file}: bad result key`);
       }
     }

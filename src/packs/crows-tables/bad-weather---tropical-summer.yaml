@@ -10,7 +10,7 @@ results:
 - _id: resfb85fadfb3b27
   _key: '!tables.results!crowsrtce3faaa89.resfb85fadfb3b27'
   type: 0
-  text: 'Heat Wave: Traveling >2 hexes requires Strength RR (Tier 1: 2d6 P dam, Tier
+  name: 'Heat Wave: Traveling >2 hexes requires Strength RR (Tier 1: 2d6 P dam, Tier
     2: 1d6 P dam, Tier 3: No effect).'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -23,7 +23,7 @@ results:
 - _id: res3238f9af68360
   _key: '!tables.results!crowsrtce3faaa89.res3238f9af68360'
   type: 0
-  text: 'Thunderstorm: Travel pace reduced by 2 hexes. Mind test for rations (Tier
+  name: 'Thunderstorm: Travel pace reduced by 2 hexes. Mind test for rations (Tier
     1: lose 2d6 rations, Tier 2: lose 1d6 rations, Tier 3: no effect). Bane on guide/scout/tracker.'
   img: icons/svg/d20-black.svg
   weight: 1

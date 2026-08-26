@@ -11,7 +11,7 @@ results:
 - _id: resf1ec0b134afa6
   _key: '!tables.results!crowsrtf6fdcf8fc.resf1ec0b134afa6'
   type: 0
-  text: '1 Eye: You lose one eye. You take a bane on tests made to see or search.'
+  name: '1 Eye: You lose one eye. You take a bane on tests made to see or search.'
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -23,7 +23,7 @@ results:
 - _id: res2b71db8b35e03
   _key: '!tables.results!crowsrtf6fdcf8fc.res2b71db8b35e03'
   type: 0
-  text: '1 Ear: You lose one ear. You take a bane on tests made to hear.'
+  name: '1 Ear: You lose one ear. You take a bane on tests made to hear.'
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -35,7 +35,7 @@ results:
 - _id: rese050d82b6584c
   _key: '!tables.results!crowsrtf6fdcf8fc.rese050d82b6584c'
   type: 0
-  text: 'Nose: Your nose is sliced off. You take a bane on tests made to smell or
+  name: 'Nose: Your nose is sliced off. You take a bane on tests made to smell or
     navigate by scent.'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -48,7 +48,7 @@ results:
 - _id: resce3c17a218ba3
   _key: '!tables.results!crowsrtf6fdcf8fc.resce3c17a218ba3'
   type: 0
-  text: '1 Arm: You lose one arm. You cannot wield two-handed weapons or use that
+  name: '1 Arm: You lose one arm. You cannot wield two-handed weapons or use that
     hand slot.'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -61,7 +61,7 @@ results:
 - _id: res420cd56e329f8
   _key: '!tables.results!crowsrtf6fdcf8fc.res420cd56e329f8'
   type: 0
-  text: '1 Hand: You lose one hand. You cannot wield two-handed weapons or use that
+  name: '1 Hand: You lose one hand. You cannot wield two-handed weapons or use that
     hand slot.'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -74,7 +74,7 @@ results:
 - _id: res1336d4ebe6a88
   _key: '!tables.results!crowsrtf6fdcf8fc.res1336d4ebe6a88'
   type: 0
-  text: '1d4 Fingers: You lose 1d4 fingers. You take a bane on delicate agility/thievery
+  name: '1d4 Fingers: You lose 1d4 fingers. You take a bane on delicate agility/thievery
     tests using that hand.'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -87,7 +87,7 @@ results:
 - _id: res42e129f9ab610
   _key: '!tables.results!crowsrtf6fdcf8fc.res42e129f9ab610'
   type: 0
-  text: '1 Leg: You lose one leg. Your speed is halved and you take a bane on athletic
+  name: '1 Leg: You lose one leg. Your speed is halved and you take a bane on athletic
     tests.'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -100,7 +100,7 @@ results:
 - _id: res17dae104d8fed
   _key: '!tables.results!crowsrtf6fdcf8fc.res17dae104d8fed'
   type: 0
-  text: '1 Foot: You lose one foot. Your speed is reduced by 1.'
+  name: '1 Foot: You lose one foot. Your speed is reduced by 1.'
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -112,7 +112,7 @@ results:
 - _id: res6ab89383bb3c5
   _key: '!tables.results!crowsrtf6fdcf8fc.res6ab89383bb3c5'
   type: 0
-  text: '1d4 Toes: You lose 1d4 toes. You take a bane on balance and acrobatics tests.'
+  name: '1d4 Toes: You lose 1d4 toes. You take a bane on balance and acrobatics tests.'
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -124,7 +124,7 @@ results:
 - _id: resae5bea00c7503
   _key: '!tables.results!crowsrtf6fdcf8fc.resae5bea00c7503'
   type: 0
-  text: 'Vital Organ / Decapitation: Fatal wound. The creature dies instantly or is
+  name: 'Vital Organ / Decapitation: Fatal wound. The creature dies instantly or is
     at 0 Stamina with mortal bleeding.'
   img: icons/svg/d20-black.svg
   weight: 1

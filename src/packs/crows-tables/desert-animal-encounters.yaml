@@ -10,7 +10,7 @@ results:
 - _id: rescc98759462ae9
   _key: '!tables.results!crowsrta527a52e4.rescc98759462ae9'
   type: 0
-  text: 1 big cat
+  name: 1 big cat
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -22,7 +22,7 @@ results:
 - _id: res08ca67a4e6dfd
   _key: '!tables.results!crowsrta527a52e4.res08ca67a4e6dfd'
   type: 0
-  text: 1d6 big cats
+  name: 1d6 big cats
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -34,7 +34,7 @@ results:
 - _id: res7b05ae56fe93d
   _key: '!tables.results!crowsrta527a52e4.res7b05ae56fe93d'
   type: 0
-  text: 2d6 dogs
+  name: 2d6 dogs
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -46,7 +46,7 @@ results:
 - _id: res339ca1dd3cfb3
   _key: '!tables.results!crowsrta527a52e4.res339ca1dd3cfb3'
   type: 0
-  text: 1 elephant
+  name: 1 elephant
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -58,7 +58,7 @@ results:
 - _id: res10896205a631d
   _key: '!tables.results!crowsrta527a52e4.res10896205a631d'
   type: 0
-  text: 2d6 elephants
+  name: 2d6 elephants
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -70,7 +70,7 @@ results:
 - _id: rese80f1b451f655
   _key: '!tables.results!crowsrta527a52e4.rese80f1b451f655'
   type: 0
-  text: 1 monitor lizard
+  name: 1 monitor lizard
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -82,7 +82,7 @@ results:
 - _id: res62057e0a4cb93
   _key: '!tables.results!crowsrta527a52e4.res62057e0a4cb93'
   type: 0
-  text: 2 monitor lizards
+  name: 2 monitor lizards
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -94,7 +94,7 @@ results:
 - _id: res78c70cabc8fd3
   _key: '!tables.results!crowsrta527a52e4.res78c70cabc8fd3'
   type: 0
-  text: 1 giant scorpion
+  name: 1 giant scorpion
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -106,7 +106,7 @@ results:
 - _id: resbad2eab2fcfb2
   _key: '!tables.results!crowsrta527a52e4.resbad2eab2fcfb2'
   type: 0
-  text: 2 giant scorpions
+  name: 2 giant scorpions
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -118,7 +118,7 @@ results:
 - _id: resfdce29b50c84a
   _key: '!tables.results!crowsrta527a52e4.resfdce29b50c84a'
   type: 0
-  text: 1 constrictor snake
+  name: 1 constrictor snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -130,7 +130,7 @@ results:
 - _id: res141e188a4023d
   _key: '!tables.results!crowsrta527a52e4.res141e188a4023d'
   type: 0
-  text: 1 venomous snake
+  name: 1 venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -142,7 +142,7 @@ results:
 - _id: res040c57ee7c8f2
   _key: '!tables.results!crowsrta527a52e4.res040c57ee7c8f2'
   type: 0
-  text: 1 giant venomous snake
+  name: 1 giant venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -154,7 +154,7 @@ results:
 - _id: res92152fbeecae9
   _key: '!tables.results!crowsrta527a52e4.res92152fbeecae9'
   type: 0
-  text: 2d6 venomous snakes
+  name: 2d6 venomous snakes
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -166,7 +166,7 @@ results:
 - _id: res6876167fc38a1
   _key: '!tables.results!crowsrta527a52e4.res6876167fc38a1'
   type: 0
-  text: 1 giant spider
+  name: 1 giant spider
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -178,7 +178,7 @@ results:
 - _id: res5920ff2dc15b8
   _key: '!tables.results!crowsrta527a52e4.res5920ff2dc15b8'
   type: 0
-  text: 2 giant spiders
+  name: 2 giant spiders
   img: icons/svg/d20-black.svg
   weight: 1
   range:

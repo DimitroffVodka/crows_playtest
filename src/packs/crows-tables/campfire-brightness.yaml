@@ -11,7 +11,7 @@ results:
 - _id: resecb508201dcbe
   _key: '!tables.results!crowsrta1c8fa8f0.resecb508201dcbe'
   type: 0
-  text: Dim Light 3 squares (No bright light)
+  name: Dim Light 3 squares (No bright light)
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -23,7 +23,7 @@ results:
 - _id: resbacefceeca3da
   _key: '!tables.results!crowsrta1c8fa8f0.resbacefceeca3da'
   type: 0
-  text: Bright Light 1 square, Dim Light 4 squares
+  name: Bright Light 1 square, Dim Light 4 squares
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -35,7 +35,7 @@ results:
 - _id: res8746c5e461572
   _key: '!tables.results!crowsrta1c8fa8f0.res8746c5e461572'
   type: 0
-  text: Bright Light 2 squares, Dim Light 5 squares
+  name: Bright Light 2 squares, Dim Light 5 squares
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -47,7 +47,7 @@ results:
 - _id: res31eda1c97a73d
   _key: '!tables.results!crowsrta1c8fa8f0.res31eda1c97a73d'
   type: 0
-  text: Bright Light 3 squares, Dim Light 6 squares
+  name: Bright Light 3 squares, Dim Light 6 squares
   img: icons/svg/d20-black.svg
   weight: 1
   range:
@@ -59,7 +59,7 @@ results:
 - _id: res925ad05ec3df9
   _key: '!tables.results!crowsrta1c8fa8f0.res925ad05ec3df9'
   type: 0
-  text: Bright Light 4 squares, Dim Light 7 squares
+  name: Bright Light 4 squares, Dim Light 7 squares
   img: icons/svg/d20-black.svg
   weight: 1
   range:
