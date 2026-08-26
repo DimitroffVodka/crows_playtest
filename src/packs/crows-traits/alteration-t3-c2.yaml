@@ -1,6 +1,7 @@
 _id: ctalte32horns000
 _key: "!items!ctalte32horns000"
 name: Horns
+img: systems/crows/icons/traits/bull-horns.svg
 type: trait
 system:
   description: "<p>When you cast an alteration spell, you can harness the magic to grow horns from your head that last until the end of the DT. You can make an unarmed attack with the horns as a maneuver.</p>"

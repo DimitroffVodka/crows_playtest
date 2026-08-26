@@ -1,6 +1,7 @@
 _id: ctleve12mrfrls00
 _key: "!items!ctleve12mrfrls00"
 name: More for Less
+img: systems/crows/icons/traits/coins-pile.svg
 type: trait
 system:
   description: "<p>When you roll a UD for a piece of mundane equipment that has only 1 die remaining at the start of rolling the item's dice, then you can only lose the UD on a result of 1.</p>"

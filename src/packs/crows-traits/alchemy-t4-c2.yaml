@@ -1,6 +1,7 @@
 _id: ctalch42dntwst00
 _key: "!items!ctalch42dntwst00"
 name: Don't Waste a Drop
+img: systems/crows/icons/traits/droplet-splash.svg
 type: trait
 system:
   description: "<p>You can use an acid or a poison twice before it is consumed.</p>"

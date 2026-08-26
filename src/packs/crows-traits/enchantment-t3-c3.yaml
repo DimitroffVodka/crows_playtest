@@ -1,6 +1,7 @@
 _id: ctench33strngbck
 _key: "!items!ctench33strngbck"
 name: Strong Back
+img: systems/crows/icons/traits/weight-lifting-up.svg
 type: trait
 system:
   description: "<p>When you wear a magic item in your waist slot, you gain a +1 bonus to Strength RRs.</p>"

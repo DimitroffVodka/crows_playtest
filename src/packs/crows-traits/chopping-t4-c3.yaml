@@ -1,6 +1,7 @@
 _id: ctchop43mprvdchp
 _key: "!items!ctchop43mprvdchp"
 name: Improved Chop
+img: systems/crows/icons/traits/war-axe.svg
 type: trait
 system:
   description: "<p>You score a crit on chopping weapon attacks when the dice without modifiers equal 17, 18, 19, or 20.</p>"

@@ -1,6 +1,7 @@
 _id: ctslas21swftblk0
 _key: "!items!ctslas21swftblk0"
 name: Swift Block
+img: systems/crows/icons/traits/thrust.svg
 type: trait
 system:
   description: "<p>You can add your Agility to the Parry quality of any slashing weapon you wield.</p>"

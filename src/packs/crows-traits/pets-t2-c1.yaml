@@ -1,6 +1,7 @@
 _id: ctpets21pcknmls0
 _key: "!items!ctpets21pcknmls0"
 name: Pack Animals
+img: systems/crows/icons/traits/donkey.svg
 type: trait
 system:
   description: "<p>The Stamina maximum of each pet affected by your Buddy trait is raised by 4 multiplied by the number of pets affected by your Buddy trait.</p>"

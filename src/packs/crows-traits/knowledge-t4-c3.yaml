@@ -1,6 +1,7 @@
 _id: ctknow43spclitm0
 _key: "!items!ctknow43spclitm0"
 name: Special Item
+img: systems/crows/icons/traits/holy-grail.svg
 type: trait
 system:
   description: "<p>As a rest activity, choose a non-weapon, non-armor mundane item you have. You gain a +1 bonus on tests that reasonably incorporate the use of this item (per the Ref). The bonus lasts until you use this activity again.</p>"

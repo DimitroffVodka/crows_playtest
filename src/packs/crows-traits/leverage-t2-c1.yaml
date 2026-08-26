@@ -1,6 +1,7 @@
 _id: ctleve21rcyclng0
 _key: "!items!ctleve21rcyclng0"
 name: Recycling
+img: systems/crows/icons/traits/recycle.svg
 type: trait
 system:
   description: "<p>When a potion is consumed, you can retrieve the vial that is left behind. When you have 10 vials from the same potion, you can collect the residue into one vial to create a potion of that type as a rest activity.</p>"

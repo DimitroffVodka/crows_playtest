@@ -1,6 +1,7 @@
 _id: ctench32lstngtms
 _key: "!items!ctench32lstngtms"
 name: Lasting Items
+img: systems/crows/icons/traits/diamond-hard.svg
 type: trait
 system:
   description: "<p>Enchanting items you create that become useless when they have no UD gain an additional 1 UD.</p>"

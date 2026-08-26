@@ -1,6 +1,7 @@
 _id: ctench13hndsfrtl
 _key: "!items!ctench13hndsfrtl"
 name: Hands for Tools
+img: systems/crows/icons/traits/wrench.svg
 type: trait
 system:
   description: "<p>You don't need tools to make crafting rolls for alchemy, blacksmithing, or enchanting items.</p>"

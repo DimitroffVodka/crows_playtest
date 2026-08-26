@@ -1,6 +1,7 @@
 _id: ctslas32fllwup00
 _key: "!items!ctslas32fllwup00"
 name: Follow Up
+img: systems/crows/icons/traits/saber-slash.svg
 type: trait
 system:
   description: "<p>When you push a target with the Knockback maneuver while wielding a slashing weapon, you can move into any space they vacated without provoking opportunity attacks as part of the maneuver.</p>"

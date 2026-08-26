@@ -1,6 +1,7 @@
 _id: ctalch31escwing0
 _key: "!items!ctalch31escwing0"
 name: Eschew Ingredients
+img: systems/crows/icons/traits/cauldron.svg
 type: trait
 system:
   description: "<p>You can ignore the material requirements for crafting an alchemy item if the item's crafting goal is 100 or lower.</p>"

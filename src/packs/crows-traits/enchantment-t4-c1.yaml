@@ -1,6 +1,7 @@
 _id: ctench41nrgytrns
 _key: "!items!ctench41nrgytrns"
 name: Energy Transfer
+img: systems/crows/icons/traits/battery-pack.svg
 type: trait
 system:
   description: "<p>As a rest activity, choose a magic item you can touch and an item you're crafting. You destroy the magic item, and the other item gains a number of crafting points equal to the destroyed item's crafting goal.</p>"

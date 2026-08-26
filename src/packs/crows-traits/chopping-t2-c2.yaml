@@ -1,6 +1,7 @@
 _id: ctchop22whrwnty0
 _key: "!items!ctchop22whrwnty0"
 name: Where I Want You
+img: systems/crows/icons/traits/hook.svg
 type: trait
 system:
   description: "<p>When you get a tier 3 result on a melee chopping weapon attack against a target of your size or smaller, you can slide the target 1 square after resolving all other effects of the attack.</p>"

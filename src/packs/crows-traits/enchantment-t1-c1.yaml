@@ -1,6 +1,7 @@
 _id: ctench11mtrltrns
 _key: "!items!ctench11mtrltrns"
 name: Material Transfer
+img: systems/crows/icons/traits/glowing-hands.svg
 type: trait
 system:
   description: "<p>As a rest activity, touch two armors or weapons that can be crafted from the same material but are not, such as iron heavy armor and a steel sword. The materials used in each item are magically swapped.</p>"

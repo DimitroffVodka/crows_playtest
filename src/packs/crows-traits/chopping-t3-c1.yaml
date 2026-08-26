@@ -1,6 +1,7 @@
 _id: ctchop31hrlnthdr
 _key: "!items!ctchop31hrlnthdr"
 name: Hurl in the Dark
+img: systems/crows/icons/traits/night-vision.svg
 type: trait
 system:
   description: "<p>Ranged attacks you make with handaxes don't suffer a penalty for the target being in dim light or similar concealment, and they only suffer a -2 penalty against target in darkness or similar concealment.</p>"

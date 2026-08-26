@@ -1,6 +1,7 @@
 _id: ctcamp31ktchnlch
 _key: "!items!ctcamp31ktchnlch"
 name: Kitchen Alchemy
+img: systems/crows/icons/traits/mortar.svg
 type: trait
 system:
   description: "<p>You can use your cook's utensils instead of alchemist's tools when crafting an alchemy item.</p>"

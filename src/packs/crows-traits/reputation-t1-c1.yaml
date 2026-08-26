@@ -1,6 +1,7 @@
 _id: ctrepu11cllddy00
 _key: "!items!ctrepu11cllddy00"
 name: Call Daddy
+img: systems/crows/icons/traits/crown-coin.svg
 type: trait
 system:
   description: "<p>Choose a merchant in your village. When you need to roll for an item's availability from that merchant, the AO increases by 5%. You can change your choice of merchant once every cycle.</p>"

@@ -1,6 +1,7 @@
 _id: ctelem42sprdngst
 _key: "!items!ctelem42sprdngst"
 name: Spreading Storm
+img: systems/crows/icons/traits/lightning-storm.svg
 type: trait
 system:
   description: "<p>When you cast an elemental spell that creates an area of effect, you can increase all dimensions of the area of effect by 1.</p>"

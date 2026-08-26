@@ -117,3 +117,66 @@ describe("background icons", () => {
     }
   });
 });
+
+/* -------------------------------------------------------------------------- */
+
+const TRAITS = "src/packs/crows-traits";
+const TRAIT_ICONS = "icons/traits";
+const loadTraits = () => readdirSync(TRAITS)
+  .filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"))
+  .map((f) => ({ file: f, doc: yaml.load(readFileSync(join(TRAITS, f), "utf8")) }));
+
+/**
+ * Traits ship icons too — 231 files covering 276 traits.
+ *
+ * Unlike backgrounds these are NOT one-per-document: a mechanic that repeats
+ * across trees ("Split Alteration" / "Split Conjuration" / "Split Illusion")
+ * shares an icon deliberately, so distinctness is not asserted. What is
+ * asserted is that nothing is missing, dead, or uncredited.
+ */
+describe("trait icons", () => {
+  test("all 276 traits declare an icon", () => {
+    const all = loadTraits();
+    assert.equal(all.length, 276);
+    assert.deepEqual(all.filter(({ doc }) => !doc.img).map(({ file }) => file), []);
+  });
+
+  test("every declared icon exists and is system-relative", () => {
+    const broken = [];
+    for (const { doc } of loadTraits()) {
+      assert.match(doc.img, /^systems\/crows\/icons\/traits\/[a-z0-9-]+\.svg$/, `${doc.name}: ${doc.img}`);
+      if (!existsSync(doc.img.replace(/^systems\/crows\//, ""))) broken.push(`${doc.name}: ${doc.img}`);
+    }
+    assert.deepEqual(broken, []);
+  });
+
+  test("no vendored trait icon is unused", () => {
+    const used = new Set(loadTraits().map(({ doc }) => doc.img.split("/").pop()));
+    const onDisk = readdirSync(TRAIT_ICONS).filter((f) => f.endsWith(".svg"));
+    assert.deepEqual(onDisk.filter((f) => !used.has(f)), [], "dead files in icons/traits");
+  });
+
+  test("every shipped trait icon is credited in NOTICE.md", () => {
+    const notice = readFileSync("NOTICE.md", "utf8");
+    const uncredited = readdirSync(TRAIT_ICONS)
+      .filter((f) => f.endsWith(".svg")).filter((f) => !notice.includes(f));
+    assert.deepEqual(uncredited, []);
+  });
+
+  test("trait icons are real SVGs, script-free, and keep their original ground", () => {
+    for (const f of readdirSync(TRAIT_ICONS).filter((x) => x.endsWith(".svg"))) {
+      const svg = readFileSync(join(TRAIT_ICONS, f), "utf8");
+      assert.match(svg, /^<svg[^>]*xmlns="http:\/\/www\.w3\.org\/2000\/svg"/, `${f} is not an SVG`);
+      assert.ok(!/<script/i.test(svg), `${f} contains a script tag`);
+      // Same compositing contract as the background glyphs — see NOTICE.md.
+      assert.match(svg, /<path d="M0 0h512v512H0z"/, `${f} lost its ground rect`);
+    }
+  });
+
+  test("icon reuse is bounded — a shared icon should be a shared mechanic", () => {
+    const counts = {};
+    for (const { doc } of loadTraits()) counts[doc.img] = (counts[doc.img] ?? 0) + 1;
+    const worst = Math.max(...Object.values(counts));
+    assert.ok(worst <= 4, `one icon serves ${worst} traits — too generic to be meaningful`);
+  });
+});

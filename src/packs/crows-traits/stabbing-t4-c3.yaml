@@ -1,6 +1,7 @@
 _id: ctstab43imprstb0
 _key: "!items!ctstab43imprstb0"
 name: Improved Stab
+img: systems/crows/icons/traits/trident.svg
 type: trait
 system:
   description: "<p>You score a crit on stabbing weapon attacks when the dice without modifiers equal 17, 18, 19, or 20.</p>"

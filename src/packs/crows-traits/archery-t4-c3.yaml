@@ -1,6 +1,7 @@
 _id: ctarch43dblqvr00
 _key: "!items!ctarch43dblqvr00"
 name: Double Quiver
+img: systems/crows/icons/traits/quiver.svg
 type: trait
 system:
   description: "<p>You can hold up to 40 arrows in one quiver and it takes up only 1 slot.</p>"

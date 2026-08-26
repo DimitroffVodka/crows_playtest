@@ -1,6 +1,7 @@
 _id: ctknow13mprvseq0
 _key: "!items!ctknow13mprvseq0"
 name: Improvised Equipment
+img: systems/crows/icons/traits/swiss-army-knife.svg
 type: trait
 system:
   description: "<p>As a rest activity, you create an object that can be used as any mundane item. After using the object once to complete a task (per the Ref), it is destroyed. If the item has a duration, it's duration becomes 1 DT.</p>"

@@ -1,6 +1,7 @@
 _id: ctconj12jumper00
 _key: "!items!ctconj12jumper00"
 name: Jumper
+img: systems/crows/icons/traits/teleport.svg
 type: trait
 system:
   description: "<p>When you cast a conjuration spell that teleports a target, you can teleport the target an additional number of squares equal to your Mind. This trait stacks with Long Distance Jump.</p>"

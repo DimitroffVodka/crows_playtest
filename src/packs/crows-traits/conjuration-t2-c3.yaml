@@ -1,6 +1,7 @@
 _id: ctconj23blssdsmm
 _key: "!items!ctconj23blssdsmm"
 name: Blessed Summons
+img: systems/crows/icons/traits/shining-heart.svg
 type: trait
 system:
   description: "<p>When you summon a creature with a conjuration spell, they are blessed.</p>"

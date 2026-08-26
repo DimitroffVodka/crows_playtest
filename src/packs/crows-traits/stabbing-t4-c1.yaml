@@ -1,6 +1,7 @@
 _id: ctstab41stbhlst0
 _key: "!items!ctstab41stbhlst0"
 name: Stabbing Holster
+img: systems/crows/icons/traits/spear-feather.svg
 type: trait
 system:
   description: "<p>You gain an additional belt slot that can only hold stabbing weapons.</p>"

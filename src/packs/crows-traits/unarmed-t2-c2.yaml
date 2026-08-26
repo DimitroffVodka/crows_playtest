@@ -1,6 +1,7 @@
 _id: ctunar22wrstlbg0
 _key: "!items!ctunar22wrstlbg0"
 name: Wrestle Big
+img: systems/crows/icons/traits/grapple.svg
 type: trait
 system:
   description: "<p>While you have at least 1 hand slot free, you can target creatures 1 size larger than you or smaller with the Grab maneuver.</p>"

@@ -1,6 +1,7 @@
 _id: cttrav13frgxprt0
 _key: "!items!cttrav13frgxprt0"
 name: Foraging Expert
+img: systems/crows/icons/traits/mushroom-gills.svg
 type: trait
 system:
   description: "<p>When you make a test related to the tracker roll and gain at least 1 ration, you gain 1 additional ration. This trait stacks with Food Finder.</p>"

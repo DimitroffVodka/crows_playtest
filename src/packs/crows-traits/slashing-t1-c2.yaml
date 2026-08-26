@@ -1,6 +1,7 @@
 _id: ctslas12qckstep0
 _key: "!items!ctslas12qckstep0"
 name: Quickstep
+img: systems/crows/icons/traits/fast-forward-button.svg
 type: trait
 system:
   description: "<p>When you use the Shift maneuver while wielding a slashing weapon, you can move 3 squares instead of 2.</p>"

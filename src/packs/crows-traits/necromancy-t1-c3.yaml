@@ -1,6 +1,7 @@
 _id: ctnecr13nddfrt00
 _key: "!items!ctnecr13nddfrt00"
 name: Undead Fortitude
+img: systems/crows/icons/traits/skeleton.svg
 type: trait
 system:
   description: "<p>When you cast a necromancy spell, you don't need to breathe and can't suffocate until the end of the DT. If you are already under this effect, you can choose a willing ally within 5 squares of you to have it.</p>"

@@ -1,6 +1,7 @@
 _id: cttrav43lycanet0
 _key: "!items!cttrav43lycanet0"
 name: Specialized Hunter
+img: systems/crows/icons/traits/crosshair.svg
 type: trait
 system:
   description: "<p>When you are in the tracker role while carrying a compass, you can choose two tasks in the role and make a test for both during a travel day.</p>"

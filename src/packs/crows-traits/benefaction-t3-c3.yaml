@@ -1,6 +1,7 @@
 _id: ctbene33blsdbnf0
 _key: "!items!ctbene33blsdbnf0"
 name: Blessed Benefaction
+img: systems/crows/icons/traits/glowing-hands.svg
 type: trait
 system:
   description: "<p>When you cast a benefaction spell, you harness the magic to make a creature within 5 squares of you blessed.</p>"

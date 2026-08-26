@@ -1,6 +1,7 @@
 _id: ctblac41nowaste0
 _key: "!items!ctblac41nowaste0"
 name: No Waste
+img: systems/crows/icons/traits/anvil.svg
 type: trait
 system:
   description: "<p>When you craft a blacksmithing item, you only use half the prerequisite materials required.</p>"

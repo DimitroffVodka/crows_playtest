@@ -1,6 +1,7 @@
 _id: ctleve32hlfprt00
 _key: "!items!ctleve32hlfprt00"
 name: Half Portions
+img: systems/crows/icons/traits/bread-slice.svg
 type: trait
 system:
   description: "<p>You only need to eat half of a ration's worth of food during a rest to get the benefit of resting.</p>"

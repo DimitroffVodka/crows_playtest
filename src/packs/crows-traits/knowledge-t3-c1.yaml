@@ -1,6 +1,7 @@
 _id: ctknow31shrdknw0
 _key: "!items!ctknow31shrdknw0"
 name: Shared Knowledge
+img: systems/crows/icons/traits/teacher.svg
 type: trait
 system:
   description: "<p>When you read a lore book as a rest activity to gain an expertise, you can read the book aloud. If you do, choose one human who rests with you. They gain the benefit too.</p>"

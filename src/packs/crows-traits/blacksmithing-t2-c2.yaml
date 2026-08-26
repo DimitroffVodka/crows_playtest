@@ -1,6 +1,7 @@
 _id: ctblac22rprrpr00
 _key: "!items!ctblac22rprrpr00"
 name: "Repair, Repair"
+img: systems/crows/icons/traits/auto-repair.svg
 type: trait
 system:
   description: "<p>When you take the Repair Armor rest activity, you can choose up to two pieces of armor and restore their AD instead of one.</p>"

@@ -1,6 +1,7 @@
 _id: ctcamp32wknssdgr
 _key: "!items!ctcamp32wknssdgr"
 name: Weakness Diagram
+img: systems/crows/icons/traits/hearts.svg
 type: trait
 system:
   description: "<p>As a rest activity, you can use a journal, quill, and inkpot to sketch a monster you have seen before. You and each ally who rests with you gains a +1 bonus to attacks against this creature until you finish another rest.</p>"

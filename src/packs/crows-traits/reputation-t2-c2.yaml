@@ -1,6 +1,7 @@
 _id: ctrepu22hrsnfr00
 _key: "!items!ctrepu22hrsnfr00"
 name: Here's One for Free
+img: systems/crows/icons/traits/gift-of-knowledge.svg
 type: trait
 system:
   description: "<p>When you purchase 5 or more a single item that is destroyed or useless after being used (such as a torch, ration, or potion) from the merchant affected by your Discount trait, you get one of that item for free.</p>"

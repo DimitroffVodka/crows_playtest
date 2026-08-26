@@ -1,6 +1,7 @@
 _id: ctbene11lstbnfc0
 _key: "!items!ctbene11lstbnfc0"
 name: Lasting Benefaction
+img: systems/crows/icons/traits/holy-symbol.svg
 type: trait
 system:
   description: "<p>When you cast an benefaction spell with a duration listed in UD, add an additional 1 UD to the duration.</p>"

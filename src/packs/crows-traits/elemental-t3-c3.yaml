@@ -1,6 +1,7 @@
 _id: ctelem33mghtfwvs
 _key: "!items!ctelem33mghtfwvs"
 name: Might of Waves
+img: systems/crows/icons/traits/big-wave.svg
 type: trait
 system:
   description: "<p>When you force move a creature into an object with an elemental spell or the Water Cannon trait, the creature takes additional damage equal to the forced movement remaining when they collide.</p>"

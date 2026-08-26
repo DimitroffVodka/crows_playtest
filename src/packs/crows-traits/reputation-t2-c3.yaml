@@ -1,6 +1,7 @@
 _id: ctrepu23viptrt00
 _key: "!items!ctrepu23viptrt00"
 name: VIP Treatment
+img: systems/crows/icons/traits/laurel-crown.svg
 type: trait
 system:
   description: "<p>When a merchant affected by your Favorite Customer trait begins crafting an item for you, the item starts with 10% of its crafting points.</p>"

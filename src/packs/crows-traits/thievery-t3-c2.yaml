@@ -1,6 +1,7 @@
 _id: ctthie32otfpack0
 _key: "!items!ctthie32otfpack0"
 name: Out of the Pack
+img: systems/crows/icons/traits/snatch.svg
 type: trait
 system:
   description: "<p>Each of your backpack slot's number is reduced by 1 (minimum 1).</p>"

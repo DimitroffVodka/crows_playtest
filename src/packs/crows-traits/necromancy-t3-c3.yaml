@@ -1,6 +1,7 @@
 _id: ctnecr33dmnssgt0
 _key: "!items!ctnecr33dmnssgt0"
 name: Demon's Sight
+img: systems/crows/icons/traits/skull-mask.svg
 type: trait
 system:
   description: "<p>When you cast a necromancy spell, you treat dim light and darkness as if they were bright light until the end of the DT.</p>"

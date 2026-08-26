@@ -1,6 +1,7 @@
 _id: ctunar32hrdtpin0
 _key: "!items!ctunar32hrdtpin0"
 name: Hard to Pin
+img: systems/crows/icons/traits/drop-weapon.svg
 type: trait
 system:
   description: "<p>While you have at least 1 hand slot free and use the Escape Grab maneuver, you can roll twice and choose either result and if you get a tier 3 result, you can counter the grabber as part of your escape.</p>"

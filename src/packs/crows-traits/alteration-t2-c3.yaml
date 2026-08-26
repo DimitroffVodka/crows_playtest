@@ -1,6 +1,7 @@
 _id: ctalte23mrphsto0
 _key: "!items!ctalte23mrphsto0"
 name: Morphing Stone
+img: systems/crows/icons/traits/ball-glow.svg
 type: trait
 system:
   description: "<p>A creature who holds the stone can use a maneuver to change it into the shape of a mace, maul, flail, or back to its original form. The stone gains the stats of its weapon form while retaining its own stats.</p>"

@@ -1,6 +1,7 @@
 _id: ctthie23abvtall0
 _key: "!items!ctthie23abvtall0"
 name: Above It All
+img: systems/crows/icons/traits/grapple.svg
 type: trait
 system:
   description: "<p>You gain a +2 bonus to tests made to climb, jump, swim, or do gymnastics while you are not wearing armor.</p>"

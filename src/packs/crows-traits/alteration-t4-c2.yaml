@@ -1,6 +1,7 @@
 _id: ctalte42wings000
 _key: "!items!ctalte42wings000"
 name: Wings
+img: systems/crows/icons/traits/angel-wings.svg
 type: trait
 system:
   description: "<p>When you cast an alteration spell, you can harness the magic to grow wings that last until the end of the DT. While you have these wings, you gain a flying speed equal to your speed.</p>"

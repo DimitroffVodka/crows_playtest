@@ -1,6 +1,7 @@
 _id: ctchop42chppnghl
 _key: "!items!ctchop42chppnghl"
 name: Chopping Holster
+img: systems/crows/icons/traits/axe-in-stump.svg
 type: trait
 system:
   description: "<p>You gain an additional belt slot that can only hold chopping weapons.</p>"

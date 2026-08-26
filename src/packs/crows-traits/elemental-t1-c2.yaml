@@ -1,6 +1,7 @@
 _id: ctelem12hrlthstr
 _key: "!items!ctelem12hrlthstr"
 name: Hurl the Storm
+img: systems/crows/icons/traits/lightning-branches.svg
 type: trait
 system:
   description: "<p>When you cast a ranged elemental spell, the spell's range increases a number of squares equal to your Mind.</p>"

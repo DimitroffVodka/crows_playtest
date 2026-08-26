@@ -1,6 +1,7 @@
 _id: ctcamp23sngftrvl
 _key: "!items!ctcamp23sngftrvl"
 name: Song of Travel
+img: systems/crows/icons/traits/harp.svg
 type: trait
 system:
   description: "<p>As a rest activity, you can play a song on an instrument. At the end of the rest, each ally who rested with you gains a +2 bonus on tests related to their travel role. This bonus lasts until they finish a rest.</p>"

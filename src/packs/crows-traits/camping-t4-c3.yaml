@@ -1,6 +1,7 @@
 _id: ctcamp43bard0000
 _key: "!items!ctcamp43bard0000"
 name: Bard
+img: systems/crows/icons/traits/drama-masks.svg
 type: trait
 system:
   description: "<p>Your Song of Rest feature allows allies to become blessed twice during the day instead of once.</p>"

@@ -1,6 +1,7 @@
 _id: ctconj11lstngcnj
 _key: "!items!ctconj11lstngcnj"
 name: Lasting Conjuration
+img: systems/crows/icons/traits/portal.svg
 type: trait
 system:
   description: "<p>When you cast a conjuration spell with a duration listed in UD, add an additional 1 UD to the duration.</p>"

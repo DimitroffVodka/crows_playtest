@@ -1,6 +1,7 @@
 _id: ctalch23lstbrw00
 _key: "!items!ctalch23lstbrw00"
 name: Lasting Brew
+img: systems/crows/icons/traits/hourglass.svg
 type: trait
 system:
   description: "<p>Potions and poisons you craft that have a duration listed in UD gain 1 additional UD.</p>"

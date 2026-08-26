@@ -64,6 +64,276 @@ Attribution by author, with the background each is used for:
 
 - `mounted-knight.svg` — Knight
 
+## Trait icons — game-icons.net
+
+The 231 SVG files in `icons/traits/` are from **game-icons.net** under the same
+**CC BY 3.0** licence, unmodified. They cover all 276 traits; an icon may serve more than one
+trait where the mechanic repeats across trees (a "Split X" in three magic trees, for instance).
+
+### caro-asercion — https://game-icons.net/about.html#authors (1 icons)
+
+- `round-potion.svg` — Two for One
+
+### darkzaitzev — https://github.com/DarkZaitzev (5 icons)
+
+- `acrobatic.svg` — Dance Away, Dodgy, Tumble
+- `cauldron.svg` — Eschew Ingredients
+- `robber-hand.svg` — Into the Pack
+- `smoke-bomb.svg` — Goodbye, Potion to Gas
+- `whirlpool-shuriken.svg` — Split the Sea
+
+### delapouite — https://delapouite.com (80 icons)
+
+- `all-seeing-eye.svg` — Seeing Things, You're a Believer
+- `backpack.svg` — Prepare Your Gear
+- `barrier.svg` — Benefaction Ward
+- `biceps.svg` — Mighty Arm
+- `bone-knife.svg` — Share Food
+- `bone-mace.svg` — Bone Breaker
+- `book-cover.svg` — Quick Reference
+- `book-pile.svg` — Cram
+- `brass-knuckles.svg` — Bashing Benefits
+- `bread-slice.svg` — Half Portions
+- `broken-axe.svg` — Break the Blade
+- `camping-tent.svg` — Camp Builder
+- `candles.svg` — Lights Out
+- `candy-canes.svg` — Soothing Candies
+- `castle.svg` — Wall of Protection
+- `charging-bull.svg` — Big Push, Charge
+- `checklist.svg` — Expert Plan
+- `chest-armor.svg` — Stalwart
+- `claws.svg` — Monster Expert
+- `coins-pile.svg` — More for Less
+- `cooking-pot.svg` — Hearty Meals
+- `crosshair.svg` — Specialized Hunter, You In Particular
+- `deer-track.svg` — Hunting Expert
+- `direction-sign.svg` — This Way
+- `dynamite.svg` — Improvised Bomb
+- `elephant.svg` — Beast of Burden
+- `executioner-hood.svg` — Unrelenting Death
+- `eye-target.svg` — Careful Shot
+- `falling-rocks.svg` — Collision Damage, To the Walls
+- `fast-forward-button.svg` — Quickstep
+- `fish-scales.svg` — Grow Scales
+- `floating-ghost.svg` — Lasting Illusion
+- `giant.svg` — Big Ain't Nothing
+- `harp.svg` — Song of Travel
+- `healing.svg` — Enhanced Healing
+- `hook.svg` — Where I Want You
+- `horse-head.svg` — Mounted Speed
+- `horseshoe.svg` — Hooves
+- `hot-meal.svg` — Leftovers
+- `juggling-clubs.svg` — Extra Tricks
+- `jump-across.svg` — Long Distance Jump
+- `metal-plate.svg` — Enchant Armor
+- `mortar.svg` — Kitchen Alchemy
+- `night-vision.svg` — Hurl in the Dark, Shot in the Dark
+- `pan-flute.svg` — Song of Rest
+- `price-tag.svg` — Discount, Labeled Inventory
+- `prism.svg` — Illusion Mastery
+- `push.svg` — Extra Push, Push 'Em Back
+- `quiver.svg` — Double Quiver
+- `rat.svg` — Dungeon Critter
+- `scabbard.svg` — Scabbard
+- `scroll-quill.svg` — Specific Research
+- `secret-door.svg` — Have it in the Back
+- `shaking-hands.svg` — Favorite Customer
+- `sharp-axe.svg` — Weapon Upgrade II
+- `shield-bash.svg` — Stand Strong
+- `shield-impact.svg` — Shield Bash
+- `skeletal-hand.svg` — Distant Necromancy
+- `sparkles.svg` — Delayed Inspiration, Most of Magic
+- `spear-feather.svg` — Stabbing Holster
+- `spell-book.svg` — Alteration Mastery
+- `split-arrows.svg` — Split Alteration, Split Conjuration, Split Illusion, Split Shot
+- `star-altar.svg` — Sacrifice
+- `sun-spear.svg` — Burn Blessings
+- `swiss-army-knife.svg` — Improvised Equipment
+- `sword-mold.svg` — Enchant Weapons
+- `teacher.svg` — Shared Knowledge
+- `thrust-bend.svg` — Stabathon
+- `tiara.svg` — Also Mommy
+- `tomahawk.svg` — Axe Hurler
+- `torch.svg` — Lasting Light, Torch Warrior
+- `two-coins.svg` — Double Discount
+- `upgrade.svg` — Weapon Upgrade I
+- `village.svg` — Building Efficiency
+- `war-axe.svg` — Improved Chop
+- `warhammer.svg` — Bashing Holster
+- `water-fountain.svg` — Water Cannon
+- `weight-lifting-up.svg` — Strong Back
+- `whistle.svg` — Tricks
+- `winged-scepter.svg` — Call Grandaddy
+
+### faithtoken — https://fungustoken.deviantart.com (1 icons)
+
+- `dragon-head.svg` — Big Dreams
+
+### felbrigg — https://blackdogofdoom.blogspot.co.uk (2 icons)
+
+- `overhead.svg` — Knock 'Em Together, Piledriver, You Are My Weapon
+- `thrust.svg` — Swift Block
+
+### john-redman — https://game-icons.net/about.html#authors (1 icons)
+
+- `rock.svg` — Alteration Stone, Throw Stuff
+
+### lorc — https://lorcblog.blogspot.com (124 icons)
+
+- `anchor.svg` — Immovable
+- `angel-wings.svg` — Angelic Presence, Wings
+- `anvil.svg` — No Waste
+- `anvil-impact.svg` — Double Duty
+- `archery-target.svg` — Greater Range, Prone Position
+- `arrow-cluster.svg` — Double Tap, Scrap Arrows
+- `arrow-dunk.svg` — Point Blank
+- `auto-repair.svg` — Jury-Rig Repairs, Repair, Repair
+- `axe-in-stump.svg` — Chopping Holster, Hone the Blade
+- `backstab.svg` — Sieze the Advantage
+- `ball-glow.svg` — Morphing Stone
+- `barbed-spear.svg` — Bury the Point, Nope
+- `battle-axe.svg` — Chop 'Em Down
+- `beam-wake.svg` — Ranged Benefaction
+- `belt-buckles.svg` — Alchemy Belt
+- `big-wave.svg` — Might of Waves
+- `bleeding-wound.svg` — Flow Like Blood
+- `brain.svg` — Memorization, Mind Protection
+- `breastplate.svg` — Armor Expert
+- `broken-bottle.svg` — Break It, Everything's a Mace
+- `broken-shield.svg` — Sacrifice Armor
+- `broken-skull.svg` — Mind Shatter
+- `bull-horns.svg` — Horns
+- `burning-eye.svg` — Burned in the Brain
+- `campfire.svg` — Prepare Campsite
+- `candle-flame.svg` — Midnight Oil
+- `cloudy-fork.svg` — Selective Storm
+- `compass.svg` — Orienteering
+- `cracked-helm.svg` — Break Stuff, Destructive
+- `cross-mark.svg` — Split Benefaction
+- `crossed-axes.svg` — Double Axe
+- `crossed-sabres.svg` — Finesse the Blade
+- `crossed-swords.svg` — Swordplay, Weapon Expert
+- `crown-coin.svg` — Call Daddy
+- `cubes.svg` — Stacks on Stacks
+- `daggers.svg` — Double Knife
+- `decapitation.svg` — Chopping Crit
+- `diamond-hard.svg` — Lasting Items
+- `drama-masks.svg` — Bard
+- `droplet-splash.svg` — Don't Waste a Drop
+- `evil-moon.svg` — Blessings for a Curse
+- `explosion-rays.svg` — Big Boom
+- `eyeball.svg` — Stabbing Crit
+- `fire-shield.svg` — Fire Ward
+- `fireball.svg` — Burn Baby
+- `flaming-claw.svg` — Lingering Fire
+- `flash-grenade.svg` — Blip
+- `floating-crystal.svg` — Spell Stone
+- `flying-dagger.svg` — Knife Chucker
+- `gem-pendant.svg` — Twice Enchanted
+- `ghost.svg` — Soul Absorption
+- `gift-of-knowledge.svg` — Here's One for Free
+- `glowing-hands.svg` — Blessed Benefaction, Material Transfer
+- `grapple.svg` — Above It All, Wrestle Big
+- `grim-reaper.svg` — Necromancy Mastery
+- `hammer-drop.svg` — Bashing Crit
+- `hammer-nails.svg` — Emergency Repairs
+- `harpoon-chain.svg` — Get Over Here
+- `harpoon-trident.svg` — Grappling Spear
+- `heart-drop.svg` — Some For Me
+- `helmet-head-shot.svg` — Headgear
+- `hidden.svg` — Ambush
+- `holy-grail.svg` — Special Item
+- `holy-symbol.svg` — Lasting Benefaction
+- `hood.svg` — Stealthy
+- `hound.svg` — Travel Animal
+- `hourglass.svg` — Lasting Alteration, Lasting Brew
+- `impact-point.svg` — Further Back
+- `laurel-crown.svg` — VIP Treatment
+- `light-bulb.svg` — Alchemy Epiphany, Enchanting Epiphany, Free Light, Smithing Epiphany
+- `lightning-branches.svg` — Hurl the Storm
+- `lightning-storm.svg` — Spreading Storm
+- `lion.svg` — Beastheart
+- `locked-chest.svg` — Portal Pocket
+- `magic-lamp.svg` — Enchantransfer, Made with Spirit
+- `molotov.svg` — Fire Bomb
+- `mushroom-gills.svg` — Foraging Expert
+- `paw-heart.svg` — Buddy
+- `pierced-body.svg` — Walls Can't Save You
+- `pierced-heart.svg` — Triple Crit
+- `pine-tree.svg` — Fade Away
+- `portal.svg` — Lasting Conjuration
+- `potion-ball.svg` — Drink Fully, Potent Potion
+- `psychic-waves.svg` — Telepathic Connection
+- `punch.svg` — Pack a Punch
+- `punch-blast.svg` — Pack a Big Punch
+- `radar-sweep.svg` — Dark Senses
+- `recycle.svg` — Recycling
+- `saber-slash.svg` — Follow Up
+- `scalpel.svg` — Organ Harvester
+- `scroll-unfurled.svg` — One More Spell
+- `sewing-needle.svg` — Stitching Magic
+- `shadow-follower.svg` — From the Shadows
+- `shadow-grasp.svg` — It's Real
+- `shield-reflect.svg` — Interceding Blade, Interposing Arm
+- `shining-claw.svg` — Strong Glow
+- `shining-heart.svg` — Blessed Summons, Many Blessings
+- `skull-mask.svg` — Demon's Sight
+- `snatch.svg` — Out of the Pack
+- `spear-hook.svg` — Javelin
+- `spears.svg` — Spinning Shaft
+- `spectacles.svg` — And Grandmommy
+- `spiked-halo.svg` — Benefaction Mastery
+- `spiral-thrust.svg` — Wind Up
+- `sprint.svg` — First Responder, Move Together, Must Go Faster
+- `spyglass.svg` — I Spy, Long-Distance Illusion, Range Finder
+- `static-guard.svg` — Pierce This, Stop
+- `swap-bag.svg` — Bursting Purse
+- `swirl-string.svg` — Conjuration Mastery
+- `target-arrows.svg` — Aim
+- `teleport.svg` — Jumper
+- `trade.svg` — On Sale
+- `treasure-map.svg` — Plotting
+- `trident.svg` — Improved Stab
+- `triorb.svg` — Elemental Mastery
+- `triple-skulls.svg` — Split Necromancy
+- `tripwire.svg` — Tripping Counter
+- `voodoo-doll.svg` — You'll Suffer
+- `vortex.svg` — Baleful Teleport
+- `walking-boot.svg` — Troubadour
+- `water-splash.svg` — Water Shield
+- `whirlwind.svg` — On the Move
+- `wingfoot.svg` — Fast Feet, Movement Stone
+- `wolf-howl.svg` — Improved Animal
+
+### sbed — https://opengameart.org/content/95-game-icons (6 icons)
+
+- `acid.svg` — It Burns
+- `battery-pack.svg` — Energy Transfer
+- `falling.svg` — Down You Go
+- `shield.svg` — Hurl Shield
+- `spawn-node.svg` — Improved Summons
+- `wrench.svg` — Hands for Tools
+
+### seregacthtuf — https://game-icons.net/about.html#authors (1 icons)
+
+- `armor-blueprint.svg` — Schematics
+
+### skoll — https://game-icons.net/about.html#authors (9 icons)
+
+- `chess-knight.svg` — Five Steps Ahead
+- `combination-lock.svg` — Safe Cracking
+- `donkey.svg` — Pack Animals
+- `drop-weapon.svg` — Hard to Pin
+- `evil-eyes.svg` — Many Curses
+- `fruit-bowl.svg` — Food Finder
+- `hearts.svg` — Weakness Diagram
+- `pentacle.svg` — Summoning Ward
+- `skeleton.svg` — Undead Fortitude
+
+### willdabeast — https://github.com/willdabeast (1 icons)
+
+- `chain-mail.svg` — Second Skin
+
 ## Everything else
 
 All other icon paths in this system point at Foundry VTT's own bundled icon

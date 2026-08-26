@@ -1,6 +1,7 @@
 _id: ctslas43scbbrd00
 _key: "!items!ctslas43scbbrd00"
 name: Scabbard
+img: systems/crows/icons/traits/scabbard.svg
 type: trait
 system:
   description: "<p>You gain an additional belt slot that can only hold slashing weapons.</p>"

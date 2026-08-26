@@ -1,6 +1,7 @@
 _id: ctarch33dbltap00
 _key: "!items!ctarch33dbltap00"
 name: Double Tap
+img: systems/crows/icons/traits/arrow-cluster.svg
 type: trait
 system:
   description: "<p>When you make an attack with a bow, you can use two pieces of ammunition per target. If the attack hits, it deals additional damage equal to your Agility.</p>"

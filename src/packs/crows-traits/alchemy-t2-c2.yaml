@@ -1,6 +1,7 @@
 _id: ctalch22bigboom0
 _key: "!items!ctalch22bigboom0"
 name: Big Boom
+img: systems/crows/icons/traits/explosion-rays.svg
 type: trait
 system:
   description: "<p>Bombs you craft have the size of the cube they effect increased by 1.</p>"

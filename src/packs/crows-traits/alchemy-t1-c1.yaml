@@ -1,6 +1,7 @@
 _id: ctalch11midnght0
 _key: "!items!ctalch11midnght0"
 name: Midnight Oil
+img: systems/crows/icons/traits/candle-flame.svg
 type: trait
 system:
   description: "<p>When you work on crafting an alchemy item as part of the Craft Equipment rest activity, you can make two crafting rolls for the item or make a second crafting roll for a different alchemy item.</p>"

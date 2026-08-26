@@ -1,6 +1,7 @@
 _id: ctnecr41scrifce0
 _key: "!items!ctnecr41scrifce0"
 name: Sacrifice
+img: systems/crows/icons/traits/star-altar.svg
 type: trait
 system:
   description: "<p>When you cast a necromancy spell that deals damage to a creature, you can choose to take 1d6 P damage to deal additional damage with the spell equal to the damage you take.</p>"

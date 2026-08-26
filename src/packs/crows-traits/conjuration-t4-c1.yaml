@@ -1,6 +1,7 @@
 _id: ctconj41spltcnjr
 _key: "!items!ctconj41spltcnjr"
 name: Split Conjuration
+img: systems/crows/icons/traits/split-arrows.svg
 type: trait
 system:
   description: "<p>When you cast a conjuration spell that has a target of 1 creature, object, ally, enemy, or target, you can target one additional qualifying target.</p>"

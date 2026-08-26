@@ -1,6 +1,7 @@
 _id: ctnecr32blsscrs0
 _key: "!items!ctnecr32blsscrs0"
 name: Blessings for a Curse
+img: systems/crows/icons/traits/evil-moon.svg
 type: trait
 system:
   description: "<p>When you cast a necromancy spell that targets a creature, you can remove the blessed condition from you and any willing ally within 5 squares of you to make the target vulnerable.</p>"

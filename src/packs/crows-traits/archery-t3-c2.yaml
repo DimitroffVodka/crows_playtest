@@ -1,6 +1,7 @@
 _id: ctarch32shtdrk00
 _key: "!items!ctarch32shtdrk00"
 name: Shot in the Dark
+img: systems/crows/icons/traits/night-vision.svg
 type: trait
 system:
   description: "<p>Attacks you make with bows don't suffer a penalty for the target being in dim light or similar concealment, and they only suffer a -2 penalty against target in darkness or similar concealment.</p>"

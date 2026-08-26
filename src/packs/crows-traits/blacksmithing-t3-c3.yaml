@@ -1,6 +1,7 @@
 _id: ctblac33wpnpgrd0
 _key: "!items!ctblac33wpnpgrd0"
 name: Weapon Upgrade II
+img: systems/crows/icons/traits/sharp-axe.svg
 type: trait
 system:
   description: "<p>When you craft a weapon, you can add the Defensive or Dismembering qualities to it if the weapon doesn't already have those qualities. Alternatively, you add a range of ranged 5 to the weapon.</p>"

@@ -1,6 +1,7 @@
 _id: ctknow41mmrztn00
 _key: "!items!ctknow41mmrztn00"
 name: Memorization
+img: systems/crows/icons/traits/brain.svg
 type: trait
 system:
   description: "<p>As a rest activity, choose a lore book you have to study. You gain its expertise and are always wielding it even when you don't have it until you use this rest activity again.</p>"

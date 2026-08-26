@@ -1,6 +1,7 @@
 _id: ctillu33gdby0000
 _key: "!items!ctillu33gdby0000"
 name: Goodbye
+img: systems/crows/icons/traits/smoke-bomb.svg
 type: trait
 system:
   description: "<p>When you activate your Free Light trait, you can choose to become invisible until the end of your next combat turn instead of creating light. This invisibility ends if you attack or cast a spell.</p>"

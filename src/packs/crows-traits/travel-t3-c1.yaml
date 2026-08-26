@@ -1,6 +1,7 @@
 _id: cttrav31mstgfstr
 _key: "!items!cttrav31mstgfstr"
 name: Must Go Faster
+img: systems/crows/icons/traits/sprint.svg
 type: trait
 system:
   description: "<p>When you are in the scout role and carrying a spyglass and encounter other creatures while traveling (not resting), you and each creature in your party can take 3d6 P damage to avoid the encounter before it starts.</p>"

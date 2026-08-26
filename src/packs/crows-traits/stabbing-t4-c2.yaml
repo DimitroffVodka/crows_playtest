@@ -1,6 +1,7 @@
 _id: ctstab42wndup000
 _key: "!items!ctstab42wndup000"
 name: Wind Up
+img: systems/crows/icons/traits/spiral-thrust.svg
 type: trait
 system:
   description: "<p>While you are wielding a stabbing weapon, you can use a maneuver to prepare an attack. If you make a melee attack with the stabbing weapon this turn, it deals additional damage equal to your Strength.</p>"

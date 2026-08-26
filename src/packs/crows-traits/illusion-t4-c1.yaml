@@ -1,6 +1,7 @@
 _id: ctillu41spltill0
 _key: "!items!ctillu41spltill0"
 name: Split Illusion
+img: systems/crows/icons/traits/split-arrows.svg
 type: trait
 system:
   description: "<p>When you cast an illusion spell that has a target of 1 creature, object, ally, enemy, or target, you can target one additional qualifying target.</p>"

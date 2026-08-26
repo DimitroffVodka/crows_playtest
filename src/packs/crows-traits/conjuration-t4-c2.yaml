@@ -1,6 +1,7 @@
 _id: ctconj42prtlpckt
 _key: "!items!ctconj42prtlpckt"
 name: Portal Pocket
+img: systems/crows/icons/traits/locked-chest.svg
 type: trait
 system:
   description: "<p>You gain an additional belt slot that exists in an extradimensional space only you can access. If you die, any items in that slot disappear into the void.</p>"

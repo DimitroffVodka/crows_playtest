@@ -1,6 +1,7 @@
 _id: cttrav22pthfall0
 _key: "!items!cttrav22pthfall0"
 name: Troubadour
+img: systems/crows/icons/traits/walking-boot.svg
 type: trait
 system:
   description: "<p>When are in the support role while carrying a musical instrument, any test you make that grants a bonus to other travel roles has that bonus increased by 1.</p>"

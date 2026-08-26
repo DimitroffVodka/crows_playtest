@@ -1,6 +1,7 @@
 _id: ctblac42nchntrmr
 _key: "!items!ctblac42nchntrmr"
 name: Enchant Armor
+img: systems/crows/icons/traits/metal-plate.svg
 type: trait
 system:
   description: "<p>You can use your blacksmith's tools as enchanter's tools and your number of uses in the Blacksmithing expertise in place of Enchantment when crafting magic armor.</p>"

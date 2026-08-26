@@ -1,6 +1,7 @@
 _id: ctelem32slctvstr
 _key: "!items!ctelem32slctvstr"
 name: Selective Storm
+img: systems/crows/icons/traits/cloudy-fork.svg
 type: trait
 system:
   description: "<p>When you cast an elemental spell that affects all creatures in an area of effect, you can choose a number of creatures equal to your Mind. Those creatures aren't targeted by the spell.</p>"

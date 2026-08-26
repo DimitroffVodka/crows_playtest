@@ -1,6 +1,7 @@
 _id: ctarch41spltshot
 _key: "!items!ctarch41spltshot"
 name: Split Shot
+img: systems/crows/icons/traits/split-arrows.svg
 type: trait
 system:
   description: "<p>When you make an attack with a bow, you can use twice as much ammunition and select two targets within range for the attack.</p>"

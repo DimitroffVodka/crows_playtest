@@ -1,6 +1,7 @@
 _id: ctench42fvstpshd
 _key: "!items!ctench42fvstpshd"
 name: Five Steps Ahead
+img: systems/crows/icons/traits/chess-knight.svg
 type: trait
 system:
   description: "<p>When you start crafting a new enchanting item, the item automatically gains crafting points equal to 5d10 multiplied by your Mind.</p>"

@@ -1,6 +1,7 @@
 _id: ctalte12grwscls0
 _key: "!items!ctalte12grwscls0"
 name: Grow Scales
+img: systems/crows/icons/traits/fish-scales.svg
 type: trait
 system:
   description: "<p>When you cast an alteration spell, you can harness the magic to grow temporary scales on your body and gain AD equal to your Mind. The AD granted by this trait disappears at the end of a rest.</p>"

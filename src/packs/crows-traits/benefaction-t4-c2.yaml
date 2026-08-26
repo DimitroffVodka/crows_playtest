@@ -1,6 +1,7 @@
 _id: ctbene42stitchm0
 _key: "!items!ctbene42stitchm0"
 name: Stitching Magic
+img: systems/crows/icons/traits/sewing-needle.svg
 type: trait
 system:
   description: "<p>When you cast a benefaction spell that makes the spell's target lose at least 1 wound, they lose 1 additional wound.</p>"

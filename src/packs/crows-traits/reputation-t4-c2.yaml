@@ -1,6 +1,7 @@
 _id: ctrepu42onsale00
 _key: "!items!ctrepu42onsale00"
 name: On Sale
+img: systems/crows/icons/traits/trade.svg
 type: trait
 system:
   description: "<p>Items affect by your Discount trait are 10% cheaper for you instead of 5%.</p>"

@@ -1,6 +1,7 @@
 _id: ctalte43splsto00
 _key: "!items!ctalte43splsto00"
 name: Spell Stone
+img: systems/crows/icons/traits/floating-crystal.svg
 type: trait
 system:
   description: "<p>Choose up to three alteration spellbooks in your possession. The stone absorbs and destroys those books. A creature wielding the stone has those spellbooks equipped. The stone can only hold three spells.</p>"

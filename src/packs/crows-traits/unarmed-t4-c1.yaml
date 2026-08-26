@@ -1,6 +1,7 @@
 _id: ctunar41bshbnft0
 _key: "!items!ctunar41bshbnft0"
 name: Bashing Benefits
+img: systems/crows/icons/traits/brass-knuckles.svg
 type: trait
 system:
   description: "<p>Any improvised weapon you wield counts as a bashing weapon and has the Pummeling quality.</p>"

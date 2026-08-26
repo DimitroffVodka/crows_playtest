@@ -1,6 +1,7 @@
 _id: ctillu42itsreal0
 _key: "!items!ctillu42itsreal0"
 name: It's Real
+img: systems/crows/icons/traits/shadow-grasp.svg
 type: trait
 system:
   description: "<p>When you cast an illusion spell, you can choose one mundane object that is part of the illusion that becomes real until the end of the DT.</p>"

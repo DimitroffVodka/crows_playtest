@@ -1,6 +1,7 @@
 _id: ctchop33crit0000
 _key: "!items!ctchop33crit0000"
 name: Chopping Crit
+img: systems/crows/icons/traits/decapitation.svg
 type: trait
 system:
   description: "<p>You score a crit on chopping weapon attacks when the dice without modifiers equal 18, 19, or 20.</p>"

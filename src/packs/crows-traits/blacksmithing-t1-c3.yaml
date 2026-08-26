@@ -1,6 +1,7 @@
 _id: ctblac13wpnxprt0
 _key: "!items!ctblac13wpnxprt0"
 name: Weapon Expert
+img: systems/crows/icons/traits/crossed-swords.svg
 type: trait
 system:
   description: "<p>When you make a crafting roll for a weapon item, double the result to determine the number of crafting points added to the project.</p>"

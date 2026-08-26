@@ -1,6 +1,7 @@
 _id: ctthie21frmshds0
 _key: "!items!ctthie21frmshds0"
 name: From the Shadows
+img: systems/crows/icons/traits/shadow-follower.svg
 type: trait
 system:
   description: "<p>When you make a weapon attack against a target you are hidden from using Agility, the attack gains a +3 bonus instead the normal +2 bonus for being hidden.</p>"

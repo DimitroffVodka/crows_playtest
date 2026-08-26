@@ -1,6 +1,7 @@
 _id: ctslas31knfchkr0
 _key: "!items!ctslas31knfchkr0"
 name: Knife Chucker
+img: systems/crows/icons/traits/flying-dagger.svg
 type: trait
 system:
   description: "<p>When you wield a knife, it's non-melee range increases by 2 squares.</p>"

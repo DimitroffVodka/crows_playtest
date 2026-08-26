@@ -1,6 +1,7 @@
 _id: ctpets41bsthrt00
 _key: "!items!ctpets41bsthrt00"
 name: Beastheart
+img: systems/crows/icons/traits/lion.svg
 type: trait
 system:
   description: "<p>When you take the Command maneuver, you can command up to two pets you own.</p>"

@@ -1,6 +1,7 @@
 _id: ctelem11burnbaby
 _key: "!items!ctelem11burnbaby"
 name: Burn Baby
+img: systems/crows/icons/traits/fireball.svg
 type: trait
 system:
   description: "<p>When you cast an elemental spell that deals damage to a target, the target takes additional damage equal to your Mind.</p>"

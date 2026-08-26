@@ -1,6 +1,7 @@
 _id: ctpets42shrfood0
 _key: "!items!ctpets42shrfood0"
 name: Share Food
+img: systems/crows/icons/traits/bone-knife.svg
 type: trait
 system:
   description: "<p>You can stack rations and animal feed in the same slot. You can eat animal feed and pets you car for can eat rations.</p>"

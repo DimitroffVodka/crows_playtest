@@ -1,6 +1,7 @@
 _id: ctknow22qckrfr00
 _key: "!items!ctknow22qckrfr00"
 name: Quick Reference
+img: systems/crows/icons/traits/book-cover.svg
 type: trait
 system:
   description: "<p>When you fail a Mind test to recall lore and have a lore book that relates to the lore, you can attempt the test again. You can use this trait a number of times equal to your Mind, regaining all uses when you finish a rest.</p>"

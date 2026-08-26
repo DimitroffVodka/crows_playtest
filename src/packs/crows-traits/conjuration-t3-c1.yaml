@@ -1,6 +1,7 @@
 _id: ctconj31blip0000
 _key: "!items!ctconj31blip0000"
 name: Blip
+img: systems/crows/icons/traits/flash-grenade.svg
 type: trait
 system:
   description: "<p>When you cast a conjuration spell, you can teleport a number of squares equal to your Mind after the spell resolves.</p>"

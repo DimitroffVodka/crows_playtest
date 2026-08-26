@@ -1,6 +1,7 @@
 _id: ctleve42grndrl00
 _key: "!items!ctleve42grndrl00"
 name: Stacks on Stacks
+img: systems/crows/icons/traits/cubes.svg
 type: trait
 system:
   description: "<p>When you carry an item with a stack limit greater than 1, its stack limit increases by 1.</p>"

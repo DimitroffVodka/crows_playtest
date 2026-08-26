@@ -1,6 +1,7 @@
 _id: ctbash12destctv0
 _key: "!items!ctbash12destctv0"
 name: Destructive
+img: systems/crows/icons/traits/cracked-helm.svg
 type: trait
 system:
   description: "<p>You deal double damage to objects with bashing weapon attacks.</p>"

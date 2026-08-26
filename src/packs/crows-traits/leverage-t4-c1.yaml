@@ -1,6 +1,7 @@
 _id: ctleve41drnkfly0
 _key: "!items!ctleve41drnkfly0"
 name: Drink Fully
+img: systems/crows/icons/traits/potion-ball.svg
 type: trait
 system:
   description: "<p>You can consume a healing potion as an action instead of a maneuver. If you do, you don't roll dice to determine how much Stamina you regain. Instead, you gain the maximum amount the dice allow.</p>"

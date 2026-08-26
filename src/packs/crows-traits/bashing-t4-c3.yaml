@@ -1,6 +1,7 @@
 _id: ctbash43dwnugo00
 _key: "!items!ctbash43dwnugo00"
 name: Down You Go
+img: systems/crows/icons/traits/falling.svg
 type: trait
 system:
   description: "<p>When you get a tier 3 result on a bashing weapon attack that results in the target being pushed, you can knock the target prone instead of pushing them.</p>"

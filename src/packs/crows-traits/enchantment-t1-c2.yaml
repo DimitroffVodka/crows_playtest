@@ -1,6 +1,7 @@
 _id: ctench12twcnchnt
 _key: "!items!ctench12twcnchnt"
 name: Twice Enchanted
+img: systems/crows/icons/traits/gem-pendant.svg
 type: trait
 system:
   description: "<p>When you work on crafting an enchanting item as part of the Craft Equipment rest activity, you can make two crafting rolls for the item or make a second crafting roll for a different enchanting item.</p>"

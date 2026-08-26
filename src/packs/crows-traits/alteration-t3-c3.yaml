@@ -1,6 +1,7 @@
 _id: ctalte33mvmnsto0
 _key: "!items!ctalte33mvmnsto0"
 name: Movement Stone
+img: systems/crows/icons/traits/wingfoot.svg
 type: trait
 system:
   description: "<p>Add the following benefits to those your stone can confer: You can breathe underwater and gain a swimming speed equal to your speed. You gain a climbing speed equal to your speed.</p>"

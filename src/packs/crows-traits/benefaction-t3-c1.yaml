@@ -1,6 +1,7 @@
 _id: ctbene31rngdbnf0
 _key: "!items!ctbene31rngdbnf0"
 name: Ranged Benefaction
+img: systems/crows/icons/traits/beam-wake.svg
 type: trait
 system:
   description: "<p>When you cast a benefaction spell with a range of Melee 1, you can change it to Ranged 5.</p>"

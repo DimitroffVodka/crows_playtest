@@ -1,6 +1,7 @@
 _id: ctstab22spnshft0
 _key: "!items!ctstab22spnshft0"
 name: Spinning Shaft
+img: systems/crows/icons/traits/spears.svg
 type: trait
 system:
   description: "<p>When you get a tier 3 result on a melee stabbing weapon attack, choose another target within the weapon's distance. That target takes damage equal to your Strength.</p>"

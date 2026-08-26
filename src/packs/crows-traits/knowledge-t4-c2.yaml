@@ -1,6 +1,7 @@
 _id: ctknow42mnstrxp0
 _key: "!items!ctknow42mnstrxp0"
 name: Monster Expert
+img: systems/crows/icons/traits/claws.svg
 type: trait
 system:
   description: "<p>When you are wielding a monster lore book and a monster is in your line of effect, you know the monster's Stamina, power, and the names of their attacks and traits.</p>"

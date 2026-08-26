@@ -1,6 +1,7 @@
 _id: ctalch21alcheph0
 _key: "!items!ctalch21alcheph0"
 name: Alchemy Epiphany
+img: systems/crows/icons/traits/light-bulb.svg
 type: trait
 system:
   description: "<p>When you make a crafting roll for an alchemy item, you get a crit when the dice without modifiers equal 18, 19, or 20.</p>"

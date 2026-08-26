@@ -1,6 +1,7 @@
 _id: ctillu23strnglw0
 _key: "!items!ctillu23strnglw0"
 name: Strong Glow
+img: systems/crows/icons/traits/shining-claw.svg
 type: trait
 system:
   description: "<p>The light granted by your Free Light trait becomes 5/5.</p>"

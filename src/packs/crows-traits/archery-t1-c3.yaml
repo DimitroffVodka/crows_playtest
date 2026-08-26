@@ -1,6 +1,7 @@
 _id: ctarch13pronpos0
 _key: "!items!ctarch13pronpos0"
 name: Prone Position
+img: systems/crows/icons/traits/archery-target.svg
 type: trait
 system:
   description: "<p>If you are prone, you gain a +1 bonus on attacks made with crossbows.</p>"

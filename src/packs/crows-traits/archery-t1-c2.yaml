@@ -1,6 +1,7 @@
 _id: ctarch12rngfndr0
 _key: "!items!ctarch12rngfndr0"
 name: Range Finder
+img: systems/crows/icons/traits/spyglass.svg
 type: trait
 system:
   description: "<p>While you wield a bow weapon, it's range increases by 2 squares. This bonus stacks with Greater Range.</p>"

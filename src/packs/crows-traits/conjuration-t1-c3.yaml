@@ -1,6 +1,7 @@
 _id: ctconj13smmnngwr
 _key: "!items!ctconj13smmnngwr"
 name: Summoning Ward
+img: systems/crows/icons/traits/pentacle.svg
 type: trait
 system:
   description: "<p>Creatures you summon with conjuration spells have AD equal to their power.</p>"

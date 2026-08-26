@@ -1,6 +1,7 @@
 _id: ctpets22trvlnml0
 _key: "!items!ctpets22trvlnml0"
 name: Travel Animal
+img: systems/crows/icons/traits/hound.svg
 type: trait
 system:
   description: "<p>When you make a test related to the forager, guide, or scout travel role, you can have one pet you own help you. The test gains a +1 bonus.</p>"

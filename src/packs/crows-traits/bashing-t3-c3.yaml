@@ -1,6 +1,7 @@
 _id: ctbash33bnebrkr0
 _key: "!items!ctbash33bnebrkr0"
 name: Bone Breaker
+img: systems/crows/icons/traits/bone-mace.svg
 type: trait
 system:
   description: "<p>When you hit a grappled, prone, vulenarble, or weakened with a bashing weapon attack, you deal additional damage equal to your Strength.</p>"

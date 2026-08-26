@@ -1,6 +1,7 @@
 _id: ctpets13mntdspd0
 _key: "!items!ctpets13mntdspd0"
 name: Mounted Speed
+img: systems/crows/icons/traits/horse-head.svg
 type: trait
 system:
   description: "<p>While you ride a pet you own, their speed is increased by 1.</p>"

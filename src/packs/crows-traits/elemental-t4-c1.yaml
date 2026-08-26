@@ -1,6 +1,7 @@
 _id: ctelem41brndnthb
 _key: "!items!ctelem41brndnthb"
 name: Burned in the Brain
+img: systems/crows/icons/traits/burning-eye.svg
 type: trait
 system:
   description: "<p>As a rest activity, you can absorb an elemental spellbook. The book is destroyed, and you always wield it. It occupies no slots. If you use this rest activity again, you lose previously absorbed books.</p>"

@@ -1,6 +1,7 @@
 _id: ctthie33dodgy000
 _key: "!items!ctthie33dodgy000"
 name: Dodgy
+img: systems/crows/icons/traits/acrobatic.svg
 type: trait
 system:
   description: "<p>You gain a +2 bonus on Agility RRs while you are not wearing armor.</p>"

@@ -1,6 +1,7 @@
 _id: ctrepu41ndgrnd00
 _key: "!items!ctrepu41ndgrnd00"
 name: And Grandmommy
+img: systems/crows/icons/traits/spectacles.svg
 type: trait
 system:
   description: "<p>Your Call Daddy trait applies to three merchants of your choice. You can change up to three once every cycle.</p>"

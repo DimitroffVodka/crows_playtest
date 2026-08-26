@@ -1,6 +1,7 @@
 _id: ctbene13frstrspr
 _key: "!items!ctbene13frstrspr"
 name: First Responder
+img: systems/crows/icons/traits/sprint.svg
 type: trait
 system:
   description: "<p>When you have a benefaction spell that can restore Stamina to a creature equipped and a creature within the spell's range take damage, you can use your reaction to cast the spell, targeting that creature.</p>"

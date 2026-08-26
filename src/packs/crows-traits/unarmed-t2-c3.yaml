@@ -1,6 +1,7 @@
 _id: ctunar23bigpsh00
 _key: "!items!ctunar23bigpsh00"
 name: Big Push
+img: systems/crows/icons/traits/charging-bull.svg
 type: trait
 system:
   description: "<p>While you have at least 1 hand slot free, you can target creatures 1 size larger than you or smaller with the Knockback maneuver.</p>"

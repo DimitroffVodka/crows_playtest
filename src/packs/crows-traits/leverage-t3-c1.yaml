@@ -1,6 +1,7 @@
 _id: ctleve31orghrv00
 _key: "!items!ctleve31orghrv00"
 name: Organ Harvester
+img: systems/crows/icons/traits/scalpel.svg
 type: trait
 system:
   description: "<p>When you harvest crafting materials from the corpse of a creature, there is a 25% chance you gain enough of the component to craft two items.</p>"

@@ -1,6 +1,7 @@
 _id: ctalch41twoforon
 _key: "!items!ctalch41twoforon"
 name: Two for One
+img: systems/crows/icons/traits/round-potion.svg
 type: trait
 system:
   description: "<p>When you finishing crafting an alchemy item, you craft two of the item instead of one.</p>"

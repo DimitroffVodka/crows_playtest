@@ -1,6 +1,7 @@
 _id: ctchop21mghtyrm0
 _key: "!items!ctchop21mghtyrm0"
 name: Mighty Arm
+img: systems/crows/icons/traits/biceps.svg
 type: trait
 system:
   description: "<p>While you wield a handaxe, it's non-melee range increases by 2 squares. This bonus stacks with Axe Hurler.</p>"

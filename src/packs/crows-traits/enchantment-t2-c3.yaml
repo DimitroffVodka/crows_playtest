@@ -1,6 +1,7 @@
 _id: ctench23mndprtct
 _key: "!items!ctench23mndprtct"
 name: Mind Protection
+img: systems/crows/icons/traits/brain.svg
 type: trait
 system:
   description: "<p>When you wear a magic item in your head slot, you gain a +1 bonus to Mind RRs.</p>"

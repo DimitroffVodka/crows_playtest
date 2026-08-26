@@ -1,6 +1,7 @@
 _id: ctstab13stbthon0
 _key: "!items!ctstab13stbthon0"
 name: Stabathon
+img: systems/crows/icons/traits/thrust-bend.svg
 type: trait
 system:
   description: "<p>When you score a crit with a stabbing weapon, any other attacks you make one the same turn gain a +2 bonus.</p>"

@@ -1,6 +1,7 @@
 _id: ctbash22bgantng0
 _key: "!items!ctbash22bgantng0"
 name: Big Ain't Nothing
+img: systems/crows/icons/traits/giant.svg
 type: trait
 system:
   description: "<p>You can force move and knock prone creatures one size category larger than you and smaller with bashing weapon attacks.</p>"

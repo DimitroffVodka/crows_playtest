@@ -1,6 +1,7 @@
 _id: ctarch22grtrrng0
 _key: "!items!ctarch22grtrrng0"
 name: Greater Range
+img: systems/crows/icons/traits/archery-target.svg
 type: trait
 system:
   description: "<p>While you wield a bow weapon, it's range increases by 2 squares. This bonus stacks with Range Finder.</p>"

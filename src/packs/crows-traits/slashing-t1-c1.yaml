@@ -1,6 +1,7 @@
 _id: ctslas11fnssbld0
 _key: "!items!ctslas11fnssbld0"
 name: Finesse the Blade
+img: systems/crows/icons/traits/crossed-sabres.svg
 type: trait
 system:
   description: "<p>You can use Agility instead of Strength when making an attack and dealing damage with a sword.</p>"

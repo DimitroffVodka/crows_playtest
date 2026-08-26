@@ -1,6 +1,7 @@
 _id: ctnecr12dstnecr0
 _key: "!items!ctnecr12dstnecr0"
 name: Distant Necromancy
+img: systems/crows/icons/traits/skeletal-hand.svg
 type: trait
 system:
   description: "<p>When you cast a ranged necromancy spell, the spell's range increases a number of squares equal to your Mind.</p>"

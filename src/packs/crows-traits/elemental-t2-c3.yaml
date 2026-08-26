@@ -1,6 +1,7 @@
 _id: ctelem23wtrcnnn0
 _key: "!items!ctelem23wtrcnnn0"
 name: Water Cannon
+img: systems/crows/icons/traits/water-fountain.svg
 type: trait
 system:
   description: "<p>When a Huge or smaller creature takes damage from an elemental spell you cast, you can slide the creature a number of squares equal to your Mind after the spell resolves.</p>"

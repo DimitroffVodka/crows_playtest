@@ -1,6 +1,7 @@
 _id: ctbene22mnyblss0
 _key: "!items!ctbene22mnyblss0"
 name: Many Blessings
+img: systems/crows/icons/traits/shining-heart.svg
 type: trait
 system:
   description: "<p>When you cast a benefaction spell that makes the spell's target blessed, you can become blessed as well. You can use this trait a number of times equal to your Mind, regaining all uses when you finish a rest.</p>"

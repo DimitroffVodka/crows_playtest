@@ -1,6 +1,7 @@
 _id: cttrav32pshrlgd0
 _key: "!items!cttrav32pshrlgd0"
 name: Camp Builder
+img: systems/crows/icons/traits/camping-tent.svg
 type: trait
 system:
   description: "<p>When you are in the support role and get a tier 3 result on the test to make camp while carrying blacksmith's tools, you can ignore the normal benefits to create a camp that counts as resting outside of the Miasma.</p>"

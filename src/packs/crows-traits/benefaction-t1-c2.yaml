@@ -1,6 +1,7 @@
 _id: ctbene12enhhlng0
 _key: "!items!ctbene12enhhlng0"
 name: Enhanced Healing
+img: systems/crows/icons/traits/healing.svg
 type: trait
 system:
   description: "<p>When you cast a benefaction spell that restores Stamina to a target, the target regains additional Stamina equal to your Mind.</p>"

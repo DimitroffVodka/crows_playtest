@@ -1,6 +1,7 @@
 _id: cttrav33fdfindr0
 _key: "!items!cttrav33fdfindr0"
 name: Food Finder
+img: systems/crows/icons/traits/fruit-bowl.svg
 type: trait
 system:
   description: "<p>When you make a test related to the tracker role and gain at least 1 ration, you gain 1 additional ration. This trait stacks with Foraging Expert.</p>"

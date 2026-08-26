@@ -1,6 +1,7 @@
 _id: ctthie41sngthng0
 _key: "!items!ctthie41sngthng0"
 name: Seeing Things
+img: systems/crows/icons/traits/all-seeing-eye.svg
 type: trait
 system:
   description: "<p>When you get a tier 1 or 2 result a test made to hide from or sneak by another creature wile you are not wearing armor, you can reroll the test but must use the new result.</p>"

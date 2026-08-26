@@ -1,6 +1,7 @@
 _id: ctchop41dblx0000
 _key: "!items!ctchop41dblx0000"
 name: Double Axe
+img: systems/crows/icons/traits/crossed-axes.svg
 type: trait
 system:
   description: "<p>When you are wielding two handaxes, you can throw both as a ranged attack, dealing double damage to the target on a hit.</p>"

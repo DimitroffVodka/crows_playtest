@@ -1,6 +1,7 @@
 _id: ctbene41spltbnf0
 _key: "!items!ctbene41spltbnf0"
 name: Split Benefaction
+img: systems/crows/icons/traits/cross-mark.svg
 type: trait
 system:
   description: "<p>When you cast an benefaction spell that has a target of 1 creature, object, ally, enemy, or target, you can target one additional qualifying target.</p>"

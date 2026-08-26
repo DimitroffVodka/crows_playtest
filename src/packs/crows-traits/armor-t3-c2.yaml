@@ -1,6 +1,7 @@
 _id: ctarmo32immovbl0
 _key: "!items!ctarmo32immovbl0"
 name: Immovable
+img: systems/crows/icons/traits/anchor.svg
 type: trait
 system:
   description: "<p>Creatures of your size can't force move you or knock you prone with mundane attacks or the Knockback maneuver while you wear heavy armor.</p>"

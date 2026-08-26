@@ -1,6 +1,7 @@
 _id: cttrav11ispy0000
 _key: "!items!cttrav11ispy0000"
 name: I Spy
+img: systems/crows/icons/traits/spyglass.svg
 type: trait
 system:
   description: "<p>When you make a test related to the scout role while carrying a spyglass, you can roll the test twice and choose either result.</p>"

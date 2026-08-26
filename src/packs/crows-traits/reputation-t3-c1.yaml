@@ -1,6 +1,7 @@
 _id: ctrepu31clgrnd00
 _key: "!items!ctrepu31clgrnd00"
 name: Call Grandaddy
+img: systems/crows/icons/traits/winged-scepter.svg
 type: trait
 system:
   description: "<p>Your Call Daddy trait increase the AO chances by 10% instead of 5%.</p>"

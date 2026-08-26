@@ -1,6 +1,7 @@
 _id: ctthie43tmble000
 _key: "!items!ctthie43tmble000"
 name: Tumble
+img: systems/crows/icons/traits/acrobatic.svg
 type: trait
 system:
   description: "<p>When you take damage while not wearing armor, you can use your reaction to halve the damage. You can use this trait a number of times equal to your Agility and then must finish a rest before your use it again.</p>"

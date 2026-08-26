@@ -1,6 +1,7 @@
 _id: ctillu21illmstr0
 _key: "!items!ctillu21illmstr0"
 name: Illusion Mastery
+img: systems/crows/icons/traits/prism.svg
 type: trait
 system:
   description: "<p>Non-doom tier 1 results of rank 0 and 1 illusion spells you cast don't add to the chaos count. Your illusion spells of rank 2 and higher are treated as 2 ranks lower when they trigger a backlash.</p>"

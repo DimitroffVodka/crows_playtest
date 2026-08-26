@@ -1,6 +1,7 @@
 _id: ctbene21bnfcmst0
 _key: "!items!ctbene21bnfcmst0"
 name: Benefaction Mastery
+img: systems/crows/icons/traits/spiked-halo.svg
 type: trait
 system:
   description: "<p>Non-doom tier 1 results of rank 0 and 1 benefaction spells you cast don't add to the chaos count. Your benefaction spells of rank 2 and higher are treated as 2 ranks lower when they trigger a backlash.</p>"

@@ -1,6 +1,7 @@
 _id: ctpets11buddy000
 _key: "!items!ctpets11buddy000"
 name: Buddy
+img: systems/crows/icons/traits/paw-heart.svg
 type: trait
 system:
   description: "<p>As a rest activity, choose a number of pets you own equal to your Mind (minimum 1). You gain a +2 bonus on Mind tests made to interact with those pets until you use the activity again.</p>"

@@ -1,6 +1,7 @@
 _id: ctthie31drksnss0
 _key: "!items!ctthie31drksnss0"
 name: Dark Senses
+img: systems/crows/icons/traits/radar-sweep.svg
 type: trait
 system:
   description: "<p>While you are not wearing armor and not wielding a shield, you treat dim light and darkness as if they were bright light until the end of the DT.</p>"

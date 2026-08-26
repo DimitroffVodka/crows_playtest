@@ -1,6 +1,7 @@
 _id: ctthie12sfcrkng0
 _key: "!items!ctthie12sfcrkng0"
 name: Safe Cracking
+img: systems/crows/icons/traits/combination-lock.svg
 type: trait
 system:
   description: "<p>When you use lock picks on a test made to pick a lock, you can roll the test twice and choose either result.</p>"

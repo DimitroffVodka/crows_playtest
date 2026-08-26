@@ -1,6 +1,7 @@
 _id: ctknow21spcrsrch
 _key: "!items!ctknow21spcrsrch"
 name: Specific Research
+img: systems/crows/icons/traits/scroll-quill.svg
 type: trait
 system:
   description: "<p>As a rest activity, you can read a lore book. Instead of gaining its normal benefits, you can ask the Ref up to three questions about the book's subject, which the Ref answers honestly if the answer isn't secret.</p>"

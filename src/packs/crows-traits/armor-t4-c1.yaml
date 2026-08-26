@@ -1,6 +1,7 @@
 _id: ctarmo41shldbs00
 _key: "!items!ctarmo41shldbs00"
 name: Shield Bash
+img: systems/crows/icons/traits/shield-impact.svg
 type: trait
 system:
   description: "<p>When get a tier 3 result on the Knockback maneuver and force move the target while you have a shield equipped, the target is also knocked prone.</p>"

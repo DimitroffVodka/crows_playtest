@@ -1,6 +1,7 @@
 _id: ctslas41dblknf00
 _key: "!items!ctslas41dblknf00"
 name: Double Knife
+img: systems/crows/icons/traits/daggers.svg
 type: trait
 system:
   description: "<p>When you are wielding two knives, you can throw both as a ranged attack, dealing double damage to the target on a hit.</p>"

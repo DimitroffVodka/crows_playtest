@@ -1,6 +1,7 @@
 _id: ctchop11xhrlr000
 _key: "!items!ctchop11xhrlr000"
 name: Axe Hurler
+img: systems/crows/icons/traits/tomahawk.svg
 type: trait
 system:
   description: "<p>While you wield a handaxe, it's non-melee range increases by 2 squares. This bonus stacks with Mighty Arm.</p>"

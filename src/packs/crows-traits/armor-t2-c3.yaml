@@ -1,6 +1,7 @@
 _id: ctarmo23headgr00
 _key: "!items!ctarmo23headgr00"
 name: Headgear
+img: systems/crows/icons/traits/helmet-head-shot.svg
 type: trait
 system:
   description: "<p>While you wear armor or a magic item in your head slot, you gain a +1 bonus on Mind RRs.</p>"

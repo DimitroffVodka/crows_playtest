@@ -1,6 +1,7 @@
 _id: ctillu43tlpcnc00
 _key: "!items!ctillu43tlpcnc00"
 name: Telepathic Connection
+img: systems/crows/icons/traits/psychic-waves.svg
 type: trait
 system:
   description: "<p>When you use your Goodbye trait, you can choose another creature within 5 squares of your to become invisible instead of you.</p>"

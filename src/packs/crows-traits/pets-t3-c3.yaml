@@ -1,6 +1,7 @@
 _id: ctpets33chrge000
 _key: "!items!ctpets33chrge000"
 name: Charge
+img: systems/crows/icons/traits/charging-bull.svg
 type: trait
 system:
   description: "<p>If you hit a target with a melee weapon attack while riding a pet you own after they move at least 2 squares on the same turn, the attack gains a +2 bonus to damage.</p>"

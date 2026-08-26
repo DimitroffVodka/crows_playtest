@@ -1,6 +1,7 @@
 _id: ctelem13wtrshld0
 _key: "!items!ctelem13wtrshld0"
 name: Water Shield
+img: systems/crows/icons/traits/water-splash.svg
 type: trait
 system:
   description: "<p>When you cast an elemental spell, you can harness the magic to surround your body in a water ward and gain AD equal to your Mind. The AD granted by this trait disappears at the end of a rest.</p>"

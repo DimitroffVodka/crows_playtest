@@ -1,6 +1,7 @@
 _id: ctrepu21alsommy0
 _key: "!items!ctrepu21alsommy0"
 name: Also Mommy
+img: systems/crows/icons/traits/tiara.svg
 type: trait
 system:
   description: "<p>Your Call Daddy trait can apply to two merchants of your choice. You can change one or both once every cycle.</p>"

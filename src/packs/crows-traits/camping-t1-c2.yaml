@@ -1,6 +1,7 @@
 _id: ctcamp12plotting
 _key: "!items!ctcamp12plotting"
 name: Plotting
+img: systems/crows/icons/traits/treasure-map.svg
 type: trait
 system:
   description: "<p>As a rest activity, choose up to three pieces of equipment you can touch. The first time you or an ally uses this equipment as part of a test before the end of your next rest, they gain a +2 bonus on the roll.</p>"

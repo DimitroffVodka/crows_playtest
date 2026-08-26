@@ -1,6 +1,7 @@
 _id: ctleve43firebmb0
 _key: "!items!ctleve43firebmb0"
 name: Fire Bomb
+img: systems/crows/icons/traits/molotov.svg
 type: trait
 system:
   description: "<p>You can use a lit lantern like a fire bomb. The lantern and its oil are destroyed after being used this way.</p>"

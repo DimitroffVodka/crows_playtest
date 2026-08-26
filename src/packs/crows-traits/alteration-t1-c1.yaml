@@ -1,6 +1,7 @@
 _id: ctalte11lstaltr0
 _key: "!items!ctalte11lstaltr0"
 name: Lasting Alteration
+img: systems/crows/icons/traits/hourglass.svg
 type: trait
 system:
   description: "<p>When you cast an alteration spell with a duration listed in UD, add an additional 1 UD to the duration.</p>"

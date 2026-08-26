@@ -1,6 +1,7 @@
 _id: ctstab31gtovhr00
 _key: "!items!ctstab31gtovhr00"
 name: Get Over Here
+img: systems/crows/icons/traits/harpoon-chain.svg
 type: trait
 system:
   description: "<p>When you hit with a ranged attack with a stabbing weapon attached to a rope and they are your size or smaller and not further from you than the rope's length, you can pull the target 1 square towards you.</p>"

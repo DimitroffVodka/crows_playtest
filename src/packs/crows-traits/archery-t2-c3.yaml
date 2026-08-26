@@ -1,6 +1,7 @@
 _id: ctarch23scraprw0
 _key: "!items!ctarch23scraprw0"
 name: Scrap Arrows
+img: systems/crows/icons/traits/arrow-cluster.svg
 type: trait
 system:
   description: "<p>As a rest activity, you can turn sticks and scraps of nearby wood into arrows and gain 2d6 arrows when you finish the rest.</p>"

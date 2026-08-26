@@ -1,6 +1,7 @@
 _id: ctchop13chpmdwn0
 _key: "!items!ctchop13chpmdwn0"
 name: "Chop 'Em Down"
+img: systems/crows/icons/traits/battle-axe.svg
 type: trait
 system:
   description: "<p>When you roll on the Dismember table after scoring a crit with a chopping weapon, roll twice and choose the result.</p>"

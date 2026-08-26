@@ -1,6 +1,7 @@
 _id: ctelem21lngrngfr
 _key: "!items!ctelem21lngrngfr"
 name: Lingering Fire
+img: systems/crows/icons/traits/flaming-claw.svg
 type: trait
 system:
   description: "<p>At the start of your combat turn, you can choose a creature you dealt damage to with an elemental spell on your last turn (no action required). The creature takes damage equal to your Mind.</p>"

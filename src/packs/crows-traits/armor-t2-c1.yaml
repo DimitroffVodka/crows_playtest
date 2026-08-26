@@ -1,6 +1,7 @@
 _id: ctarmo21hrlshld0
 _key: "!items!ctarmo21hrlshld0"
 name: Hurl Shield
+img: systems/crows/icons/traits/shield.svg
 type: trait
 system:
   description: "<p>You can make a ranged weapon attack with your shield. This attack is a Strength test that is ranged 5 and deals 3 + S damage on a tier 2 result and 6 + S damage on a tier 3 result.</p>"

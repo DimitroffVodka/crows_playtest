@@ -1,6 +1,7 @@
 _id: ctalte31impranml
 _key: "!items!ctalte31impranml"
 name: Improved Animal
+img: systems/crows/icons/traits/wolf-howl.svg
 type: trait
 system:
   description: "<p>When you cast an alteration spell that allows you to turn into an animal, you can turn into an animal with power equal to what the spell says plus your Mind.</p>"

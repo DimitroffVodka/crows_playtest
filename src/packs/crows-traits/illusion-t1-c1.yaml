@@ -1,6 +1,7 @@
 _id: ctillu11lstngll0
 _key: "!items!ctillu11lstngll0"
 name: Lasting Illusion
+img: systems/crows/icons/traits/floating-ghost.svg
 type: trait
 system:
   description: "<p>When you cast an illusion spell with a duration listed in UD, add an additional 1 UD to the duration.</p>"

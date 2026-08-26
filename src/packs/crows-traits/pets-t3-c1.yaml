@@ -1,6 +1,7 @@
 _id: ctpets31mvtgthr0
 _key: "!items!ctpets31mvtgthr0"
 name: Move Together
+img: systems/crows/icons/traits/sprint.svg
 type: trait
 system:
   description: "<p>When you use the Command maneuver, you can take the Move Speed maneuver as part of the same maneuver.</p>"

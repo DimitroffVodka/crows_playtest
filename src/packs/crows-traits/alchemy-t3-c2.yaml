@@ -1,6 +1,7 @@
 _id: ctalch32youinpt0
 _key: "!items!ctalch32youinpt0"
 name: You In Particular
+img: systems/crows/icons/traits/crosshair.svg
 type: trait
 system:
   description: "<p>When you use a bomb, choose one creature who must make the RR against its effects. That creature takes -2 penalty to the RR against the bomb.</p>"

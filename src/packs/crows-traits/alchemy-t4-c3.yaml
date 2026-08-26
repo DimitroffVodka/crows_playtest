@@ -1,6 +1,7 @@
 _id: ctalch43alchblt0
 _key: "!items!ctalch43alchblt0"
 name: Alchemy Belt
+img: systems/crows/icons/traits/belt-buckles.svg
 type: trait
 system:
   description: "<p>You gain an additional belt slot that can only be used to hold alchemy items.</p>"

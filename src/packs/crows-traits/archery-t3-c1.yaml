@@ -1,6 +1,7 @@
 _id: ctarch31wllscsv0
 _key: "!items!ctarch31wllscsv0"
 name: Walls Can't Save You
+img: systems/crows/icons/traits/pierced-body.svg
 type: trait
 system:
   description: "<p>Attacks you make with bows don't suffer a penalty for the target having cover.</p>"

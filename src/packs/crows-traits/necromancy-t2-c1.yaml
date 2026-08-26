@@ -1,6 +1,7 @@
 _id: ctnecr21mncrs000
 _key: "!items!ctnecr21mncrs000"
 name: Many Curses
+img: systems/crows/icons/traits/evil-eyes.svg
 type: trait
 system:
   description: "<p>When you get a tier 3 result on a necromancy spell that targets a creature, you can make the target weakened. You can use this trait a number of times equal to your Mind, regaining all uses when you finish a rest.</p>"

@@ -1,6 +1,7 @@
 _id: ctblac31mdwthspr
 _key: "!items!ctblac31mdwthspr"
 name: Made with Spirit
+img: systems/crows/icons/traits/magic-lamp.svg
 type: trait
 system:
   description: "<p>You can ignore the material requirements for crafting a blacksmithing item if the item's crafting goal is 100 or lower.</p>"

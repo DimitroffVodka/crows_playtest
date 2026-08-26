@@ -1,6 +1,7 @@
 _id: ctstab21grplspr0
 _key: "!items!ctstab21grplspr0"
 name: Grappling Spear
+img: systems/crows/icons/traits/harpoon-trident.svg
 type: trait
 system:
   description: "<p>If you attach your spear to a rope, you can use it like a grappling hook.</p>"

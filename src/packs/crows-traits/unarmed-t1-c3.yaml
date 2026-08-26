@@ -1,6 +1,7 @@
 _id: ctunar13xtrapsh0
 _key: "!items!ctunar13xtrapsh0"
 name: Extra Push
+img: systems/crows/icons/traits/push.svg
 type: trait
 system:
   description: "<p>While you have at least 1 hand slot free and push a target with the Knockback maneuver, you can push them 1 additional square.</p>"

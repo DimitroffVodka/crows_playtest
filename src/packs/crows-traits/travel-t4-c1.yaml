@@ -1,6 +1,7 @@
 _id: cttrav41ambsh000
 _key: "!items!cttrav41ambsh000"
 name: Ambush
+img: systems/crows/icons/traits/hidden.svg
 type: trait
 system:
   description: "<p>When you get a tier 3 result on a test related to the scout travel role while carrying a spyglass, any creatures you encounter while traveling are surprised by you and your allies.</p>"

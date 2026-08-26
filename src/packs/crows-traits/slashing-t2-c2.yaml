@@ -1,6 +1,7 @@
 _id: ctslas22dncaway0
 _key: "!items!ctslas22dncaway0"
 name: Dance Away
+img: systems/crows/icons/traits/acrobatic.svg
 type: trait
 system:
   description: "<p>When you counter, you can take the Shift maneuver as part of the reaction while you are wielding a slashing weapon.</p>"

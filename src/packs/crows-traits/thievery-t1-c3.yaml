@@ -1,6 +1,7 @@
 _id: ctthie13stlthy00
 _key: "!items!ctthie13stlthy00"
 name: Stealthy
+img: systems/crows/icons/traits/hood.svg
 type: trait
 system:
   description: "<p>When you make a test to hide or sneak while you are not wearing armor, you can roll the test twice and choose either result.</p>"

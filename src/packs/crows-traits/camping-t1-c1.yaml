@@ -1,6 +1,7 @@
 _id: ctcamp11hrtymls0
 _key: "!items!ctcamp11hrtymls0"
 name: Hearty Meals
+img: systems/crows/icons/traits/cooking-pot.svg
 type: trait
 system:
   description: "<p>As a rest activity, you can turn a normal ration into something more if you have cook's utensils. The ration becomes a hearty ration (which has an equipment card).</p>"

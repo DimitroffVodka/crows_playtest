@@ -1,6 +1,7 @@
 _id: ctbash41knckemtg
 _key: "!items!ctbash41knckemtg"
 name: Knock 'Em Together
+img: systems/crows/icons/traits/overhead.svg
 type: trait
 system:
   description: "<p>When you force move a creature into another with a bashing weapon attack, both creatures take damage equal to the forced movement remaining when they collide.</p>"

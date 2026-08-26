@@ -1,6 +1,7 @@
 _id: ctbash42bashhls0
 _key: "!items!ctbash42bashhls0"
 name: Bashing Holster
+img: systems/crows/icons/traits/warhammer.svg
 type: trait
 system:
   description: "<p>You gain an additional belt slot that can only hold bashing weapons.</p>"

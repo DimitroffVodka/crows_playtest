@@ -1,6 +1,7 @@
 _id: ctstab23trplcrt0
 _key: "!items!ctstab23trplcrt0"
 name: Triple Crit
+img: systems/crows/icons/traits/pierced-heart.svg
 type: trait
 system:
   description: "<p>When you score a crit with a stabbing weapon, you deal triple the weapon's tier 3 damage instead of double.</p>"

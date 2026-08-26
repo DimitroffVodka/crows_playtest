@@ -1,6 +1,7 @@
 _id: ctthie22intpack0
 _key: "!items!ctthie22intpack0"
 name: Into the Pack
+img: systems/crows/icons/traits/robber-hand.svg
 type: trait
 system:
   description: "<p>When you use the Move Speed maneuver, you can use the Pick Up Item maneuver too. You don't need to have a free hand slot and can put the item in any free slot when you use the Pick Up Item maneuver.</p>"

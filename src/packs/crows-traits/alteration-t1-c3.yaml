@@ -1,6 +1,7 @@
 _id: ctalte13altrsto0
 _key: "!items!ctalte13altrsto0"
 name: Alteration Stone
+img: systems/crows/icons/traits/rock.svg
 type: trait
 system:
   description: "<p>As a rest activity, you can create an alteration stone (which has an equipment card). This stone disappears if you create a new one.</p>"

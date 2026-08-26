@@ -1,6 +1,7 @@
 _id: ctknow23lbldinv0
 _key: "!items!ctknow23lbldinv0"
 name: Labeled Inventory
+img: systems/crows/icons/traits/price-tag.svg
 type: trait
 system:
   description: "<p>Each of your backpack slot's number is reduced by 1 (minimum 1), making it easier to pull equipment from your backpack.</p>"

@@ -1,6 +1,7 @@
 _id: ctalch33ptngas00
 _key: "!items!ctalch33ptngas00"
 name: Potion to Gas
+img: systems/crows/icons/traits/smoke-bomb.svg
 type: trait
 system:
   description: "<p>As an action, you can turn a potion you carry into a gas. The potion is immediately consumed and two creatures of your choice within 1 square of you, including you, are affected as if they drank the potion.</p>"

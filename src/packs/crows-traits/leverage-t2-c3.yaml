@@ -1,6 +1,7 @@
 _id: ctleve23trchwrr0
 _key: "!items!ctleve23trchwrr0"
 name: Torch Warrior
+img: systems/crows/icons/traits/torch.svg
 type: trait
 system:
   description: "<p>You can wield a lit torch as a melee weapon with a range of melee 1 that deals 3 + A or S damage on a tier 2 result and 6 + A or S damage on a tier 3 result.</p>"

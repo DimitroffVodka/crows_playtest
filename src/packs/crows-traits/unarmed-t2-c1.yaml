@@ -1,6 +1,7 @@
 _id: ctunar21evrymace
 _key: "!items!ctunar21evrymace"
 name: Everything's a Mace
+img: systems/crows/icons/traits/broken-bottle.svg
 type: trait
 system:
   description: "<p>When you use an improvised weapon, ask the Ref if it most resembles a hammer, mace, maul, or flail. The improvised weapon uses the same stats except that it has no weapon qualities.</p>"

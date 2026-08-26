@@ -1,6 +1,7 @@
 _id: ctpets12tricks00
 _key: "!items!ctpets12tricks00"
 name: Tricks
+img: systems/crows/icons/traits/whistle.svg
 type: trait
 system:
   description: "<p>While you own a pet, they gain a two expertises from the following list: Athletics, Endurance, Lift, Search, or Stealth. This trait stacks with Extra Tricks.</p>"

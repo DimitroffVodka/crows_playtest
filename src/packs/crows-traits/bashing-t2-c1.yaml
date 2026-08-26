@@ -1,6 +1,7 @@
 _id: ctbash21frthrb00
 _key: "!items!ctbash21frthrb00"
 name: Further Back
+img: systems/crows/icons/traits/impact-point.svg
 type: trait
 system:
   description: "<p>When you get a tier 3 result on an attack with a bashing and pummeling weapon, you push the target 1 additional square. This trait stacks with Push 'Em Back.</p>"
