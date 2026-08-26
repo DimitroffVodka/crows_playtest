@@ -43,7 +43,12 @@ import {
   getVillage, setVillage,
   foundInstitution, upgradeInstitution, damageInstitution,
   setProsperity, sellPercentage, itemAvailability,
-  endCycle, rollVillageEvent, getInstitutionLevel, getInstitution
+  endCycle, rollVillageEvent, getInstitutionLevel, getInstitution,
+  isLiveInstitution, liveInstitutionRecords, findLiveInstitution, institutionRecordById,
+  migrateVillageState, saveVillage, normalizeVillage,
+  getActiveVillageGM, isVillageDesignatedWriter,
+  enqueueVillageOperation, registerVillageChangeListener,
+  setVillageSceneReconciliationEnqueuer
 } from "./helpers/village.mjs";
 import {
   startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
@@ -76,7 +81,10 @@ import { CrowsCombat } from "./documents/combat.mjs";
 import { CrowsCombatant } from "./documents/combatant.mjs";
 import { CrowsCombatTracker } from "./applications/combat-tracker.mjs";
 
-const MIGRATION_TARGET_VERSION = "0.2.0";
+// Bumped with the Village setting schema.  Keep this in the existing world
+// migration gate: a second ready-time migration track would race the actor
+// migration and would never repair worlds already stamped at 0.2.0/0.2.1.
+const MIGRATION_TARGET_VERSION = "0.2.2";
 const MIGRATION_VERSION_SETTING = "systemMigrationVersion";
 const MIGRATION_BUDGET_SETTING = "migrationExpertiseBudget";
 
@@ -129,6 +137,12 @@ async function runWorldMigration() {
   const stored = game.settings.get("crows", MIGRATION_VERSION_SETTING);
   if (!versionPrecedesMigration(stored)) return { ran: false, reason: "current", stored };
 
+  // Village identity/receipt migration is part of this one world pass.  Do
+  // not stamp the global version if the designated writer is unavailable: a
+  // later ready/retry must still be able to repair a legacy setting.
+  const villageMigration = await migrateVillageState();
+  if (!villageMigration.ok) return { ran: false, reason: "village-migration-pending", villageMigration };
+
   const mode = game.settings.get("crows", MIGRATION_BUDGET_SETTING) || "report-only";
   const backgrounds = await backgroundIndex();
   const results = [];
@@ -139,8 +153,15 @@ async function runWorldMigration() {
   if (results.length) {
     await JournalEntry.create(buildMigrationReport(results, { mode }));
   }
-  await game.settings.set("crows", MIGRATION_VERSION_SETTING, game.system.version ?? MIGRATION_TARGET_VERSION);
-  return { ran: true, mode, actors: results.length, results };
+  // A development build can carry a system version below the migration target
+  // (as the 0.2.0 boot probe does).  Stamping that lower version would make
+  // every ready pass rerun the same migration forever; retain the higher of
+  // the package version and the schema target.
+  const systemVersion = game.system?.version;
+  const stampVersion = systemVersion && !versionPrecedesMigration(systemVersion)
+    ? systemVersion : MIGRATION_TARGET_VERSION;
+  await game.settings.set("crows", MIGRATION_VERSION_SETTING, stampVersion);
+  return { ran: true, mode, actors: results.length, results, villageMigration };
 }
 
 Hooks.once("init", () => {
@@ -211,7 +232,14 @@ Hooks.once("init", () => {
       found: foundInstitution, upgrade: upgradeInstitution, damage: damageInstitution,
       setProsperity, sellPercentage, availability: itemAvailability,
       endCycle, rollEvent: rollVillageEvent,
-      institutionLevel: getInstitutionLevel, institution: getInstitution
+      institutionLevel: getInstitutionLevel, institution: getInstitution,
+      isLiveInstitution, liveInstitutions: liveInstitutionRecords,
+      findLiveInstitution, institutionRecord: institutionRecordById,
+      normalize: normalizeVillage, save: saveVillage,
+      activeGM: getActiveVillageGM, isDesignatedWriter: isVillageDesignatedWriter,
+      enqueue: enqueueVillageOperation,
+      onChange: registerVillageChangeListener,
+      setSceneReconciliationEnqueuer: setVillageSceneReconciliationEnqueuer
     },
     crafting: {
       startProject: startCraftingProject, cancel: cancelProject,
