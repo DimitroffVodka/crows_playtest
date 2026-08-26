@@ -17,21 +17,24 @@ import { ClassicLevel } from "classic-level";
  * a Ref actually loads is inert.
  *
  * This guard reads every pack declared by `system.json`, checks its primary
- * document count, and compares the serialized document hierarchy with the
- * source. The projection mirrors the Foundry CLI's `applyHierarchy` and
- * `mapHierarchy`: `_key` is a build-only source field, embedded documents are
- * stored under their own LevelDB keys, and primary documents contain their
- * embedded IDs (including empty collections materialized by the compiler).
+ * document count, and compares source-authored identity/system fields in the
+ * serialized document hierarchy. The traversal mirrors the Foundry CLI's
+ * `applyHierarchy`: `_key` is a build-only source field and embedded documents
+ * are stored under their own LevelDB keys. Only fields a source author owns —
+ * `_id`, `name`, `type`, `img`, and deep `system` — are compared; Foundry's
+ * runtime metadata is deliberately outside this guard's staleness contract.
  *
  * Rejected alternatives:
  * - source-only corpus assertions cannot see a stale compiled artifact;
  * - file mtimes and LevelDB filenames say nothing about document content;
+ * - full-document comparison flags Foundry-stamped metadata after a pack has
+ *   been opened in a live world, even when its authored content is unchanged;
  * - rebuilding packs inside the test mutates release artifacts and would hide
  *   the very drift this test is meant to catch;
  * - `extractPack` into YAML is slower and adds filename/serialization noise
  *   when the LevelDB values are already the thing Foundry consumes.
  *
- * LIVE FOUNDry CAVEAT. ClassicLevel may advance a pack's manifest while it
+ * LIVE FOUNDRY CAVEAT. ClassicLevel may advance a pack's manifest while it
  * opens a database, even for iteration. Each checkout pack is therefore copied
  * to a temporary directory before opening. `createIfMissing: false` still
  * protects against silently treating a missing compiled pack as an empty one;
@@ -40,6 +43,7 @@ import { ClassicLevel } from "classic-level";
 
 const SYSTEM = JSON.parse(await fs.readFile("system.json", "utf8"));
 const PACKS = SYSTEM.packs;
+const AUTHORED_FIELDS = ["_id", "name", "type", "img", "system"];
 
 /** The hierarchy used by @foundryvtt/foundryvtt-cli/lib/package.mjs. */
 const HIERARCHY = {
@@ -72,43 +76,38 @@ async function sourceFiles(pack) {
     .filter(file => file.endsWith(".yaml") || file.endsWith(".yml"))
     .sort();
   return Promise.all(files.map(async file => ({
-      file,
-      document: yaml.load(await fs.readFile(path.join(directory, file), "utf8"))
-    })));
+    file,
+    document: yaml.load(await fs.readFile(path.join(directory, file), "utf8"))
+  })));
 }
 
 /**
- * Return the exact value the CLI puts at `document._key` for this source node.
- * Its embedded collections become IDs; all other fields remain unchanged.
+ * Keep only fields whose values are authored in source and meaningful for
+ * staleness. Foundry stamps `_stats`, ownership, sorting, folders, and flags
+ * as it opens packs, so those fields must not turn a healthy artifact red.
  */
-function compiledValue(document, collection) {
-  const value = structuredClone(document);
-  delete value._key;
-
-  for (const [embedded, kind] of Object.entries(HIERARCHY[collection] ?? {})) {
-    if (kind === "array") {
-      value[embedded] = Array.isArray(value[embedded])
-        ? value[embedded].map(entry => entry._id)
-        : [];
-    } else {
-      value[embedded] = value[embedded] ? value[embedded]._id : null;
-    }
+function authoredFields(document) {
+  const value = {};
+  for (const field of AUTHORED_FIELDS) {
+    if (Object.hasOwn(document ?? {}, field)) value[field] = structuredClone(document[field]);
   }
   return value;
 }
 
 /** Collect primary and embedded source documents under their declared keys. */
-function expectedEntries(sources) {
+function expectedEntries(sources, packName) {
   const expected = new Map();
 
   function visit(document) {
-    assert.ok(document && typeof document === "object", "source document is not an object");
+    assert.ok(document && typeof document === "object",
+      `${packName}: source document is not an object`);
     const key = document._key;
-    assert.match(key ?? "", /^![^!]+![^!]+$/, `source document has no primary _key: ${document._id ?? "?"}`);
-    assert.equal(expected.has(key), false, `duplicate source _key ${key}`);
+    assert.match(key ?? "", /^![^!]+![^!]+$/,
+      `${packName}: source document has no _key: ${document._id ?? "?"}`);
+    assert.equal(expected.has(key), false, `${packName}: duplicate source _key ${key}`);
 
     const collection = key.split("!")[1];
-    expected.set(key, compiledValue(document, collection));
+    expected.set(key, authoredFields(document));
 
     for (const [embedded, kind] of Object.entries(HIERARCHY[collection] ?? {})) {
       const children = document[embedded];
@@ -193,7 +192,7 @@ describe("compiled packs match their source corpus", () => {
   for (const pack of PACKS) {
     test(`${pack.name} has the source documents compiled into packs/`, async () => {
       const sources = await sourceFiles(pack);
-      const expected = expectedEntries(sources);
+      const expected = expectedEntries(sources, pack.name);
       const actual = await readCompiledEntries(pack);
       const collection = sources[0]?.document?._key?.split("!")[1];
       const expectedPrimaryCount = sources.length;
@@ -212,8 +211,9 @@ describe("compiled packs match their source corpus", () => {
           failures.push(`missing ${key}`);
           continue;
         }
-        if (!isDeepStrictEqual(value, actual.get(key))) {
-          const paths = differingPaths(value, actual.get(key));
+        const actualValue = authoredFields(actual.get(key));
+        if (!isDeepStrictEqual(value, actualValue)) {
+          const paths = differingPaths(value, actualValue);
           failures.push(`${key} diverged in ${paths.join(", ") || "document fields"}`);
         }
       }
