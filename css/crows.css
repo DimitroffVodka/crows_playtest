@@ -3257,10 +3257,16 @@
 .cc-origin-hint { margin: 8px 0 0; font-size: var(--crows-text-tiny); opacity: 0.65; }
 
 /* ── Background item card ───────────────────────────────────────────────────
-   From the design handoff (Crows UI mockups for FoundryVTT.zip), appended
-   verbatim. Self-contained: no CSS variables, all selectors scoped under
-   .crows-item, and the three brand faces it asks for are already declared as
-   @font-face in this file. */
+   From the design handoff, revision 2. Self-contained: no CSS variables, all
+   selectors scoped under .crows-item, and the three brand faces it asks for are
+   already declared as @font-face in this file.
+
+   Rev 2 replaced `filter: brightness(0) invert(1)` on the glyph with
+   `mix-blend-mode: screen`. The filter turned every game-icons file into a solid
+   white diamond, because they ship as a white silhouette on an OPAQUE BLACK
+   rect and the filter whitens the rect too. Screen composites against the black
+   header instead: the black ground disappears, the white silhouette survives,
+   and the SVGs need no modification at all. */
 /* CROWS — Background item sheet.
    Append to css/crows.css, or @import it there. Scoped to .crows-item.background so
    nothing here can leak into the other item sheets.
@@ -3356,8 +3362,10 @@
   width: 27px;
   height: 27px;
   transform: rotate(-45deg);
-  /* forces any source glyph to bone white, so Foundry's own icons work too */
-  filter: brightness(0) invert(1);
+  /* screen drops the black ground of a game-icons W/B file and keeps the white
+     silhouette. Do NOT use a brightness/invert filter here — it turns any icon that
+     has an opaque background (Foundry's own icons/svg/*) into a solid white block. */
+  mix-blend-mode: screen;
 }
 
 .crows-item.background .bg-originbody { flex: 1; min-width: 0; }
@@ -3392,7 +3400,12 @@
 .crows-item.background .bg-num,
 .crows-item.background .bg-sel {
   width: auto;
-  height: auto;
+  /* both of these matter: height:auto lets Electron render the select as an open
+     listbox, and appearance:none kills the native chrome that would show a caret
+     on the black header */
+  height: 1.5em;
+  line-height: 1.5;
+  appearance: none;
   margin: 0;
   padding: 0 2px;
   border: 0;

@@ -83,21 +83,29 @@ describe("background icons", () => {
     assert.ok(entries.includes("NOTICE.md"), "NOTICE.md missing from the release payload");
   });
 
-  test("no icon still carries game-icons' opaque background rect", () => {
-    // These ship as a white silhouette on a BLACK 512x512 rect. The card CSS
-    // forces the glyph to bone white with `brightness(0) invert(1)`, which
-    // turns that rect white too and renders a solid white diamond — which is
-    // exactly what shipped the first time. The rect is stripped; keep it so.
-    const withRect = readdirSync(ICONS)
-      .filter((f) => f.endsWith(".svg"))
-      .filter((f) => /<path d="M0 0h512v512H0z"/.test(readFileSync(join(ICONS, f), "utf8")));
-    assert.deepEqual(withRect, [], "background rect must be stripped");
+  test("the glyph CSS composites — it must NOT force colour with a filter", () => {
+    // game-icons files are a white silhouette on an OPAQUE BLACK rect. A
+    // `brightness(0) invert(1)` whitens that rect too and renders a solid white
+    // diamond, which is what shipped first. `mix-blend-mode: screen` drops the
+    // black ground against the black header and leaves the silhouette, so the
+    // SVGs need no modification.
+    const css = readFileSync("css/crows.css", "utf8");
+    const rule = css.slice(css.indexOf(".crows-item.background .bg-glyph img"));
+    const body = rule.slice(0, rule.indexOf("}"));
+    assert.match(body, /mix-blend-mode:\s*screen/, "glyph must composite with screen");
+    assert.ok(!/filter:\s*brightness\(0\)\s*invert\(1\)/.test(body),
+      "the brightness/invert filter turns every icon into a white block");
   });
 
-  test("NOTICE.md declares the modification — CC BY requires indicating changes", () => {
+  test("icons are shipped exactly as published — NOTICE must not claim otherwise", () => {
+    // CC BY only requires indicating changes if there ARE changes. Keeping the
+    // files pristine keeps that claim true, and the CSS makes it possible.
+    const withGround = readdirSync(ICONS)
+      .filter((f) => f.endsWith(".svg"))
+      .filter((f) => /<path d="M0 0h512v512H0z"/.test(readFileSync(join(ICONS, f), "utf8")));
+    assert.equal(withGround.length, 36, "all 36 should still carry their original ground rect");
     const notice = readFileSync("NOTICE.md", "utf8");
-    assert.match(notice, /Modified/i);
-    assert.ok(!/They are unmodified/.test(notice), "NOTICE still claims they are unmodified");
+    assert.match(notice, /Unmodified/i);
   });
 
   test("the SVGs are real and unmodified-looking", () => {
