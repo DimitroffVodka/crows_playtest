@@ -262,10 +262,8 @@ that damage addition at 0, so a negative characteristic never turns the bonus
 into a penalty. Blessed is an edge, not a hidden `+1` or `+2` modifier.
 
 **How it ends:** On a Crow, the Ref's **End the dungeon turn** control clears
-Blessed automatically. The end-of-dungeon-turn loop currently visits Crow
-actors for condition expiry; a Blessed monster or other creature does not get
-cleared by that loop and needs the Ref to clear it. That Crow-only expiry is a
-current runtime bug/oversight, not a different rule.
+Blessed automatically. The end-of-dungeon-turn loop clears expiring
+conditions on every actor carrying them, monsters included.
 
 ### Grabbed
 
@@ -311,10 +309,8 @@ the extra die piercing. The damage result and the damage-applied chat summary
 include the larger total, although the summary does not print the d6 as a
 separate line.
 
-**How it ends:** On a Crow, End the dungeon turn clears Vulnerable automatically.
-The default expiry loop does not clear it from monsters or other non-Crow
-actors; the Ref must clear those conditions. That Crow-only expiry is a current
-runtime bug/oversight, not a different rule.
+**How it ends:** End the dungeon turn clears Vulnerable automatically, on
+monsters and other non-Crow actors as well as on Crows.
 
 ### Unconscious
 
@@ -370,10 +366,8 @@ requires it.
 not a numeric `−1`, and it has no direct damage effect. This is the condition
 most often misremembered as a penalty of a different size.
 
-**How it ends:** On a Crow, End the dungeon turn clears Weakened automatically.
-The automatic expiry loop currently covers Crows only, so the Ref must clear it
-on a monster or other non-Crow actor. That Crow-only expiry is a current
-runtime bug/oversight, not a different rule.
+**How it ends:** End the dungeon turn clears Weakened automatically, on
+monsters and other non-Crow actors as well as on Crows.
 
 ---
 
@@ -417,18 +411,16 @@ direct initiative command, the system warns:
 
 > Crows uses one side roll per round; creatures do not roll initiative.
 
-#### Current tracker button gap
+#### Rolling for the round
 
-The current tracker renders **Roll for the round** when a round has no side
-roll, but its action table does not register `rollSide`. **The button currently
-does nothing.** Have the Ref or an eligible player run the working route:
+The tracker renders **Roll for the round** when a round has no side roll yet.
+Starting combat and entering a new round roll it automatically, so the button
+is for the case where a round is still unrolled. The same route from a macro or
+the console:
 
 ```js
 await game.combat.rollSide()
 ```
-
-Starting combat and entering a new round call the same method automatically;
-use the command whenever a round is still unrolled.
 
 ### Surprise
 
@@ -544,20 +536,19 @@ controlled unless you intentionally want all of them to take the damage.
 The monster sheet's **Damage** button instead opens a damage amount dialog for
 that monster, with a **Piercing (bypasses AD)** checkbox.
 
-One current card mismatch matters for Blessed attackers: the attack resolver
-calculates the Blessed characteristic bonus, but the card's Apply buttons carry
-the unadjusted `t2`/`t3` numbers. If the attacker is Blessed, add the attack's
-characteristic to the printed band (minimum 0 for a negative characteristic)
-before applying it. Use the target's **Damage** control, or run the working
-route with the corrected amount:
+**Blessed attacks include their bonus.** When the attacker is Blessed, the
+card's Apply buttons already carry the characteristic bonus (floored at 0, so a
+negative characteristic never turns a blessing into a penalty) — the printed
+number is the number that will be applied. This holds for monster attacks too:
+a Blessed monster's natural melee attack adds its Strength and a ranged attack
+adds its Agility.
+
+To apply a hand-adjusted amount instead — a Ref ruling, a partial, anything the
+card cannot know about:
 
 ```js
-await game.crows.applyDamage(targetActor, correctedDamage, { piercing: isPiercing })
+await game.crows.applyDamage(targetActor, amount, { piercing: isPiercing })
 ```
-
-This is a current card/runtime gap; the button does not include that bonus. The
-monster sheet's custom-attack path does not carry a Blessed bonus into the
-resolver either, so the Ref must make the same correction for a Blessed monster.
 
 ### The damage order
 
@@ -621,22 +612,16 @@ reaches 0. A creature that has slots can have 0 Stamina without being defeated
 if it still has unwounded slots available.
 
 The `defeated` flag is stored, while the condition it represents is derived
-from wounds versus capacity (or 0 Stamina for a slotless monster). **Only the
-damage path currently keeps that stored flag fully synchronized.** The other
-wound writers can leave it stale in either direction:
+from wounds versus capacity (or 0 Stamina for a slotless monster). Every route
+that changes wounds or Stamina now keeps the two in step — damage, healing,
+resting, Tend Wounds, and both the Crow and monster wound grids. Healing a
+Crow's last wound clears it; filling a monster's final slot by hand sets it.
 
-- The rest activity and the Crow wound checkbox can leave it wrongly **set** on
-  a Crow whose last wound was healed. The Crow checkbox sets the flag when it
-  checks the final slot, but does not clear it when that slot is unchecked.
-- The monster sheet's wound grid only changes `woundSlots`, so filling its last
-  slot there can leave it wrongly **unset**.
-
-The reliable route is to let **Damage** create the final wound, or—after fixing
-the wound slots—repair the stored flag explicitly with the tracker control or:
+You should not need to repair the flag by hand, but it remains settable if a
+Ref ruling calls for it:
 
 ```js
-await game.crows.setCondition(actor, "defeated", false) // after a wound is removed
-await game.crows.setCondition(actor, "defeated", true)  // after all slots are wounded
+await game.crows.setCondition(actor, "defeated", true)
 ```
 
 The monster sheet shows a **DEFEATED** badge; a creature with slots also shows
