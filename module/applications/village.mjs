@@ -136,11 +136,13 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
     Object.keys(requested).forEach(key => {
       if (requested[key] === undefined || requested[key] === null || requested[key] === "") delete requested[key];
     });
+    const payerActorUuid = data.payerActorUuid ?? valueFrom(root, "[name='payerActorUuid']")
+      ?? this.options?.payerActorUuid ?? this.options?.actorUuid ?? null;
     const result = await createVillageProposal({
       action: data.villageAction ?? data.action,
       institutionId: data.institutionId,
-      institutionType: data.institutionType,
-      payerActorUuid: data.payerActorUuid ?? valueFrom(root, "[name='payerActorUuid']"),
+      institutionType: data.institutionType ?? valueFrom(root, "[name='institutionType']"),
+      payerActorUuid,
       itemKey: data.itemKey,
       requested,
       quoteFingerprint: data.quoteFingerprint,
@@ -163,9 +165,9 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
   static async _onCommitProposal(event, target) {
     const data = targetData(target);
     const result = await commitVillageProposal(data.proposalId ?? data.villageProposalId, {
-      // The paid saga is injected by the later Commerce ticket.  Keeping the
-      // argument optional means this action is safe to expose now: it can
-      // commit Village-only actions, but cannot fabricate a payment.
+      // The saga supplies Commerce by default.  An injected settlement remains
+      // a narrow test/owner seam and cannot fabricate a committed Village
+      // result without the saga's receipt-bearing phase.
       settle: this.options?.settle
     });
     await this._renderAfterProposalChange();

@@ -274,6 +274,33 @@ describe("hybrid proposal and commit protocol", () => {
     assert.equal(settlements, 1);
   });
 
+  test("an approved paid operation crossing its origin cycle returns cycle-conflict", async () => {
+    const blacksmith = getVillage().institutions.find(entry => entry.type === "blacksmith");
+    const created = await createVillageProposal({
+      action: "upgrade", institutionId: blacksmith.id, payerActorUuid: "Actor.party",
+      requested: { targetLevel: 2, itemPrice: 1500 }
+    });
+    await setVillage({
+      cycle: 1,
+      operationJournal: [{
+        operationId: created.proposal.villageOperationId,
+        action: "upgrade",
+        originCycle: 0,
+        expectedRevision: created.proposal.expectedVillageRevision,
+        inputFingerprint: created.proposal.inputFingerprint,
+        phase: "commerce-committed",
+        childOperationIds: ["cycle-conflict:pay"],
+        commerceResult: { ok: true, phase: "commerce-committed", txId: "cycle-conflict:pay" }
+      }]
+    }, { operationId: "advance-paid-operation" });
+    const result = await commitVillageProposal(created.proposalId, {
+      settle: async () => { throw new Error("must not pay again"); }
+    });
+    assert.equal(result.error, "cycle-conflict");
+    assert.equal(result.reason, "origin-cycle-advanced");
+    assert.equal(result.proposal.phase, "uncertain");
+  });
+
   test("non-Ref callers cannot bypass commit authority", async () => {
     const created = await createVillageProposal({ action: "rename", name: "Nope" });
     globalThis.game.user = { id: "player-a", isGM: false, active: true };

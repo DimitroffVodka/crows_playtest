@@ -28,9 +28,7 @@ import {
   inter, pray, expendBoon, bumpCycle
 } from "../helpers/crypt.mjs";
 import {
-  INSTITUTION_TYPES, getVillage, setVillage,
-  foundInstitution, upgradeInstitution, damageInstitution,
-  setProsperity, endCycle, rollVillageEvent
+  getVillage
 } from "../helpers/village.mjs";
 import {
   CRAFTING_EXPERTISES, startCraftingProject, cancelProject, makeCraftingRoll,
@@ -1562,93 +1560,9 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
   }
 
-  /**
-   * The dedicated hybrid surface is the default entry point.  Keep the old
-   * GM dialog as an explicit compatibility path until paid Village sagas are
-   * available; a failed application bootstrap must not strand existing GM
-   * controls in a live world.
-   */
+  /** Open the receipt-bearing hybrid Village application. */
   static async _onOpenVillage() {
-    try {
-      return await openVillageApplication();
-    } catch (error) {
-      console.error("crows | Village application failed to open; using legacy dialog", error);
-      return CrowSheet._onOpenVillageLegacy.call(this);
-    }
-  }
-
-  static async _onOpenVillageLegacy() {
-    const isGM = Boolean(game.user.isGM);
-    const village = getVillage();
-    const rows = village.institutions.map(institution => `<tr>
-      <td>${esc(institution.name)} <em>(${esc(t(`CROWS.Dialog.Village.institutionType.${institution.type}`))})</em></td>
-      <td style="text-align:center">${institution.destroyed ? "Destroyed" : institution.level}</td>
-      <td>${institution.steward ? esc(institution.steward) : "—"}</td>
-      <td>${isGM && !institution.destroyed ? `<button type="button" data-village-upgrade="${esc(institution.id)}" ${institution.level >= 5 ? "disabled" : ""}>${esc(t(
-        "CROWS.Dialog.Village.levelUp"
-      ))}</button><button type="button" data-village-damage="${esc(institution.id)}">${esc(t(
-        "CROWS.Dialog.Village.levelDown"
-      ))}</button>` : ""}</td>
-    </tr>`).join("");
-    const typeOptions = Object.keys(INSTITUTION_TYPES)
-      .map(key => `<option value="${esc(key)}">${esc(t(`CROWS.Dialog.Village.institutionType.${key}`))}</option>`).join("");
-    const content = `<div class="crows village-dialog">
-      <header><strong>${esc(village.name)}</strong> · ${esc(t("CROWS.Dialog.Village.prosperity"))} <strong>${village.prosperity}</strong> · ${esc(t(
-        "CROWS.Dialog.Village.cycle"
-      ))} <strong>${village.cycle}</strong></header>
-      <table class="village-inst-table"><thead><tr><th>${esc(t("CROWS.Dialog.Village.institution"))}</th><th>${esc(t(
-        "CROWS.Dialog.Village.level"
-      ))}</th><th>${esc(t("CROWS.Dialog.Village.steward"))}</th><th>${isGM ? esc(t("CROWS.Dialog.Village.gm")) : ""}</th></tr></thead>
-      <tbody>${rows || `<tr><td colspan="4"><em>${esc(t("CROWS.Dialog.Village.none"))}</em></td></tr>`}</tbody></table>
-      ${isGM ? `<div class="village-found-form"><strong>${esc(t("CROWS.Dialog.Village.found"))}</strong>
-        <select name="newType">${typeOptions}</select><input type="text" name="newName" placeholder="${esc(t("CROWS.Dialog.Village.optionalName"))}">
-        <input type="text" name="newSteward" placeholder="${esc(t("CROWS.Dialog.Village.steward"))}">
-        <button type="button" data-village-found="1">${esc(t("CROWS.Dialog.Village.foundConfirm"))}</button></div>
-        <div class="village-prosp-form"><strong>${esc(t("CROWS.Dialog.Village.prosperity"))}</strong><input type="number" name="prosperity" value="${village.prosperity}" min="-10" max="10" step="1"><button type="button" data-village-prosperity="1">${esc(t("CROWS.Dialog.Village.set"))}</button></div>
-        <div class="village-name-form"><strong>${esc(t("CROWS.Dialog.Village.name"))}</strong><input type="text" name="villageName" value="${esc(village.name)}"><button type="button" data-village-name="1">${esc(t("CROWS.Dialog.Village.rename"))}</button></div>
-        <div class="village-cycle-form"><button type="button" data-village-end-cycle="1">${esc(t("CROWS.Dialog.Village.endCycle"))}</button><button type="button" data-village-event="1">${esc(t("CROWS.Dialog.Village.rollEvent"))}</button></div>` : ""}
-    </div>`;
-    const dialog = new DialogV2({
-      window: { title: t("CROWS.Dialog.Village.title", { village: village.name }), resizable: true },
-      content,
-      buttons: [{ action: "close", label: t("CROWS.Dialog.close"), default: true, callback: () => null }],
-      submit: () => null
-    });
-    await dialog.render({ force: true });
-    const root = dialog.element;
-    if (!root) return;
-    const reopen = async () => { await dialog.close(); CrowSheet._onOpenVillageLegacy.call(this); };
-    root.querySelector?.('[data-village-found="1"]')?.addEventListener("click", async () => {
-      await foundInstitution({
-        type: root.querySelector('select[name="newType"]')?.value,
-        name: root.querySelector('input[name="newName"]')?.value?.trim() || null,
-        steward: root.querySelector('input[name="newSteward"]')?.value?.trim() || ""
-      });
-      await reopen();
-    });
-    root.querySelector?.('[data-village-prosperity="1"]')?.addEventListener("click", async () => {
-      await setProsperity(Number(root.querySelector('input[name="prosperity"]')?.value ?? 0));
-      await reopen();
-    });
-    root.querySelector?.('[data-village-name="1"]')?.addEventListener("click", async () => {
-      const name = String(root.querySelector('input[name="villageName"]')?.value ?? "").trim();
-      if (!name) return;
-      await setVillage({ name });
-      await reopen();
-    });
-    root.querySelector?.('[data-village-end-cycle="1"]')?.addEventListener("click", async () => {
-      await endCycle();
-      await reopen();
-    });
-    root.querySelector?.('[data-village-event="1"]')?.addEventListener("click", () => rollVillageEvent());
-    root.querySelectorAll?.("[data-village-upgrade]").forEach(button => button.addEventListener("click", async event => {
-      await upgradeInstitution(event.currentTarget.dataset.villageUpgrade);
-      await reopen();
-    }));
-    root.querySelectorAll?.("[data-village-damage]").forEach(button => button.addEventListener("click", async event => {
-      await damageInstitution(event.currentTarget.dataset.villageDamage);
-      await reopen();
-    }));
+    return openVillageApplication({ actorUuid: this.document?.uuid ?? null });
   }
 
   static async _onCraftStart() {

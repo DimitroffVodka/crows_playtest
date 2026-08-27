@@ -43,7 +43,7 @@ import {
 import {
   registerVillageSettings, INSTITUTION_TYPES, STARTING_INSTITUTIONS,
   getVillage, setVillage,
-  foundInstitution, upgradeInstitution, damageInstitution,
+  damageInstitution,
   setProsperity, sellPercentage, itemAvailability, foundingPrice, upgradePrice,
   foundVillageQuote, villageCraftingQuote, workshopRental, innMaxBet,
   beaconRadius, beaconTransportCost, capstoneActive,
@@ -67,6 +67,20 @@ import {
   listVillageProposals, villageEconomics, villagePolicyFingerprint,
   villageCommitAuthority
 } from "./helpers/village-interface.mjs";
+import {
+  foundInstitutionPaid,
+  upgradeInstitutionPaid,
+  commissionArtisan,
+  rentWorkshop,
+  placeInnBet,
+  payBeaconFare,
+  purchaseMerchantItem,
+  sellItem,
+  auctionSell,
+  auctionBuyback,
+  commitVillagePaidAction,
+  adjudicateVillageOperation
+} from "./helpers/village-sagas.mjs";
 import {
   startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
   identifyMagicItem, reconcileCraftingProjects, craftingMaterialSetsFor,
@@ -283,7 +297,7 @@ Hooks.once("init", () => {
     village: {
       TYPES: INSTITUTION_TYPES, STARTING: STARTING_INSTITUTIONS,
       get: getVillage, set: setVillage,
-      found: foundInstitution, upgrade: upgradeInstitution, damage: damageInstitution,
+      found: foundInstitutionPaid, upgrade: upgradeInstitutionPaid, damage: damageInstitution,
       setProsperity, sellPercentage, availability: itemAvailability,
       foundingPrice, upgradePrice, itemAvailability,
       foundVillageQuote, villageCraftingQuote, workshopRental, innMaxBet,
@@ -351,6 +365,18 @@ Hooks.once("init", () => {
       commitVillageProposal,
       commitAction: commitVillageProposal,
       commit: commitVillageProposal,
+      commitVillagePaidAction,
+      adjudicateVillageOperation,
+      foundInstitutionPaid,
+      upgradeInstitutionPaid,
+      commissionArtisan,
+      rentWorkshop,
+      placeInnBet,
+      payBeaconFare,
+      purchaseMerchantItem,
+      sellItem,
+      auctionSell,
+      auctionBuyback,
       proposalOperation: getVillageProposalOperation,
       getProposalOperation: getVillageProposalOperation,
       commitAuthority: villageCommitAuthority,

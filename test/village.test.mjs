@@ -433,6 +433,13 @@ describe("prosperity", () => {
     assert.equal(recordMerchantSpend(v, 10000).prosperityDelta, 0);
   });
 
+  test("credit-covered goods add no paid gc to the merchant threshold", () => {
+    const result = recordMerchantSpend({ spentThisCycle: 9999, spendBonusAwarded: false }, 0);
+    assert.equal(result.spentThisCycle, 9999);
+    assert.equal(result.prosperityDelta, 0);
+    assert.equal(result.spendBonusAwarded, false);
+  });
+
   test("a cycle with nothing to raise it costs 1 (C:2265)", () => {
     assert.equal(prosperityAtCycleEnd(4, { raisingEventOccurred: false }), 3);
     assert.equal(prosperityAtCycleEnd(4, { raisingEventOccurred: true }), 4);

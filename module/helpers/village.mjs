@@ -1755,8 +1755,12 @@ export function institutionRecordById(id, village = getVillage()) {
 }
 
 /**
- * Found an institution. Prosperity rises immediately (C:2261); the institution
- * does not open until the start of the next cycle (C:2350).
+ * Found an institution without a PC/Party debit.
+ *
+ * This is the low-level/unfunded path used by the villagers-funded event and
+ * compatibility callers.  It must not be used for a player investment: paid
+ * founding/reopening goes through `foundInstitutionPaid` and Commerce, so this
+ * helper's audit card is never a substitute for a receipt-bearing payment.
  */
 export async function foundInstitution({ type, name = null, steward = "", level = 1, operationId = null } = {}, options = {}) {
   const def = INSTITUTIONS[type];
@@ -1812,7 +1816,8 @@ export async function foundInstitution({ type, name = null, steward = "", level 
 
   await createVillageChat({
     content: `<div class="crows village-found">
-      <strong>${saved.name}</strong> founds <strong>${savedInstitution.name}</strong> (${def.label}) for ${def.foundingPrice} gc${steward ? ` — steward: ${steward}` : ""}.
+      <strong>${saved.name}</strong> records <strong>${savedInstitution.name}</strong> (${def.label}) as villagers-funded${steward ? ` — steward: ${steward}` : ""}.
+      <div>No PC/Party debit was made; player-funded founding uses the Commerce saga.</div>
       <div>Opens at the start of cycle <strong>${savedInstitution.operatingFromCycle}</strong>. Prosperity now <strong>${saved.prosperity}</strong>.</div>
     </div>`,
     speaker: { alias: "Village" }
@@ -1821,8 +1826,11 @@ export async function foundInstitution({ type, name = null, steward = "", level 
 }
 
 /**
- * Pay to upgrade. Prosperity rises now; the new level operates from the next
- * cycle (C:2353), so the level is parked in `pendingLevel` until `endCycle`.
+ * Upgrade an institution without a PC/Party debit.
+ *
+ * This low-level helper is retained for compatibility/read-only test harnesses;
+ * player-funded upgrades must use `upgradeInstitutionPaid` through the Commerce
+ * saga.  Prosperity rises now and the level remains pending until `endCycle`.
  */
 export async function upgradeInstitution(id, options = {}) {
   const prev = getVillage();
@@ -1847,7 +1855,8 @@ export async function upgradeInstitution(id, options = {}) {
 
   await createVillageChat({
     content: `<div class="crows village-upgrade">
-      <strong>${savedInstitution.name}</strong> pays ${price} gc for level <strong>${target}</strong>, operating from cycle ${savedInstitution.pendingFromCycle}.
+      <strong>${savedInstitution.name}</strong> records an unfunded compatibility upgrade to level <strong>${target}</strong>, operating from cycle ${savedInstitution.pendingFromCycle}.
+      <div>No PC/Party debit was made; player-funded upgrades use the Commerce saga.</div>
       <div>Prosperity now <strong>${saved.prosperity}</strong>.</div>
     </div>`,
     speaker: { alias: "Village" }
@@ -1930,6 +1939,16 @@ export async function setProsperity(value, { silent = false, operationId = null 
  */
 export async function recordSpend(amount, { silent = false, operationId = null } = {}) {
   const prev = getVillage();
+  if (operationId) {
+    const prior = (prev.operationJournal ?? []).find(entry => String(entry?.operationId ?? "") === String(operationId));
+    if (prior?.spendResult && typeof prior.spendResult === "object") {
+      // The spend child is itself idempotent.  A setting acknowledgement can
+      // be lost after this result lands, so the next same-token repair must
+      // read the recorded accounting result instead of adding the amount a
+      // second time before the parent reaches its terminal phase.
+      return cloneValue(prior.spendResult);
+    }
+  }
   const next = cloneValue(prev);
   const result = recordMerchantSpend(next, amount);
   next.spentThisCycle = result.spentThisCycle;
@@ -1937,6 +1956,12 @@ export async function recordSpend(amount, { silent = false, operationId = null }
   if (result.prosperityDelta) {
     next.prosperity = clampProsperity(next.prosperity + result.prosperityDelta);
     next.raisingEventThisCycle = true;
+  }
+  const spendResult = { ok: true, ...result, prosperity: next.prosperity };
+  if (operationId) {
+    next.operationJournal = (next.operationJournal ?? []).map(entry =>
+      String(entry?.operationId ?? "") === String(operationId)
+        ? { ...entry, spendResult: cloneValue(spendResult) } : entry);
   }
   const saved = await save(next, { prev, operationId });
   if (result.prosperityDelta && !silent) {
@@ -1947,7 +1972,7 @@ export async function recordSpend(amount, { silent = false, operationId = null }
       speaker: { alias: "Village" }
     });
   }
-  return { ok: true, ...result, prosperity: saved.prosperity };
+  return { ...spendResult, prosperity: saved.prosperity };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -4296,7 +4321,8 @@ export function institutionServicePolicy(villageOrRequest = null, requestMaybe =
   const itemValue = nonNegativeInteger(request.itemValue ?? request.value);
   const creditToConsume = (action === "browse" || action === "buy"
     || action === "merchant-purchase" || action === "service")
-    ? policyCredit(effects, institution, key, actorUuid, village.cycle) : null;
+    ? policyCredit(effects, institution, key, actorUuid, village.cycle, village,
+      request.villageOperationId ?? request.operationId ?? null) : null;
   const craftingTerms = def.roles.includes("artisan")
     ? villageCraftingQuote(key, level.level, itemPrice, {
       rush: request.rush === true,
@@ -4521,7 +4547,7 @@ function nonNegativeInteger(value) {
   return Math.max(0, Math.floor(Number(value) || 0));
 }
 
-function policyCredit(effects, institution, key, actorUuid, cycle) {
+function policyCredit(effects, institution, key, actorUuid, cycle, village = null, operationId = null) {
   for (const effect of effects) {
     if (effect.kind !== "credit" || !policyEffectTargets(effect, institution, key)) continue;
     const expiresOnCycle = effect.expiresAfterCycle ?? effect.expiresOnCycle;
@@ -4534,7 +4560,19 @@ function policyCredit(effects, institution, key, actorUuid, cycle) {
       ? byActor[actorUuid]
       : effect.remainingAmount ?? effect.amountRemaining ?? effect.remaining
         ?? effect.amount ?? effect.value ?? effect.perPC;
-    const amount = nonNegativeInteger(remaining);
+    // A paid merchant saga reserves credit before it calls Commerce.  The
+    // reservation lives in the Village operation journal, so a second
+    // proposal must not browse the same allowance as if it were still free.
+    // Terminal entries are intentionally excluded: a failed/compensated
+    // purchase releases its reservation by becoming terminal, while a
+    // credit-pending operation remains unavailable for repair.
+    const reserved = (village?.operationJournal ?? [])
+      .filter(entry => ["prepared", "commerce-pending", "commerce-committed", "credit-pending",
+        "spend-pending", "partial", "uncertain"].includes(String(entry?.phase ?? "")))
+      .filter(entry => String(entry?.operationId ?? "") !== String(operationId ?? ""))
+      .filter(entry => String(entry?.creditReservation?.creditId ?? "") === String(effect.creditId ?? ""))
+      .reduce((sum, entry) => sum + nonNegativeInteger(entry?.creditReservation?.amount), 0);
+    const amount = Math.max(0, nonNegativeInteger(remaining) - reserved);
     if (amount <= 0) continue;
     return {
       creditId: String(effect.creditId ?? `${effect.eventId ?? "credit"}-${institution?.id ?? key}-${beneficiary ?? "pc"}`),
