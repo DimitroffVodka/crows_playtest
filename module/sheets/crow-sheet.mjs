@@ -19,6 +19,7 @@ import {
   layoutFor, packItem, unpackItem, slotsNeeded, coinSummary, planSwap, occupantsOfSpan, wieldRefusal,
   applyWoundSpeedPenalty, CARRY_CONTAINERS, MAGIC_CONTAINERS
 } from "../helpers/slots.mjs";
+import { grantItem, makeGrantContext } from "../helpers/item-grants.mjs";
 import {
   getInMiasma, setInMiasma, rollMiasmaResist, clearMiasma, MIASMA_EFFECTS
 } from "../helpers/miasma.mjs";
@@ -1386,12 +1387,17 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     const source = await fromUuid(uuid);
     if (!source) return;
-    const data = source.toObject();
-    delete data._id;
-    delete data._key;
-    data.system = { ...(data.system ?? {}),
-      location: { container, index, length: slotsNeeded(source) } };
-    await this.document.createEmbeddedDocuments("Item", [data]);
+    const grant = await grantItem(this.document, source,
+      makeGrantContext(this.document, "sheet-add-to-slot", {
+        placement: { container, index, length: slotsNeeded(source) },
+        layout: base
+      }));
+    if (!grant.ok) {
+      notify("warn", grant.error === "no-capacity"
+        ? "CROWS.Dialog.AddToSlot.none"
+        : "CROWS.Dialog.InventoryDrop.bad-arguments", { slot: slotLabel(container, index) });
+      return;
+    }
     this.render();
   }
 

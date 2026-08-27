@@ -56,6 +56,7 @@ import {
   recoverCraftingTransaction
 } from "./helpers/crafting.mjs";
 import { planCraftingMaterials } from "./helpers/materials.mjs";
+import { grantItem, grantItemBatch } from "./helpers/item-grants.mjs";
 import {
   openCharacterCreator, createCharacter, applyCharacteristics,
   applyUniversalStarterItems, rollBackground, rollStartingGold
@@ -210,6 +211,7 @@ Hooks.once("init", () => {
     setCondition, mirrorConditions, expireDungeonTurnConditions,
     gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait,
     bonusesAvailable, spendExpertiseBonus, spendCharBonus, advancementOptions,
+    grantItem, grantItems: grantItemBatch,
     advancementWindow: {
       get: spendingWindow,
       open: openSpendingWindow,
