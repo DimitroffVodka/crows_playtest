@@ -31,13 +31,19 @@ export const VILLAGE_MAP_GENERATOR_VERSION = "village-map-1";
 export const GENERATOR_VERSION = VILLAGE_MAP_GENERATOR_VERSION;
 
 export const SCENE_DEFAULTS = Object.freeze({
-  width: 4000,
-  height: 3000,
+  width: 4800,
+  height: 6600,
   padding: 0.25,
   institutionWidth: 320,
   institutionHeight: 260,
   housingWidth: 180,
-  housingHeight: 150
+  housingHeight: 150,
+  backgroundVariant: "day"
+});
+
+export const VILLAGE_BACKGROUND_VARIANTS = Object.freeze({
+  DAY: "day",
+  NIGHT: "night"
 });
 
 const PHASE_ORDER = Object.freeze({
@@ -279,7 +285,8 @@ function fnv1a(value) {
 
 /**
  * Deterministic, presentation-only coordinates.  The identity is included in
- * the hash so adding an institution does not renumber existing slots.
+ * the hash so adding an institution does not renumber existing slots. Tile
+ * dimensions bound the top-left origin so portrait scenes cannot clip a tile.
  */
 export function deterministicPosition({
   sceneSeed = "",
@@ -288,15 +295,28 @@ export function deterministicPosition({
   index = 0,
   width = SCENE_DEFAULTS.width,
   height = SCENE_DEFAULTS.height,
-  margin = 220
+  margin = 220,
+  tileWidth = 0,
+  tileHeight = 0
 } = {}) {
   const seed = fnv1a(`${sceneSeed}|${kind}|${identity}|${index}`);
   const second = fnv1a(`${sceneSeed}|${kind}|${identity}|${index}|y`);
-  const usableWidth = Math.max(1, Math.floor(Number(width) || SCENE_DEFAULTS.width) - margin * 2);
-  const usableHeight = Math.max(1, Math.floor(Number(height) || SCENE_DEFAULTS.height) - margin * 2);
+  const sceneWidth = Math.max(1, Math.floor(Number(width) || SCENE_DEFAULTS.width));
+  const sceneHeight = Math.max(1, Math.floor(Number(height) || SCENE_DEFAULTS.height));
+  const safeMargin = Math.max(0, Math.floor(Number(margin) || 0));
+  const contentWidth = Math.max(0, Math.floor(Number(tileWidth) || 0));
+  const contentHeight = Math.max(0, Math.floor(Number(tileHeight) || 0));
+  const maxX = Math.max(0, sceneWidth - contentWidth);
+  const maxY = Math.max(0, sceneHeight - contentHeight);
+  const minX = Math.min(safeMargin, maxX);
+  const minY = Math.min(safeMargin, maxY);
+  const boundedMaxX = Math.max(minX, maxX - safeMargin);
+  const boundedMaxY = Math.max(minY, maxY - safeMargin);
+  const usableWidth = Math.max(1, boundedMaxX - minX + 1);
+  const usableHeight = Math.max(1, boundedMaxY - minY + 1);
   return {
-    x: margin + (seed % usableWidth),
-    y: margin + (second % usableHeight)
+    x: minX + (seed % usableWidth),
+    y: minY + (second % usableHeight)
   };
 }
 
@@ -310,7 +330,9 @@ export function institutionPosition(village, institution, options = {}) {
     kind: "institution",
     width: options.width ?? SCENE_DEFAULTS.width,
     height: options.height ?? SCENE_DEFAULTS.height,
-    margin: options.margin ?? 220
+    margin: options.margin ?? 220,
+    tileWidth: options.tileWidth ?? options.institutionWidth ?? SCENE_DEFAULTS.institutionWidth,
+    tileHeight: options.tileHeight ?? options.institutionHeight ?? SCENE_DEFAULTS.institutionHeight
   });
 }
 
@@ -325,7 +347,9 @@ export function housingPosition(village, index, options = {}) {
     index,
     width: options.width ?? SCENE_DEFAULTS.width,
     height: options.height ?? SCENE_DEFAULTS.height,
-    margin: options.margin ?? 180
+    margin: options.margin ?? 180,
+    tileWidth: options.tileWidth ?? options.housingWidth ?? SCENE_DEFAULTS.housingWidth,
+    tileHeight: options.tileHeight ?? options.housingHeight ?? SCENE_DEFAULTS.housingHeight
   });
 }
 
@@ -439,6 +463,108 @@ function resolveArt(artSet, key, visualState, context = {}) {
     }
   }
   return { src: null, label: null, key: null, stateSpecific: false };
+}
+
+function backgroundVariant(value, fallback = SCENE_DEFAULTS.backgroundVariant) {
+  const candidate = text(value).toLowerCase();
+  return candidate || fallback;
+}
+
+function backgroundMaps(set) {
+  if (!set) return [];
+  return [
+    set,
+    set.backgrounds,
+    set.background,
+    set.assets?.backgrounds,
+    set.assets?.background,
+    set.assets,
+    set.maps?.backgrounds,
+    set.catalogue?.backgrounds,
+    set.catalogue
+  ].filter(Boolean).filter((map, index, maps) => maps.indexOf(map) === index);
+}
+
+/**
+ * Resolve the Scene background through the same late-bound art boundary as
+ * institution textures.  A Ref can provide either a {day, night} map, an art
+ * set carrying .backgrounds, or a resolver function without changing Village
+ * state or this projection code.
+ */
+export function resolveVillageBackground({
+  variant = SCENE_DEFAULTS.backgroundVariant,
+  artSet = null,
+  backgroundSet = null
+} = {}) {
+  const requested = backgroundVariant(variant);
+  const sets = [
+    backgroundSet,
+    artSet?.backgrounds,
+    artSet,
+    configuredBackgroundSet,
+    VILLAGE_ART_SET.backgrounds
+  ].filter(Boolean).filter((set, index, candidates) => candidates.indexOf(set) === index);
+
+  for (const set of sets) {
+    const fallback = backgroundVariant(set.defaultVariant ?? set.defaultBackground);
+    const keys = [...new Set([requested, fallback, "default", SCENE_DEFAULTS.backgroundVariant])];
+    for (const candidate of keys) {
+      let converted = null;
+      if (typeof set.resolveBackground === "function") {
+        try {
+          converted = artEntrySource(set.resolveBackground({
+            key: candidate,
+            variant: candidate,
+            visualState: candidate
+          }));
+        } catch { /* an optional Ref resolver must not break Scene creation */ }
+      }
+      if (!converted?.src && typeof set.resolve === "function") {
+        try {
+          converted = artEntrySource(set.resolve({
+            key: candidate,
+            assetKey: candidate,
+            variant: candidate,
+            visualState: candidate,
+            kind: "background"
+          }));
+        } catch { /* an optional Ref resolver must not break Scene creation */ }
+      }
+      if (!converted?.src) {
+        for (const map of backgroundMaps(set)) {
+          converted = artEntrySource(artEntryAt(map, candidate));
+          if (!converted?.src && candidate === requested) converted = artEntrySource(map);
+          if (converted?.src) break;
+        }
+      }
+      if (converted?.src) {
+        return {
+          ...converted,
+          key: candidate,
+          variant: candidate,
+          supported: true,
+          substituted: converted.substituted === true,
+          substitutionReason: converted.substitutionReason ?? null,
+          unsupported: false,
+          needsArt: false,
+          reason: converted.substituted ? "substituted" : null
+        };
+      }
+    }
+  }
+
+  return {
+    src: null,
+    label: null,
+    key: null,
+    variant: requested,
+    supported: false,
+    substituted: false,
+    substitutionReason: null,
+    unsupported: true,
+    needsArt: true,
+    reason: "asset-unresolved"
+  };
 }
 
 function levelValue(effectiveLevel) {
@@ -1006,11 +1132,17 @@ export const reconcileScene = reconcileVillageScene;
 export function villageSceneData(village, operationId, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
   const version = generatorVersion(options);
+  const background = resolveVillageBackground({
+    variant: options.backgroundVariant ?? SCENE_DEFAULTS.backgroundVariant,
+    artSet: options.artSet,
+    backgroundSet: options.backgroundSet
+  });
   return {
     name: source.name || "Village",
     width: options.width ?? SCENE_DEFAULTS.width,
     height: options.height ?? SCENE_DEFAULTS.height,
     padding: options.padding ?? SCENE_DEFAULTS.padding,
+    ...(background.src ? { background: { src: background.src } } : {}),
     navigation: true,
     ownership: { default: sceneOwnershipObserver() },
     flags: {
@@ -1018,7 +1150,9 @@ export function villageSceneData(village, operationId, options = {}) {
         village: {
           villageId: source.villageId,
           generatorVersion: version,
-          bootstrap: String(operationId ?? source.bootstrap?.txId ?? "")
+          bootstrap: String(operationId ?? source.bootstrap?.txId ?? ""),
+          backgroundVariant: background.variant,
+          backgroundKey: background.key
         }
       }
     }
@@ -1438,13 +1572,23 @@ export const createVillageScene = bootstrapVillageScene;
 export const createVillage = bootstrapVillageScene;
 
 let configuredArtSet = VILLAGE_ART_SET;
+let configuredBackgroundSet = VILLAGE_ART_SET.backgrounds;
 export function configureVillageArtSet(artSet) {
   configuredArtSet = artSet ?? VILLAGE_ART_SET;
+  configuredBackgroundSet = configuredArtSet?.backgrounds ?? VILLAGE_ART_SET.backgrounds;
   return configuredArtSet;
 }
 
 export const setVillageArtSet = configureVillageArtSet;
 export const getVillageArtSet = () => configuredArtSet;
+
+export function configureVillageBackgroundSet(backgroundSet) {
+  configuredBackgroundSet = backgroundSet ?? VILLAGE_ART_SET.backgrounds;
+  return configuredBackgroundSet;
+}
+
+export const setVillageBackgroundSet = configureVillageBackgroundSet;
+export const getVillageBackgroundSet = () => configuredBackgroundSet;
 
 const mapRefreshListeners = new Set();
 let mapHooksRegistered = false;
@@ -1481,8 +1625,12 @@ export const subscribeVillageMap = registerVillageMapListener;
  * read models on every client and lets the foundations gate Scene writes to
  * the designated GM.
  */
-export function registerVillageMapHooks({ artSet = null, onRefresh = null } = {}) {
-  if (artSet !== null) configuredArtSet = artSet;
+export function registerVillageMapHooks({ artSet = null, backgroundSet = null, onRefresh = null } = {}) {
+  if (artSet !== null) {
+    configuredArtSet = artSet ?? VILLAGE_ART_SET;
+    configuredBackgroundSet = configuredArtSet?.backgrounds ?? VILLAGE_ART_SET.backgrounds;
+  }
+  if (backgroundSet !== null) configuredBackgroundSet = backgroundSet ?? VILLAGE_ART_SET.backgrounds;
   const unsubscribeRefresh = onRefresh ? registerVillageMapListener(onRefresh) : () => {};
   if (mapHooksRegistered) return unsubscribeRefresh;
   mapHooksRegistered = true;
