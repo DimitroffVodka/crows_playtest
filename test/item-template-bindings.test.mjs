@@ -127,6 +127,21 @@ describe("item template bindings match their data model", () => {
     }
   });
 
+  test("treasure value is offered only on treasure", () => {
+    // `system.treasure.value` was bound unconditionally, so every gear sheet —
+    // bedrolls, crowbars, cook's utensils — offered a Treasure value box. The
+    // field is read by nothing (greedAward and treasureXP both take a plain
+    // `value` argument), so the control was noise everywhere except the
+    // `treasure` subtype it was meant for.
+    const src = readFileSync(join(TEMPLATES, "gear.hbs"), "utf8");
+    const gate = /\{\{#if \(eq system\.subtype "treasure"\)\}\}([\s\S]*?)\{\{\/if\}\}/.exec(src);
+    assert.ok(gate, "gear.hbs no longer gates on the treasure subtype");
+    assert.match(gate[1], /name="system\.treasure\.value"/,
+      "the treasure value input escaped its subtype gate");
+    assert.equal((src.match(/name="system\.treasure\.value"/g) ?? []).length, 1,
+      "treasure value is bound more than once, so one binding is ungated");
+  });
+
   test("nothing else lost an editor by accident", () => {
     // The other seven item sheets ARE editors; this is a guard that the
     // read-only decision stayed scoped to backgrounds.

@@ -31,7 +31,11 @@
       <label><input type="checkbox" name="system.identified" {{#if system.identified}}checked{{/if}}> Identified</label>
       <label>Light bright <input type="number" name="system.light.bright" value="{{system.light.bright}}"></label>
       <label>Light dim <input type="number" name="system.light.dim" value="{{system.light.dim}}"></label>
+      {{!-- Only treasure carries a treasure value. This was ungated, so every
+            bedroll and crowbar sheet offered one. --}}
+      {{#if (eq system.subtype "treasure")}}
       <label>Treasure value <input type="number" name="system.treasure.value" value="{{system.treasure.value}}"></label>
+      {{/if}}
       {{> "systems/crows/templates/partials/usage-die.hbs"}}
       {{> "systems/crows/templates/partials/physical-item.hbs"}}
     </div>
