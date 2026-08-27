@@ -9,6 +9,11 @@
 
 export const VILLAGE_ART_ASSET_ROOT = "systems/crows/assets/village/";
 
+export const VILLAGE_ART_BACKGROUND_FILENAMES = Object.freeze([
+  "Meadow Picnic - Spring - Day - 16x22 - 300 DPI.jpg",
+  "Meadow Picnic - Spring - Night - 16x22 - 300 DPI.jpg"
+]);
+
 /** The named PNG files copied from 2 Minute Tabletop's 300-DPI set. */
 export const VILLAGE_ART_FILENAMES = Object.freeze([
   "Arena.png",
@@ -175,6 +180,17 @@ const housingPool = Object.freeze([
   src("Building, straw 4.png", "Straw house 4")
 ]);
 
+const backgrounds = Object.freeze({
+  day: src(
+    "backgrounds/Meadow Picnic - Spring - Day - 16x22 - 300 DPI.jpg",
+    "Meadow Picnic — Spring — Day"
+  ),
+  night: src(
+    "backgrounds/Meadow Picnic - Spring - Night - 16x22 - 300 DPI.jpg",
+    "Meadow Picnic — Spring — Night"
+  )
+});
+
 // Keep the complete named catalogue discoverable even though only a subset is
 // currently projected into generated Tiles.  It also makes a future art-set
 // swap a data change rather than a path rewrite throughout map logic.
@@ -194,5 +210,7 @@ export const VILLAGE_ART_SET = Object.freeze({
   root: VILLAGE_ART_ASSET_ROOT,
   assets,
   housingPool,
+  backgrounds,
+  defaultBackground: "day",
   catalogue: VILLAGE_ART_CATALOGUE
 });

@@ -1,16 +1,18 @@
 import "./shim/foundry.mjs";
 import { describe, test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import {
   CONNECTION_BENEFITS,
+  INSTITUTION_KEYS,
   defaultVillage,
   registerVillageSettings
 } from "../module/helpers/village.mjs";
 import {
   INSTITUTION_ART_KEYS,
+  SCENE_DEFAULTS,
   VILLAGE_MAP_GENERATOR_VERSION,
   assetForInstitution,
   bootstrapVillageScene,
@@ -19,14 +21,18 @@ import {
   createVillageRecord,
   deterministicPosition,
   effectiveInstitutionForMap,
+  configureVillageBackgroundSet,
+  getVillageBackgroundSet,
   getVillageArtSet,
   housingCountForProsperity,
   reconcileVillageScene,
+  resolveVillageBackground,
   validateVillageCreatorInput,
   villageSceneData
 } from "../module/helpers/village-map.mjs";
 import {
   VILLAGE_ART_ASSET_ROOT,
+  VILLAGE_ART_BACKGROUND_FILENAMES,
   VILLAGE_ART_FILENAMES,
   VILLAGE_ART_SET
 } from "../module/helpers/village-art.mjs";
@@ -265,6 +271,17 @@ describe("Village creator data and art resolution", () => {
     );
     const missing = VILLAGE_ART_FILENAMES.filter(file => !existsSync(join("assets/village", file)));
     assert.deepEqual(missing, []);
+    assert.equal(VILLAGE_ART_BACKGROUND_FILENAMES.length, 2);
+    assert.deepEqual(
+      readdirSync("assets/village/backgrounds").filter(file => file.endsWith(".jpg")).sort(),
+      [...VILLAGE_ART_BACKGROUND_FILENAMES].sort()
+    );
+    const missingBackgrounds = VILLAGE_ART_BACKGROUND_FILENAMES
+      .filter(file => !existsSync(join("assets/village/backgrounds", file)));
+    assert.deepEqual(missingBackgrounds, []);
+    const notice = readFileSync("NOTICE.md", "utf8");
+    assert.match(notice, /Meadow Picnic/);
+    for (const file of VILLAGE_ART_BACKGROUND_FILENAMES) assert.ok(notice.includes(file));
     assert.equal(VILLAGE_ART_SET.root, VILLAGE_ART_ASSET_ROOT);
     assert.equal(VILLAGE_ART_SET.resolution, "300 DPI");
     assert.equal(VILLAGE_ART_SET.license.shortName, "CC BY-NC 4.0");
@@ -342,13 +359,83 @@ describe("Village Scene projection", () => {
     }
   });
 
+  test("portrait scene dimensions keep all twelve institutions and housing in bounds", () => {
+    const village = defaultVillage();
+    village.villageId = "portrait-village";
+    village.sceneSeed = "portrait-seed";
+    village.prosperity = 10;
+    const template = village.institutions[0];
+    village.institutions = INSTITUTION_KEYS.map((type, index) => ({
+      ...template,
+      id: `portrait-${index}-${type}`,
+      type,
+      name: type
+    }));
+
+    const projection = buildVillageProjection(village, {
+      width: SCENE_DEFAULTS.width,
+      height: SCENE_DEFAULTS.height
+    });
+    assert.equal(projection.institutions.length, 12);
+    assert.equal(projection.housingCount, 5);
+    for (const tile of projection.tiles) {
+      assert.ok(tile.x >= 0);
+      assert.ok(tile.y >= 0);
+      assert.ok(tile.x + tile.width <= SCENE_DEFAULTS.width, `${tile.name} exceeds scene width`);
+      assert.ok(tile.y + tile.height <= SCENE_DEFAULTS.height, `${tile.name} exceeds scene height`);
+    }
+    const institutionYs = projection.institutions.map(tile => tile.y);
+    assert.ok(Math.max(...institutionYs) - Math.min(...institutionYs) > 2000);
+  });
+
   test("Scene data explicitly grants Observer visibility and navigation", () => {
     const village = defaultVillage();
     const data = villageSceneData(village, "boot-1");
+    assert.equal(SCENE_DEFAULTS.width, 4800);
+    assert.equal(SCENE_DEFAULTS.height, 6600);
+    assert.equal(data.width, 4800);
+    assert.equal(data.height, 6600);
+    assert.equal(data.background.src,
+      `${VILLAGE_ART_ASSET_ROOT}backgrounds/Meadow Picnic - Spring - Day - 16x22 - 300 DPI.jpg`);
+    assert.equal(data.flags.crows.village.backgroundVariant, "day");
+    const night = villageSceneData(village, "boot-night", { backgroundVariant: "night" });
+    assert.equal(night.background.src,
+      `${VILLAGE_ART_ASSET_ROOT}backgrounds/Meadow Picnic - Spring - Night - 16x22 - 300 DPI.jpg`);
+    assert.equal(night.flags.crows.village.backgroundVariant, "night");
     assert.equal(data.navigation, true);
     assert.equal(data.ownership.default, 2);
     assert.equal(data.flags.crows.village.villageId, village.villageId);
     assert.equal(data.flags.crows.village.bootstrap, "boot-1");
+  });
+
+  test("background resolver is late-bound for a Ref's day/night map", () => {
+    const custom = {
+      defaultVariant: "day",
+      day: { src: "worlds/custom-village-day.jpg", label: "Custom day" },
+      night: { src: "worlds/custom-village-night.jpg", label: "Custom night" }
+    };
+    configureVillageBackgroundSet(custom);
+    try {
+      assert.equal(getVillageBackgroundSet(), custom);
+      assert.deepEqual(resolveVillageBackground({ variant: "night" }), {
+        src: "worlds/custom-village-night.jpg",
+        label: "Custom night",
+        substituted: false,
+        substitutionReason: null,
+        key: "night",
+        variant: "night",
+        supported: true,
+        unsupported: false,
+        needsArt: false,
+        reason: null
+      });
+      assert.equal(
+        villageSceneData(defaultVillage(), "boot-custom").background.src,
+        "worlds/custom-village-day.jpg"
+      );
+    } finally {
+      configureVillageBackgroundSet(VILLAGE_ART_SET.backgrounds);
+    }
   });
 });
 
@@ -370,6 +457,10 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     assert.equal(store.sceneId, "scene-1");
     assert.equal(sceneCreateCalls[0].navigation, true);
     assert.equal(sceneCreateCalls[0].ownership.default, 2);
+    assert.equal(sceneCreateCalls[0].width, 4800);
+    assert.equal(sceneCreateCalls[0].height, 6600);
+    assert.equal(sceneCreateCalls[0].background.src,
+      `${VILLAGE_ART_ASSET_ROOT}backgrounds/Meadow Picnic - Spring - Day - 16x22 - 300 DPI.jpg`);
     assert.equal(scenes[0].tiles.length, 8);
 
     const retry = await bootstrapVillageScene({ operationId: "boot-1", artSet });
