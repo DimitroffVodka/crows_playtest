@@ -1,0 +1,185 @@
+# The village
+
+Your crows share a home village. It has **institutions** they can use, a
+**Prosperity** score that moves with how much they invest in it, and a
+**cycle** of 10 days that the Ref advances between adventures.
+
+The short version: *the village decays unless you spend money in it.*
+
+---
+
+## Opening the village
+
+The Ref opens it from the console or a macro:
+
+```js
+game.crows.village.open()
+```
+
+Everyone at the table can open and read it. Only the Ref sees the controls that
+change shared state.
+
+## What you are looking at
+
+**Header** — the village name, its Prosperity, the current Cycle, and a
+revision number. The revision is how the system detects two people acting on
+stale information; you can ignore it unless something refuses.
+
+**The four figures** —
+
+| Figure | Meaning |
+| --- | --- |
+| Merchant sale percentage | What merchants pay for what you sell them, as a share of value |
+| Merchant spend this cycle | How much the party has spent with village merchants, against the 10,000 gc that raises Prosperity |
+| Spend remaining | How much more spending this cycle would earn that increase |
+| Found a village | 15,000 gc, the cost of founding a *new* village |
+
+**The institutions table** — one row per institution, showing its RAW level,
+any PENDING change, its EFFECTIVE level, whether it is open, and its terms.
+Terms differ by institution: a Blacksmith shows founding and upgrade prices, a
+sale percentage, its crafting rate and workshop rental; an Inn also shows its
+maximum bet.
+
+RAW and EFFECTIVE differ when a village event has temporarily moved an
+institution's level. EFFECTIVE is what you actually get.
+
+**Proposals** — pending player requests awaiting the Ref.
+
+**Current effects** — active event modifiers, or a note that there are none.
+
+---
+
+## Starting out
+
+A new village begins at **Prosperity 0, Cycle 0**, with five institutions at
+level 1: a General Store, an Inn and a Temple, plus two the group chooses.
+
+Twelve institution types exist: alchemist, auction house, barracks, beacon,
+blacksmith, bookseller, crypt, enchanter, general store, inn, stables, temple.
+
+## Founding an institution
+
+1. Under **Found or reopen an institution**, pick the type. The dropdown shows
+   each one's price — an Alchemist is 3,000 gc, a General Store 1,000.
+2. Give it a name and a steward. Both are flavour; neither affects the rules.
+3. **Submit founding proposal.**
+4. The Ref **Approves** it, then **Commits** it.
+
+Founding also covers reopening something destroyed or reduced to level zero.
+
+> **The proposal needs a payer, and the sheet cannot pick one yet.** A proposal
+> raised from the standalone village sheet carries no payer and will refuse at
+> commit. Until a payer selector exists, nominate one when proposing:
+>
+> ```js
+> await game.crows.village.propose({
+>   action: "found", institutionType: "alchemist", name: "The Green Retort",
+>   payerActorUuid: game.actors.getName("Party Treasury").uuid
+> })
+> ```
+>
+> The sheet inherits a payer automatically when opened from a crow's sheet.
+
+## Upgrading an institution
+
+**Propose upgrade** on its row, then the Ref approves and commits. The price is
+the **Next** figure in that row's terms, and it is not the same as the founding
+price — a Blacksmith costs 3,000 to found and 1,500 to raise.
+
+---
+
+## Prosperity
+
+Prosperity runs from **-10 to +10**. It sets availability, prices, how much
+housing the village has, and which events you are likely to roll.
+
+**It falls by 1 at the end of every cycle unless a Prosperity-raising event
+occurred during it.** This is the single most important thing to understand
+about the village: standing still is not neutral. A village left alone shrinks.
+
+The main way to raise it is to **spend money there** — 10,000 gc with village
+merchants during one cycle raises Prosperity by 1. Buying from your own village
+rather than elsewhere is the mechanical point of having one.
+
+---
+
+## Running a cycle
+
+A cycle is **10 days**. When the party has finished its business:
+
+1. **Roll event** — rolls `d10 + Prosperity` on the village event table and
+   leaves a **pending event**.
+2. Resolve it. Some events need a target chosen; the sheet shows the options.
+3. **End cycle** — advances the cycle, applies the Prosperity change, and
+   promotes anything that was waiting on the cycle to turn over.
+
+Roll before you end. A rolled-but-unresolved event blocks the cycle, and the
+Roll button disappears while one is outstanding so you cannot stack two.
+
+### When End cycle refuses
+
+The cycle will not advance while any operation is unfinished. The sheet tells
+you which one:
+
+> Cycle cannot advance: operation "village-merchant-purchase-…" (merchant-purchase)
+> is still in the "commerce-committed" phase. Repair or adjudicate it before
+> ending the cycle.
+
+That is a purchase that got part-way and stopped — money may have moved. You
+have two ways out, and the sheet offers whichever apply:
+
+- **Forward repair** finishes the operation as originally intended. Available
+  when the journal still holds enough of the original request to complete it.
+- **Abandon** refunds the recorded amount. It does **not** reclaim anything
+  already handed over — the sheet names the item so you know what you are
+  leaving with the player. Reversing an item someone may already have used is a
+  judgement call, so the system leaves it to you rather than guessing.
+
+Retrying is safe. Repair runs under the same token as the original attempt, so
+it will not charge twice or deliver twice.
+
+---
+
+## Village events
+
+Events roll on `d10 + Prosperity`, spanning -9 to 20. They move Prosperity,
+shift institution levels temporarily, or occasionally destroy something.
+
+Because the roll includes Prosperity, a thriving village and a failing one draw
+from genuinely different fates — the table is not the same experience at +8 as
+at -8.
+
+Effects that change an institution's level show up as the gap between RAW and
+EFFECTIVE in the table. Active modifiers are listed under **Current effects**.
+
+---
+
+## The village map
+
+The system can generate a Scene showing the village, with a building for each
+institution and cottages that multiply as Prosperity rises:
+
+```js
+await game.crows.village.bootstrapScene()
+```
+
+It is safe to call more than once — it recognises a Scene it has already made
+rather than creating a second one. Tiles it generated carry a flag; anything
+you add or move yourself is left alone, so you can decorate freely.
+
+The default backdrop is *Meadow Picnic* by 2 Minute Tabletop, in day and night
+variants (see [NOTICE.md](../../NOTICE.md) for attribution). A Ref can swap in
+a different map — building placement is deliberately not tied to any feature of
+the backdrop.
+
+---
+
+## Who can do what
+
+Players browse the village and submit proposals. The Ref or designated GM
+authorises and commits anything that changes shared state or spends party
+money, and is the only one who ends cycles or rolls events.
+
+A proposal is not a reservation. Prices and availability are re-checked at the
+moment of commit, so an approved proposal can still refuse if the village moved
+underneath it. Nothing has happened until a receipt says it has.
