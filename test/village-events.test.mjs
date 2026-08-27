@@ -7,6 +7,7 @@ import {
   endCycle, rollVillageEvent, resolvePendingEvent, abandonPendingEvent,
   villageEventResolutionOptions, getVillageEventReceipt
 } from "../module/helpers/village.mjs";
+import { grantItem } from "../module/helpers/item-grants.mjs";
 
 let store;
 let settingConfig;
@@ -245,6 +246,77 @@ describe("structured event applier", () => {
 });
 
 describe("event grant saga", () => {
+  test("a real top-level grant resolves the event, delivers its per-PC quantity, and reaches a terminal phase", async () => {
+    const village = defaultVillage();
+    village.pendingEvent = pending("gratefulRations", "grant-real-1");
+    installWorld(village);
+
+    const ration = {
+      id: "ration-source",
+      uuid: "Compendium.crows.crows-consumables.Item.ration-source",
+      name: "Ration",
+      type: "consumable",
+      system: { slots: 1, stackMax: 6, quantity: 1 }
+    };
+    const rationPack = {
+      index: { contents: [{ _id: ration.id, name: ration.name }] },
+      async getDocument(id) { return id === ration.id ? ration : null; }
+    };
+    const actor = {
+      id: "event-crow",
+      uuid: "Actor.event-crow",
+      type: "crow",
+      isOwner: true,
+      items: [],
+      system: { commerce: { revision: 0, receipts: {} } },
+      async update(changes) {
+        if (changes["system.commerce"]) this.system.commerce = structuredClone(changes["system.commerce"]);
+        return this;
+      },
+      async createEmbeddedDocuments(documentName, documents) {
+        const created = documents.map((document, index) => ({
+          ...structuredClone(document),
+          id: document.id ?? document._id ?? `${this.id}-item-${this.items.length + index + 1}`
+        }));
+        if (documentName === "Item") this.items.push(...created);
+        return created;
+      }
+    };
+    game.actors = new Map([[actor.uuid, actor]]);
+    game.packs = new Map([["crows.crows-consumables", rationPack]]);
+    // The live API exposes grants at game.crows.grantItem, not under
+    // game.crows.commerce. This deliberately exercises that production seam.
+    game.crows = { grantItem };
+
+    const result = await resolvePendingEvent({
+      resolutionId: "grant-real-1",
+      selections: { recipientActorUuids: [actor.uuid] },
+      context: { user: game.user, actors: game.actors }
+    });
+
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.phase, "committed");
+    assert.equal(getVillage().pendingEvent, null);
+    assert.equal(actor.items.length, 1);
+    assert.equal(actor.items[0].name, "Ration");
+    assert.equal(actor.items[0].system.quantity, 6);
+    assert.equal(actor.system.commerce.revision, 1);
+    const receipt = getVillageEventReceipt("grant-real-1");
+    assert.equal(receipt.phase, "committed");
+    assert.equal(receipt.childResults[0].phase, "committed");
+    assert.deepEqual(receipt.childResults[0].result.itemIds, [actor.items[0].id]);
+    assert.equal(actor.system.commerce.receipts["grant-real-1:grant:Actor.event-crow"].expectedRevision, 0);
+    assert.equal(receipt.childResults[0].result.items, undefined,
+      "the Village receipt keeps an item identity, not a live Actor graph");
+    const retry = await resolvePendingEvent({
+      resolutionId: "grant-real-1",
+      selections: { recipientActorUuids: [actor.uuid] },
+      context: { user: game.user, actors: game.actors }
+    });
+    assert.equal(retry.replayed, true);
+    assert.equal(actor.items.length, 1, "the deterministic child token prevents a duplicate grant");
+  });
+
   test("preflights the complete roster and distinguishes partial repair", async () => {
     const village = defaultVillage();
     village.pendingEvent = pending("gratefulRations", "grant-1");
@@ -278,6 +350,9 @@ describe("event grant saga", () => {
     assert.equal(getVillage().pendingEvent.status, "partial");
     assert.deepEqual(calls.slice(0, 2), ["preflight:Actor.a", "preflight:Actor.b"]);
     assert.deepEqual(calls.slice(2), ["grant:Actor.a", "grant:Actor.b"]);
+    assert.deepEqual(first.childResults.map(child => [child.actorUuid, child.phase]), [
+      ["Actor.a", "committed"], ["Actor.b", "refused"]
+    ], "partial results expose both the committed and refused recipients");
 
     fail = false;
     const repaired = await resolvePendingEvent({

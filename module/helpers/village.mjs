@@ -36,6 +36,13 @@
  * exercises. The `game.settings` / `ChatMessage` half sits below it.
  */
 
+import {
+  grantItem as defaultGrantItem,
+  planGrantItem as defaultPlanGrantItem,
+  readGrantRevision,
+  resolveGrantSource
+} from "./item-grants.mjs";
+
 const NS = "crows";
 const KEY_VILLAGE = "village";
 
@@ -2334,7 +2341,7 @@ async function resolveEventActor(uuid, context = {}) {
   if (direct) return direct;
   const actors = context.actors ?? globalThis.game?.actors;
   if (typeof actors?.get === "function") {
-    const found = actors.get(token);
+    const found = actors.get(token) ?? actors.get(token.split(".").pop());
     if (found) return found;
   }
   if (Array.isArray(actors)) return actors.find(actor => String(actor?.uuid ?? actor?.id ?? "") === token) ?? null;
@@ -2631,6 +2638,7 @@ async function buildEventPlan(village, pending, selections, context, resolutionI
       })));
     }
     const uniqueRecipients = [...new Set(recipients)].sort();
+    const quantity = Math.max(1, Math.floor(Number(effect.perPC) || 1));
     for (const actorUuid of uniqueRecipients) {
       const actor = await resolveEventActor(actorUuid, context);
       if (!actor) {
@@ -2638,11 +2646,12 @@ async function buildEventPlan(village, pending, selections, context, resolutionI
       }
       const grantId = `${resolutionId}:grant:${actorUuid}`;
       plan.childOperationIds.push(grantId);
-      plan.children.push({ kind: "grant", grantId, actorUuid, actor, source: effect.item });
+      plan.children.push({ kind: "grant", grantId, actorUuid, actor, source: effect.item, quantity });
       plan.normalizedEffects.push(eventRecipientRecord(effect, event, resolutionId, village, actorUuid, {
         kind: "grant",
         grantId,
         item: effect.item,
+        quantity,
         commerceTxId: null
       }));
     }
@@ -3025,12 +3034,140 @@ function eventGrantFunction(context = {}) {
   return null;
 }
 
+function eventGrantIsNative(context, grant = eventGrantFunction(context)) {
+  if (typeof grant !== "function") return false;
+  if (grant === defaultGrantItem || context.grantItem === defaultGrantItem
+      || context.commerce?.grantItem === defaultGrantItem
+      || context.commerceGrantItem === defaultGrantItem) return true;
+  return grant === globalThis.game?.crows?.grantItem
+    && typeof context.grantItem !== "function"
+    && typeof context.commerce?.grantItem !== "function"
+    && typeof context.commerceGrantItem !== "function";
+}
+
 function eventGrantPreflightFunction(context = {}) {
   if (typeof context.preflightGrant === "function") return context.preflightGrant;
   if (typeof context.commerce?.preflightGrant === "function") return context.commerce.preflightGrant.bind(context.commerce);
   const grant = eventGrantFunction(context);
   if (typeof grant?.preflight === "function") return grant.preflight.bind(grant);
+  if (eventGrantIsNative(context, grant)) return defaultPlanGrantItem;
   return null;
+}
+
+function eventGrantKey(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function eventCollectionValues(collection) {
+  if (!collection) return [];
+  if (Array.isArray(collection)) return [...collection];
+  if (Array.isArray(collection.contents)) return [...collection.contents];
+  try {
+    if (typeof collection[Symbol.iterator] === "function") {
+      return [...collection].map(value => Array.isArray(value) ? value[1] : value);
+    }
+  } catch { /* a Foundry collection may expose a throwing iterator */ }
+  return [];
+}
+
+function eventGrantCandidatePacks(context = {}) {
+  const packs = context.itemPacks ?? context.grantPacks ?? globalThis.game?.packs;
+  if (!packs) return [];
+  const preferred = [];
+  const consumables = typeof packs.get === "function"
+    ? packs.get("crows.crows-consumables") : null;
+  if (consumables) preferred.push(consumables);
+  for (const pack of eventCollectionValues(packs)) {
+    if (pack && !preferred.includes(pack)) preferred.push(pack);
+  }
+  return preferred;
+}
+
+async function eventGrantSourceByKey(source, context = {}) {
+  const wanted = eventGrantKey(source);
+  if (!wanted) return null;
+
+  const supplied = context.grantSources ?? context.itemSources ?? context.itemsByKey;
+  if (supplied) {
+    const direct = typeof supplied.get === "function" ? supplied.get(source) : supplied[source];
+    if (direct) return direct;
+  }
+
+  const worldItems = context.items ?? globalThis.game?.items;
+  const worldMatch = eventCollectionValues(worldItems).find(item =>
+    eventGrantKey(item?.name) === wanted || eventGrantKey(item?.id ?? item?._id) === wanted
+  );
+  if (worldMatch) return worldMatch;
+
+  for (const pack of eventGrantCandidatePacks(context)) {
+    try {
+      if (!pack?.index?.contents?.length && typeof pack?.getIndex === "function") {
+        await pack.getIndex();
+      }
+      const index = eventCollectionValues(pack?.index?.contents ?? pack?.index);
+      const entry = index.find(candidate =>
+        eventGrantKey(candidate?.name) === wanted
+          || eventGrantKey(candidate?._id ?? candidate?.id) === wanted
+      );
+      if (!entry || typeof pack.getDocument !== "function") continue;
+      const document = await pack.getDocument(entry._id ?? entry.id);
+      if (document) return document;
+    } catch { /* try the next pack */ }
+  }
+  return null;
+}
+
+async function resolveEventGrantSource(source, child, plan, context = {}) {
+  const resolver = context.resolveGrantSource ?? context.resolveItemSource
+    ?? context.commerce?.resolveGrantSource;
+  if (typeof resolver === "function") {
+    try {
+      return await resolver.call(context.commerce, source, { actor: child.actor, event: plan.event });
+    } catch (error) {
+      return { ok: false, error: "invalid-source", message: String(error?.message ?? error) };
+    }
+  }
+  if (!eventGrantIsNative(context)) return source;
+  try {
+    const resolved = await resolveGrantSource(source, context);
+    if (resolved) return resolved;
+  } catch { /* key lookup below reports the stable invalid-source result */ }
+  if (typeof source !== "string") return null;
+  return eventGrantSourceByKey(source, context);
+}
+
+function eventGrantExpectedRevision(actor, context = {}) {
+  const requested = context.expectedGrantRevision ?? context.expectedCommerceRevision;
+  if (requested != null && Number.isInteger(Number(requested)) && Number(requested) >= 0) {
+    return Math.floor(Number(requested));
+  }
+  try { return readGrantRevision(actor); } catch { return 0; }
+}
+
+function eventGrantMetadata(child, plan, resolutionId, context, actor, source) {
+  const placement = child.placement ?? context.placement ?? {
+    policy: "auto-pack", containers: ["backpack"]
+  };
+  return {
+    ...context,
+    operationId: child.grantId,
+    txId: child.grantId,
+    grantId: child.grantId,
+    expectedRevision: eventGrantExpectedRevision(actor, context),
+    source,
+    item: source,
+    quantity: child.quantity,
+    placement,
+    resolutionId,
+    eventId: plan.event.id,
+    actorUuid: child.actorUuid,
+    originCycle: plan.pending.cycle,
+    villageOperationId: resolutionId,
+    context
+  };
 }
 
 async function preflightEventChild(child, plan, context = {}) {
@@ -3050,33 +3187,17 @@ async function preflightEventChild(child, plan, context = {}) {
   const grant = eventGrantFunction(context);
   if (!grant) return { ok: false, error: "commerce-unavailable" };
 
-  let source = child.source;
-  const resolveSource = context.resolveGrantSource ?? context.resolveItemSource
-    ?? context.commerce?.resolveGrantSource;
-  if (typeof resolveSource === "function") {
-    try {
-      source = await resolveSource.call(context.commerce, source, { actor: child.actor, event: plan.event });
-    } catch (error) {
-      return { ok: false, error: "invalid-source", message: String(error?.message ?? error) };
-    }
-    if (!source) return { ok: false, error: "invalid-source" };
-  }
+  const resolved = await resolveEventGrantSource(child.source, child, plan, context);
+  if (resolved && resolved.ok === false && resolved.error === "invalid-source") return resolved;
+  if (!resolved) return { ok: false, error: "invalid-source" };
+  const source = resolved;
   child.source = source;
 
   const preflight = eventGrantPreflightFunction(context);
   if (!preflight) return { ok: true, phase: "preflight", assumed: true };
   try {
-    const result = await preflight(child.actor, source, {
-      operationId: child.grantId,
-      txId: child.grantId,
-      grantId: child.grantId,
-      source,
-      item: source,
-      resolutionId: plan.pending.resolutionId,
-      eventId: plan.event.id,
-      actorUuid: child.actorUuid,
-      context
-    });
+    const result = await preflight(child.actor, source,
+      eventGrantMetadata(child, plan, plan.pending.resolutionId, context, child.actor, source));
     if (result === false) return { ok: false, error: "no-capacity" };
     if (result && typeof result === "object") return result;
     return { ok: true, phase: "preflight" };
@@ -3089,13 +3210,30 @@ function eventReceiptChild(receipt, childId) {
   return (receipt?.childResults ?? []).find(child => String(child?.childOperationId ?? child?.id ?? "") === String(childId)) ?? null;
 }
 
+function eventChildResultSnapshot(result) {
+  if (!result || typeof result !== "object" || Array.isArray(result)) return result;
+  const snapshot = { ...result };
+  const liveItems = [...(Array.isArray(result.itemIds) ? result.itemIds : []),
+    ...(Array.isArray(result.createdItemIds) ? result.createdItemIds : []),
+    ...(Array.isArray(result.items) ? result.items : []),
+    ...(Array.isArray(result.created) ? result.created : [])]
+    .map(item => typeof item === "object" ? item?.id ?? item?._id : item)
+    .map(value => String(value ?? "").trim())
+    .filter(Boolean);
+  delete snapshot.items;
+  delete snapshot.created;
+  if (liveItems.length && !Array.isArray(snapshot.itemIds)) snapshot.itemIds = [...new Set(liveItems)];
+  return cloneValue(snapshot);
+}
+
 function updateEventReceiptChild(receipt, childId, result, extra = {}) {
+  const snapshot = eventChildResultSnapshot(result);
   const children = (receipt.childResults ?? []).filter(child =>
     String(child?.childOperationId ?? child?.id ?? "") !== String(childId)
   );
-  children.push({ childOperationId: childId, ...cloneValue(extra), result: cloneValue(result),
-    phase: result?.phase ?? (eventChildUncertain(result) ? "uncertain"
-      : result?.ok === false ? "refused" : "committed"), updatedAt: Date.now() });
+  children.push({ childOperationId: childId, ...cloneValue(extra), result: snapshot,
+    phase: snapshot?.phase ?? (eventChildUncertain(snapshot) ? "uncertain"
+      : snapshot?.ok === false ? "refused" : "committed"), updatedAt: Date.now() });
   receipt.childResults = children;
   return receipt;
 }
@@ -3448,17 +3586,8 @@ async function executeManagedEventPlan(village, plan, {
       } else {
         child.actor = latestActor;
         try {
-          childResult = await grant(latestActor, child.source, {
-            operationId: child.grantId,
-            txId: child.grantId,
-            grantId: child.grantId,
-            source: child.source,
-            item: child.source,
-            resolutionId,
-            eventId: plan.event.id,
-            actorUuid: child.actorUuid,
-            context
-          });
+          childResult = await grant(latestActor, child.source,
+            eventGrantMetadata(child, plan, resolutionId, context, latestActor, child.source));
         } catch (error) {
           childResult = { ok: false, error: "write-failed", state: "unknown",
             message: String(error?.message ?? error) };
@@ -3510,7 +3639,7 @@ async function executeManagedEventPlan(village, plan, {
           normalized.commerceTxId = normalized.commerceTxId ?? childId;
         }
       }
-      normalized.childResult = cloneValue(childResult);
+      normalized.childResult = eventChildResultSnapshot(childResult);
     }
     if (eventChildCommitted(childResult)) {
       committedChildren.push(childId);
