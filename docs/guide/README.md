@@ -16,13 +16,13 @@ what *this system* does and how to drive it.
 
 | Guide | What it covers |
 | --- | --- |
+| [Making a crow](making-a-crow.md) | The character creator, backgrounds, traits, expertises, starting kit, and how XP is earned |
 | [The village](the-village.md) | Founding institutions, upgrading them, Prosperity, running a cycle, events, and what to do when the cycle refuses to advance |
 | [Money and shopping](money-and-shopping.md) | How coin is carried, buying, selling, auctions, and what each refusal means |
 
-More are coming: character creation, tests and conditions, crafting and
-upgrades, and delving. They are not written yet, and this table will list them
-when they are — an index that promises pages that do not exist is worse than a
-short index.
+Still coming: tests and conditions, crafting and upgrades, and delving. They are
+not written yet, and this table will list them when they are — an index that
+promises pages that do not exist is worse than a short index.
 
 ## Two things worth knowing before anything else
 
