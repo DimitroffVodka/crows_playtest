@@ -459,6 +459,26 @@ describe("Village Scene projection", () => {
     assert.equal(data.flags.crows.village.bootstrap, "boot-1");
   });
 
+  test("no Scene padding, so a tile coordinate is a background pixel", () => {
+    // Foundry places Tiles in canvas space and shifts the background image by
+    // the padding (rounded up to a whole grid square per axis). This projection
+    // places buildings from (0, 0) against the image, so any padding puts the
+    // left and top of the settlement in the grey gutter beside the map — as it
+    // did live, with the crypt and inn off the edge of the meadow.
+    assert.equal(SCENE_DEFAULTS.padding, 0);
+    assert.equal(villageSceneData(defaultVillage(), "boot-pad").padding, 0);
+
+    // With no offset, every tile must land inside the background image itself.
+    const village = defaultVillage();
+    const { width, height } = SCENE_DEFAULTS;
+    for (const tile of buildVillageProjection(village).tiles) {
+      assert.ok(tile.x >= 0 && tile.x + tile.width <= width,
+        `${tile.name} spans ${tile.x}..${tile.x + tile.width}, outside 0..${width}`);
+      assert.ok(tile.y >= 0 && tile.y + tile.height <= height,
+        `${tile.name} spans ${tile.y}..${tile.y + tile.height}, outside 0..${height}`);
+    }
+  });
+
   test("the backdrop rides on a Level, because a v14 Scene has no background field", () => {
     // A v14 Scene stores its backdrop on `Scene#levels`; `Scene#background` is
     // a deprecated getter. Foundry accepts a legacy `{background:{src}}` create

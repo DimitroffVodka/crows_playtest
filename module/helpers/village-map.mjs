@@ -40,7 +40,21 @@ export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 export const SCENE_DEFAULTS = Object.freeze({
   width: 4800,
   height: 6600,
-  padding: 0.25,
+  // Zero, so that projection space IS background space.
+  //
+  // Foundry places Tiles in canvas coordinates, but padding shifts the
+  // background image to (sceneX, sceneY) — each axis padded then rounded UP to
+  // a whole grid square. At the old 0.25 that put the backdrop at (1200, 1800)
+  // while this projection kept placing buildings from (0, 0), so anything in
+  // the left or top margin landed in the grey gutter beside the map. Observed
+  // live: the crypt and the inn sat off the edge of the meadow.
+  //
+  // The alternative — teaching the projection Foundry's padding rounding — buys
+  // nothing here and duplicates engine-internal math. A village map is a static
+  // backdrop with no need for off-canvas room, so removing the offset is both
+  // the smaller change and the one that keeps tile coordinates checkable
+  // against the background image itself.
+  padding: 0,
   grid: Object.freeze({
     type: 1,
     size: 300,
