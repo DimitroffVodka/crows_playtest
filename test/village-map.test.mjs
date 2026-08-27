@@ -1,6 +1,8 @@
 import "./shim/foundry.mjs";
 import { describe, test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
 import {
   CONNECTION_BENEFITS,
@@ -17,11 +19,17 @@ import {
   createVillageRecord,
   deterministicPosition,
   effectiveInstitutionForMap,
+  getVillageArtSet,
   housingCountForProsperity,
   reconcileVillageScene,
   validateVillageCreatorInput,
   villageSceneData
 } from "../module/helpers/village-map.mjs";
+import {
+  VILLAGE_ART_ASSET_ROOT,
+  VILLAGE_ART_FILENAMES,
+  VILLAGE_ART_SET
+} from "../module/helpers/village-art.mjs";
 
 const clone = value => structuredClone(value);
 
@@ -209,7 +217,7 @@ describe("Village creator data and art resolution", () => {
     });
   });
 
-  test("uses effective level and keeps crypt/stables unsupported", () => {
+  test("uses effective level and records deliberate substitutions", () => {
     assert.equal(INSTITUTION_ART_KEYS.blacksmith.levels.length, 2);
     const smith = assetForInstitution({ type: "blacksmith", effectiveLevel: 1, artSet });
     const foundry = assetForInstitution({ type: "blacksmith", effectiveLevel: { level: 2 }, artSet });
@@ -217,8 +225,8 @@ describe("Village creator data and art resolution", () => {
     const cathedral = assetForInstitution({ type: "temple", effectiveLevel: 2, artSet });
     const closed = assetForInstitution({ type: "temple", effectiveLevel: { level: 0, closed: true }, artSet });
     const destroyed = assetForInstitution({ type: "temple", effectiveLevel: 2, destroyed: true, artSet });
-    const crypt = assetForInstitution({ type: "crypt", effectiveLevel: 1, artSet });
-    const stables = assetForInstitution({ type: "stables", effectiveLevel: 1, artSet });
+    const crypt = assetForInstitution({ type: "crypt", effectiveLevel: 1, artSet: VILLAGE_ART_SET });
+    const stables = assetForInstitution({ type: "stables", effectiveLevel: 1, artSet: VILLAGE_ART_SET });
 
     assert.equal(smith.assetKey, "smith");
     assert.equal(foundry.assetKey, "foundry");
@@ -227,8 +235,48 @@ describe("Village creator data and art resolution", () => {
     assert.equal(closed.visualState, "closed");
     assert.equal(destroyed.visualState, "destroyed");
     assert.equal(destroyed.src, "/art/church-ruins.png");
-    assert.equal(crypt.unsupported, true);
-    assert.equal(stables.unsupported, true);
+    assert.equal(crypt.unsupported, false);
+    assert.equal(crypt.substituted, true);
+    assert.equal(crypt.reason, "substituted");
+    assert.equal(crypt.src, `${VILLAGE_ART_ASSET_ROOT}Cliff, cave entrance.png`);
+    assert.equal(stables.unsupported, false);
+    assert.equal(stables.substituted, true);
+    assert.equal(stables.reason, "substituted");
+    assert.equal(stables.src, `${VILLAGE_ART_ASSET_ROOT}Building, windmill.png`);
+
+    // A caller can still inject a partial catalogue and receive the original
+    // needs-art classification for a future institution without a mapping.
+    const unresolved = assetForInstitution({
+      type: "crypt",
+      effectiveLevel: 1,
+      artSet: { assets: {} }
+    });
+    assert.equal(unresolved.needsArt, true);
+    assert.equal(unresolved.reason, "art-needed");
+  });
+
+  test("the default catalogue is concrete, complete, and keeps institutions distinct", () => {
+    assert.equal(getVillageArtSet(), VILLAGE_ART_SET);
+    assert.equal(VILLAGE_ART_FILENAMES.length, 70);
+    assert.equal(new Set(VILLAGE_ART_FILENAMES).size, 70);
+    assert.deepEqual(
+      readdirSync("assets/village").filter(file => file.endsWith(".png")).sort(),
+      [...VILLAGE_ART_FILENAMES].sort()
+    );
+    const missing = VILLAGE_ART_FILENAMES.filter(file => !existsSync(join("assets/village", file)));
+    assert.deepEqual(missing, []);
+    assert.equal(VILLAGE_ART_SET.root, VILLAGE_ART_ASSET_ROOT);
+    assert.equal(VILLAGE_ART_SET.resolution, "300 DPI");
+    assert.equal(VILLAGE_ART_SET.license.shortName, "CC BY-NC 4.0");
+
+    const institutions = Object.keys(INSTITUTION_ART_KEYS)
+      .map(type => assetForInstitution({ type, effectiveLevel: 1 }));
+    assert.equal(new Set(institutions.map(asset => asset.src)).size, institutions.length);
+    assert.deepEqual(
+      institutions.filter(asset => asset.substituted).map(asset => asset.assetKey).sort(),
+      ["unsupported.crypt", "unsupported.stables"]
+    );
+    assert.ok(institutions.every(asset => asset.supported));
   });
 
   test("maps pending, cycle-modified, capstone, and closed institution state", () => {

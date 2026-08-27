@@ -25,6 +25,7 @@ import {
   saveVillage,
   setVillageSceneReconciliationEnqueuer
 } from "./village.mjs";
+import { VILLAGE_ART_SET } from "./village-art.mjs";
 
 export const VILLAGE_MAP_GENERATOR_VERSION = "village-map-1";
 export const GENERATOR_VERSION = VILLAGE_MAP_GENERATOR_VERSION;
@@ -56,11 +57,10 @@ const UNSUPPORTED_TYPES = new Set(["crypt", "stables"]);
  */
 export const INSTITUTION_ART_KEYS = Object.freeze({
   alchemist: Object.freeze({ levels: Object.freeze([
-    Object.freeze({ max: 1, key: "circle" }),
-    Object.freeze({ max: Infinity, key: "guild-hall" })
+    Object.freeze({ max: Infinity, key: "circle" })
   ]) }),
   auctionHouse: Object.freeze({ levels: Object.freeze([
-    Object.freeze({ max: Infinity, key: "market-tents" })
+    Object.freeze({ max: Infinity, key: "guild-hall" })
   ]) }),
   barracks: Object.freeze({ levels: Object.freeze([
     Object.freeze({ max: Infinity, key: "tower-square" })
@@ -81,10 +81,10 @@ export const INSTITUTION_ART_KEYS = Object.freeze({
     Object.freeze({ max: Infinity, key: "unsupported.crypt" })
   ]) }),
   enchanter: Object.freeze({ levels: Object.freeze([
-    Object.freeze({ max: Infinity, key: "circle" })
+    Object.freeze({ max: Infinity, key: "arcane-hall" })
   ]) }),
   generalStore: Object.freeze({ levels: Object.freeze([
-    Object.freeze({ max: Infinity, key: "l-house" })
+    Object.freeze({ max: Infinity, key: "market-tents" })
   ]) }),
   inn: Object.freeze({ levels: Object.freeze([
     Object.freeze({ max: Infinity, key: "l-house" })
@@ -348,12 +348,18 @@ function artEntryAt(container, key) {
 }
 
 function artEntrySource(entry) {
-  if (typeof entry === "string") return { src: entry, label: null };
+  if (typeof entry === "string") {
+    return { src: entry, label: null, substituted: false, substitutionReason: null };
+  }
   if (!entry || typeof entry !== "object") return null;
   const src = entry.src ?? entry.path ?? entry.url ?? entry.texture ?? null;
   return {
     src: src == null ? null : String(src),
-    label: entry.label == null ? null : String(entry.label)
+    label: entry.label == null ? null : String(entry.label),
+    substituted: entry.substituted === true,
+    substitutionReason: entry.substitutionReason == null
+      ? null
+      : String(entry.substitutionReason)
   };
 }
 
@@ -473,13 +479,14 @@ export function assetForInstitution({ type, effectiveLevel = 0, destroyed = fals
     : levelValue(effectiveLevel);
   const baseKey = baseArtKey(key, level);
   const stateAssetKey = visualState === "operating" ? baseKey : `${baseKey}.${visualState}`;
-  const resolved = resolveArt(artSet, baseKey, visualState, {
+  const resolved = resolveArt(artSet ?? configuredArtSet, baseKey, visualState, {
     type: key,
     effectiveLevel: level,
     destroyed: visualState === "destroyed"
   });
   const supported = Boolean(resolved.src);
   const explicitlyUnsupported = UNSUPPORTED_TYPES.has(key) && !supported;
+  const substituted = resolved.substituted === true;
   return {
     src: resolved.src,
     label: resolved.label ?? institutionLabel(key),
@@ -490,14 +497,31 @@ export function assetForInstitution({ type, effectiveLevel = 0, destroyed = fals
     visualState,
     effectiveLevel: level,
     supported,
+    substituted,
+    substitutionReason: resolved.substitutionReason ?? null,
     unsupported: !supported,
     needsArt: !supported,
-    reason: explicitlyUnsupported ? "art-needed" : (!supported ? "asset-unresolved" : null)
+    reason: substituted
+      ? "substituted"
+      : explicitlyUnsupported ? "art-needed" : (!supported ? "asset-unresolved" : null)
   };
 }
 
-function assetForHousing(artSet, visualState = "operating") {
-  const resolved = resolveArt(artSet, HOUSING_ASSET_KEY, visualState, { kind: "housing" });
+function assetForHousing(artSet, visualState = "operating", index = 0) {
+  let resolved = null;
+  const pools = [artSet?.housingPool, artSet?.assets?.housingPool];
+  if (visualState === "operating") {
+    for (const pool of pools) {
+      if (!Array.isArray(pool) || pool.length === 0) continue;
+      const poolIndex = Math.abs(Math.floor(Number(index) || 0)) % pool.length;
+      const converted = artEntrySource(pool[poolIndex]);
+      if (converted?.src) {
+        resolved = { ...converted, key: `${HOUSING_ASSET_KEY}.${poolIndex}`, stateSpecific: false };
+        break;
+      }
+    }
+  }
+  resolved ??= resolveArt(artSet, HOUSING_ASSET_KEY, visualState, { kind: "housing", index });
   return {
     src: resolved.src,
     label: resolved.label ?? "Housing",
@@ -507,6 +531,8 @@ function assetForHousing(artSet, visualState = "operating") {
     resolvedAssetKey: resolved.key,
     visualState,
     supported: Boolean(resolved.src),
+    substituted: resolved.substituted === true,
+    substitutionReason: resolved.substitutionReason ?? null,
     unsupported: !resolved.src,
     needsArt: !resolved.src,
     reason: resolved.src ? null : "asset-unresolved"
@@ -596,7 +622,7 @@ export function institutionTileData(village, institution, options = {}) {
     type: institution?.type,
     effectiveLevel: effective,
     destroyed: institution?.destroyed === true,
-    artSet: options.artSet
+    artSet: options.artSet ?? configuredArtSet
   });
   const version = generatorVersion(options);
   const position = institutionPosition(village, institution, {
@@ -620,13 +646,15 @@ export function institutionTileData(village, institution, options = {}) {
       assetKey: asset.assetKey,
       stateAssetKey: asset.stateAssetKey,
       visualState: asset.visualState,
+      substituted: asset.substituted,
+      substitutionReason: asset.substitutionReason,
       unsupported: asset.unsupported
     })
   });
 }
 
 export function housingTileData(village, index, options = {}) {
-  const asset = assetForHousing(options.artSet, "operating");
+  const asset = assetForHousing(options.artSet ?? configuredArtSet, "operating", index);
   const version = generatorVersion(options);
   const position = housingPosition(village, index, {
     ...options,
@@ -648,6 +676,8 @@ export function housingTileData(village, index, options = {}) {
       assetKey: asset.assetKey,
       stateAssetKey: asset.stateAssetKey,
       visualState: asset.visualState,
+      substituted: asset.substituted,
+      substitutionReason: asset.substitutionReason,
       unsupported: asset.unsupported
     })
   });
@@ -1407,9 +1437,9 @@ export const bootstrapVillage = bootstrapVillageScene;
 export const createVillageScene = bootstrapVillageScene;
 export const createVillage = bootstrapVillageScene;
 
-let configuredArtSet = null;
+let configuredArtSet = VILLAGE_ART_SET;
 export function configureVillageArtSet(artSet) {
-  configuredArtSet = artSet ?? null;
+  configuredArtSet = artSet ?? VILLAGE_ART_SET;
   return configuredArtSet;
 }
 

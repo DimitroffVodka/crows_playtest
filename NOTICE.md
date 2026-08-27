@@ -1,5 +1,17 @@
 # Third-party assets
 
+## Village map art — 2 Minute Tabletop
+
+The 70 PNG files in `assets/village/` are by **2 Minute Tabletop** and are
+used under the **Creative Commons Attribution-NonCommercial 4.0 International
+(CC BY-NC 4.0)** licence:
+<https://creativecommons.org/licenses/by-nc/4.0/>
+
+Source: <https://2minutetabletop.com/>
+
+**Unmodified.** The files are copied from the publisher's `Assets (300 DPI)`
+set and retain their published filenames.
+
 ## Background icons — game-icons.net
 
 The 36 SVG files in `icons/backgrounds/` are from **game-icons.net** and are used
