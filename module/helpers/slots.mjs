@@ -46,11 +46,10 @@ export const CONTAINER_ORDER = [...CROWS.containerKeys];
 /**
  * Party stash capacity is intentionally not a carrying-capacity constant.
  *
- * The Party ticket settles the behaviour (a generous strongbox) while leaving
- * the numeric bound open.  Keep the three later adjudication choices explicit
- * in the read boundary so a caller cannot accidentally fall back to a Crow's
- * backpack capacity.  `unresolved` is the default and is a state, not a
- * capacity of zero.
+ * The Party ticket settles the behaviour as a generous uncapped strongbox.
+ * Keep the later configured-cap alternatives explicit in the read boundary so
+ * a caller cannot accidentally fall back to a Crow's backpack capacity.
+ * `unresolved` remains a legacy value and is treated as the uncapped default.
  */
 export const PARTY_CAPACITY_MODES = Object.freeze([
   "unresolved", "fixed", "configured", "uncapped"
@@ -68,18 +67,19 @@ export function isPartyActor(actor) {
 /**
  * Resolve the Party stash policy without inventing a number.
  *
- * `capacity.mode` is the durable extension point used by PartyData.  The
- * aliases keep hand-made/test documents and a future migration readable while
- * still treating an absent value as explicitly unresolved.  `limit: 0` is a
- * sentinel only for the unresolved/default schema state; it never means that
- * a Party has no room.
+ * `capacity.mode` is the durable extension point used by PartyData. The
+ * aliases keep hand-made/test documents and a future migration readable.
+ * `limit: 0` is a sentinel for the uncapped/default schema state; it never
+ * means that a Party has no room. A legacy `unresolved` value is normalized to
+ * the settled uncapped reading.
  */
 export function partyCapacityPolicy(actor) {
   const source = actor?.system?.capacity ?? actor?.system?.stash?.capacity ?? {};
   const rawMode = String(
-    source?.mode ?? source?.policy ?? actor?.system?.capacityMode ?? "unresolved"
+    source?.mode ?? source?.policy ?? actor?.system?.capacityMode ?? "uncapped"
   ).trim().toLowerCase();
-  const mode = PARTY_CAPACITY_MODES.includes(rawMode) ? rawMode : "unresolved";
+  const requestedMode = PARTY_CAPACITY_MODES.includes(rawMode) ? rawMode : "uncapped";
+  const mode = requestedMode === "unresolved" ? "uncapped" : requestedMode;
   const rawLimit = Number(source?.limit ?? source?.bound ?? actor?.system?.capacityLimit);
   const limit = Number.isInteger(rawLimit) && rawLimit > 0 ? rawLimit : null;
 
@@ -102,11 +102,10 @@ export function partyCapacityPolicy(actor) {
     };
   }
   return {
-    state: "unresolved",
-    mode: "unresolved",
-    resolved: false,
+    state: "uncapped",
+    mode: "uncapped",
+    resolved: true,
     limit: null,
-    reason: "capacity-undecided",
     alternatives: [...PARTY_CAPACITY_ALTERNATIVES]
   };
 }
@@ -315,9 +314,9 @@ export function slotAt(layout, container, index) {
 export function layoutFor(actor) {
   // A Party is a non-carried strongbox.  It still exposes the same `coin`
   // shape as a Crow, but borrowing the Crow's hand/belt/backpack capacities
-  // would silently answer the unresolved Party capacity question and would
-  // make a stash impose creature rules.  Its explicit policy is carried on
-  // the layout for consumers such as the Party sheet and money service.
+  // would silently apply creature carry rules to a stash. Its explicit policy
+  // is carried on the layout for consumers such as the Party sheet and money
+  // service.
   const party = isPartyActor(actor);
   const capacities = party ? {} : effectiveCapacities(collectSlotGrants(actor));
   const layout = emptyLayout(actor?.id ?? actor?._id ?? "", capacities);
@@ -759,6 +758,98 @@ export function looseCoinSlots(loose) {
   const n = Math.max(0, Math.floor(Number(loose) || 0));
   return Math.ceil(n / CROWS.coinPerSlot);
 }
+
+/**
+ * Query the capacity reservation for loose coin without changing a Layout.
+ *
+ * `layoutFor()` deliberately remains tolerant: it reproduces stored Item
+ * placement and records anything that does not fit in `unplaced`.  Loose coin
+ * is not a positional document, so it cannot be inserted into `layout.slots`
+ * just to answer a capacity question.  Instead, this helper treats the
+ * current loose reservation as a computed block and asks whether a
+ * prospective amount would fit in the carry containers' still-legal slots.
+ * Existing loose coin is included in the block count, so a receive that stays
+ * within the same 250-gc block does not consume another slot.
+ *
+ * Wounds do not reduce `free`: a wound-only slot has no Item and therefore is
+ * still eligible, matching the wound semantics in `layoutFor()`.  Whether a
+ * future positional representation of reserved coin should count as the
+ * wound-plus-item case for R:524's speed penalty is unsettled; that belongs to
+ * placement/speed policy, not this capacity query.  The helper performs no
+ * packing, displacement, repair, or mutation.
+ */
+export function looseCoinReservation(layout, prospectiveLoose = layout?.coin?.loose ?? 0) {
+  const currentLoose = Math.max(0, Math.floor(Number(layout?.coin?.loose) || 0));
+  const prospective = Math.max(0, Math.floor(Number(prospectiveLoose) || 0));
+  const currentSlots = looseCoinSlots(currentLoose);
+  const requiredSlots = looseCoinSlots(prospective);
+
+  // A Party's zero positional slots mean "not carried", not "no room for
+  // money." Carry-slot math models what a person can carry and therefore its
+  // encumbrance/speed consequences; applying it to a stash would be a category
+  // error. `layoutFor()` supplies the Party's own policy, which defaults to an
+  // uncapped strongbox while retaining a future configured cap as an explicit
+  // restriction. This branch reserves no positional slots and never changes
+  // the Crow query below.
+  if (layout?.party) {
+    const policy = layout.partyCapacity ?? { state: "uncapped", mode: "uncapped" };
+    const cap = policy.state === "configured" && Number.isInteger(policy.limit)
+      ? policy.limit : null;
+    const fits = cap == null || prospective <= cap;
+    return {
+      ok: fits,
+      loose: prospective,
+      currentLoose,
+      currentSlots,
+      requiredSlots,
+      additionalSlots: 0,
+      capacity: null,
+      occupied: 0,
+      free: null,
+      availableSlots: null,
+      maximumLoose: cap,
+      excess: fits ? 0 : Math.max(0, prospective - cap),
+      party: true,
+      capacityPolicy: {
+        ...policy,
+        ...(Array.isArray(policy.alternatives) ? { alternatives: [...policy.alternatives] } : {})
+      }
+    };
+  }
+
+  const slots = Array.isArray(layout?.slots) ? layout.slots : [];
+  const carrySlots = slots.filter(s => s && CARRY_CONTAINERS.includes(s.container));
+  const occupied = carrySlots.filter(s => (s?.items?.length ?? 0) > 0).length;
+  const capacity = carrySlots.length;
+  const free = Math.max(0, capacity - occupied);
+  // `free` is the total number of slots not already claimed by positional
+  // Items.  The current loose block is not present in `slots`, but it still
+  // claims part of that same capacity; adding `currentSlots` back here would
+  // allow an over-capacity prospective block.
+  const availableSlots = free;
+  const additionalSlots = Math.max(0, requiredSlots - currentSlots);
+  const fits = requiredSlots <= availableSlots;
+  const maximumLoose = availableSlots * CROWS.coinPerSlot;
+  return {
+    ok: fits,
+    loose: prospective,
+    currentLoose,
+    currentSlots,
+    requiredSlots,
+    additionalSlots,
+    capacity,
+    occupied,
+    free,
+    availableSlots,
+    maximumLoose,
+    excess: fits ? 0 : Math.max(0, prospective - maximumLoose)
+  };
+}
+
+// Descriptive aliases keep the query discoverable to callers without creating
+// a second capacity implementation.
+export const canReserveLooseCoin = looseCoinReservation;
+export const looseCoinCapacity = looseCoinReservation;
 
 /**
  * Everything a sheet needs to render money, plus the overflow figure.

@@ -34,3 +34,27 @@ export function usageDieFields() {
     })
   };
 }
+
+/**
+ * Durable option-(b) Commerce state shared by every Actor data model that can
+ * be a counterparty. Receipt plans/results are intentionally opaque here so
+ * the transaction seam can evolve without copying its journal schema into
+ * each Actor model (including the future native Party model).
+ */
+export function commerceFields() {
+  const ObjectField = fields.ObjectField ?? fields.StringField;
+  return {
+    // CONTRACT: currency is LOOSE coin carried on the Actor. A slot holds 250
+    // loose; a Coin Purse is an ITEM with its own capacity, so purses live in
+    // inventory and slots.mjs assembles both into Layout.coin. Do not add an
+    // actor-side purse field: that would create a second source of truth.
+    // Keeping the field here lets a future Party model and a monster-type
+    // merchant use the same interface.
+    currency: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+    commerce: new fields.SchemaField({
+      // Monotonic observation revision, not a compare-and-swap fence.
+      revision: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+      receipts: new fields.ArrayField(new ObjectField({ initial: {} }), { initial: [] })
+    })
+  };
+}

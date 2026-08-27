@@ -151,15 +151,15 @@ describe("Party actor stash policy", () => {
       totalHeld: 200,
       overflow: 0
     });
-    assert.equal(layout.partyCapacity.state, "unresolved");
+    assert.equal(layout.partyCapacity.state, "uncapped");
   });
 
-  test("the unresolved capacity state is explicit and does not choose a bound", () => {
+  test("the default Party capacity is an uncapped strongbox", () => {
     const party = actor({ id: "party", type: "party" });
     const policy = partyCapacityPolicy(party);
-    assert.equal(policy.resolved, false);
+    assert.equal(policy.resolved, true);
     assert.equal(policy.limit, null);
-    assert.equal(policy.reason, "capacity-undecided");
+    assert.equal(policy.state, "uncapped");
     assert.ok(policy.alternatives.length >= 3);
   });
 
@@ -167,7 +167,7 @@ describe("Party actor stash policy", () => {
     const party = actor({ id: "party", type: "party", currency: 10 });
     const view = partyViewData(party, { user: user() });
     assert.equal(view.coin.loose, 10);
-    assert.equal(view.capacityUndecided, true);
+    assert.equal(view.capacityUndecided, false);
     assert.equal("speed" in view, false);
     assert.equal("wounds" in view, false);
   });
@@ -192,12 +192,11 @@ describe("Party authority and typed fund transfers", () => {
     assert.equal(canUserMoveMember(user(), party, source), false);
   });
 
-  test("GM always has authority, but unresolved Party capacity still refuses a loose deposit", () => {
+  test("GM always has authority and default Party capacity accepts a loose deposit", () => {
     const party = actor({ id: "party", type: "party" });
     const source = actor({ id: "source", currency: 100 });
     const result = planPartyDeposit(party, source, 10, { user: user({ gm: true }) });
-    assert.equal(result.ok, false);
-    assert.equal(result.reason, "capacity-undecided");
+    assert.equal(result.ok, true);
     assert.equal(authorizePartyTransfer(party, source, { user: user({ gm: true }) }).ok, true);
   });
 

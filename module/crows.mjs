@@ -28,6 +28,7 @@ import {
 } from "./helpers/rest.mjs";
 import { enterDungeon, leaveDungeon, applyGreedBonus } from "./helpers/greed.mjs";
 import { registerSlotSettings } from "./helpers/slots.mjs";
+import { pay, receive, registerCommerceSocket } from "./helpers/commerce.mjs";
 import {
   registerMiasmaSettings, registerMiasmaHooks, getInMiasma, setInMiasma,
   rollMiasmaResist, rollMiasmaEffect, clearMiasma, onCrueltyCleared, MIASMA_EFFECTS
@@ -238,6 +239,7 @@ Hooks.once("init", () => {
 
   registerMigrationSettings();
   registerSlotSettings();
+  registerCommerceSocket();
   registerDungeonTurnSettings();
   registerMiasmaSettings();
   registerCryptSettings();
@@ -262,6 +264,9 @@ Hooks.once("init", () => {
       close: closeSpendingWindow
     },
     attackWithWeapon,
+    pay,
+    receive,
+    commerce: { pay, receive },
     dt: { get: getDT, set: setDT, bump: bumpDT, end: endDungeonTurn, encounterCheck: rollEncounterCheck, getDungeonEN },
     miasma: { get: getInMiasma, set: setInMiasma, resist: rollMiasmaResist, effect: rollMiasmaEffect, clear: clearMiasma, onCrueltyCleared, EFFECTS: MIASMA_EFFECTS },
     crypt: {

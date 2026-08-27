@@ -1,6 +1,7 @@
 const { TypeDataModel } = foundry.abstract;
 const fields = foundry.data.fields;
 import { CROWS, ALL_EXPERTISES } from "../../config.mjs";
+import { commerceFields } from "../../helpers/schema.mjs";
 
 /**
  * Creature data model — Playtest 2. Covers monsters, humans and animals.
@@ -155,6 +156,9 @@ export class MonsterData extends TypeDataModel {
         weakened:    new fields.BooleanField({ initial: false }),
         defeated:    new fields.BooleanField({ initial: false })
       }),
+      // Actors of any declared type may own money.  Keep the durable receipt
+      // journal on the model rather than making commerce crow-only.
+      ...commerceFields(),
       notes: new fields.HTMLField()
     };
   }
