@@ -91,6 +91,42 @@ function uniqueText(values) {
   return [...new Set(values.map(nonBlank).filter(Boolean))];
 }
 
+function collectionValues(collection) {
+  if (!collection) return [];
+  if (Array.isArray(collection)) return [...collection];
+  if (Array.isArray(collection.contents)) return [...collection.contents];
+  try {
+    if (typeof collection[Symbol.iterator] === "function") {
+      return [...collection].map(value => Array.isArray(value) ? value[1] : value);
+    }
+  } catch { /* a Foundry collection may expose a throwing iterator */ }
+  return [];
+}
+
+function rosterSuggestion(actor) {
+  const uuid = actor?.uuid ?? (actor?.id != null ? `Actor.${actor.id}` : "");
+  const id = String(uuid || actor?.id || "").trim();
+  if (!id) return null;
+  return {
+    id,
+    uuid: actor?.uuid ?? id,
+    name: actor?.name ?? actor?.label ?? id,
+    type: actor?.type ?? null
+  };
+}
+
+function eventRosterSuggestions(app) {
+  const optionContexts = [app?.options?.eventContext, app?.options?.context];
+  for (const options of optionContexts) {
+    if (!options || !Object.prototype.hasOwnProperty.call(options, "rosterSuggestions")) continue;
+    return collectionValues(options.rosterSuggestions).map(rosterSuggestion).filter(Boolean);
+  }
+  return collectionValues(globalThis.game?.actors)
+    .filter(actor => actor?.type === "crow")
+    .map(rosterSuggestion)
+    .filter(Boolean);
+}
+
 function textValues(value) {
   if (Array.isArray(value)) return value.flatMap(textValues);
   if (value == null) return [];
@@ -562,10 +598,37 @@ function eventContext(app, expectedRevision) {
   return {
     ...(app?.options?.eventContext ?? {}),
     ...(app?.options?.context ?? {}),
+    rosterSuggestions: eventRosterSuggestions(app),
     user,
     isGM: Boolean(user?.isGM),
     expectedRevision
   };
+}
+
+function eventReceiptForModel(model, pending) {
+  const token = String(pending?.resolutionId ?? "");
+  if (!token) return null;
+  if (String(model?.eventReceipt?.resolutionId ?? "") === token) return model.eventReceipt;
+  return (model?.eventReceipts ?? []).find(receipt =>
+    String(receipt?.resolutionId ?? "") === token
+  ) ?? null;
+}
+
+function eventRecoveryMessage(pending, receipt) {
+  const status = String(pending?.status ?? "pending");
+  if (status === "blocked") {
+    return "No grant was committed. Repair the recipient's capacity or source, then retry this event; abandon remains available to clear it.";
+  }
+  if (status === "partial") {
+    const children = receipt?.childResults ?? [];
+    const committed = children.filter(child => child?.phase === "committed" || child?.result?.ok === true).length;
+    return `Partial grant progress is recorded (${committed} recipient${committed === 1 ? "" : "s"} committed). Retry uses the same child tokens and only revisits unresolved recipients.`;
+  }
+  if (status === "uncertain") {
+    return "The grant outcome is uncertain. Retry with the same event selections so each child token can reconcile, or abandon after Ref adjudication.";
+  }
+  if (status === "resolving") return "The event is being resolved; retrying uses the recorded child plan.";
+  return null;
 }
 
 async function renderControlResult(app, result, control) {
@@ -690,10 +753,8 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
     if (model.pendingEvent) {
       const resolver = villageApiMethod(api, ["resolutionOptions"], villageEventResolutionOptions);
       try {
-        resolutionOptions = resolver(liveVillage, {
-          ...(this.options?.eventContext ?? {}),
-          ...(this.options?.context ?? {})
-        });
+        resolutionOptions = resolver(liveVillage,
+          eventContext(this, Number(model?.revision ?? liveVillage?.revision ?? 0)));
         if (resolutionOptions && typeof resolutionOptions === "object") {
           const count = resolutionOptions.count;
           resolutionOptions = {
@@ -704,6 +765,7 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
         }
       } catch { resolutionOptions = null; }
     }
+    const pendingReceipt = eventReceiptForModel(model, model.pendingEvent);
     const event = model.pendingEvent
       ? VILLAGE_EVENTS.find(candidate => candidate.id === (model.pendingEvent.eventId ?? model.pendingEvent.id))
       : null;
@@ -712,10 +774,13 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
       eventId: model.pendingEvent.eventId ?? model.pendingEvent.id ?? null,
       eventName: event?.id ?? model.pendingEvent.eventId ?? model.pendingEvent.id ?? "Village event",
       text: event?.text ?? "This Village event is awaiting Ref resolution.",
-      effect: event?.effect ?? null
+      effect: event?.effect ?? null,
+      childResults: cloneControlValue(pendingReceipt?.childResults ?? []),
+      recoveryMessage: eventRecoveryMessage(model.pendingEvent, pendingReceipt)
     } : null;
     const journalBlockEntry = (model.operationJournal ?? []).find(entry =>
-      BLOCKING_OPERATION_PHASES.has(String(entry?.phase ?? "")));
+      BLOCKING_OPERATION_PHASES.has(String(entry?.phase ?? ""))
+        && String(entry?.action ?? "") !== "resolve-village-event");
     const journalBlock = journalBlockEntry
       ? operationBlock({ operation: journalBlockEntry }, liveVillage) : null;
     const actionNotice = journalBlock
@@ -891,7 +956,8 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
     const options = (() => {
       try {
         const optionsResolver = villageApiMethod(api, ["resolutionOptions"], villageEventResolutionOptions);
-        return optionsResolver(model, this.options?.eventContext ?? {});
+        return optionsResolver(model,
+          eventContext(this, Number(model?.revision ?? 0)));
       } catch { return null; }
     })();
     const selections = eventSelections(this, target, options);
