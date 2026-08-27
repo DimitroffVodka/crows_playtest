@@ -41,7 +41,7 @@ function source({
   };
 }
 
-function actor({ id = "actor-grant", type = "party", capacity = 10, items = [], isOwner = true } = {}) {
+function actor({ id = "actor-grant", type = "crow", capacity = 10, items = [], isOwner = true } = {}) {
   const target = {
     id,
     uuid: `Actor.${id}`,
@@ -330,16 +330,16 @@ describe("Item grant receipts", () => {
     assert.equal(target.updates.length, 0);
   });
 
-  test("a non-crow Actor can grant into its bounded Party-style stash", async () => {
-    const target = actor({ id: "party-stash", type: "party", capacity: 0 });
-    const result = await grantItem(target, source({ id: "party-item" }), contextFor(target, "party-1", {
-      layout: null,
-      capacities: { stash: 2 },
-      placement: { container: "stash", index: 0 }
+  test("a Party Actor refuses a non-purse Item with no write", async () => {
+    const target = actor({ id: "party-stash", type: "party" });
+    const result = await grantItem(target, source({ id: "party-item" }), makeGrantContext(target, "test", {
+      txId: "party-1",
+      expectedRevision: target.system.commerce.revision,
+      placement: { policy: "auto-pack" }
     }));
-    assert.equal(result.ok, true, result.error);
-    assert.deepEqual(target.items[0].system.location, { container: "stash", index: 0, length: 1 });
-    assert.equal(target.type, "party");
+    assert.equal(result.error, "no-capacity");
+    assert.equal(target.creates.length, 0);
+    assert.equal(target.updates.length, 0);
   });
 });
 
