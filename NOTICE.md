@@ -8,6 +8,7 @@ used under the **Creative Commons Attribution-NonCommercial 4.0 International
 <https://creativecommons.org/licenses/by-nc/4.0/>
 
 Source: <https://2minutetabletop.com/>
+Support the author: <https://www.patreon.com/2minutetabletop>
 
 **Unmodified.** The files are copied from the publisher's `Assets (300 DPI)`
 set and retain their published filenames.
