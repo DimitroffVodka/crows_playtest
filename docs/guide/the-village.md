@@ -93,28 +93,42 @@ price — a Blacksmith costs 3,000 to found and 1,500 to raise.
 Prosperity runs from **-10 to +10**. It sets availability, prices, how much
 housing the village has, and which events you are likely to roll.
 
-**It falls by 1 at the end of every cycle unless a Prosperity-raising event
-occurred during it.** This is the single most important thing to understand
-about the village: standing still is not neutral. A village left alone shrinks.
+**It falls by 1 at the end of every cycle unless something raised it during that
+cycle.** This is the single most important thing to understand about the
+village: standing still is not neutral. A village left alone shrinks.
 
 The main way to raise it is to **spend money there** — 10,000 gc with village
-merchants during one cycle raises Prosperity by 1. Buying from your own village
-rather than elsewhere is the mechanical point of having one.
+merchants during one cycle raises Prosperity by 1. That is worth two points, not
+one: the increase also counts as the cycle's raise, so the usual end-of-cycle
+drop does not happen. Buying from your own village rather than elsewhere is the
+mechanical point of having one.
+
+A newly founded village gets its **first** end-of-cycle free — it starts already
+marked as having been raised, so your opening cycle cannot put you at -1 before
+the party has had a chance to spend anything.
 
 ---
 
 ## Running a cycle
 
-A cycle is **10 days**. When the party has finished its business:
+A cycle is **10 days**.
 
-1. **Roll event** — rolls `d10 + Prosperity` on the village event table and
-   leaves a **pending event**.
-2. Resolve it. Some events need a target chosen; the sheet shows the options.
-3. **End cycle** — advances the cycle, applies the Prosperity change, and
-   promotes anything that was waiting on the cycle to turn over.
+**Ending a cycle also rolls the next one's event.** That is the part to get
+straight, because it is not the order you would guess:
 
-Roll before you end. A rolled-but-unresolved event blocks the cycle, and the
-Roll button disappears while one is outstanding so you cannot stack two.
+1. **Resolve the pending event** left over from the last cycle end. Some events
+   need a target chosen; the sheet shows the options.
+2. **End cycle** — advances the cycle, applies the Prosperity change, resets the
+   merchant spend counter, promotes anything waiting on the cycle to turn over,
+   and **rolls the next event**, leaving it pending for the cycle you have just
+   entered.
+
+So a cycle normally begins with an event waiting for you and ends by producing
+the next one. **Roll event** is the manual roll, for when there is no pending
+event — after abandoning one, for instance. It disappears while an event is
+outstanding, so you cannot stack two.
+
+A rolled-but-unresolved event blocks the cycle from advancing.
 
 ### When End cycle refuses
 
@@ -151,6 +165,32 @@ at -8.
 
 Effects that change an institution's level show up as the gap between RAW and
 EFFECTIVE in the table. Active modifiers are listed under **Current effects**.
+
+### Resolving an event
+
+Most events ask you to choose what they land on. An event that targets a
+merchant offers a list of your institutions — pick one and resolve. An event
+that targets *characters* does not currently offer a candidate list, so it
+cannot be resolved from the sheet; supply the recipients yourself:
+
+```js
+const v = game.crows.village;
+await v.resolvePendingEvent({
+  resolutionId: v.get().pendingEvent.resolutionId,
+  selections: { recipientActorUuids: game.actors.filter(a => a.type === "crow").map(a => a.uuid) }
+})
+```
+
+Note `selections`, plural. The singular is silently ignored and you will get
+`selection-required` back.
+
+> **Two events cannot be resolved at all yet.** `gratefulRations` (6 rations
+> each) and `healingPotions` are the only two that hand out items, and their
+> grant step currently refuses. Worse, attempting one moves the event to
+> `blocked`, which then blocks the cycle. If you roll one, **abandon it** with
+> *Cancel / abandon event* and award the items by hand — the abandon path is
+> clean and clears the block. Every other outcome on the table resolves
+> normally.
 
 ---
 
