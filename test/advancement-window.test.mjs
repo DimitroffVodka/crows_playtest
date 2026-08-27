@@ -390,6 +390,36 @@ test("multiple legal advancement claims remain possible until the next test", as
     assert.equal(actor.system.xp.spendable, 0);
     assert.equal(actor.items.length, 1);
     assert.equal(actor.items[0].name, "Window Trait");
+    assert.equal(actor.embeddedCreates.length, 1, "trait purchase uses the shared grant seam");
+    const grantTxId = Object.keys(actor.system.commerce.receipts)[0];
+    assert.match(grantTxId, /^trait-purchase:/);
+    assert.equal(actor.embeddedCreates[0].docs[0].flags.crows.grant.txId, grantTxId);
+  } finally {
+    if (previousChatMessage === undefined) delete globalThis.ChatMessage;
+    else globalThis.ChatMessage = previousChatMessage;
+  }
+});
+
+test("a failed trait grant does not spend XP or post success", async () => {
+  const actor = lifecycleCrow({ window: true, txp: 5000, spendable: 500 });
+  actor.createEmbeddedDocuments = async () => { throw new Error("capacity write failed"); };
+  const previousChatMessage = globalThis.ChatMessage;
+  let chats = 0;
+  globalThis.ChatMessage = {
+    getSpeaker: () => ({ actor: actor.id }),
+    async create() { chats += 1; }
+  };
+  const startingTrait = {
+    name: "Failed Trait", type: "trait",
+    system: { tree: "alchemy", tier: 1, isStarting: true, connectsTo: [] }
+  };
+
+  try {
+    const result = await purchaseTrait(actor, startingTrait);
+    assert.equal(result.ok, false);
+    assert.equal(result.error, "write-failed");
+    assert.equal(actor.system.xp.spendable, 500);
+    assert.equal(chats, 0);
   } finally {
     if (previousChatMessage === undefined) delete globalThis.ChatMessage;
     else globalThis.ChatMessage = previousChatMessage;
