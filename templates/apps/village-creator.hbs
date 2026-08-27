@@ -1,0 +1,49 @@
+<div class="crows village-creator">
+  <p class="village-creator-intro">Create the shared home Village and its live Scene.</p>
+
+  <section class="village-creator-section">
+    <h3>Village</h3>
+    <label>
+      Village name
+      <input type="text" name="name" value="{{name}}" required autofocus>
+    </label>
+  </section>
+
+  <section class="village-creator-section">
+    <h3>Starting institutions</h3>
+    <p>Blacksmith, Crypt, General Store, Inn, and Temple (all level 1).</p>
+    <label>
+      One additional group choice
+      <select name="groupInstitution" required>
+        {{#each institutionChoices}}
+          <option value="{{value}}">{{label}}</option>
+        {{/each}}
+      </select>
+    </label>
+  </section>
+
+  <section class="village-creator-section">
+    <h3>NPC connection</h3>
+    <label>
+      Name
+      <input type="text" name="connectionName" value="{{connection.name}}" required>
+    </label>
+    <label>
+      Relationship
+      <input type="text" name="connectionRelationship" value="{{connection.relationship}}" required>
+    </label>
+    <label>
+      Benefit
+      <select name="connectionBenefit">
+        <option value="">Choose later</option>
+        {{#each connectionBenefits}}
+          <option value="{{value}}">{{label}}</option>
+        {{/each}}
+      </select>
+    </label>
+    <label>
+      Notes
+      <textarea name="connectionNotes" rows="3">{{connection.notes}}</textarea>
+    </label>
+  </section>
+</div>
