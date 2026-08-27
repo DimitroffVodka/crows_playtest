@@ -166,6 +166,23 @@
         · status <strong>{{pendingEvent.status}}</strong>
       </p>
       <p>{{pendingEvent.text}}</p>
+      {{#if pendingEvent.recoveryMessage}}
+        <p class="village-event-recovery" role="status">{{pendingEvent.recoveryMessage}}</p>
+      {{/if}}
+      {{#if pendingEvent.childResults.length}}
+        <details class="village-event-progress">
+          <summary>Recorded grant progress</summary>
+          <ul>
+            {{#each pendingEvent.childResults as |child|}}
+              <li>
+                <code>{{child.childOperationId}}</code> — {{child.phase}}
+                {{#if child.result.error}} ({{child.result.error}}){{/if}}
+                {{#if child.result.itemIds.length}} — Item(s): {{child.result.itemIds}}{{/if}}
+              </li>
+            {{/each}}
+          </ul>
+        </details>
+      {{/if}}
       {{#if resolutionOptions}}
         {{#if (eq resolutionOptions.kind "item")}}
           {{#if canCommit}}
@@ -197,7 +214,7 @@
           <button type="button" data-action="resolveVillageEvent"
                   data-resolution-id="{{pendingEvent.resolutionId}}"
                   {{#if eventResolutionBusy}}disabled aria-busy="true"{{/if}}>
-            {{#if eventResolutionBusy}}Resolving…{{else}}Resolve event{{/if}}
+            {{#if eventResolutionBusy}}Resolving…{{else if (eq pendingEvent.status "pending")}}Resolve event{{else}}Retry event{{/if}}
           </button>
           <button type="button" data-action="abandonPendingEvent"
                   data-resolution-id="{{pendingEvent.resolutionId}}"

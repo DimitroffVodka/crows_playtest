@@ -142,6 +142,60 @@ describe("Village cycle controls", () => {
     await app.close();
   });
 
+  test("a blocked grant event stays recoverable from the sheet with the Ref's roster", async () => {
+    const actor = { id: "event-crow", uuid: "Actor.event-crow", name: "Event Crow", type: "crow" };
+    game.actors = new Map([[actor.id, actor]]);
+    store.pendingEvent = {
+      eventId: "gratefulRations",
+      id: "gratefulRations",
+      rolled: 9,
+      total: 9,
+      cycle: store.cycle,
+      resolutionId: "event-blocked-1",
+      status: "blocked",
+      selection: { recipientActorUuids: [actor.uuid] },
+      selections: { recipientActorUuids: [actor.uuid] }
+    };
+    store.eventReceipt = {
+      resolutionId: "event-blocked-1",
+      phase: "blocked",
+      childResults: [{
+        childOperationId: "event-blocked-1:grant:Actor.event-crow",
+        actorUuid: actor.uuid,
+        phase: "refused",
+        result: { ok: false, error: "no-capacity" }
+      }]
+    };
+    store.eventReceipts = [store.eventReceipt];
+    store.operationJournal = [{
+      operationId: "event-blocked-1",
+      action: "resolve-village-event",
+      phase: "blocked",
+      inputFingerprint: "event-input"
+    }];
+    let request;
+    api.resolvePendingEvent = async value => {
+      request = value;
+      return { ok: false, phase: "blocked", resolutionId: value.resolutionId };
+    };
+    const app = quietApp();
+    const context = await app._prepareContext();
+
+    assert.equal(context.cycleBlock, null, "event blockers use event controls, not paid-operation adjudication");
+    assert.equal(context.resolutionOptions.kind, "recipients");
+    assert.deepEqual(context.resolutionOptions.candidates.map(candidate => candidate.id), [actor.uuid]);
+    assert.match(context.pendingEvent.recoveryMessage, /retry/i);
+    assert.equal(context.pendingEvent.childResults[0].result.error, "no-capacity");
+
+    await VillageApplication._onResolveVillageEvent.call(app, {}, {
+      dataset: { resolutionId: "event-blocked-1", selections: JSON.stringify({
+        recipientActorUuids: [actor.uuid]
+      }) }
+    });
+    assert.equal(request.context.rosterSuggestions[0].uuid, actor.uuid);
+    await app.close();
+  });
+
   test("a double-click shares one explicit end-cycle operation token", async () => {
     let calls = 0;
     let request;
