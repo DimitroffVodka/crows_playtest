@@ -295,7 +295,7 @@ Hooks.once("init", () => {
       assetForInstitution,
       housingCount: housingCountForProsperity,
       configureArtSet: configureVillageArtSet,
-      mapGeneratorVersion: VILLAGE_MAP_GENERATOR_VERSION
+      mapGeneratorVersion: VILLAGE_MAP_GENERATOR_VERSION,
       proposalFlag: VILLAGE_PROPOSAL_FLAG,
       proposalPhases: VILLAGE_PROPOSAL_PHASES,
       proposalStatuses: VILLAGE_PROPOSAL_STATUSES,
