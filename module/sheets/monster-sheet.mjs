@@ -2,7 +2,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 import { ALL_EXPERTISES, CROWS } from "../config.mjs";
 import { rollTest } from "../helpers/roll.mjs";
-import { applyDamage, applyHealing } from "../helpers/damage.mjs";
+import { applyDamage, applyHealing, syncDefeatedCondition } from "../helpers/damage.mjs";
 import { adjustXRestUse, monsterViewData, toggleMonsterWound } from "../helpers/monster-view.mjs";
 
 export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
@@ -244,5 +244,6 @@ export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       this.document.system.slots
     );
     await this.document.update({ "system.woundSlots": woundSlots });
+    await syncDefeatedCondition(this.document);
   }
 }

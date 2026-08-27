@@ -30,7 +30,7 @@
  * test/damage.test.mjs.
  */
 
-import { CROWS } from "../config.mjs";
+import { CROWS, effectiveCapacities } from "../config.mjs";
 import { setCondition } from "./combat.mjs";
 
 /* ==========================================================================
@@ -197,6 +197,63 @@ export function fallbackWoundSlots(capacity, existing = [], count = 1) {
 }
 
 /* ==========================================================================
+ * Defeat invariant
+ * ========================================================================== */
+
+const nonNegativeInteger = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+};
+
+/** Resolve the wound capacity used by the defeat rule for one actor. */
+function woundCapacityFor(actor) {
+  const sys = actor?.system ?? {};
+  if (actor?.type === "monster") return nonNegativeInteger(sys.slots);
+
+  const stored = Number(sys.backpackCapacity ?? sys.capacities?.backpack);
+  if (Number.isFinite(stored)) return nonNegativeInteger(stored);
+
+  const grants = [];
+  for (const item of actor?.items ?? []) {
+    if (item?.type !== "trait") continue;
+    grants.push(...(item.system?.slotGrants ?? []));
+  }
+  return nonNegativeInteger(effectiveCapacities(grants).backpack);
+}
+
+/**
+ * Compute the defeat state from the actor's current wounds or Stamina.
+ *
+ * The boolean remains stored on `system.conditions` because it is the
+ * authority mirrored to the `dead` status effect. This function is the one
+ * invariant calculation every wound/Stamina mutation calls afterwards.
+ */
+export function defeatedForActor(actor) {
+  const sys = actor?.system ?? {};
+  const capacity = woundCapacityFor(actor);
+  if (actor?.type === "monster" && capacity <= 0) {
+    return nonNegativeInteger(sys.stamina?.value) <= 0;
+  }
+
+  const slots = sys.woundSlots == null ? [] : [...sys.woundSlots];
+  const held = slots
+    .map(Number)
+    .filter(index => Number.isInteger(index) && index >= 0 && index < capacity)
+    .length;
+  return capacity > 0 && held >= capacity;
+}
+
+/** Reconcile the stored defeat boolean and its mirrored status effect. */
+export async function syncDefeatedCondition(actor, { override = undefined } = {}) {
+  if (!actor) return { ok: false, reason: "no actor" };
+  const defeated = override === undefined ? defeatedForActor(actor) : !!override;
+  const current = !!actor.system?.conditions?.defeated;
+  if (current === defeated) return { ok: true, changed: false, defeated };
+  const result = await setCondition(actor, "defeated", defeated);
+  return { ...result, defeated };
+}
+
+/* ==========================================================================
  * Foundry-facing. Everything below touches documents.
  * ========================================================================== */
 
@@ -305,7 +362,7 @@ export async function applyDamage(actor, amount, {
   // R:554 — "If you take any damage while unconscious, you wake up and the
   // condition ends."
   if (result.total > 0 && conditions.unconscious) await setCondition(actor, "unconscious", false);
-  if (result.becameDefeated) await setCondition(actor, "defeated", true);
+  await syncDefeatedCondition(actor);
 
   return {
     ok: true,
@@ -363,16 +420,10 @@ export async function applyHealing(actor, { stamina = 0, wounds = 0, woundSlots 
 
   if (Object.keys(updates).length) await actor.update(updates);
 
-  // Coming back from defeated. Not a rule PT2 writes down — it covers dying,
-  // not un-dying — so it fires only when something actually reversed the cause:
-  // Stamina above 0 for a slotless creature, a freed slot for anything else.
-  const wasDefeated = !!sys.conditions?.defeated;
-  if (wasDefeated) {
-    const takesWounds = actor.type === "monster" ? ((sys.slots ?? 0) > 0) : true;
-    const staminaNow = updates["system.stamina.value"] ?? sys.stamina?.value ?? 0;
-    const undone = revive || (takesWounds ? removed.length > 0 : staminaNow > 0);
-    if (undone) await setCondition(actor, "defeated", false);
-  }
+  // Reconcile after every healing write. `revive` remains an explicit escape
+  // hatch for callers that intentionally clear the stored condition; ordinary
+  // healing follows the same wound/Stamina invariant as damage and rest.
+  await syncDefeatedCondition(actor, { override: revive ? false : undefined });
 
   return { ok: true, vitalityBonus, woundsRemoved: removed, ...updates };
 }

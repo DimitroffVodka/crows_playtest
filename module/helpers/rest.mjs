@@ -53,6 +53,7 @@ import {
 import {
   closeSpendingWindow, openSpendingWindow, spendingWindow
 } from "./advancement.mjs";
+import { syncDefeatedCondition } from "./damage.mjs";
 
 // --- shape -----------------------------------------------------------------
 
@@ -722,6 +723,7 @@ export async function takeRest(actor, {
     "system.woundSlots": nextWounds,
     ...expertiseUpdates
   });
+  await syncDefeatedCondition(actor);
 
   // Trait pools reset on EVERY rest, Miasma or not (R:1125 names expertises).
   const poolUpdates = traitPoolResetUpdates(actor.items);
@@ -977,6 +979,7 @@ async function _applyTendWounds(actor, target, session, woundChoices = null) {
     if (removed.length) {
       const stored = [...(target.system?.woundSlots ?? [])].map(Number);
       await target.update({ "system.woundSlots": stored.filter(i => !removed.includes(i)) });
+      await syncDefeatedCondition(target);
     }
   }
 

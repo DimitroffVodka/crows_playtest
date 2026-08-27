@@ -357,7 +357,7 @@ describe("backlash ActiveEffect lifecycle", () => {
     assert.deepEqual(actor.effects, []);
   });
 
-  test("the mixed actor orchestrator keeps item and condition clocks crow-only", async () => {
+  test("the mixed actor orchestrator keeps item clocks crow-only but expires conditions on every actor", async () => {
     const crowItem = fakeDtItem("Crow Torch");
     const crow = addDtActorState(fakeClockActor(null, { type: "crow" }), crowItem);
     crow.id = "Actor.crow-clock";
@@ -381,15 +381,15 @@ describe("backlash ActiveEffect lifecycle", () => {
     assert.deepEqual(faces, []);
     assert.equal(result.udRolls.length, 1);
     assert.equal(result.udRolls[0].actor, "Crow Clock");
-    assert.equal(result.expired.length, 1);
-    assert.equal(result.expired[0].actor, "Crow Clock");
+    assert.equal(result.expired.length, 2);
+    assert.deepEqual(result.expired.map(entry => entry.actor), ["Crow Clock", "Monster Clock"]);
     assert.equal(result.backlash.length, 1);
     assert.equal(result.backlash[0].actor, "Monster Clock");
 
     assert.deepEqual(crowItem.updates, [{ "system.usageDie.udCurrent": 0 }]);
     assert.equal(crow.system.conditions.blessed, false);
     assert.deepEqual(monsterItem.updates, []);
-    assert.equal(monster.system.conditions.blessed, true);
+    assert.equal(monster.system.conditions.blessed, false);
     assert.deepEqual(monster.effects, []);
   });
 
