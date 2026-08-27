@@ -11,8 +11,40 @@
       <span>Prosperity <strong>{{prosperity}}</strong></span>
       <span>Cycle <strong>{{cycle}}</strong></span>
       <button type="button" data-action="refreshVillage">Refresh</button>
+      {{#if cycleControls.visible}}
+        <button type="button" data-action="endCycle"
+                {{#if cycleControls.endCycleBusy}}disabled aria-busy="true"{{/if}}>
+          {{#if cycleControls.endCycleBusy}}Ending cycle…{{else}}End cycle{{/if}}
+        </button>
+        {{#unless pendingEvent}}
+          <button type="button" data-action="rollEvent"
+                  {{#if cycleControls.rollEventBusy}}disabled aria-busy="true"{{/if}}>
+            {{#if cycleControls.rollEventBusy}}Rolling event…{{else}}Roll event{{/if}}
+          </button>
+        {{/unless}}
+      {{/if}}
     </div>
   </header>
+
+  {{#if actionNotice}}
+    <p class="village-notice village-notice-{{actionNotice.kind}}" role="status">
+      {{actionNotice.message}}
+    </p>
+  {{/if}}
+  {{#if cycleBlock}}
+    <div class="village-operation-recovery" role="group" aria-label="Blocked Village operation">
+      <strong>Recovery</strong>
+      <code>{{cycleBlock.operationId}}</code>
+      {{#if canCommit}}
+        <button type="button" data-action="adjudicateVillageOperation"
+                data-operation-id="{{cycleBlock.operationId}}"
+                data-decision="abandon"
+                {{#if operationRepairBusy}}disabled aria-busy="true"{{/if}}>
+          {{#if operationRepairBusy}}Repairing…{{else}}Repair / abandon operation{{/if}}
+        </button>
+      {{/if}}
+    </div>
+  {{/if}}
 
   {{#if quoteInvalidated}}
     <p class="village-notice village-notice-warning" role="status">
@@ -109,10 +141,59 @@
     {{#if activeEffects.length}}
       <ul>{{#each activeEffects as |effect|}}<li>{{effect.kind}}{{#if effect.eventId}} ({{effect.eventId}}){{/if}}</li>{{/each}}</ul>
     {{else}}<p>No active event modifiers.</p>{{/if}}
-    {{#if pendingEvent}}
-      <div class="village-pending-event"><strong>Pending event:</strong> d10 {{pendingEvent.rolled}} + Prosperity = {{pendingEvent.total}} ({{pendingEvent.id}})</div>
-    {{/if}}
   </section>
+
+  {{#if pendingEvent}}
+    <section class="village-pending-event" aria-label="Pending Village event">
+      <h2>Pending event: {{pendingEvent.eventName}}</h2>
+      <p>
+        d10 <strong>{{pendingEvent.rolled}}</strong> + Prosperity =
+        <strong>{{pendingEvent.total}}</strong> · cycle {{pendingEvent.cycle}}
+        · status <strong>{{pendingEvent.status}}</strong>
+      </p>
+      <p>{{pendingEvent.text}}</p>
+      {{#if resolutionOptions}}
+        {{#if (eq resolutionOptions.kind "item")}}
+          {{#if canCommit}}
+            <div class="village-event-item-picker">
+              <label>Actor UUID <input name="actorUuid" data-event-selection data-selection-key="actorUuid" type="text"></label>
+              <label>Item ID <input name="itemId" data-event-selection data-selection-key="itemId" type="text"></label>
+            </div>
+          {{/if}}
+        {{else if resolutionOptions.candidates.length}}
+          {{#if canCommit}}
+            <label class="village-event-picker">
+              Choose {{resolutionOptions.kind}}
+              <select name="{{resolutionOptions.selectionKey}}"
+                      data-event-selection
+                      data-selection-key="{{resolutionOptions.selectionKey}}"
+                      {{#if resolutionOptions.multiple}}multiple{{/if}}>
+                {{#each resolutionOptions.candidates as |candidate|}}
+                  <option value="{{candidate.id}}">{{candidate.name}}{{#if candidate.type}} ({{candidate.type}}){{/if}}</option>
+                {{/each}}
+              </select>
+            </label>
+          {{else}}
+            <p class="village-event-options">Resolution choices are visible to the Ref/GM only.</p>
+          {{/if}}
+        {{/if}}
+      {{/if}}
+      {{#if canCommit}}
+        <div class="village-event-actions">
+          <button type="button" data-action="resolveVillageEvent"
+                  data-resolution-id="{{pendingEvent.resolutionId}}"
+                  {{#if eventResolutionBusy}}disabled aria-busy="true"{{/if}}>
+            {{#if eventResolutionBusy}}Resolving…{{else}}Resolve event{{/if}}
+          </button>
+          <button type="button" data-action="abandonPendingEvent"
+                  data-resolution-id="{{pendingEvent.resolutionId}}"
+                  {{#if eventAbandonBusy}}disabled aria-busy="true"{{/if}}>
+            {{#if eventAbandonBusy}}Abandoning…{{else}}Cancel / abandon event{{/if}}
+          </button>
+        </div>
+      {{/if}}
+    </section>
+  {{/if}}
 
   {{#if proposals.length}}
     <section class="village-proposals" aria-label="Village proposals">

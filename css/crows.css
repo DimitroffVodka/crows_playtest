@@ -3766,6 +3766,7 @@
 .village-summary { flex-wrap: wrap; justify-content: flex-end; }
 .village-summary span,
 .village-economics > div { white-space: nowrap; }
+.village-summary button { white-space: nowrap; }
 .village-economics { border: 1px solid var(--village-rule); padding: 8px; margin-bottom: 14px; flex-wrap: wrap; }
 .village-economics > div { flex: 1 1 auto; display: flex; flex-direction: column; }
 .village-institutions { overflow-x: auto; }
@@ -3788,7 +3789,16 @@
 .village-proposal-table td { border-bottom: 1px solid var(--village-rule); padding: 6px; text-align: left; }
 .village-found label { display: inline-flex; flex-direction: column; margin: 0 8px 8px 0; }
 .village-notice { padding: 8px; border-left: 3px solid #a06a1b; background: rgba(160, 106, 27, .08); }
-.village-pending-event { border: 1px dashed var(--village-rule); padding: 7px; }
+.village-notice-success { border-left-color: #36734a; background: rgba(54, 115, 74, .08); }
+.village-notice-warning { border-left-color: #a06a1b; }
+.village-operation-recovery { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; padding: 8px; border: 1px solid #a06a1b; background: rgba(160, 106, 27, .06); }
+.village-pending-event { border: 1px dashed var(--village-rule); padding: 10px; margin-top: 16px; }
+.village-pending-event h2 { margin-top: 0; }
+.village-event-picker,
+.village-event-item-picker label { display: inline-flex; flex-direction: column; gap: 4px; margin: 4px 8px 4px 0; }
+.village-event-picker select { min-width: 220px; }
+.village-event-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.village-event-options { color: var(--village-muted); font-style: italic; }
 /* ====================================================================
    Party treasury sheet — a non-carried strongbox, not a creature sheet
    ==================================================================== */
