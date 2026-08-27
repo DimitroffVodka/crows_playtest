@@ -11,6 +11,7 @@ import {
   registerVillageSettings
 } from "../module/helpers/village.mjs";
 import {
+  DEFAULT_LEVEL_ID,
   INSTITUTION_ART_KEYS,
   SCENE_DEFAULTS,
   VILLAGE_MAP_GENERATOR_VERSION,
@@ -456,6 +457,26 @@ describe("Village Scene projection", () => {
     assert.equal(data.ownership.default, 2);
     assert.equal(data.flags.crows.village.villageId, village.villageId);
     assert.equal(data.flags.crows.village.bootstrap, "boot-1");
+  });
+
+  test("the backdrop rides on a Level, because a v14 Scene has no background field", () => {
+    // A v14 Scene stores its backdrop on `Scene#levels`; `Scene#background` is
+    // a deprecated getter. Foundry accepts a legacy `{background:{src}}` create
+    // payload WITHOUT error and silently drops the image, because the legacy
+    // branch in `Scene#_preCreate` is guarded by `!this.levels.size` and the
+    // schema has already made `defaultLevel0000`. Verified live on v14.367.
+    // Asserting only `data.background.src` therefore cannot catch a blank map,
+    // which is exactly how this shipped. Pin the shape Foundry actually reads.
+    const village = defaultVillage();
+    for (const variant of ["day", "night"]) {
+      const data = villageSceneData(village, `boot-${variant}`, { backgroundVariant: variant });
+      assert.equal(data.initialLevel, DEFAULT_LEVEL_ID);
+      assert.equal(data.levels.length, 1);
+      assert.equal(data.levels[0]._id, DEFAULT_LEVEL_ID);
+      assert.ok(data.levels[0].background.src, `${variant} Level carries no backdrop`);
+      assert.equal(data.levels[0].background.src, data.background.src,
+        `${variant} Level backdrop drifted from the resolved background`);
+    }
   });
 
   test("background resolver is late-bound for a Ref's day/night map", () => {

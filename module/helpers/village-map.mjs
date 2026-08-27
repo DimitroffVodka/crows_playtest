@@ -30,6 +30,13 @@ import { VILLAGE_ART_SET } from "./village-art.mjs";
 export const VILLAGE_MAP_GENERATOR_VERSION = "village-map-1";
 export const GENERATOR_VERSION = VILLAGE_MAP_GENERATOR_VERSION;
 
+/**
+ * Foundry's `Scene.metadata.defaultLevelId` (app/common/documents/scene.mjs:46).
+ * Mirrored rather than read so this module stays evaluable without Foundry
+ * globals, which is what lets the projection be unit-tested at all.
+ */
+export const DEFAULT_LEVEL_ID = "defaultLevel0000";
+
 export const SCENE_DEFAULTS = Object.freeze({
   width: 4800,
   height: 6600,
@@ -1294,7 +1301,30 @@ export function villageSceneData(village, operationId, options = {}) {
     height: options.height ?? SCENE_DEFAULTS.height,
     padding: options.padding ?? SCENE_DEFAULTS.padding,
     grid: sceneGridData(options),
-    ...(background.src ? { background: { src: background.src } } : {}),
+    // A v14 Scene has NO `background` field: the backdrop moved onto the Level
+    // documents in `Scene#levels`, and `Scene#background` survives only as a
+    // deprecated getter over `initialLevel`. Foundry's `Scene#_preCreate` does
+    // carry a legacy `data.background` onto a default Level, but that branch is
+    // guarded by `!this.levels.size`, and the schema has already materialized
+    // `defaultLevel0000` by the time it runs — so a legacy-shaped payload is
+    // accepted without error and silently drops the backdrop. Verified against
+    // a live v14.367 world: `{background:{src}}` on create yields a null Level
+    // background; the explicit `levels` form below is what sticks.
+    //
+    // `background` is still emitted because the projection's own consumers and
+    // assertions read it as the resolved backdrop; `levels` is what Foundry
+    // actually stores. Keep the two in step.
+    ...(background.src
+      ? {
+          background: { src: background.src },
+          initialLevel: DEFAULT_LEVEL_ID,
+          levels: [{
+            _id: DEFAULT_LEVEL_ID,
+            name: "Level",
+            background: { src: background.src }
+          }]
+        }
+      : {}),
     navigation: true,
     ownership: { default: sceneOwnershipObserver() },
     flags: {
