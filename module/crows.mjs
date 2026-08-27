@@ -1,6 +1,7 @@
 import { CROWS } from "./config.mjs";
 import { CrowsItemSheet } from "./sheets/item-sheet.mjs";
 import { CrowData } from "./data/actor/crow.mjs";
+import { PartyData } from "./data/actor/party.mjs";
 import { MonsterData } from "./data/actor/monster.mjs";
 import { WeaponData } from "./data/item/weapon.mjs";
 import { ArmorData } from "./data/item/armor.mjs";
@@ -77,6 +78,13 @@ import {
 } from "./helpers/migration.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
+import { PartySheet } from "./sheets/party-sheet.mjs";
+import {
+  partyCapacityPolicy, partyViewData, authorizePartyTransfer,
+  planPartyDeposit, planPartyWithdraw, depositPartyFunds, withdrawPartyFunds,
+  planPartyPurseTransfer, movePartyPurse, depositDropToParty,
+  canUserMoveMember
+} from "./helpers/party.mjs";
 import { CrowsCombat } from "./documents/combat.mjs";
 import { CrowsCombatant } from "./documents/combatant.mjs";
 import { CrowsCombatTracker } from "./applications/combat-tracker.mjs";
@@ -84,6 +92,9 @@ import { CrowsCombatTracker } from "./applications/combat-tracker.mjs";
 // Bumped with the Village setting schema.  Keep this in the existing world
 // migration gate: a second ready-time migration track would race the actor
 // migration and would never repair worlds already stamped at 0.2.0/0.2.1.
+// PartyData is a new native document type with no legacy persisted instances;
+// its defaults require no normalization pass. Existing worlds therefore keep
+// the shared 0.2.2 gate and do not receive synthetic Party actors.
 const MIGRATION_TARGET_VERSION = "0.2.2";
 const MIGRATION_VERSION_SETTING = "systemMigrationVersion";
 const MIGRATION_BUDGET_SETTING = "migrationExpertiseBudget";
@@ -184,6 +195,7 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.trait = TraitData;
   CONFIG.Item.dataModels.background = BackgroundData;
   CONFIG.Actor.dataModels.crow = CrowData;
+  CONFIG.Actor.dataModels.party = PartyData;
   CONFIG.Actor.dataModels.monster = MonsterData;
   CONFIG.Combat ??= {};
   CONFIG.Combatant ??= {};
@@ -257,6 +269,20 @@ Hooks.once("init", () => {
       create: createCharacter,
       applyCharacteristics, applyUniversalStarterItems,
       rollBackground, rollStartingGold
+    },
+    party: {
+      isParty: (actor) => actor?.type === "party",
+      capacity: partyCapacityPolicy,
+      view: partyViewData,
+      authorize: authorizePartyTransfer,
+      canUserMoveMember,
+      planDeposit: planPartyDeposit,
+      planWithdraw: planPartyWithdraw,
+      deposit: depositPartyFunds,
+      withdraw: withdrawPartyFunds,
+      planPurseTransfer: planPartyPurseTransfer,
+      movePurse: movePartyPurse,
+      depositDrop: depositDropToParty
     }
   });
   Object.assign(game.crows, ROLL_API);
@@ -264,7 +290,9 @@ Hooks.once("init", () => {
   SheetConfig.registerSheet(Item, "crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   SheetConfig.registerSheet(Actor, "crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
   SheetConfig.registerSheet(Actor, "crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });
+  SheetConfig.registerSheet(Actor, "crows", PartySheet, { types: ["party"], makeDefault: true, label: "Party Treasury Sheet" });
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/crow/sheet.hbs"]);
+  foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/party.hbs"]);
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/chat/test-card.hbs"]);
   foundry.applications.handlebars.loadTemplates([
     "systems/crows/templates/partials/physical-item.hbs",
