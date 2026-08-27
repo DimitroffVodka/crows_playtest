@@ -130,9 +130,9 @@ const assets = Object.freeze({
     "No dedicated crypt asset; a dark stone cave entrance conveys a burial vault."
   ),
   "unsupported.stables": substitute(
-    "Building, windmill.png",
-    "Stables (windmill substitute)",
-    "No dedicated stables asset; a windmill is visually distinct from the straw housing pool and other institutions."
+    "Building, straw 5.png",
+    "Stables (straw outbuilding substitute)",
+    "No dedicated stables asset; reserve straw house 5 as a distinct thatched outbuilding rather than reusing it for housing."
   ),
 
   // A state-specific entry is deliberate: destroyed institutions must not
@@ -168,13 +168,11 @@ const assets = Object.freeze({
 });
 
 const housingPool = Object.freeze([
+  // Straw 5 is reserved for the stables substitution and must not be a house.
   src("Building, straw 1.png", "Straw house 1"),
   src("Building, straw 2.png", "Straw house 2"),
   src("Building, straw 3.png", "Straw house 3"),
-  src("Building, straw 4.png", "Straw house 4"),
-  src("Building, straw 5.png", "Straw house 5"),
-  src("Building, L-house.png", "L-shaped house"),
-  src("Building, circle.png", "Round house")
+  src("Building, straw 4.png", "Straw house 4")
 ]);
 
 // Keep the complete named catalogue discoverable even though only a subset is
@@ -198,4 +196,3 @@ export const VILLAGE_ART_SET = Object.freeze({
   housingPool,
   catalogue: VILLAGE_ART_CATALOGUE
 });
-

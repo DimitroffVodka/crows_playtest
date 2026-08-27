@@ -242,7 +242,7 @@ describe("Village creator data and art resolution", () => {
     assert.equal(stables.unsupported, false);
     assert.equal(stables.substituted, true);
     assert.equal(stables.reason, "substituted");
-    assert.equal(stables.src, `${VILLAGE_ART_ASSET_ROOT}Building, windmill.png`);
+    assert.equal(stables.src, `${VILLAGE_ART_ASSET_ROOT}Building, straw 5.png`);
 
     // A caller can still inject a partial catalogue and receive the original
     // needs-art classification for a future institution without a mapping.
@@ -268,6 +268,15 @@ describe("Village creator data and art resolution", () => {
     assert.equal(VILLAGE_ART_SET.root, VILLAGE_ART_ASSET_ROOT);
     assert.equal(VILLAGE_ART_SET.resolution, "300 DPI");
     assert.equal(VILLAGE_ART_SET.license.shortName, "CC BY-NC 4.0");
+    assert.equal(VILLAGE_ART_SET.housingPool.length, 4);
+    assert.deepEqual(
+      VILLAGE_ART_SET.housingPool.map(asset => asset.src),
+      [1, 2, 3, 4].map(index => `${VILLAGE_ART_ASSET_ROOT}Building, straw ${index}.png`)
+    );
+    assert.equal(
+      VILLAGE_ART_SET.assets["unsupported.stables"].src,
+      `${VILLAGE_ART_ASSET_ROOT}Building, straw 5.png`
+    );
 
     const institutions = Object.keys(INSTITUTION_ART_KEYS)
       .map(type => assetForInstitution({ type, effectiveLevel: 1 }));
