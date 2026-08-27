@@ -33,14 +33,28 @@
   {{/if}}
   {{#if cycleBlock}}
     <div class="village-operation-recovery" role="group" aria-label="Blocked Village operation">
-      <strong>Recovery</strong>
-      <code>{{cycleBlock.operationId}}</code>
+      <div class="village-operation-recovery-heading">
+        <strong>Recovery</strong>
+        <code>{{cycleBlock.operationId}}</code>
+        <span>{{cycleBlock.action}} · {{cycleBlock.phase}}</span>
+      </div>
+      <p class="village-operation-recovery-consequence">{{cycleBlock.abandonMessage}}</p>
       {{#if canCommit}}
+        {{#if cycleBlock.commitAvailable}}
+          <button type="button" data-action="adjudicateVillageOperation"
+                  data-operation-id="{{cycleBlock.operationId}}"
+                  data-decision="commit"
+                  {{#if operationRepairBusy}}disabled aria-busy="true"{{/if}}>
+            {{#if operationRepairBusy}}Repairing…{{else}}Repair / complete operation{{/if}}
+          </button>
+        {{else}}
+          <p class="village-operation-recovery-unavailable">{{cycleBlock.commitUnavailableReason}}</p>
+        {{/if}}
         <button type="button" data-action="adjudicateVillageOperation"
                 data-operation-id="{{cycleBlock.operationId}}"
                 data-decision="abandon"
                 {{#if operationRepairBusy}}disabled aria-busy="true"{{/if}}>
-          {{#if operationRepairBusy}}Repairing…{{else}}Repair / abandon operation{{/if}}
+          {{#if operationRepairBusy}}Repairing…{{else}}Abandon (refund only; keep granted items){{/if}}
         </button>
       {{/if}}
     </div>

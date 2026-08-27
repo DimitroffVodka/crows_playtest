@@ -3792,6 +3792,11 @@
 .village-notice-success { border-left-color: #36734a; background: rgba(54, 115, 74, .08); }
 .village-notice-warning { border-left-color: #a06a1b; }
 .village-operation-recovery { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; padding: 8px; border: 1px solid #a06a1b; background: rgba(160, 106, 27, .06); }
+.village-operation-recovery-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; flex: 1 1 100%; }
+.village-operation-recovery-heading span,
+.village-operation-recovery-unavailable { color: var(--village-muted); }
+.village-operation-recovery-consequence,
+.village-operation-recovery-unavailable { flex: 1 1 100%; margin: 0; }
 .village-pending-event { border: 1px dashed var(--village-rule); padding: 10px; margin-top: 16px; }
 .village-pending-event h2 { margin-top: 0; }
 .village-event-picker,

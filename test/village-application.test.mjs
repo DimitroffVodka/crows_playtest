@@ -107,7 +107,10 @@ describe("Village cycle controls", () => {
     assert.match(context.actionNotice.message, /purchase-stuck-42/);
     assert.match(context.actionNotice.message, /upgrade/);
     assert.match(context.actionNotice.message, /commerce-committed/);
+    assert.equal(context.cycleBlock.commitAvailable, false);
+    assert.match(context.cycleBlock.commitUnavailableReason, /does not retain enough/);
     assert.match(describeVillageControlResult(result).message, /Repair or adjudicate/);
+    assert.match(describeVillageControlResult(result).message, /does not reclaim anything already granted/);
     await app.close();
   });
 
@@ -266,6 +269,93 @@ describe("Village cycle controls", () => {
     assert.equal(result.ok, true);
     assert.equal(request.operationId, blocked.operationId);
     assert.equal(request.decision, "abandon");
+    await app.close();
+  });
+
+  test("forward repair refuses when the journal cannot reconstruct its proposal", async () => {
+    const blocked = {
+      operationId: "unrecoverable-purchase",
+      action: "merchant-purchase",
+      villageId: store.villageId,
+      phase: "commerce-committed",
+      payerActorUuid: "Actor.buyer"
+    };
+    store.operationJournal = [blocked];
+    let calls = 0;
+    api.adjudicateVillageOperation = async () => {
+      calls += 1;
+      return { ok: true };
+    };
+    const app = quietApp();
+
+    // Regression: a recovery button must not imply that a missing original
+    // proposal can be safely completed with guessed terms.
+    const result = await VillageApplication._onAdjudicateVillageOperation.call(app, {}, {
+      dataset: { operationId: blocked.operationId, decision: "commit" }
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.error, "original-proposal-unavailable");
+    assert.equal(calls, 0);
+    await app.close();
+  });
+
+  test("blocked purchase spells out refund-only abandonment and offers forward repair when recoverable", async () => {
+    const blocked = {
+      operationId: "bear-trap-purchase",
+      action: "merchant-purchase",
+      villageId: store.villageId,
+      originCycle: store.cycle,
+      expectedRevision: store.revision,
+      inputFingerprint: "bear-trap-input",
+      phase: "spend-pending",
+      grossPrice: 100,
+      netPrice: 100,
+      sourceSnapshot: { name: "Bear Trap", type: "gear", system: {} },
+      grantResult: { ok: true, phase: "committed", itemIds: ["Item.granted-bear-trap"] },
+      childOperationIds: ["bear-trap-purchase:pay", "bear-trap-purchase:grant"],
+      proposalSnapshot: {
+        operationId: "bear-trap-purchase",
+        villageOperationId: "bear-trap-purchase",
+        action: "merchant-purchase",
+        villageId: store.villageId,
+        originCycle: store.cycle,
+        expectedRevision: store.revision,
+        inputFingerprint: "bear-trap-input",
+        institutionId: "inst-general-store",
+        institutionType: "generalStore",
+        payerActorUuid: "Actor.buyer",
+        itemKey: "bearTrap",
+        grossPrice: 100,
+        source: { name: "Bear Trap", type: "gear", system: {} },
+        requested: { itemKey: "bearTrap", itemPrice: 100 }
+      }
+    };
+    store.operationJournal = [blocked];
+    let request;
+    api.adjudicateVillageOperation = async value => {
+      request = value;
+      return { ok: true, phase: "committed", operationId: value.operationId };
+    };
+    const app = quietApp();
+
+    // Regression: a committed grant must never be hidden behind an abandon
+    // button that makes the Ref assume the item will be reclaimed.
+    const context = await app._prepareContext();
+    assert.equal(context.cycleBlock.commitAvailable, true);
+    assert.match(context.cycleBlock.abandonMessage, /refunds the recorded amount \(100 gc\)/);
+    assert.match(context.cycleBlock.abandonMessage, /does not reclaim anything already granted/);
+    assert.match(context.cycleBlock.abandonMessage, /Bear Trap/);
+    assert.match(context.cycleBlock.abandonMessage, /Item\.granted-bear-trap/);
+
+    const result = await VillageApplication._onAdjudicateVillageOperation.call(app, {}, {
+      dataset: { operationId: blocked.operationId, decision: "commit" }
+    });
+    assert.equal(result.ok, true);
+    assert.equal(request.operationId, blocked.operationId);
+    assert.equal(request.decision, "commit");
+    assert.equal(request.proposal.villageOperationId, blocked.operationId);
+    assert.equal(request.proposal.itemKey, "bearTrap");
+    assert.equal(request.proposal.institutionId, "inst-general-store");
     await app.close();
   });
 });

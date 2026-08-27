@@ -739,9 +739,46 @@ function operationResult({ operationId, action, phase, result, entry = null, vil
   };
 }
 
+function recoveryProposalSnapshot(proposal = {}) {
+  const fields = [
+    "proposalId", "villageOperationId", "operationId", "action", "villageId", "originCycle",
+    "expectedVillageRevision", "expectedRevision", "institutionId", "institutionType", "target",
+    "targetId", "payerActorUuid", "sellerActorUuid", "buyerActorUuid", "itemId", "itemValue",
+    "saleId", "auctionId", "buybackPrice", "purchaseId", "itemKey", "grossPrice", "netPrice",
+    "proceeds", "soldFor", "targetLevel", "bet", "hexes", "distance", "rush", "quoteFingerprint",
+    "availabilityFingerprint", "computedQuoteFingerprint", "computedAvailabilityFingerprint",
+    "inputFingerprint"
+  ];
+  const snapshot = {};
+  for (const field of fields) {
+    if (proposal[field] !== undefined && proposal[field] !== null) snapshot[field] = clone(proposal[field]);
+  }
+  const requestedInput = proposal.requested && typeof proposal.requested === "object"
+    ? { requested: { ...proposal.requested } } : { ...proposal };
+  const requested = directRequestedFingerprint(requestedInput);
+  if (requested && typeof requested === "object" && !Array.isArray(requested)) {
+    snapshot.requested = requested;
+  }
+  for (const field of ["requestedItem", "requestedService", "quote", "availability", "creditIntent"]) {
+    if (proposal[field] && typeof proposal[field] === "object") {
+      const value = field.startsWith("requested")
+        ? directRequestedFingerprint({ requested: { ...proposal[field] } }) : clone(proposal[field]);
+      if (value && typeof value === "object" && !Array.isArray(value)) snapshot[field] = value;
+    }
+  }
+  const source = proposal.source ?? proposal.item
+    ?? proposal.requestedItem?.source ?? proposal.requested?.source
+    ?? proposal.requested?.item ?? null;
+  const sourceSnapshot = cloneGrantItemData(source)
+    ?? (typeof source === "string" ? source : null);
+  if (sourceSnapshot != null) snapshot.source = sourceSnapshot;
+  return snapshot;
+}
+
 function operationMetadata({ proposal, policy, ids, operationId, originCycle, grossPrice = null,
   netPrice = null, creditApplied = 0, extra = {} }) {
   return {
+    proposalSnapshot: recoveryProposalSnapshot(proposal),
     policyFingerprint: policyFingerprint(policy),
     quoteFingerprint: proposal?.quoteFingerprint ?? null,
     availabilityFingerprint: proposal?.availabilityFingerprint ?? null,

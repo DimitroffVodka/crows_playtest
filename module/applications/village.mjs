@@ -64,6 +64,298 @@ const BLOCKING_OPERATION_PHASES = new Set([
   "spend-pending", "partial", "uncertain", "blocked"
 ]);
 
+const RECOVERABLE_PAID_ACTIONS = new Set([
+  "found", "reopen", "upgrade", "buy", "merchant-purchase", "sell", "auction-sell",
+  "auction-buy", "craft", "workshop", "inn", "beacon", "service"
+]);
+
+function cloneControlValue(value) {
+  if (value === undefined) return undefined;
+  try {
+    if (typeof globalThis.foundry?.utils?.deepClone === "function") {
+      return globalThis.foundry.utils.deepClone(value);
+    }
+  } catch { /* use the platform-independent fallbacks */ }
+  try {
+    if (typeof structuredClone === "function") return structuredClone(value);
+  } catch { /* functions and live Documents are not structured-cloneable */ }
+  try { return JSON.parse(JSON.stringify(value)); } catch { return value; }
+}
+
+function nonBlank(value) {
+  const text = String(value ?? "").trim();
+  return text || null;
+}
+
+function uniqueText(values) {
+  return [...new Set(values.map(nonBlank).filter(Boolean))];
+}
+
+function textValues(value) {
+  if (Array.isArray(value)) return value.flatMap(textValues);
+  if (value == null) return [];
+  if (typeof value === "object") {
+    return textValues(value.id ?? value._id ?? value.uuid ?? value.name ?? value.label);
+  }
+  return [String(value)];
+}
+
+function canonicalOperationAction(action) {
+  const normalized = String(action ?? "").trim().toLowerCase().replace(/[\s_-]+/g, "");
+  return {
+    found: "found", foundinstitution: "found", reopen: "reopen", recover: "reopen",
+    upgrade: "upgrade", levelup: "upgrade", buy: "buy", purchase: "buy",
+    merchantpurchase: "merchant-purchase", sell: "sell", sellitem: "sell",
+    auctionsell: "auction-sell", auctionbuy: "auction-buy", buyback: "auction-buy",
+    craft: "craft", commission: "craft", workshop: "workshop", rentworkshop: "workshop",
+    inn: "inn", bet: "inn", beacon: "beacon", transport: "beacon", service: "service"
+  }[normalized] ?? String(action ?? "").trim();
+}
+
+function operationGrantRecord(operation) {
+  const result = operation?.result;
+  return [
+    operation?.grantResult,
+    operation?.grant,
+    result?.grantResult,
+    result?.grant,
+    result?.grant?.result
+  ].find(candidate => candidate && typeof candidate === "object" && !Array.isArray(candidate)) ?? null;
+}
+
+function operationGrantDetails(operation) {
+  const grant = operationGrantRecord(operation);
+  if (!grant) return null;
+  const status = String(grant.phase ?? "").toLowerCase();
+  const committed = grant.ok === true || grant.committed === true
+    || ["committed", "complete", "resolved"].includes(status);
+  const itemIds = uniqueText([
+    ...textValues(grant.itemIds), ...textValues(grant.createdItemIds),
+    ...textValues(grant.grantedItemIds), ...textValues(grant.itemId),
+    ...textValues(grant.createdItemId)
+  ]);
+  const recordedGrantChildren = uniqueText([
+    ...textValues(grant.grantId), ...textValues(grant.grantTxId),
+    ...textValues(grant.childOperationId), ...textValues(grant.txId)
+  ]);
+  const directNames = uniqueText([
+    ...textValues(grant.itemName), ...textValues(grant.itemLabel),
+    ...textValues(grant.name), ...textValues(grant.label),
+    ...textValues(grant.item?.name), ...textValues(grant.item?.label),
+    ...textValues(grant.itemData?.name), ...textValues(grant.itemData?.label)
+  ]);
+  if (!committed && !itemIds.length && !directNames.length) return null;
+  const fallbackNames = committed ? uniqueText([
+    ...textValues(operation?.itemName), ...textValues(operation?.itemLabel),
+    ...textValues(operation?.itemKey), ...textValues(operation?.sourceSnapshot?.name),
+    ...textValues(operation?.sourceSnapshot?.label), ...textValues(operation?.snapshot?.name),
+    ...textValues(operation?.snapshot?.label)
+  ]) : [];
+  const names = uniqueText([...directNames, ...fallbackNames]);
+  const grantChildren = committed ? uniqueText([
+    ...recordedGrantChildren,
+    ...(operation?.childOperationIds ?? []).filter(child => /(?:^|:)grant(?:$|:)/i.test(String(child)))
+  ]) : [];
+  const labels = [
+    ...names.map(name => `item “${name}”`),
+    ...itemIds.map(itemId => `Item ${itemId}`),
+    ...grantChildren.map(child => `grant child ${child}`)
+  ];
+  return {
+    itemIds,
+    grantChildren,
+    names,
+    label: labels.length ? labels.join(", ") : "a granted item whose identity is not recorded"
+  };
+}
+
+function recordedRefundAmount(operation) {
+  for (const value of [operation?.netPrice, operation?.price, operation?.proceeds,
+    operation?.grossPrice, operation?.result?.netPrice, operation?.result?.price,
+    operation?.result?.proceeds, operation?.result?.grossPrice]) {
+    if (value == null || value === "" || !Number.isFinite(Number(value))) continue;
+    return Math.max(0, Number(value));
+  }
+  return null;
+}
+
+function operationAbandonMessage(operation, grant) {
+  const amount = recordedRefundAmount(operation);
+  const granted = grant ? ` (recorded ${grant.label})` : "";
+  if (amount == null) {
+    return `Abandon has no recorded refund amount and does not reclaim anything already granted${granted}.`;
+  }
+  return `Abandon refunds the recorded amount (${amount} gc) but does not reclaim anything already granted${granted}.`;
+}
+
+function proposalCandidate(operation) {
+  const result = operation?.result;
+  return [
+    operation?.proposalSnapshot,
+    operation?.originalProposal,
+    operation?.proposal,
+    operation?.requestedProposal,
+    result?.proposalSnapshot,
+    result?.originalProposal,
+    result?.proposal
+  ].find(candidate => candidate && typeof candidate === "object" && !Array.isArray(candidate)) ?? null;
+}
+
+function operationField(operation, ...names) {
+  const result = operation?.result;
+  for (const name of names) {
+    const value = operation?.[name] ?? result?.[name];
+    if (value !== undefined && value !== null && value !== "") return value;
+  }
+  return null;
+}
+
+function operationActor(operation, action) {
+  if (["sell", "auction-sell"].includes(action)) {
+    return operationField(operation, "sellerActorUuid", "payerActorUuid");
+  }
+  if (action === "auction-buy") {
+    return operationField(operation, "buyerActorUuid", "payerActorUuid");
+  }
+  return operationField(operation, "payerActorUuid", "buyerActorUuid", "sellerActorUuid");
+}
+
+function proposalHasEnoughData(proposal, action, { explicit = false } = {}) {
+  if (!proposal || !RECOVERABLE_PAID_ACTIONS.has(action)
+      || !nonBlank(proposal.operationId ?? proposal.villageOperationId)
+      || !nonBlank(proposal.villageId)) return false;
+  // A journal replay must retain its original fingerprint.  An explicitly
+  // retained proposal can still be used when an older journal omitted it;
+  // the saga will perform its normal same-token conflict check.
+  if (!explicit && !nonBlank(proposal.inputFingerprint)) return false;
+  if (!nonBlank(operationActor(proposal, action))) return false;
+  const hasTarget = Boolean(proposal.institutionId ?? proposal.institutionType
+    ?? proposal.targetId ?? proposal.target);
+  if (!hasTarget) return false;
+  const requested = proposal.requested && typeof proposal.requested === "object"
+    ? proposal.requested : {};
+  if (["buy", "merchant-purchase"].includes(action)) {
+    return Boolean(proposal.source ?? proposal.item ?? requested.source ?? requested.item
+      ?? proposal.requestedItem?.source ?? proposal.requestedItem?.item);
+  }
+  if (action === "auction-buy") {
+    return Boolean(proposal.source ?? proposal.item ?? proposal.requestedItem
+      ?? requested.source ?? requested.item ?? proposal.auctionId);
+  }
+  if (["sell", "auction-sell"].includes(action)) {
+    return Boolean(proposal.itemId ?? proposal.source ?? proposal.item
+      ?? proposal.snapshot ?? requested.itemId);
+  }
+  if (action === "upgrade") {
+    return proposal.targetLevel != null || requested.targetLevel != null || requested.target != null;
+  }
+  return Object.keys(requested).length > 0 || proposal.price != null || proposal.grossPrice != null
+    || ["found", "reopen"].includes(action);
+}
+
+function recoveryProposal(operation, village = null) {
+  const action = canonicalOperationAction(operation?.action);
+  const explicit = proposalCandidate(operation);
+  if (explicit) {
+    const proposal = cloneControlValue(explicit) ?? {};
+    const fallbackFields = ["institutionId", "institutionType", "targetId", "payerActorUuid",
+      "sellerActorUuid", "buyerActorUuid", "itemId", "itemValue", "saleId", "auctionId",
+      "purchaseId", "itemKey", "grossPrice", "netPrice", "proceeds", "soldFor", "buybackPrice",
+      "targetLevel", "bet", "hexes", "distance", "rush"];
+    for (const field of fallbackFields) {
+      if (proposal[field] == null || proposal[field] === "") {
+        let value = operationField(operation, field);
+        if (field === "institutionId" && value && typeof value === "object") {
+          value = value.id ?? value._id ?? null;
+        }
+        if (value != null && typeof value !== "object") proposal[field] = value;
+      }
+    }
+    proposal.action ??= action;
+    proposal.villageId ??= operation?.villageId ?? village?.villageId;
+    proposal.operationId = operation?.operationId ?? proposal.operationId ?? proposal.villageOperationId;
+    proposal.villageOperationId = proposal.operationId;
+    proposal.originCycle ??= operation?.originCycle ?? village?.cycle;
+    proposal.expectedVillageRevision ??= operation?.expectedRevision;
+    proposal.expectedRevision ??= operation?.expectedRevision;
+    proposal.inputFingerprint ??= operation?.inputFingerprint;
+    const recordedRequested = operation?.requested ?? operation?.requestedItem
+      ?? operation?.requestedService;
+    const requested = proposal.requested && typeof proposal.requested === "object"
+      && !Array.isArray(proposal.requested) ? proposal.requested
+        : (proposal.requested = recordedRequested && typeof recordedRequested === "object"
+          && !Array.isArray(recordedRequested) ? cloneControlValue(recordedRequested) : {});
+    const source = operationField(operation, "sourceSnapshot", "snapshot", "source", "item");
+    if (source != null) {
+      proposal.source ??= source;
+      proposal.item ??= source;
+      requested.source ??= source;
+    }
+    if (proposal.itemKey != null) requested.itemKey ??= proposal.itemKey;
+    if (proposal.grossPrice != null) requested.itemPrice ??= proposal.grossPrice;
+    return proposalHasEnoughData(proposal, action, { explicit: true })
+      ? { proposal, reason: null } : {
+        proposal: null,
+        reason: "Forward repair unavailable: this journal entry does not retain enough original proposal data to complete the operation."
+      };
+  }
+
+  const requestedValue = operation?.requested ?? operation?.requestedItem
+    ?? operation?.requestedService ?? {};
+  const requested = requestedValue && typeof requestedValue === "object"
+    && !Array.isArray(requestedValue) ? cloneControlValue(requestedValue) ?? {} : {};
+  const source = operationField(operation, "sourceSnapshot", "snapshot", "source", "item");
+  const recordedInstitution = operationField(operation, "institutionId", "targetId", "institution");
+  const institutionId = recordedInstitution && typeof recordedInstitution === "object"
+    ? (recordedInstitution.id ?? recordedInstitution._id ?? null) : recordedInstitution
+      ?? (operation?.result?.institution?.id ?? null);
+  const institutionType = operationField(operation, "institutionType", "type")
+    ?? (operation?.result?.institution?.type ?? null)
+    ?? (["auction-buy", "auction-sell"].includes(action) ? "auctionHouse" : null);
+  const actor = operationActor(operation, action);
+  const proposal = {
+    action,
+    villageId: operation?.villageId ?? village?.villageId,
+    operationId: operation?.operationId,
+    villageOperationId: operation?.operationId,
+    originCycle: operation?.originCycle ?? village?.cycle,
+    expectedVillageRevision: operation?.expectedRevision,
+    expectedRevision: operation?.expectedRevision,
+    inputFingerprint: operation?.inputFingerprint,
+    institutionId,
+    institutionType,
+    payerActorUuid: ["sell", "auction-sell"].includes(action) ? null : actor,
+    sellerActorUuid: ["sell", "auction-sell"].includes(action) ? actor : operation?.sellerActorUuid,
+    buyerActorUuid: action === "auction-buy" ? actor : operation?.buyerActorUuid,
+    itemId: operationField(operation, "itemId"),
+    itemValue: operationField(operation, "itemValue"),
+    saleId: operationField(operation, "saleId"),
+    auctionId: operationField(operation, "auctionId"),
+    purchaseId: operationField(operation, "purchaseId"),
+    itemKey: operationField(operation, "itemKey"),
+    grossPrice: operationField(operation, "grossPrice", "price"),
+    netPrice: operationField(operation, "netPrice"),
+    proceeds: operationField(operation, "proceeds"),
+    soldFor: operationField(operation, "soldFor"),
+    buybackPrice: operationField(operation, "buybackPrice", "price"),
+    targetLevel: operationField(operation, "targetLevel", "pendingLevel"),
+    requested,
+    source
+  };
+  if (source != null) {
+    proposal.item ??= source;
+    proposal.requested.source ??= source;
+  }
+  if (proposal.itemKey != null) proposal.requested.itemKey ??= proposal.itemKey;
+  if (proposal.grossPrice != null) proposal.requested.itemPrice ??= proposal.grossPrice;
+  return proposalHasEnoughData(proposal, action)
+    ? { proposal, reason: null }
+    : {
+      proposal: null,
+      reason: "Forward repair unavailable: this journal entry does not retain enough original proposal data to complete the operation."
+    };
+}
+
 function villageApi() {
   return globalThis.game?.crows?.village ?? LOCAL_VILLAGE_API;
 }
@@ -151,15 +443,27 @@ function rememberControlResult(app, result, control) {
   app._blockedOperation = operationBlock(result) ? operation : null;
 }
 
-function operationBlock(result) {
+function operationBlock(result, village = null) {
   const operation = result?.operation;
   if (!operation || !operation.phase || !operation.operationId
       || !BLOCKING_OPERATION_PHASES.has(String(operation.phase))) return null;
+  const grant = operationGrantDetails(operation);
+  const abandonMessage = operationAbandonMessage(operation, grant);
+  const recovery = recoveryProposal(operation, village);
+  const forwardRepair = recovery.proposal
+    ? "The original proposal is retained; forward repair can complete it."
+    : recovery.reason;
   return {
     operationId: String(operation.operationId),
     action: String(operation.action ?? "Village operation"),
     phase: String(operation.phase),
-    message: `Cycle cannot advance: operation “${operation.operationId}” (${operation.action ?? "Village operation"}) is still in the “${operation.phase}” phase. Repair or adjudicate it before ending the cycle.`
+    grant,
+    refundAmount: recordedRefundAmount(operation),
+    abandonMessage,
+    commitAvailable: Boolean(recovery.proposal),
+    commitUnavailableReason: recovery.proposal ? null : recovery.reason,
+    recoveryProposal: recovery.proposal,
+    message: `Cycle cannot advance: operation “${operation.operationId}” (${operation.action ?? "Village operation"}) is still in the “${operation.phase}” phase. Repair or adjudicate it before ending the cycle. ${abandonMessage} ${forwardRepair}`
   };
 }
 
@@ -413,9 +717,10 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
     const journalBlockEntry = (model.operationJournal ?? []).find(entry =>
       BLOCKING_OPERATION_PHASES.has(String(entry?.phase ?? "")));
     const journalBlock = journalBlockEntry
-      ? operationBlock({ operation: journalBlockEntry }) : null;
-    const actionNotice = describeVillageControlResult(this._lastActionResult)
-      ?? (journalBlock ? { kind: "warning", ...journalBlock } : null);
+      ? operationBlock({ operation: journalBlockEntry }, liveVillage) : null;
+    const actionNotice = journalBlock
+      ? { kind: "warning", ...journalBlock }
+      : describeVillageControlResult(this._lastActionResult);
     const flights = controlFlights(this);
     return {
       ...(parent ?? {}),
@@ -439,7 +744,7 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
       operationRepairBusy: flights.has("adjudicateVillageOperation"),
       actionNotice,
       controlMessage: actionNotice?.message ?? null,
-      cycleBlock: journalBlock ?? operationBlock(this._lastActionResult),
+      cycleBlock: journalBlock ?? operationBlock(this._lastActionResult, liveVillage),
       blockedOperation: this._blockedOperation ?? journalBlockEntry ?? null
     };
   }
@@ -631,7 +936,8 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
   /**
    * Give the Ref an explicit recovery path for a nonterminal operation that
    * blocks cycle close.  Abandonment is receipt-bearing: paid operations are
-   * compensated by the saga before the blocker becomes terminal.
+   * compensated by the saga before the blocker becomes terminal, while an
+   * already-granted Item is deliberately left for human adjudication.
    */
   static async _onAdjudicateVillageOperation(event, target) {
     const authority = authorityFor(globalThis.game?.user);
@@ -639,13 +945,29 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
       return refuseControl(this, authority, "adjudicateVillageOperation");
     }
     const data = targetData(target);
-    const operation = this._blockedOperation ?? this._lastActionResult?.operation;
-    const operationId = String(data.operationId ?? operation?.operationId ?? "").trim();
+    const liveVillage = liveVillageFor(this);
+    const requestedOperationId = String(data.operationId ?? "").trim();
+    const journalOperation = requestedOperationId
+      ? (liveVillage?.operationJournal ?? []).find(entry =>
+        String(entry?.operationId ?? "") === requestedOperationId) : null;
+    const rememberedOperation = this._blockedOperation ?? this._lastActionResult?.operation;
+    const operation = journalOperation ?? (requestedOperationId
+      ? (String(rememberedOperation?.operationId ?? "") === requestedOperationId ? rememberedOperation : null)
+      : rememberedOperation);
+    const operationId = requestedOperationId || String(operation?.operationId ?? "").trim();
     if (!operationId) {
       return refuseControl(this, { error: "invalid-request", reason: "operation-id-required" }, "adjudicateVillageOperation");
     }
     const decision = String(data.decision ?? "abandon").trim().toLowerCase() || "abandon";
     const reason = data.reason ?? "ref-adjudicated";
+    const recovery = recoveryProposal(operation, liveVillage);
+    if (decision === "commit" && !recovery.proposal) {
+      return refuseControl(this, {
+        error: "original-proposal-unavailable",
+        reason: recovery.reason,
+        operation: operation ? cloneControlValue(operation) : { operationId }
+      }, "adjudicateVillageOperation");
+    }
     const api = villageApi();
     const adjudicate = villageApiMethod(api,
       ["adjudicateVillageOperation", "repairVillageOperation"], adjudicateVillageOperation);
@@ -653,6 +975,7 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
       const result = await adjudicate({
         operationId,
         decision,
+        ...(decision === "commit" ? { proposal: recovery.proposal } : {}),
         reason,
         user: globalThis.game?.user,
         options: {
