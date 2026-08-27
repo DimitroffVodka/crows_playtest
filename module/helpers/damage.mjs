@@ -541,7 +541,7 @@ async function _pickWoundSlotsDialog(actor, layout, count) {
       window: { title: `Place ${count} Wound${count === 1 ? "" : "s"}` },
       content: `<div class="crows wound-pick">
         <p>${actor.name} takes ${count} wound${count === 1 ? "" : "s"}. Choose which backpack slot${count === 1 ? "" : "s"} they fill.</p>
-        <p class="hint">A slot holding both a wound and an item costs 1 speed (R:524).</p>${rows}
+        <p class="hint">A slot holding both a wound and an item costs 1 speed.</p>${rows}
       </div>`,
       ok: {
         label: "Take Wounds",

@@ -237,18 +237,18 @@ export function registerDungeonTurnSettings() {
   game.settings.register(NS, KEY_CROWDED, {
     scope: "world", config: true, type: Boolean, default: false,
     name: "Dungeon level is crowded",
-    hint: "More than 20 creatures on the level (R:622). Lowers the Encounter Number from 9 to 8, or to 7 if the party has also left chaos behind."
+    hint: "More than 20 creatures on the level. Lowers the Encounter Number from 9 to 8, or to 7 if the party has also left chaos behind."
   });
   game.settings.register(NS, KEY_CHAOS, {
     scope: "world", config: true, type: Boolean, default: false,
     name: "Party left chaos behind",
-    hint: "Corpses, sprung traps, open doors (R:622). Lowers the Encounter Number from 9 to 8, or to 7 on a crowded level."
+    hint: "Corpses, sprung traps, open doors. Lowers the Encounter Number from 9 to 8, or to 7 on a crowded level."
   });
 
   game.settings.register(NS, KEY_DT_LENGTH, {
     scope: "world", config: true, type: String, default: "standard",
     name: "Dungeon Turn length",
-    hint: "R:616. Affects fiction and usage-die pacing, not the encounter check.",
+    hint: "Affects fiction and usage-die pacing, not the encounter check.",
     choices: Object.fromEntries(Object.entries(DT_LENGTHS).map(([k, v]) => [k, v.label]))
   });
 
