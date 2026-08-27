@@ -13,6 +13,7 @@ import {
   sellPercentage, auctionSalePercentage, auctionPriceMultiplier, auctionBuybackPrice,
   clampProsperity, recordMerchantSpend, prosperityAtCycleEnd, SPEND_FOR_PROSPERITY,
   VILLAGE_EVENTS, VILLAGE_EVENT_MIN, VILLAGE_EVENT_MAX, villageEventFor,
+  villageEventTargetMode,
   CONNECTION_BENEFITS, monsterPartTrade, retirementBenefitCount,
   makeForeignVillage, foundVillageQuote, villageCraftingQuote, workshopRental,
   PROSPERITY_MIN, PROSPERITY_MAX
@@ -578,6 +579,19 @@ describe("village event table (C:2312-2338)", () => {
       assert.match(e.source, /^C:\d+$/, e.id);
       assert.ok(e.effect?.kind, e.id);
       assert.ok(e.text.length > 10, e.id);
+    }
+  });
+
+  test("event target modes are structured and target-free before resolution", () => {
+    assert.equal(villageEventTargetMode(villageEventFor(-7)), "institution");
+    assert.equal(villageEventTargetMode(villageEventFor(-8)), "institution-pair-with-conditional-destroy");
+    assert.equal(villageEventTargetMode(villageEventFor(-6)), "institution-if-prosperity-floor");
+    assert.equal(villageEventTargetMode(villageEventFor(16)), "all-merchants");
+    assert.equal(villageEventTargetMode(villageEventFor(-3)), "village-wide");
+    assert.equal(villageEventTargetMode(villageEventFor(17)), "prosperity-or-sale-cap");
+    assert.equal(villageEventTargetMode(villageEventFor(9)), "pc-roster");
+    for (const event of VILLAGE_EVENTS) {
+      assert.equal(Object.hasOwn(event.effect, "target"), false, `${event.id} guesses no target at roll time`);
     }
   });
 });

@@ -20,7 +20,8 @@ import {
   damageInstitution, getInstitution, getInstitutionLevel,
   itemAvailability, upgradeInstitution,
   liveInstitutionRecords, effectiveInstitutionLevel,
-  enqueueVillageOperation, villageInputFingerprint
+  enqueueVillageOperation, villageInputFingerprint,
+  rollVillageEvent, resolvePendingEvent, getVillageEventReceipt
 } from "../module/helpers/village.mjs";
 
 let settingConfig;
@@ -82,6 +83,8 @@ describe("normalized Village setting boundary", () => {
     assert.deepEqual(village.auctionLots, []);
     assert.deepEqual(village.operationJournal, []);
     assert.equal(village.institutions[0].destroyed, false);
+    assert.deepEqual(village.eventReceipts, []);
+    assert.equal(village.eventReceipt, null);
   });
 
   test("legacy identity is stable across reads and persists through the shared migration", async () => {
@@ -240,6 +243,20 @@ describe("Village operation queue and journal", () => {
     assert.equal(conflict.error, "duplicate");
   });
 
+  test("persist false is an additive read-only queue escape hatch", async () => {
+    const before = getVillage();
+    const writesBefore = settingWrites;
+    const result = await enqueueVillageOperation({
+      operationId: "picker-cancel-1", villageId: before.villageId,
+      expectedRevision: before.revision, inputFingerprint: "picker-cancel",
+      persist: false,
+      execute: async () => ({ persist: false, result: { ok: false, error: "selection-required" } })
+    });
+    assert.deepEqual(result, { ok: false, error: "selection-required" });
+    assert.equal(settingWrites, writesBefore);
+    assert.deepEqual(getVillage().operationJournal, []);
+  });
+
   test("rejects a stale new token and refuses when no active designated GM exists", async () => {
     const before = getVillage();
     const stale = await enqueueVillageOperation({
@@ -320,5 +337,21 @@ describe("Village operation queue and journal", () => {
     assert.equal(result.reconciliationRequired, true);
     assert.equal(result.state, "unknown");
     assert.equal(getVillage().operationJournal[0].phase, "committed");
+  });
+
+  test("event resolution persists a receipt beside the normalized Village state", async () => {
+    const rolled = await rollVillageEvent({ rollD10: 7, operationId: "state-event-roll", silent: true });
+    assert.equal(rolled.ok, true);
+    assert.equal(getVillage().pendingEvent.resolutionId, rolled.resolutionId);
+    const merchant = getVillage().institutions.find(institution => institution.type === "blacksmith");
+    const resolved = await resolvePendingEvent({
+      resolutionId: rolled.resolutionId,
+      selections: { institutionId: merchant.id },
+      context: { user: game.user }
+    });
+    assert.equal(resolved.ok, true);
+    assert.equal(getVillage().pendingEvent, null);
+    assert.equal(getVillage().eventReceipt.resolutionId, rolled.resolutionId);
+    assert.equal(getVillageEventReceipt(rolled.resolutionId).phase, "committed");
   });
 });
