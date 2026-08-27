@@ -17,13 +17,11 @@ what *this system* does and how to drive it.
 | Guide | What it covers |
 | --- | --- |
 | [Making a crow](making-a-crow.md) | The character creator, backgrounds, traits, expertises, starting kit, and how XP is earned |
+| [Tests and conditions](tests-and-conditions.md) | Rolling tests, Edge and Bane, the six conditions, initiative, damage and death |
 | [The village](the-village.md) | Founding institutions, upgrading them, Prosperity, running a cycle, events, and what to do when the cycle refuses to advance |
 | [Money and shopping](money-and-shopping.md) | How coin is carried, buying, selling, auctions, and what each refusal means |
 | [Crafting and upgrades](crafting-and-upgrades.md) | Materials, weapon and armour upgrades, enchantments, and running a crafting project |
-
-Still coming: tests and conditions, and delving. They are not written yet, and
-this table will list them when they are — an index that promises pages that do
-not exist is worse than a short index.
+| [Delving](delving.md) | Dungeon turns, Greed, crypt boons, miasma, rest, corpses, and hirelings |
 
 ## Two things worth knowing before anything else
 
