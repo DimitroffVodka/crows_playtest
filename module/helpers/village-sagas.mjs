@@ -313,7 +313,7 @@ function journalEntry({ village, operationId, action, originCycle, expectedRevis
   inputFingerprint, phase, childOperationIds, result, metadata = {}, previous = null }) {
   const now = Date.now();
   return {
-    ...(previous ? clone(previous) : {}),
+    ...(previous ? journalPayloadSnapshot(previous) : {}),
     operationId,
     action,
     villageId: village.villageId,
@@ -322,8 +322,8 @@ function journalEntry({ village, operationId, action, originCycle, expectedRevis
     inputFingerprint,
     phase,
     childOperationIds: [...new Set((childOperationIds ?? []).map(String).filter(Boolean))],
-    ...clone(metadata),
-    result: clone(result),
+    ...journalPayloadSnapshot(metadata),
+    result: journalPayloadSnapshot(result),
     createdAt: previous?.createdAt ?? now,
     updatedAt: now,
     resultingRevision: village.revision + 1,
@@ -429,7 +429,8 @@ async function callCommerce(operation, actor, value, context, options = {}) {
   if (typeof fn !== "function") return failure("commerce-unavailable", { phase: "commerce-pending" });
   try {
     const result = await fn(actor, amount(value), context);
-    return result && typeof result === "object" ? clone(result) : { ok: Boolean(result), phase: result ? "committed" : "commerce-pending" };
+    return result && typeof result === "object" ? journalChildResult(result)
+      : { ok: Boolean(result), phase: result ? "committed" : "commerce-pending" };
   } catch (error) {
     return failure("write-failed", {
       phase: "uncertain", state: "unknown", reconciliationRequired: true,
@@ -472,7 +473,7 @@ async function preflightGrant(actor, source, ids, operationId, originCycle, opti
       user: options.user ?? globalThis.game?.user
     });
     if (result === false) return failure("no-capacity");
-    if (result && typeof result === "object") return clone(result);
+    if (result && typeof result === "object") return journalChildResult(result);
     return { ok: true, phase: "preflight" };
   } catch (error) {
     return failure("no-capacity", { reason: String(error?.message ?? error) });
@@ -494,7 +495,7 @@ async function preflightReceive(actor, value, operationId, originCycle, options 
     const result = planner === defaultPlanReceive
       ? await planner(actor, amount(value)) : await planner(actor, amount(value), context);
     if (result === false) return failure("no-capacity");
-    if (result && typeof result === "object") return clone(result);
+    if (result && typeof result === "object") return journalChildResult(result);
     return { ok: result !== false, phase: "preflight" };
   } catch (error) {
     return failure("no-capacity", { reason: String(error?.message ?? error) });
@@ -702,7 +703,7 @@ async function callService(action, payload, options = {}) {
   try {
     const result = await adapter(clone(payload));
     if (result === false) return failure("service-refused", { phase: "partial" });
-    return result && typeof result === "object" ? clone(result) : { ok: true, phase: "committed" };
+    return result && typeof result === "object" ? journalChildResult(result) : { ok: true, phase: "committed" };
   } catch (error) {
     return failure("service-write-failed", { phase: "uncertain", state: "unknown", reconciliationRequired: true, message: String(error?.message ?? error) });
   }
@@ -713,7 +714,8 @@ async function callDelete(actor, item, metadata, options = {}) {
   try {
     if (typeof fn === "function") {
       const result = await fn(actor, item, clone(metadata));
-      return result && typeof result === "object" ? clone(result) : { ok: result !== false, phase: result === false ? "blocked" : "committed" };
+      return result && typeof result === "object" ? journalChildResult(result)
+        : { ok: result !== false, phase: result === false ? "blocked" : "committed" };
     }
     if (typeof actor?.deleteEmbeddedDocuments !== "function") return failure("delete-unavailable", { phase: "uncertain", state: "unknown" });
     await actor.deleteEmbeddedDocuments("Item", [itemId(item)]);
@@ -729,7 +731,7 @@ function operationResult({ operationId, action, phase, result, entry = null, vil
     villageOperationId: operationId,
     action,
     phase,
-    ...clone(result),
+    ...journalPayloadSnapshot(result),
     operation: entry ? clone(entry) : undefined,
     childOperationIds: clone(entry?.childOperationIds ?? result?.childOperationIds ?? []),
     commerceTxId: result?.commerceTxId ?? entry?.commerceTxId ?? entry?.receiveTxId
@@ -737,6 +739,215 @@ function operationResult({ operationId, action, phase, result, entry = null, vil
     villageRevision: village?.revision,
     ...clone(extra)
   };
+}
+
+const JOURNAL_CHILD_KEYS = new Set([
+  "commerceResult", "commerceReceipt", "serviceResult", "stockResult", "grantResult",
+  "creditResult", "spendResult", "payResult", "receiveResult", "deleteResult",
+  "compensation", "commerce", "pay", "receive", "delete", "grant", "credit", "spend",
+  "service"
+]);
+
+const JOURNAL_CHILD_SCALARS = [
+  "ok", "committed", "operation", "txId", "transactionId", "grantId", "grantTxId",
+  "operationId", "childOperationId", "actorUuid", "actorId", "phase", "state", "error",
+  "code", "reason", "message", "reconciliationRequired", "repairRequired", "retryable",
+  "uncertain", "replayed", "reconciled", "recovered", "persisted", "assumed", "amount",
+  "consumed", "remaining", "price", "grossPrice", "netPrice", "creditApplied", "itemValue",
+  "proceeds", "spentThisCycle", "spendBonusAwarded", "prosperityDelta", "prosperity",
+  "revision", "resultingRevision", "expectedRevision", "currentRevision", "totalHeld",
+  "purseRoom", "purseCapacity", "overflow", "projectId", "serviceId", "purchaseId", "saleId",
+  "auctionId", "itemId", "createdItemId", "itemName", "itemLabel", "name", "label", "deleteId",
+  "payTxId", "receiveTxId", "compensationPayTxId", "creditOperationId", "spendOperationId",
+  "fingerprint", "inputFingerprint", "planFingerprint", "createdAt", "updatedAt"
+];
+
+function journalText(value, limit = 512) {
+  return typeof value === "string" ? value.slice(0, limit) : null;
+}
+
+function journalIds(value, { item = false } = {}) {
+  const values = Array.isArray(value) ? value : value == null ? [] : [value];
+  const ids = [];
+  for (const candidate of values) {
+    let identity = candidate;
+    if (item && candidate && typeof candidate === "object") {
+      try { identity = itemId(candidate) || candidate.uuid || candidate.id || candidate._id; }
+      catch { identity = null; }
+    }
+    if (typeof identity === "string" || typeof identity === "number") {
+      const token = String(identity).trim();
+      if (token) ids.push(token);
+    }
+  }
+  return [...new Set(ids)].slice(0, 256);
+}
+
+function journalMoneySnapshot(value) {
+  if (!value || typeof value !== "object") return null;
+  const snapshot = {};
+  const actorUuid = value.actorUuid ?? value.actorId;
+  if (typeof actorUuid === "string" || typeof actorUuid === "number") {
+    snapshot.actorUuid = String(actorUuid);
+  }
+  for (const field of ["loose", "totalHeld", "purseRoom", "purseCapacity", "overflow", "revision"]) {
+    const number = Number(value[field]);
+    if (Number.isFinite(number)) snapshot[field] = number;
+  }
+  const purses = Array.isArray(value.purses) ? value.purses : Array.isArray(value.money?.purses) ? value.money.purses : [];
+  const safePurses = purses.slice(0, 256).map(purse => ({
+    id: journalText(purse?.id, 256),
+    held: Number.isFinite(Number(purse?.held)) ? Number(purse.held) : 0,
+    cap: Number.isFinite(Number(purse?.cap)) ? Number(purse.cap) : 0
+  })).filter(purse => purse.id);
+  if (safePurses.length) snapshot.purses = safePurses;
+  const fingerprint = journalText(value.fingerprint);
+  if (fingerprint) snapshot.fingerprint = fingerprint;
+  return Object.keys(snapshot).length ? snapshot : null;
+}
+
+function journalReceiptSnapshot(receipt) {
+  if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)) return null;
+  const snapshot = {};
+  for (const field of ["txId", "operation", "phase", "state", "amount", "actorUuid",
+    "expectedRevision", "resultingRevision", "planFingerprint", "inputFingerprint", "fingerprint",
+    "createdAt", "updatedAt"]) {
+    const value = receipt[field];
+    if (typeof value === "boolean") snapshot[field] = value;
+    else if (typeof value === "number" && Number.isFinite(value)) snapshot[field] = value;
+    else if (typeof value === "string") snapshot[field] = value.slice(0, 512);
+  }
+  const itemIds = journalIds(receipt.itemIds, { item: true });
+  const createdItemIds = journalIds(receipt.createdItemIds, { item: true });
+  if (itemIds.length) snapshot.itemIds = itemIds;
+  if (createdItemIds.length) snapshot.createdItemIds = createdItemIds;
+  return Object.keys(snapshot).length ? snapshot : null;
+}
+
+function journalPlacementSnapshot(value) {
+  if (typeof value === "string") return value.slice(0, 256);
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const snapshot = {};
+  for (const field of ["container", "index", "length"]) {
+    const entry = value[field];
+    if (typeof entry === "string") snapshot[field] = entry.slice(0, 256);
+    else if (typeof entry === "number" && Number.isFinite(entry)) snapshot[field] = entry;
+  }
+  return Object.keys(snapshot).length ? snapshot : null;
+}
+
+function journalPlanSnapshot(plan) {
+  if (!plan || typeof plan !== "object" || Array.isArray(plan)) return null;
+  const snapshot = {};
+  for (const field of ["operation", "actorUuid", "fingerprint", "planFingerprint"]) {
+    const value = plan[field];
+    if (typeof value === "string") snapshot[field] = value.slice(0, 512);
+  }
+  for (const field of ["pre", "post"]) {
+    const money = journalMoneySnapshot(plan[field]);
+    if (money) snapshot[field] = money;
+  }
+  const rows = (value, fields) => Array.isArray(value) ? value.slice(0, 256).map(row => {
+    if (!row || typeof row !== "object") return null;
+    const safe = {};
+    for (const field of fields) {
+      const entry = row[field];
+      if (typeof entry === "string") safe[field] = entry.slice(0, 256);
+      else if (typeof entry === "number" && Number.isFinite(entry)) safe[field] = entry;
+      else if (typeof entry === "boolean") safe[field] = entry;
+    }
+    return Object.keys(safe).length ? safe : null;
+  }).filter(Boolean) : [];
+  const movementRows = rows(plan.sources, ["kind", "itemId", "amount", "before", "after"]);
+  const destinationRows = rows(plan.destinations, ["kind", "itemId", "amount", "before", "after"]);
+  const placements = rows(plan.placements, ["container", "index", "length"]);
+  const items = Array.isArray(plan.items) ? plan.items.slice(0, 256).map(item => {
+    if (!item || typeof item !== "object") return null;
+    const safe = {};
+    for (const field of ["index", "slots"]) {
+      if (typeof item[field] === "number" && Number.isFinite(item[field])) safe[field] = item[field];
+    }
+    for (const field of ["sourceUuid"]) {
+      if (typeof item[field] === "string") safe[field] = item[field].slice(0, 512);
+    }
+    const placement = journalPlacementSnapshot(item.placement);
+    if (placement) safe.placement = placement;
+    return Object.keys(safe).length ? safe : null;
+  }).filter(Boolean) : [];
+  if (movementRows.length) snapshot.sources = movementRows;
+  if (destinationRows.length) snapshot.destinations = destinationRows;
+  if (placements.length) snapshot.placements = placements;
+  if (items.length) snapshot.items = items;
+  return Object.keys(snapshot).length ? snapshot : null;
+}
+
+/**
+ * Convert a child acknowledgement into the small receipt shape the Village
+ * setting is allowed to retain.  Child implementations may return live
+ * Documents, layouts, receipts, or adapter-specific objects; none of those
+ * graphs are recoverable Village state.  IDs, phases, status, accounting
+ * numbers, and fingerprints are enough to resume the parent saga.
+ */
+function journalChildResult(result) {
+  if (result === undefined) return undefined;
+  if (result === null) return null;
+  if (typeof result !== "object" || Array.isArray(result)) {
+    return { ok: result !== false, ...(result === false ? { error: "child-refused" } : {}) };
+  }
+  const snapshot = {};
+  for (const field of JOURNAL_CHILD_SCALARS) {
+    const value = result[field];
+    if (value === undefined || value === null) continue;
+    if (typeof value === "boolean") snapshot[field] = value;
+    else if (typeof value === "number" && Number.isFinite(value)) snapshot[field] = value;
+    else if (typeof value === "string") snapshot[field] = value.slice(0, 512);
+  }
+  const itemIds = [...new Set([
+    ...journalIds(result.itemIds, { item: true }), ...journalIds(result.items, { item: true }),
+    ...journalIds(result.grantedItemIds, { item: true })
+  ])].slice(0, 256);
+  const createdItemIds = [...new Set([
+    ...journalIds(result.createdItemIds, { item: true }), ...journalIds(result.created, { item: true }),
+    ...journalIds(result.createdItems, { item: true })
+  ])].slice(0, 256);
+  if (itemIds.length) snapshot.itemIds = itemIds;
+  if (createdItemIds.length) snapshot.createdItemIds = createdItemIds;
+  const childOperationIds = journalIds(result.childOperationIds);
+  if (childOperationIds.length) snapshot.childOperationIds = childOperationIds;
+
+  const planFingerprint = result.planFingerprint
+    ?? result.plan?.fingerprint
+    ?? result.receipt?.planFingerprint
+    ?? result.receipt?.result?.plan?.fingerprint;
+  if (typeof planFingerprint === "string") snapshot.planFingerprint = planFingerprint.slice(0, 512);
+  const plan = journalPlanSnapshot(result.plan);
+  if (plan) snapshot.plan = plan;
+
+  const childSnapshot = journalMoneySnapshot(result.snapshot);
+  if (childSnapshot) snapshot.snapshot = childSnapshot;
+  const receipt = journalReceiptSnapshot(result.receipt);
+  if (receipt) snapshot.receipt = receipt;
+  return snapshot;
+}
+
+function grantResultSnapshot(result) {
+  return journalChildResult(result);
+}
+
+function journalPayloadSnapshot(value) {
+  if (value === undefined || value === null || typeof value !== "object") return value;
+  if (Array.isArray(value)) return value.map(item => journalPayloadSnapshot(item));
+  const snapshot = {};
+  for (const [key, child] of Object.entries(value)) {
+    if (key === "result") {
+      snapshot[key] = journalPayloadSnapshot(child);
+    } else if (JOURNAL_CHILD_KEYS.has(key) || /(?:Result|Receipt)$/.test(key)) {
+      snapshot[key] = journalChildResult(child);
+    } else {
+      snapshot[key] = clone(child);
+    }
+  }
+  return snapshot;
 }
 
 function recoveryProposalSnapshot(proposal = {}) {
@@ -797,7 +1008,7 @@ function operationMetadata({ proposal, policy, ids, operationId, originCycle, gr
 async function persistFailure(village, params, result, phase) {
   const written = await persistPhase(village, { ...params, phase, result });
   if (written.ok) return operationResult({ ...params, phase, result, entry: written.entry, village: written.village });
-  return operationResult({ ...params, phase: "uncertain", result: { ...clone(result), ok: false, error: "write-failed", state: "unknown", reconciliationRequired: true }, village, extra: written });
+  return operationResult({ ...params, phase: "uncertain", result: { ...journalPayloadSnapshot(result), ok: false, error: "write-failed", state: "unknown", reconciliationRequired: true }, village, extra: written });
 }
 
 async function runInstitutionSaga({ village, proposal, policy, action, operationId, originCycle,
@@ -828,7 +1039,7 @@ async function runInstitutionSaga({ village, proposal, policy, action, operation
     current = pending.village;
     currentEntry = pending.entry;
     const commerceResult = options.commerceResult && !currentEntry.commerceResult
-      ? clone(options.commerceResult)
+      ? journalChildResult(options.commerceResult)
       : await callCommerce("pay", actor, price, commerceContext({
         kind: action === "upgrade" || ["found", "reopen"].includes(action) ? "institution-funding" : action,
         txId: ids.payTxId, actor, operationId, originCycle,
@@ -867,7 +1078,7 @@ async function runInstitutionSaga({ village, proposal, policy, action, operation
     institution: clone(local.institution), prosperity: next.prosperity,
     price, originCycle, opensAfterCycle: originCycle,
     operatingFromCycle: local.institution.operatingFromCycle,
-    commerce: clone(currentEntry?.commerceResult ?? null), commerceTxId: ids.payTxId
+    commerce: journalChildResult(currentEntry?.commerceResult ?? null), commerceTxId: ids.payTxId
   };
   const final = await persistPhase(next, {
     operationId, action, originCycle, expectedRevision, inputFingerprint,
@@ -906,7 +1117,7 @@ async function runServiceSaga({ village, proposal, policy, action, operationId, 
     current = pending.village;
     currentEntry = pending.entry;
     const commerceResult = options.commerceResult && !currentEntry.commerceResult
-      ? clone(options.commerceResult)
+      ? journalChildResult(options.commerceResult)
       : await callCommerce("pay", actor, price, commerceContext({
         kind: commerceKind(action), txId: ids.payTxId, actor, operationId, originCycle,
         expectedRevision: commerceRevision(actor, options), options
@@ -939,7 +1150,7 @@ async function runServiceSaga({ village, proposal, policy, action, operationId, 
   }
   const service = await callService(action, {
     action, operationId, originCycle, proposal: clone(proposal), policy: clone(policy),
-    payment: clone(currentEntry?.commerceResult), commerceTxId: ids.payTxId,
+    payment: journalChildResult(currentEntry?.commerceResult), commerceTxId: ids.payTxId,
     terms: clone(policy?.craftingTerms ?? policy?.workshopTerms ?? policy?.quote),
     amount: price
   }, options);
@@ -952,7 +1163,7 @@ async function runServiceSaga({ village, proposal, policy, action, operationId, 
   }
   const result = {
     ok: true, committed: true, phase: "committed", operationId, action,
-    price, originCycle, service: clone(service), commerce: clone(currentEntry?.commerceResult), commerceTxId: ids.payTxId
+    price, originCycle, service: journalChildResult(service), commerce: journalChildResult(currentEntry?.commerceResult), commerceTxId: ids.payTxId
   };
   const final = await persistPhase(current, {
     operationId, action, originCycle, expectedRevision, inputFingerprint,
@@ -1025,7 +1236,7 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
     current = pending.village;
     currentEntry = pending.entry;
     const commerceResult = options.commerceResult && !currentEntry.commerceResult
-      ? clone(options.commerceResult)
+      ? journalChildResult(options.commerceResult)
       : await callCommerce("pay", actor, netPrice, commerceContext({
         kind: "purchase", txId: ids.payTxId, actor, operationId, originCycle,
         expectedRevision: commerceRevision(actor, options), options,
@@ -1049,6 +1260,7 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
   }
 
   let grantResult = currentEntry?.grantResult ?? null;
+  let grantSnapshot = grantResultSnapshot(grantResult);
   if (!grantResult || !childCommitted(grantResult)) {
     const grant = grantFunction(options);
     try {
@@ -1056,13 +1268,14 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
     } catch (error) {
       grantResult = failure("write-failed", { phase: "uncertain", state: "unknown", reconciliationRequired: true, message: String(error?.message ?? error) });
     }
-    grantResult = clone(grantResult ?? failure("write-failed", { phase: "uncertain", state: "unknown" }));
+    grantSnapshot = grantResultSnapshot(grantResult ?? failure("write-failed", { phase: "uncertain", state: "unknown" }));
+    grantResult = grantSnapshot;
     if (!childCommitted(grantResult)) {
       if (childUncertain(grantResult)) {
         return persistFailure(current, {
           operationId, action, originCycle, expectedRevision, inputFingerprint,
-          childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult }, previous: currentEntry
-        }, { ...grantResult, operationId, grossPrice, netPrice, creditApplied }, "uncertain");
+          childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult: grantSnapshot }, previous: currentEntry
+        }, { ...grantSnapshot, operationId, grossPrice, netPrice, creditApplied }, "uncertain");
       }
       let compensation = { ok: true, phase: "committed", amount: 0 };
       if (netPrice > 0) {
@@ -1075,24 +1288,26 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
       if (!commerceCommitted(compensation)) {
         return persistFailure(current, {
           operationId, action, originCycle, expectedRevision, inputFingerprint,
-          childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult, compensation }, previous: currentEntry
-        }, { ...grantResult, operationId, compensation, grossPrice, netPrice, creditApplied }, "uncertain");
+          childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult: grantSnapshot, compensation }, previous: currentEntry
+        }, { ...grantSnapshot, operationId, compensation, grossPrice, netPrice, creditApplied }, "uncertain");
       }
       return persistFailure(current, {
         operationId, action, originCycle, expectedRevision, inputFingerprint,
-        childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult, compensation }, previous: currentEntry
-      }, { ok: false, error: grantResult.error ?? "grant-refused", operationId, grant: grantResult, compensation }, "abandoned");
+        childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult: grantSnapshot, compensation }, previous: currentEntry
+      }, { ok: false, error: grantSnapshot.error ?? "grant-refused", operationId, grant: grantSnapshot, compensation }, "abandoned");
     }
     const progressed = await persistPhase(current, {
       operationId, action, originCycle, expectedRevision, inputFingerprint,
       phase: "commerce-committed", childOperationIds: operationChildIds(ids, action),
-      metadata: { ...metadata, grantResult, commerceResult: currentEntry?.commerceResult ?? null },
-      result: { ok: false, phase: "commerce-committed", operationId, action, grant: grantResult, grossPrice, netPrice, creditApplied }, previous: currentEntry
+      metadata: { ...metadata, grantResult: grantSnapshot, commerceResult: currentEntry?.commerceResult ?? null },
+      result: { ok: false, phase: "commerce-committed", operationId, action, grant: grantSnapshot, grossPrice, netPrice, creditApplied }, previous: currentEntry
     });
     if (!progressed.ok) return progressed;
     current = progressed.village;
     currentEntry = progressed.entry;
   }
+
+  grantSnapshot = grantResultSnapshot(grantResult);
 
   let creditResult = currentEntry?.creditResult ?? null;
   if (creditApplied > 0 && !childCommitted(creditResult)) {
@@ -1107,18 +1322,18 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
       }
       catch (error) { creditResult = failure("credit-write-failed", { phase: "uncertain", state: "unknown", reconciliationRequired: true, message: String(error?.message ?? error) }); }
     } else creditResult = consumeCreditLocally(creditNext, credit, creditApplied);
-    creditResult = clone(creditResult ?? failure("credit-write-failed", { phase: "uncertain", state: "unknown" }));
+    creditResult = journalChildResult(creditResult ?? failure("credit-write-failed", { phase: "uncertain", state: "unknown" }));
     if (!childCommitted(creditResult)) {
       return persistFailure(current, {
         operationId, action, originCycle, expectedRevision, inputFingerprint,
-        childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult, creditResult }, previous: currentEntry
-      }, { ok: false, error: creditResult.error ?? "credit-write-failed", operationId, grant: grantResult, credit: creditResult }, "credit-pending");
+        childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult: grantSnapshot, creditResult }, previous: currentEntry
+      }, { ok: false, error: creditResult.error ?? "credit-write-failed", operationId, grant: grantSnapshot, credit: creditResult }, "credit-pending");
     }
     const creditWritten = await persistPhase(creditNext, {
       operationId, action, originCycle, expectedRevision, inputFingerprint,
       phase: "spend-pending", childOperationIds: operationChildIds(ids, action),
-      metadata: { ...metadata, grantResult, creditResult, commerceResult: currentEntry?.commerceResult ?? null },
-      result: { ok: false, phase: "spend-pending", operationId, action, grant: grantResult, credit: creditResult }, previous: currentEntry
+      metadata: { ...metadata, grantResult: grantSnapshot, creditResult, commerceResult: currentEntry?.commerceResult ?? null },
+      result: { ok: false, phase: "spend-pending", operationId, action, grant: grantSnapshot, credit: creditResult }, previous: currentEntry
     });
     if (!creditWritten.ok) return creditWritten;
     current = creditWritten.village;
@@ -1129,8 +1344,8 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
     const promoted = await persistPhase(current, {
       operationId, action, originCycle, expectedRevision, inputFingerprint,
       phase: "spend-pending", childOperationIds: operationChildIds(ids, action),
-      metadata: { ...metadata, grantResult, creditResult },
-      result: { ok: false, phase: "spend-pending", operationId, action, grant: grantResult, credit: creditResult }, previous: currentEntry
+      metadata: { ...metadata, grantResult: grantSnapshot, creditResult },
+      result: { ok: false, phase: "spend-pending", operationId, action, grant: grantSnapshot, credit: creditResult }, previous: currentEntry
     });
     if (!promoted.ok) return promoted;
     current = promoted.village;
@@ -1142,12 +1357,12 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
     const recorder = options.recordSpend ?? recordSpend;
     try { spendResult = await recorder(netPrice, { silent: true, operationId, originCycle }); }
     catch (error) { spendResult = failure("spend-write-failed", { phase: "uncertain", state: "unknown", reconciliationRequired: true, message: String(error?.message ?? error) }); }
-    spendResult = clone(spendResult ?? failure("spend-write-failed", { phase: "uncertain", state: "unknown" }));
+    spendResult = journalChildResult(spendResult ?? failure("spend-write-failed", { phase: "uncertain", state: "unknown" }));
     if (!childCommitted(spendResult)) {
       return persistFailure(getVillage(), {
         operationId, action, originCycle, expectedRevision, inputFingerprint,
-        childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult, creditResult, spendResult }, previous: getVillageOperation(operationId)
-      }, { ok: false, error: spendResult.error ?? "spend-write-failed", operationId, grant: grantResult, credit: creditResult, spend: spendResult }, "spend-pending");
+        childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, grantResult: grantSnapshot, creditResult, spendResult }, previous: getVillageOperation(operationId)
+      }, { ok: false, error: spendResult.error ?? "spend-write-failed", operationId, grant: grantSnapshot, credit: creditResult, spend: spendResult }, "spend-pending");
     }
     current = getVillage();
     currentEntry = getVillageOperation(operationId, current) ?? currentEntry;
@@ -1157,8 +1372,8 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
     const spendCheckpoint = await persistPhase(current, {
       operationId, action, originCycle, expectedRevision, inputFingerprint,
       phase: "spend-pending", childOperationIds: operationChildIds(ids, action),
-      metadata: { ...metadata, grantResult, creditResult, spendResult, commerceResult: currentEntry?.commerceResult ?? null },
-      result: { ok: false, phase: "spend-pending", operationId, action, grant: grantResult, credit: creditResult, spend: spendResult },
+      metadata: { ...metadata, grantResult: grantSnapshot, creditResult, spendResult, commerceResult: currentEntry?.commerceResult ?? null },
+      result: { ok: false, phase: "spend-pending", operationId, action, grant: grantSnapshot, credit: creditResult, spend: spendResult },
       previous: currentEntry
     });
     if (!spendCheckpoint.ok) return spendCheckpoint;
@@ -1167,14 +1382,14 @@ async function runPurchaseSaga({ village, proposal, policy, action, operationId,
   }
   const result = {
     ok: true, committed: true, phase: "committed", operationId, action,
-    grossPrice, creditApplied, netPrice, grant: clone(grantResult), credit: clone(creditResult),
-    spend: clone(spendResult), commerce: clone(currentEntry?.commerceResult), commerceTxId: ids.payTxId,
-    originCycle, itemIds: grantResult?.itemIds ?? grantResult?.createdItemIds ?? []
+    grossPrice, creditApplied, netPrice, grant: grantSnapshot, credit: journalChildResult(creditResult),
+    spend: journalChildResult(spendResult), commerce: journalChildResult(currentEntry?.commerceResult), commerceTxId: ids.payTxId,
+    originCycle, itemIds: grantSnapshot.itemIds ?? grantSnapshot.createdItemIds ?? []
   };
   const final = await persistPhase(current, {
     operationId, action, originCycle, expectedRevision, inputFingerprint,
     phase: "committed", childOperationIds: operationChildIds(ids, action),
-    metadata: { ...metadata, grantResult, creditResult, spendResult, commerceResult: currentEntry?.commerceResult ?? null }, result,
+    metadata: { ...metadata, grantResult: grantSnapshot, creditResult, spendResult, commerceResult: currentEntry?.commerceResult ?? null }, result,
     previous: currentEntry
   });
   if (!final.ok) return final;
@@ -1290,7 +1505,7 @@ async function runSaleSaga({ village, proposal, policy, action, operationId, ori
       expectedRevision: commerceRevision(seller, options), options,
       extra: { sale: true, auction, itemId: sourceItemId, proceeds }
     }), options);
-    receiveResult = clone(receiveResult);
+    receiveResult = journalChildResult(receiveResult);
     if (!commerceCommitted(receiveResult)) {
       const failurePhase = commerceFailurePhase(receiveResult);
       const failureVillage = auction && failurePhase === "abandoned"
@@ -1322,7 +1537,7 @@ async function runSaleSaga({ village, proposal, policy, action, operationId, ori
         actorUuid: actorId(latestSeller), itemId: sourceItemId, originCycle
       }, options);
     }
-    deleteResult = clone(deleteResult);
+    deleteResult = journalChildResult(deleteResult);
     if (!childCommitted(deleteResult)) {
       const compensation = await callCommerce("pay", seller, proceeds, commerceContext({
         kind: "merchant", txId: ids.compensationPayTxId, actor: seller, operationId, originCycle,
@@ -1372,7 +1587,7 @@ async function runSaleSaga({ village, proposal, policy, action, operationId, ori
     auctionId: auction ? auctionId : undefined,
     sellerActorUuid: actorId(seller), itemId: sourceItemId,
     itemValue: value, proceeds, ...(auction ? { auctionRoll, salePercentage: salePercent } : {}),
-    receive: clone(receiveResult), delete: clone(deleteResult),
+    receive: journalChildResult(receiveResult), delete: journalChildResult(deleteResult),
     receiveTxId: ids.receiveTxId, deleteId: ids.deleteId, compensationPayTxId: ids.compensationPayTxId,
     commerceTxId: ids.receiveTxId, lot: clone(lot), originCycle
   };
@@ -1437,7 +1652,7 @@ async function runBuybackSaga({ village, proposal, policy, action, operationId, 
       expectedRevision: commerceRevision(buyer, options), options,
       extra: { auctionBuyback: true, auctionId, price }
     }), options);
-    payResult = clone(payResult);
+    payResult = journalChildResult(payResult);
     if (!commerceCommitted(payResult)) {
       return persistFailure(current, {
         operationId, action, originCycle, expectedRevision, inputFingerprint,
@@ -1455,17 +1670,19 @@ async function runBuybackSaga({ village, proposal, policy, action, operationId, 
     currentEntry = progressed.entry;
   }
   let grantResult = currentEntry?.grantResult ?? null;
+  let grantSnapshot = grantResultSnapshot(grantResult);
   if (!grantResult || !childCommitted(grantResult)) {
     try { grantResult = await grantFunction(options)(buyer, source, grantContext(buyer, source, ids, operationId, originCycle, options)); }
     catch (error) { grantResult = failure("write-failed", { phase: "uncertain", state: "unknown", reconciliationRequired: true, message: String(error?.message ?? error) }); }
-    grantResult = clone(grantResult);
+    grantSnapshot = grantResultSnapshot(grantResult);
+    grantResult = grantSnapshot;
     if (!childCommitted(grantResult)) {
       if (childUncertain(grantResult)) {
         return persistFailure(current, {
           operationId, action, originCycle, expectedRevision, inputFingerprint,
-          childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, payResult, grantResult }, previous: currentEntry
+          childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, payResult, grantResult: grantSnapshot }, previous: currentEntry
         }, { ok: false, error: grantResult?.error ?? "grant-uncertain", operationId, auctionId,
-          pay: payResult, grant: grantResult }, "uncertain");
+          pay: payResult, grant: grantSnapshot }, "uncertain");
       }
       const compensation = await callCommerce("receive", buyer, price, commerceContext({
         kind: "merchant", txId: ids.compensationPayTxId, actor: buyer, operationId, originCycle,
@@ -1475,15 +1692,16 @@ async function runBuybackSaga({ village, proposal, policy, action, operationId, 
       if (!commerceCommitted(compensation)) {
         return persistFailure(current, {
           operationId, action, originCycle, expectedRevision, inputFingerprint,
-          childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, payResult, grantResult, compensation }, previous: currentEntry
-        }, { ok: false, error: grantResult?.error ?? "grant-failed", operationId, auctionId, pay: payResult, grant: grantResult, compensation }, "uncertain");
+          childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, payResult, grantResult: grantSnapshot, compensation }, previous: currentEntry
+        }, { ok: false, error: grantResult?.error ?? "grant-failed", operationId, auctionId, pay: payResult, grant: grantSnapshot, compensation }, "uncertain");
       }
       return persistFailure(current, {
         operationId, action, originCycle, expectedRevision, inputFingerprint,
-        childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, payResult, grantResult, compensation }, previous: currentEntry
-      }, { ok: false, error: grantResult?.error ?? "grant-failed", operationId, auctionId, pay: payResult, grant: grantResult, compensation }, "abandoned");
+        childOperationIds: operationChildIds(ids, action), metadata: { ...metadata, payResult, grantResult: grantSnapshot, compensation }, previous: currentEntry
+      }, { ok: false, error: grantResult?.error ?? "grant-failed", operationId, auctionId, pay: payResult, grant: grantSnapshot, compensation }, "abandoned");
     }
   }
+  grantSnapshot = grantResultSnapshot(grantResult);
   const next = clone(current);
   const finalLot = (next.auctionLots ?? []).find(candidate => id(candidate.auctionId) === auctionId);
   if (!finalLot || finalLot.status !== "sold") return failure("auction-lot-conflict", { phase: "uncertain", state: "unknown", reconciliationRequired: true, auctionId });
@@ -1492,14 +1710,14 @@ async function runBuybackSaga({ village, proposal, policy, action, operationId, 
   finalLot.returnedToActorUuid = actorId(buyer);
   const result = {
     ok: true, committed: true, phase: "committed", operationId, action, auctionId,
-    buyerActorUuid: actorId(buyer), price, pay: clone(payResult), grant: clone(grantResult),
+    buyerActorUuid: actorId(buyer), price, pay: journalChildResult(payResult), grant: grantSnapshot,
     payTxId: ids.payTxId, grantTxId: ids.grantTxId, commerceTxId: ids.payTxId,
     lot: clone(finalLot), originCycle
   };
   const final = await persistPhase(next, {
     operationId, action, originCycle, expectedRevision, inputFingerprint,
     phase: "committed", childOperationIds: operationChildIds(ids, action),
-    metadata: { ...metadata, payResult, grantResult }, result, previous: currentEntry
+    metadata: { ...metadata, payResult, grantResult: grantSnapshot }, result, previous: currentEntry
   });
   if (!final.ok) return final;
   return operationResult({ operationId, action, phase: "committed", result, entry: final.entry, village: final.village });
@@ -1637,7 +1855,7 @@ export async function commitVillagePaidAction({ proposal = {}, options = {}, use
         ? { ok: false, error: outcome.error ?? "write-failed", phase: "uncertain",
           state: "unknown", reconciliationRequired: true, operationId }
         : outcome;
-      return { persist: false, persisted: true, result: clone(result) };
+      return { persist: false, persisted: true, result: journalPayloadSnapshot(result) };
     }
   });
   return result;
@@ -1727,7 +1945,7 @@ export async function adjudicateVillageOperation({ operationId, decision = "aban
         }
       }
       const committedResult = { ok: true, phase: "abandoned", operationId: token, reason,
-        compensation: compensation ? clone(compensation) : null,
+        compensation: compensation ? journalChildResult(compensation) : null,
         compensationPayTxId: compensation ? compensationId : null };
       const adjudicationVillage = action === "auction-sell"
         ? setAuctionLotStatus(village, currentEntry.auctionId ?? token, "abandoned", {

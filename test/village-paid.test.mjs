@@ -385,6 +385,113 @@ describe("paid Village sagas", { concurrency: false }, () => {
     assert.equal(spendCalls, 1);
   });
 
+  test("merchant journal snapshots do not retain a live cyclic grant graph", async () => {
+    const payer = addActor(makeActor({ id: "cyclic-grant-buyer" }));
+    const source = item("cyclic-stock", 100);
+    const embedded = { id: "cyclic-granted-item", name: "Granted Item", type: "gear" };
+    const parent = { items: [embedded] };
+    embedded.parent = parent;
+    let grantCalls = 0;
+    let spendCalls = 0;
+    const liveGrant = {
+      ok: true,
+      phase: "committed",
+      txId: "cyclic-grant:grant",
+      itemIds: [embedded.id],
+      snapshot: { actorUuid: payer.uuid },
+      // Production grantItem returns live embedded Items in both fields. Those
+      // Documents can retain parent/collection back-references; plain fixture
+      // objects do not exercise the journal's persistence boundary.
+      items: [embedded],
+      created: [embedded]
+    };
+    const result = await purchaseMerchantItem({
+      institutionType: "generalStore",
+      payerActor: payer,
+      source,
+      itemKey: "cyclic-stock",
+      grossPrice: 100,
+      requested: { criteria: { quality: "standard" }, itemPrice: 100 },
+      operationId: "purchase-cyclic-grant"
+    }, {
+      pay: committedPay(),
+      preflightGrant: async () => ({ ok: true }),
+      grantItem: async () => { grantCalls += 1; return liveGrant; },
+      recordSpend: async (amount, options) => {
+        spendCalls += 1;
+        return recordSpend(amount, { ...options, silent: true });
+      }
+    });
+
+    assert.equal(result.ok, true, result.message ?? result.error);
+    assert.equal(result.phase, "committed");
+    const entry = getVillage().operationJournal.find(candidate =>
+      candidate.operationId === "purchase-cyclic-grant");
+    assert.equal(entry.phase, "committed");
+    assert.equal(entry.grantResult.items, undefined);
+    assert.equal(entry.grantResult.created, undefined);
+    assert.deepEqual(entry.grantResult.itemIds, [embedded.id]);
+    assert.equal(entry.grantResult.snapshot.actorUuid, payer.uuid);
+    assert.equal(getVillage().spentThisCycle, 100);
+    const retry = await purchaseMerchantItem({
+      institutionType: "generalStore",
+      payerActor: payer,
+      source,
+      itemKey: "cyclic-stock",
+      grossPrice: 100,
+      requested: { criteria: { quality: "standard" }, itemPrice: 100 },
+      operationId: "purchase-cyclic-grant"
+    });
+    assert.equal(retry.replayed, true);
+    assert.equal(grantCalls, 1);
+    assert.equal(spendCalls, 1);
+  });
+
+  test("a legacy full grant result remains readable and compacts on repair", async () => {
+    const payer = addActor(makeActor({ id: "legacy-grant-buyer" }));
+    const source = item("legacy-stock", 100);
+    const input = {
+      institutionType: "generalStore",
+      payerActor: payer,
+      source,
+      itemKey: "legacy-stock",
+      grossPrice: 100,
+      requested: { criteria: { quality: "standard" }, itemPrice: 100 },
+      operationId: "purchase-legacy-grant"
+    };
+    const first = await purchaseMerchantItem(input, {
+      pay: committedPay(),
+      preflightGrant: async () => ({ ok: true }),
+      grantItem: async () => ({ ok: true, phase: "committed", itemIds: ["legacy-item"] }),
+      recordSpend: async (amount, options) => recordSpend(amount, { ...options, silent: true })
+    });
+    assert.equal(first.ok, true);
+
+    // Existing worlds can have a serializable pre-fix receipt with these
+    // fields. Readers must accept it; the next repair rewrites only the
+    // bounded child snapshot instead of requiring a migration or its layout.
+    const legacy = store.operationJournal.find(candidate =>
+      candidate.operationId === input.operationId);
+    legacy.phase = "spend-pending";
+    delete legacy.spendResult;
+    legacy.grantResult = {
+      ...legacy.grantResult,
+      items: [{ id: "legacy-item", parent: { id: "buyer" } }],
+      created: [{ id: "legacy-item", parent: { id: "buyer" } }],
+      plan: { items: [{ data: { name: "legacy item" } }] },
+      receipt: { phase: "committed", createdItemIds: ["legacy-item"] }
+    };
+    store.spentThisCycle = 0;
+
+    const repaired = await purchaseMerchantItem(input, {
+      recordSpend: async (amount, options) => recordSpend(amount, { ...options, silent: true })
+    });
+    assert.equal(repaired.ok, true, repaired.error);
+    assert.equal(getVillage().operationJournal.find(candidate =>
+      candidate.operationId === input.operationId).grantResult.items, undefined);
+    assert.equal(getVillage().spentThisCycle, 100);
+  });
+
   test("credit-covered goods consume credit but contribute no gc to recordSpend", async () => {
     const payer = addActor(makeActor({ id: "credit-buyer" }));
     const storeInstitution = getVillage().institutions.find(institution => institution.type === "generalStore");
