@@ -3742,3 +3742,50 @@
   font-size: 14px;
 }
 .crows-item.weapon .cf-all select option { background: #0a0a0a; color: #f7f5f0; }
+
+/* ---------- Village application ---------- */
+
+.crows-village {
+  --village-ink: #161616;
+  --village-muted: #6c665d;
+  --village-rule: rgba(22, 22, 22, 0.18);
+  color: var(--village-ink);
+  font-family: "EB Garamond", Georgia, serif;
+  padding: 14px;
+}
+.crows-village h1,
+.crows-village h2 { font-family: "Grenze Gotisch", Georgia, serif; margin: 0 0 7px; }
+.crows-village h1 { font-size: 28px; }
+.crows-village h2 { font-size: 20px; border-bottom: 1px solid var(--village-rule); padding-bottom: 3px; }
+.crows-village-header,
+.village-summary,
+.village-economics { display: flex; align-items: center; gap: 12px; }
+.crows-village-header { justify-content: space-between; margin-bottom: 12px; }
+.village-scope,
+.village-authority-note { color: var(--village-muted); font-size: 13px; margin: 0; }
+.village-summary { flex-wrap: wrap; justify-content: flex-end; }
+.village-summary span,
+.village-economics > div { white-space: nowrap; }
+.village-economics { border: 1px solid var(--village-rule); padding: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.village-economics > div { flex: 1 1 auto; display: flex; flex-direction: column; }
+.village-institutions { overflow-x: auto; }
+.village-institution-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.village-institution-table th,
+.village-institution-table td { border-bottom: 1px solid var(--village-rule); padding: 7px 6px; vertical-align: top; text-align: left; }
+.village-institution-table thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.village-institution-table th[scope="row"] { min-width: 112px; }
+.village-institution-table small { display: block; color: var(--village-muted); }
+.village-terms > div { white-space: nowrap; }
+.village-actions { min-width: 128px; }
+.village-actions button,
+.village-found button,
+.village-summary button { margin: 2px 0; }
+.village-found,
+.village-effects { margin-top: 16px; border-top: 1px solid var(--village-rule); padding-top: 10px; }
+.village-proposals { margin-top: 16px; border-top: 1px solid var(--village-rule); padding-top: 10px; overflow-x: auto; }
+.village-proposal-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.village-proposal-table th,
+.village-proposal-table td { border-bottom: 1px solid var(--village-rule); padding: 6px; text-align: left; }
+.village-found label { display: inline-flex; flex-direction: column; margin: 0 8px 8px 0; }
+.village-notice { padding: 8px; border-left: 3px solid #a06a1b; background: rgba(160, 106, 27, .08); }
+.village-pending-event { border: 1px dashed var(--village-rule); padding: 7px; }
