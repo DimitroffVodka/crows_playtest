@@ -452,6 +452,14 @@ export function testCardData(result, {
   const legal = isOwner && pending ? legalExpertiseSpends(result, actor) : [];
   const resolvedAttack = attack ?? result?.attack ?? null;
   const resolvedCasting = casting ?? result?.casting ?? null;
+  const blessedBonus = Math.max(0, Math.floor(Number(resolvedAttack?.blessedBonus) || 0));
+  const cardAttack = resolvedAttack ? {
+    ...resolvedAttack,
+    ...(blessedBonus ? {
+      applyT2: attackDamageForCard(resolvedAttack.t2, blessedBonus),
+      applyT3: attackDamageForCard(resolvedAttack.t3, blessedBonus)
+    } : {})
+  } : null;
   const targetRows = (result?.targets ?? []).map((target, index) => ({
     ...target,
     index,
@@ -499,7 +507,7 @@ export function testCardData(result, {
     targets: targetRows,
     hasTargets: targetRows.length > 0,
     tierForcedNote: result?.terminal === "unconscious" ? "target unconscious" : null,
-    attack: resolvedAttack,
+    attack: cardAttack,
     casting: resolvedCasting,
     bandLabel: tr(`CROWS.Tier.${tier}`, `Tier ${tier}`),
     state: result?.state ?? "committed",
@@ -512,6 +520,14 @@ export function testCardData(result, {
     expertiseSpentLabel: result?.expertiseSpent ? expertiseLabel(result.expertiseSpent) : null,
     canApplyOutcome: result?.state === "committed"
   };
+}
+
+/** Add the already-resolved Blessed bonus to the amount shown on Apply buttons. */
+function attackDamageForCard(base, blessedBonus) {
+  const amount = Number(base);
+  if (!Number.isFinite(amount)) return base;
+  const bonus = Math.max(0, Math.floor(Number(blessedBonus) || 0));
+  return Math.max(0, amount + bonus);
 }
 
 /**

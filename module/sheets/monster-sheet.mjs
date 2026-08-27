@@ -2,8 +2,27 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 import { ALL_EXPERTISES, CROWS } from "../config.mjs";
 import { rollTest } from "../helpers/roll.mjs";
+import { blessedDamageBonus } from "../helpers/attack.mjs";
 import { applyDamage, applyHealing, syncDefeatedCondition } from "../helpers/damage.mjs";
 import { adjustXRestUse, monsterViewData, toggleMonsterWound } from "../helpers/monster-view.mjs";
+
+/** Build the persisted attack payload for a monster sheet attack. */
+export function monsterAttackPayload(actor, attack) {
+  const isMelee = /^melee/i.test(attack?.range ?? "");
+  // Monster attack rows carry precomputed bonuses and damage, but Blessed
+  // still adds the characteristic used by the attack (R:532). Natural melee
+  // attacks use Strength and ranged attacks use Agility (R:141-143).
+  const characteristic = isMelee ? "strength" : "agility";
+  return {
+    t2: attack?.dmgT2,
+    t3: attack?.dmgT3,
+    isMelee,
+    piercing: !!attack?.piercing,
+    weaponName: attack?.name,
+    targets: attack?.targets ?? 1,
+    blessedBonus: blessedDamageBonus(actor, characteristic)
+  };
+}
 
 export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -70,20 +89,16 @@ export class MonsterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const idx = Number(target.dataset.index);
     const atk = this.document.system.attacks[idx];
     if (!atk) return;
-    const isMelee = /^melee/i.test(atk.range ?? "");
     // D1: this schema names no weapon type or spell discipline, so applicability
     // is unknown rather than explicitly empty. Omission deliberately preserves
     // the null/legacy path until content supplies an authoritative key.
+    const attack = monsterAttackPayload(this.document, atk);
+    const blessedNote = attack.blessedBonus ? ` (+${attack.blessedBonus} blessed dam)` : "";
     await rollTest({
       actor: this.document,
       mods: [{ value: atk.toHit ?? 0, label: `${atk.name} +${atk.toHit ?? 0}` }],
-      flavor: `${this.document.name}: ${atk.name}`,
-      attack: {
-        t2: atk.dmgT2, t3: atk.dmgT3,
-        isMelee, piercing: !!atk.piercing,
-        weaponName: atk.name,
-        targets: atk.targets ?? 1
-      }
+      flavor: `${this.document.name}: ${atk.name}${blessedNote}`,
+      attack
     });
   }
 

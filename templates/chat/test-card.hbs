@@ -105,15 +105,15 @@
     {{#if attack}}
       <div class="damage {{#unless canApplyOutcome}}is-pending{{/unless}}"
            aria-hidden="{{#if canApplyOutcome}}false{{else}}true{{/if}}">
-        <button type="button" data-action="applyDamage" data-amount="{{attack.t2}}"
+        <button type="button" data-action="applyDamage" data-amount="{{#if attack.blessedBonus}}{{attack.applyT2}}{{else}}{{attack.t2}}{{/if}}"
                 data-piercing="{{#if attack.piercing}}true{{else}}false{{/if}}"
                 {{#unless canApplyOutcome}}disabled{{/unless}}>
-          Apply T2: {{attack.t2}}{{#if attack.piercing}} P{{/if}}
+          Apply T2: {{#if attack.blessedBonus}}{{attack.applyT2}}{{else}}{{attack.t2}}{{/if}}{{#if attack.piercing}} P{{/if}}
         </button>
-        <button type="button" data-action="applyDamage" data-amount="{{attack.t3}}"
+        <button type="button" data-action="applyDamage" data-amount="{{#if attack.blessedBonus}}{{attack.applyT3}}{{else}}{{attack.t3}}{{/if}}"
                 data-piercing="{{#if attack.piercing}}true{{else}}false{{/if}}"
                 {{#unless canApplyOutcome}}disabled{{/unless}}>
-          Apply T3: {{attack.t3}}{{#if attack.piercing}} P{{/if}}
+          Apply T3: {{#if attack.blessedBonus}}{{attack.applyT3}}{{else}}{{attack.t3}}{{/if}}{{#if attack.piercing}} P{{/if}}
         </button>
       </div>
     {{/if}}

@@ -116,7 +116,8 @@ export function isMeleeAttack(weapon, { thrown = null } = {}) {
  */
 export function blessedDamageBonus(actor, characteristic) {
   if (!actor?.system?.conditions?.blessed) return 0;
-  return Math.max(0, actor.system?.characteristics?.[characteristic]?.value ?? 0);
+  const value = actor.system?.characteristics?.[characteristic];
+  return Math.max(0, Number(value?.value ?? value ?? 0) || 0);
 }
 
 /**
