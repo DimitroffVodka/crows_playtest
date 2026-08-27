@@ -67,6 +67,7 @@ export class CrowsCombatTracker extends CombatTrackerBase {
     ...(CombatTrackerBase.DEFAULT_OPTIONS ?? {}),
     actions: {
       ...(CombatTrackerBase.DEFAULT_OPTIONS?.actions ?? {}),
+      rollSide: CrowsCombatTracker.#onRollSide,
       toggleSurprised: CrowsCombatTracker.#onToggleSurprised,
       moveCombatant: CrowsCombatTracker.#onMoveCombatant
     }
@@ -83,6 +84,10 @@ export class CrowsCombatTracker extends CombatTrackerBase {
 
   static #onToggleSurprised(...args) {
     return this._onToggleSurprised(...args);
+  }
+
+  static #onRollSide(...args) {
+    return this._onRollSide(...args);
   }
 
   static #onMoveCombatant(...args) {
@@ -149,6 +154,23 @@ export class CrowsCombatTracker extends CombatTrackerBase {
     }
   }
 
+  /** Roll the current side once, sharing the operation across double-clicks. */
+  async _onRollSide() {
+    const combat = this.viewed;
+    if (!combat || typeof combat.canRollSide !== "function" || !combat.canRollSide()) return;
+    if (typeof combat.rollSide !== "function") return;
+    if (this._rollSideFlight) return this._rollSideFlight;
+
+    const flight = (async () => combat.rollSide())();
+    this._rollSideFlight = flight;
+    flight.then(() => {
+      if (this._rollSideFlight === flight) this._rollSideFlight = null;
+    }, () => {
+      if (this._rollSideFlight === flight) this._rollSideFlight = null;
+    });
+    return flight;
+  }
+
   /**
    * Strip Foundry's bulk initiative controls.
    *
@@ -185,4 +207,3 @@ export class CrowsCombatTracker extends CombatTrackerBase {
 }
 
 export default CrowsCombatTracker;
-

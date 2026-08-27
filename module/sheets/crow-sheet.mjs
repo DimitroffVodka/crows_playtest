@@ -13,6 +13,7 @@ import {
 import {
   takeRest, woundCandidatesFromLayout
 } from "../helpers/rest.mjs";
+import { syncDefeatedCondition } from "../helpers/damage.mjs";
 import { endDungeonTurn, rollEncounterCheck } from "../helpers/dungeon-turn.mjs";
 import { attackWithWeapon } from "../helpers/attack.mjs";
 import {
@@ -907,15 +908,11 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
     const wounds = new Set([...actor.system.woundSlots].map(Number));
     const adding = !wounds.has(index);
-    const before = [...wounds].filter(slot => slot >= 0 && slot < capacity).length;
     if (adding) wounds.add(index);
     else wounds.delete(index);
-    const after = [...wounds].filter(slot => slot >= 0 && slot < capacity).length;
     const update = { "system.woundSlots": [...wounds].sort((a, b) => a - b) };
-    if (adding && capacity > 0 && before < capacity && after >= capacity) {
-      update["system.conditions.defeated"] = true;
-    }
     await actor.update(update);
+    await syncDefeatedCondition(actor);
   }
 
   static async _onOpenItem(event, target) {

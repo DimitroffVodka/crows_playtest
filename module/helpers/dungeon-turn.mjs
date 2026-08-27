@@ -377,12 +377,15 @@ export async function runEndOfDtEffects() {
   }
 
   const expired = [];
-  for (const crow of crows) {
-    const update = conditionExpiryUpdate(crow.system?.conditions ?? {});
+  // Conditions are creature state, so every actor carrying one gets the
+  // end-of-DT expiry. The item usage-die pass above stays crow-only: monsters
+  // do not track a crow's carried inventory resources.
+  for (const actor of actors) {
+    const update = conditionExpiryUpdate(actor.system?.conditions ?? {});
     if (!update) continue;
-    await crow.update(update);
+    await actor.update(update);
     expired.push({
-      actor: crow.name,
+      actor: actor.name,
       conditions: Object.keys(update).map(k => k.split(".").pop())
     });
   }

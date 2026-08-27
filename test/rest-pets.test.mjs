@@ -8,7 +8,7 @@ import {
   takeTownActivity
 } from "../module/helpers/rest.mjs";
 
-function restingCrow(events, { woundSlots = [] } = {}) {
+function restingCrow(events, { woundSlots = [], defeated = false } = {}) {
   return {
     id: "crow1",
     uuid: "Actor.crow1",
@@ -27,6 +27,7 @@ function restingCrow(events, { woundSlots = [] } = {}) {
       preparedTask: { task: "", bonus: 2, setOn: "" },
       stamina: { value: 3, max: 5 },
       woundSlots: [...woundSlots],
+      conditions: { defeated },
       currency: 0,
       xp: { txp: 0, spendable: 0, expertiseBonusesSpent: 0, charBonusesSpent: 0 }
     },
@@ -122,6 +123,27 @@ async function withRestBoundary(pet, callback, {
     else foundry.utils.fromUuid = previousResolver;
   }
 }
+
+test("a rest that removes the last wound needed for defeat clears defeated", async () => {
+  const events = [];
+  const actor = restingCrow(events, {
+    woundSlots: Array.from({ length: 10 }, (_, index) => index),
+    defeated: true
+  });
+  const pet = prospectivePet(events);
+
+  await withRestBoundary(pet, async () => {
+    const result = await takeRest(actor, {
+      inTown: true,
+      encounterChecks: false,
+      woundChoices: [9]
+    });
+
+    assert.equal(result.ok, true);
+    assert.deepEqual(actor.system.woundSlots, Array.from({ length: 9 }, (_, index) => index));
+    assert.equal(actor.system.conditions.defeated, false);
+  });
+});
 
 test("a completed public rest bonds the exact prospective pet after rest benefits", async () => {
   const events = [];
