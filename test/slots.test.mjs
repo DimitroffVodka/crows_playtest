@@ -418,7 +418,7 @@ describe("coin (C:1917)", () => {
       loose: 125,
       purses: [{ id: "party-purse", held: 250, cap: CROWS.purseBaseCapacity }]
     });
-    assert.equal(partyCapacityPolicy(party).state, "unresolved");
+    assert.equal(partyCapacityPolicy(party).state, "uncapped");
   });
 });
 

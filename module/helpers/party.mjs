@@ -246,7 +246,8 @@ function creditCapacity(actor, loose, amount, layout) {
 /**
  * Pure credit planning. Effective purse room is filled first, then loose coin
  * is capacity-checked as one reservation. Party capacity is never inferred
- * from Crow containers; its unresolved state is returned explicitly.
+ * from Crow containers; the settled default is the uncapped strongbox and a
+ * configured cap remains an explicit policy restriction.
  */
 export function planPartyCredit(actor, amount) {
   const checked = validAmount(amount);

@@ -644,7 +644,11 @@ export function planReceive(actor, amount, snapshot = null) {
       overflow: Number(current.overflow), plan, snapshot: current
     };
   }
-  if (current?.reservation && current.reservation.ok === false) {
+  // A Party layout intentionally has no positional carry slots. Its purse
+  // room remains usable, and the target's own uncapped strongbox policy lets
+  // a loose remainder bypass carry-slot accounting; only a future configured
+  // cap can refuse it through the reservation query below.
+  if (current?.reservation && current.reservation.ok === false && !current?.layout?.party) {
     return {
       ok: false, error: "overflow", reason: "loose-over-capacity",
       overflow: current.reservation.excess, excess: current.reservation.excess,
