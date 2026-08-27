@@ -169,9 +169,13 @@ EFFECTIVE in the table. Active modifiers are listed under **Current effects**.
 ### Resolving an event
 
 Most events ask you to choose what they land on. An event that targets a
-merchant offers a list of your institutions — pick one and resolve. An event
-that targets *characters* does not currently offer a candidate list, so it
-cannot be resolved from the sheet; supply the recipients yourself:
+merchant offers a list of your institutions; one that targets characters offers
+your crows. Pick and resolve.
+
+Events that hand out items — `gratefulRations` gives 6 rations each,
+`healingPotions` the equivalent — deliver them to every recipient you choose.
+
+To resolve from a macro or the console instead:
 
 ```js
 const v = game.crows.village;
@@ -184,13 +188,12 @@ await v.resolvePendingEvent({
 Note `selections`, plural. The singular is silently ignored and you will get
 `selection-required` back.
 
-> **Two events cannot be resolved at all yet.** `gratefulRations` (6 rations
-> each) and `healingPotions` are the only two that hand out items, and their
-> grant step currently refuses. Worse, attempting one moves the event to
-> `blocked`, which then blocks the cycle. If you roll one, **abandon it** with
-> *Cancel / abandon event* and award the items by hand — the abandon path is
-> clean and clears the block. Every other outcome on the table resolves
-> normally.
+**If a grant fails part way** — one crow has no room, say — the event reports
+`partial` rather than success and stays pending. Deliveries that succeeded
+stand; nothing is clawed back. The sheet shows which recipients got their items
+and which refused, with the reason. Make room and hit **Retry**: it uses the
+same tokens, so it skips whoever already received theirs and only retries the
+rest. Nobody gets a double helping.
 
 ---
 
