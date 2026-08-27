@@ -271,6 +271,19 @@ describe("commerce authority, receipts, and failures", () => {
     assert.equal(stash.system.currency, 75);
   });
 
+  test("Party funding uses the same Commerce pay receipt as other Village debits", async () => {
+    const stash = actor({ id: "party-funding", type: "party", currency: 2000 });
+    worldActors.set(stash.id, stash);
+    const result = await pay(stash, 1500, {
+      kind: "institution-funding", txId: "party-funding-1", expectedRevision: 0, user: gm
+    });
+    assert.equal(result.ok, true);
+    assert.equal(result.operation, "pay");
+    assert.equal(result.txId, "party-funding-1");
+    assert.equal(stash.system.currency, 500);
+    assert.equal(getCommerceReceipt(stash, "party-funding-1").phase, "committed");
+  });
+
   test("same txId replays the durable receipt without a second debit", async () => {
     const source = actor({ currency: 100 });
     worldActors.set(source.id, source);

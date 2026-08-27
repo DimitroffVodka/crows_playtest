@@ -19,6 +19,7 @@ import {
   registerVillageSettings, migrateVillageState,
   damageInstitution, getInstitution, getInstitutionLevel,
   itemAvailability, upgradeInstitution,
+  recordSpend,
   liveInstitutionRecords, effectiveInstitutionLevel,
   enqueueVillageOperation, villageInputFingerprint,
   rollVillageEvent, resolvePendingEvent, getVillageEventReceipt
@@ -205,6 +206,23 @@ describe("institution tombstones", () => {
 });
 
 describe("Village operation queue and journal", () => {
+  test("recordSpend is idempotent under the parent Village operation token", async () => {
+    await setVillage({ operationJournal: [{
+      operationId: "spend-idempotent",
+      action: "merchant-purchase",
+      originCycle: 0,
+      phase: "spend-pending",
+      inputFingerprint: "spend-idempotent"
+    }] }, { operationId: "seed-spend-operation" });
+    const first = await recordSpend(100, { operationId: "spend-idempotent", silent: true });
+    const writes = settingWrites;
+    const second = await recordSpend(100, { operationId: "spend-idempotent", silent: true });
+    assert.equal(first.spentThisCycle, 100);
+    assert.equal(second.spentThisCycle, 100);
+    assert.equal(getVillage().spentThisCycle, 100);
+    assert.equal(settingWrites, writes, "a lost spend acknowledgement must not count twice");
+  });
+
   test("commits a terminal token once and returns its persisted result on retry", async () => {
     const before = getVillage();
     const input = { action: "rename", name: "Queue Home" };

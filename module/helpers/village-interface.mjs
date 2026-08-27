@@ -6,10 +6,10 @@
  * remain in `village.mjs`; this layer only composes those primitives into a
  * durable ChatMessage proposal and a read model suitable for an application.
  *
- * Paid settlement is intentionally an injected receipt seam.  Ticket 5 owns
- * Commerce's pay/receive/grantItem implementation.  Until that seam is
- * supplied, a paid proposal can be browsed and reviewed but cannot claim a
- * payment or mutate Village state.
+ * Paid settlement is delegated to `village-sagas.mjs`.  This module remains
+ * the proposal/read-model boundary: it records proposal phases, while the
+ * saga owns Commerce ordering, Village operationJournal recovery, and the
+ * explicit owner adapters for services/trade.
  */
 
 import {
@@ -33,7 +33,6 @@ import {
   auctionSalePercentage,
   auctionPriceMultiplier,
   auctionBuybackPrice,
-  resolveVillageStockChance,
   foundVillageQuote,
   clampProsperity,
   enqueueVillageOperation,
@@ -43,6 +42,9 @@ import {
   isVillageDesignatedWriter,
   institutionRecordById
 } from "./village.mjs";
+import {
+  commitVillagePaidAction
+} from "./village-sagas.mjs";
 
 export const VILLAGE_PROPOSAL_FLAG = "villageProposal";
 
@@ -138,7 +140,15 @@ function actionRequest(source = {}) {
     institutionType: source.institutionType ?? requested.institutionType ?? requested.type ?? source.type,
     actorUuid: source.actorUuid ?? source.beneficiaryActorUuid ?? source.payerActorUuid
       ?? source.payerUuid ?? requested.actorUuid ?? requested.payerActorUuid ?? requested.payerUuid,
+    sellerActorUuid: source.sellerActorUuid ?? requested.sellerActorUuid,
+    buyerActorUuid: source.buyerActorUuid ?? requested.buyerActorUuid,
+    villageOperationId: source.villageOperationId ?? source.operationId ?? requested.villageOperationId,
+    operationId: source.operationId ?? source.villageOperationId ?? requested.operationId,
     itemKey: source.itemKey ?? requested.itemKey,
+    itemId: source.itemId ?? requested.itemId,
+    saleId: source.saleId ?? requested.saleId,
+    auctionId: source.auctionId ?? requested.auctionId,
+    buybackPrice: source.buybackPrice ?? requested.buybackPrice,
     purchaseId: source.purchaseId ?? requested.purchaseId,
     itemPrice: source.itemPrice ?? requested.itemPrice ?? requested.price,
     itemValue: source.itemValue ?? requested.itemValue ?? requested.value,
@@ -343,6 +353,11 @@ export async function createVillageProposal(input = {}) {
   const requestedRevision = input.expectedVillageRevision ?? input.expectedRevision;
   const expectedRevision = requestedRevision != null && String(requestedRevision).trim() !== ""
     && Number.isInteger(Number(requestedRevision)) ? Number(requestedRevision) : village.revision;
+  const payerActorUuid = input.payerActorUuid ?? input.payerUuid
+    ?? request.payerActorUuid ?? request.payerUuid ?? request.actorUuid
+    ?? (action === "sell" || action === "auction-sell"
+      ? input.sellerActorUuid ?? request.sellerActorUuid : null)
+    ?? (action === "auction-buy" ? input.buyerActorUuid ?? request.buyerActorUuid : null);
   const payload = {
     proposalId,
     villageOperationId,
@@ -358,8 +373,14 @@ export async function createVillageProposal(input = {}) {
     target: clone(input.target ?? input.targetId ?? input.institutionId
       ?? policy.institutionId ?? input.institutionType ?? policy.institutionType ?? null),
     targetId: input.targetId ?? input.institutionId ?? policy.institutionId ?? null,
-    payerActorUuid: input.payerActorUuid ?? input.payerUuid
-      ?? request.payerActorUuid ?? request.payerUuid ?? request.actorUuid ?? null,
+    payerActorUuid: payerActorUuid ?? null,
+    sellerActorUuid: input.sellerActorUuid ?? request.sellerActorUuid ?? null,
+    buyerActorUuid: input.buyerActorUuid ?? request.buyerActorUuid ?? null,
+    itemId: input.itemId ?? request.itemId ?? null,
+    itemValue: input.itemValue ?? request.itemValue ?? null,
+    saleId: input.saleId ?? request.saleId ?? null,
+    auctionId: input.auctionId ?? request.auctionId ?? null,
+    buybackPrice: input.buybackPrice ?? request.buybackPrice ?? null,
     purchaseId,
     requested,
     requestedItem: clone(input.requestedItem
@@ -674,9 +695,10 @@ function settlementPhase(settlement) {
 }
 
 /**
- * Commit an approved proposal through the foundation queue.  A paid proposal
- * requires an injected `settle`/`settlement` callback (the future Commerce
- * saga).  The production interface never fabricates a paid receipt.
+ * Commit an approved proposal through the foundation queue.  Paid proposals
+ * enter the receipt-bearing Village saga; an optional settlement callback is
+ * retained as a narrow test/owner seam, while production Commerce remains the
+ * default writer and no paid receipt is fabricated.
  */
 export async function commitVillageProposal(proposalOrId, options = {}) {
   const message = await resolveMessage(proposalOrId);
@@ -728,6 +750,29 @@ export async function commitVillageProposal(proposalOrId, options = {}) {
       operation: clone(existingOperation), proposal: clone(proposal)
     };
   }
+  // A nonterminal paid operation belongs to the cycle in which its quote and
+  // Commerce child were accepted.  If a handover or an explicit recovery
+  // path has already crossed that boundary, surface the conflict before the
+  // normal quote comparison can mislabel it as an ordinary stale proposal.
+  if (existingOperation && PAID_ACTIONS.has(action)
+      && existingOperation.originCycle != null
+      && Number(existingOperation.originCycle) !== Number(getVillage().cycle)
+      && !TERMINAL_OPERATION_PHASES.has(String(existingOperation.phase ?? ""))) {
+    const cycleConflict = {
+      ok: false,
+      error: "cycle-conflict",
+      reason: "origin-cycle-advanced",
+      phase: existingOperation.phase,
+      operationId,
+      operation: clone(existingOperation),
+      proposal: clone(proposal)
+    };
+    const next = message ? await updateProposal(message, {
+      status: "uncertain", phase: "uncertain", reason: "cycle-conflict",
+      operationResult: cycleConflict
+    }) : { ...proposal, status: "uncertain", phase: "uncertain", reason: "cycle-conflict" };
+    return { ...cycleConflict, proposal: next };
+  }
   if (["declined", "stale", "duplicate"].includes(String(proposal.status ?? ""))) {
     return {
       ok: false, error: "proposal-terminal", reason: String(proposal.status),
@@ -750,34 +795,28 @@ export async function commitVillageProposal(proposalOrId, options = {}) {
   }
   const inputFingerprint = String(proposal.inputFingerprint ?? proposalInputFingerprint(proposal, checked.policy, checked.village));
   const settle = options.settle ?? options.settlement ?? options.commitPaid ?? null;
-  const applyVillage = options.applyVillage ?? options.applyState ?? options.execute ?? null;
-  let settlement = null;
-  let stockResult = null;
-  if (["buy", "merchant-purchase"].includes(action) && checked.policy?.availability?.outOfStockChance) {
-    const stockPurchaseId = String(proposal.purchaseId ?? `${operationId}:stock`);
-    stockResult = resolveVillageStockChance(checked.policy.availability.outOfStockChance, stockPurchaseId);
-    if (stockResult.outOfStock) {
-      const next = message ? await updateProposal(message, {
-        status: "stale", phase: "stale", reason: "out-of-stock", stockResult
-      }) : { ...proposal, status: "stale", phase: "stale", reason: "out-of-stock" };
-      return {
-        ok: false, error: "stale", reason: "out-of-stock", stale: true,
-        stockResult, proposal: next, policy: clone(checked.policy)
-      };
-    }
-  }
+
+  // Paid actions now enter the receipt-bearing saga.  Keep the old
+  // `payment-handler-pending` response only for a world that has not exposed
+  // Commerce yet (and for an explicitly in-flight injected result); it is a
+  // compatibility/read-only response, never a paid success claim.  Once a
+  // settlement or Commerce writer is present, all paid work goes through the
+  // same Village queue and operationJournal phase contract.
   if (PAID_ACTIONS.has(action)) {
-    const storedSettlement = proposal.commerceResult && typeof proposal.commerceResult === "object"
-      ? clone(proposal.commerceResult) : null;
-    const reusableSettlement = storedSettlement && [
-      "commerce-committed", "credit-pending", "spend-pending", "partial"
-    ].includes(String(proposal.phase ?? "")) && options.reconcileSettlement !== true;
-    if (reusableSettlement) {
-      settlement = {
-        ...storedSettlement,
-        phase: existingOperation?.phase ?? storedSettlement.phase ?? proposal.phase
-      };
-    } else if (typeof settle !== "function" && options.commerceResult == null && options.receipt == null) {
+    const suppliedSettlement = options.commerceResult != null || options.receipt != null;
+    const suppliedPending = suppliedSettlement && settlementPhase(options.commerceResult ?? options.receipt);
+    const recordedSettlement = proposal.commerceResult && typeof proposal.commerceResult === "object"
+      && ["committed", "commerce-committed"].includes(String(proposal.commerceResult.phase ?? ""))
+      ? proposal.commerceResult : null;
+    const journalHasSettlement = Boolean(existingOperation?.commerceResult
+      ?? existingOperation?.payResult ?? existingOperation?.receiveResult);
+    const hasInjectedSettlement = typeof settle === "function";
+    const commerceOperation = ["sell", "auction-sell"].includes(action) ? "receive" : "pay";
+    const hasCommerceWriter = typeof options[commerceOperation] === "function"
+      || typeof options.commerce?.[commerceOperation] === "function"
+      || typeof globalThis.game?.crows?.commerce?.[commerceOperation] === "function";
+    if (!hasInjectedSettlement && !suppliedSettlement && !hasCommerceWriter
+        && !recordedSettlement && !journalHasSettlement) {
       const next = message ? await updateProposal(message, {
         status: proposal.status === "approved" ? "approved" : proposal.status ?? "pending",
         phase: "prepared", villageOperationId: operationId, childOperationIds,
@@ -792,49 +831,94 @@ export async function commitVillageProposal(proposalOrId, options = {}) {
         policy: clone(checked.policy)
       };
     }
-    if (!reusableSettlement) {
-      if (message) await updateProposal(message, {
-        status: "paying", phase: "commerce-pending", villageOperationId: operationId, childOperationIds
-      });
-      try {
-        settlement = typeof settle === "function"
-          ? await settle({ proposal: clone(proposal), village: clone(checked.village), policy: clone(checked.policy),
-            operationId, childOperationIds, stockResult: clone(stockResult) })
-          : { ...(clone(options.commerceResult) ?? {}), receipt: clone(options.receipt) };
-      } catch (error) {
-        const next = message ? await updateProposal(message, {
-          status: "uncertain", phase: "uncertain", reason: "commerce-uncertain",
-          error: String(error?.message ?? error)
-        }) : { ...proposal, status: "uncertain", phase: "uncertain" };
-        return { ok: false, error: "commerce-uncertain", state: "unknown", reconciliationRequired: true, proposal: next };
-      }
-    }
-    const returnedSettlementPhase = settlementPhase(settlement);
-    if (settlement?.ok === false || settlement?.committed === false || settlement?.uncertain === true
-        || (returnedSettlementPhase && returnedSettlementPhase !== "commerce-committed")) {
-      const phase = returnedSettlementPhase ?? (settlement?.uncertain ? "uncertain" : "commerce-pending");
-      const status = phase === "uncertain" ? "uncertain"
-        : ["pending", "prepared", "commerce-pending"].includes(phase) ? "approved"
-          : phase === "paying" ? "paying" : phase === "partial" ? "uncertain" : phase;
+    if (suppliedPending && suppliedPending !== "commerce-committed") {
       const next = message ? await updateProposal(message, {
-        status, phase, commerceTxId: settlement?.commerceTxId ?? settlement?.transactionId ?? null,
-        childOperationIds: [...new Set([...childOperationIds, ...(settlement?.childOperationIds ?? [])].map(String))],
-        reason: settlement?.reason ?? "commerce-refused", commerceResult: clone(settlement)
-      }) : { ...proposal, status, phase };
-      return { ok: false, error: settlement?.error ?? "commerce-refused", reason: settlement?.reason, phase, proposal: next, commerce: clone(settlement) };
+        status: suppliedPending === "uncertain" ? "uncertain" : "approved",
+        phase: suppliedPending,
+        commerceTxId: options.commerceResult?.commerceTxId ?? options.commerceResult?.transactionId ?? null,
+        reason: options.commerceResult?.reason ?? "commerce-pending",
+        commerceResult: clone(options.commerceResult ?? options.receipt)
+      }) : { ...proposal, status: "approved", phase: suppliedPending };
+      return {
+        ok: false,
+        error: options.commerceResult?.error ?? "commerce-pending",
+        phase: suppliedPending,
+        proposal: next,
+        commerce: clone(options.commerceResult ?? options.receipt),
+        policy: clone(checked.policy)
+      };
     }
-    childOperationIds.push(...(settlement?.childOperationIds ?? []).map(String));
-    if (settlement?.commerceTxId ?? settlement?.transactionId) {
-      childOperationIds.push(String(settlement.commerceTxId ?? settlement.transactionId));
+
+    const sagaOptions = {
+      ...options,
+      user: authority.user,
+      expectedPolicyFingerprint: policyFingerprint(checked.policy),
+      policyFingerprint
+    };
+    if (recordedSettlement && sagaOptions.commerceResult == null) {
+      sagaOptions.commerceResult = clone(recordedSettlement);
     }
-    if (message && !reusableSettlement) await updateProposal(message, {
-      status: "commerce-committed", phase: "commerce-committed",
-      commerceTxId: settlement?.commerceTxId ?? settlement?.transactionId ?? null,
-      childOperationIds: [...new Set(childOperationIds)],
-      commerceResult: clone(settlement)
+    if (sagaOptions.commerceResult == null && sagaOptions.receipt != null) {
+      sagaOptions.commerceResult = clone(sagaOptions.receipt);
+    }
+    if (typeof settle === "function" && sagaOptions.commerceResult == null) {
+      const settlementOperation = ["sell", "auction-sell"].includes(action) ? "receive" : "pay";
+      sagaOptions[settlementOperation] = async (actor, price, context) => settle({
+        proposal: clone(proposal),
+        village: clone(checked.village),
+        policy: clone(checked.policy),
+        operationId,
+        childOperationIds,
+        actor,
+        amount: price,
+        context
+      });
+    }
+    const paid = await commitVillagePaidAction({
+      proposal: clone(proposal),
+      options: sagaOptions,
+      user: authority.user
     });
+    const stalePaid = paid.error === "stale" || paid.stale === true;
+    const phase = stalePaid ? "stale"
+      : paid.phase ?? paid.operation?.phase ?? (paid.ok ? "committed" : "uncertain");
+    const status = stalePaid ? "stale"
+      : paid.ok && phase === "committed" ? "committed"
+      : phase === "uncertain" ? "uncertain"
+        : phase === "partial" ? "uncertain"
+          : phase;
+    const proposalPatch = {
+      status,
+      phase,
+      operationResult: clone(paid),
+      operationId,
+      villageOperationId: operationId,
+      childOperationIds: [...new Set([
+        ...childOperationIds,
+        ...(paid.childOperationIds ?? []),
+        ...(paid.operation?.childOperationIds ?? [])
+      ].map(String))]
+    };
+    const commerceTxId = paid.commerceTxId ?? paid.operation?.commerceTxId
+      ?? paid.operation?.receiveTxId ?? paid.operation?.payTxId ?? null;
+    if (commerceTxId) proposalPatch.commerceTxId = commerceTxId;
+    if (paid.ok && phase === "committed") {
+      proposalPatch.committedAt = Date.now();
+      proposalPatch.committedResult = clone(paid);
+    } else if (paid.error) proposalPatch.reason = paid.reason ?? paid.error;
+    const next = message ? await updateProposal(message, proposalPatch)
+      : { ...proposal, ...proposalPatch };
+    return {
+      ...clone(paid),
+      ok: paid.ok === true && phase === "committed",
+      committed: paid.ok === true && phase === "committed",
+      proposal: next,
+      policy: clone(checked.policy)
+    };
   }
 
+  const applyVillage = options.applyVillage ?? options.applyState ?? options.execute ?? null;
+  let settlement = null;
   const villageOnly = !PAID_ACTIONS.has(action);
   const operation = await enqueueVillageOperation({
     operationId,
