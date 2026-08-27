@@ -50,9 +50,12 @@ import {
   isLiveInstitution, liveInstitutionRecords, findLiveInstitution, institutionRecordById,
   migrateVillageState, saveVillage, normalizeVillage,
   getActiveVillageGM, isVillageDesignatedWriter,
-  enqueueVillageOperation, getVillageOperation, registerVillageChangeListener,
-  setVillageSceneReconciliationEnqueuer, institutionServicePolicy,
-  resolveVillageStockChance
+  enqueueVillageOperation, getVillageOperation,
+  registerVillageChangeListener, setVillageSceneReconciliationEnqueuer,
+  institutionServicePolicy, resolveVillageStockChance, resolvePendingEvent,
+  abandonPendingEvent, cancelPendingEvent, villageEventResolutionOptions,
+  getVillageEventReceipt, getPendingVillageEvent, villageEventTargetMode,
+  resolveVillageEvent, resolveEvent
 } from "./helpers/village.mjs";
 import {
   VILLAGE_PROPOSAL_FLAG, VILLAGE_PROPOSAL_PHASES, VILLAGE_PROPOSAL_STATUSES,
@@ -279,6 +282,11 @@ Hooks.once("init", () => {
       activeGM: getActiveVillageGM, isDesignatedWriter: isVillageDesignatedWriter,
       enqueue: enqueueVillageOperation,
       operation: getVillageOperation, getOperation: getVillageOperation,
+      resolvePendingEvent, abandonPendingEvent, cancelPendingEvent,
+      resolveVillageEvent, resolveEvent,
+      resolutionOptions: villageEventResolutionOptions,
+      receipt: getVillageEventReceipt, pendingEvent: getPendingVillageEvent,
+      targetMode: villageEventTargetMode,
       onChange: registerVillageChangeListener,
       setSceneReconciliationEnqueuer: setVillageSceneReconciliationEnqueuer,
       map: getVillageMap,
@@ -461,6 +469,30 @@ Hooks.on("deleteItem", reconcileCraftingOwner);
  */
 Hooks.on("renderChatMessageHTML", (message, html /*, context */) => {
   bindTestCardActions(message, html);
+  const villageEventButtons = html.querySelectorAll?.('[data-action="resolveVillageEvent"]') ?? [];
+  for (const btn of villageEventButtons) {
+    if (btn.dataset.wired === "1") continue;
+    btn.dataset.wired = "1";
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      if (!game.user?.isGM) {
+        globalThis.ui?.notifications?.warn("Only the Ref can resolve a Village event.");
+        return;
+      }
+      const resolutionId = ev.currentTarget.dataset.resolutionId;
+      const result = await game.crows?.village?.resolvePendingEvent?.({
+        resolutionId, selections: {}, context: { user: game.user }
+      });
+      if (result?.picker) {
+        const label = result.picker.kind === "recipients" ? "recipient Actors"
+          : result.picker.kind === "item" ? "an Actor and mundane Item"
+            : "event targets";
+        globalThis.ui?.notifications?.info(`Choose ${label}; the pending event remains unresolved until the Ref confirms.`);
+      } else if (result?.ok === false) {
+        globalThis.ui?.notifications?.warn(result.error ?? "Village event resolution refused.");
+      }
+    });
+  }
   const buttons = html.querySelectorAll('[data-action="applyDamage"]');
   for (const btn of buttons) {
     // Guard against listener stacking — chat log re-renders this html
