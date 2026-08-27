@@ -42,14 +42,26 @@ import {
   registerVillageSettings, INSTITUTION_TYPES, STARTING_INSTITUTIONS,
   getVillage, setVillage,
   foundInstitution, upgradeInstitution, damageInstitution,
-  setProsperity, sellPercentage, itemAvailability,
+  setProsperity, sellPercentage, itemAvailability, foundingPrice, upgradePrice,
+  foundVillageQuote, villageCraftingQuote, workshopRental, innMaxBet,
+  beaconRadius, beaconTransportCost, capstoneActive,
+  auctionSalePercentage, auctionPriceMultiplier, auctionBuybackPrice,
   endCycle, rollVillageEvent, getInstitutionLevel, getInstitution,
   isLiveInstitution, liveInstitutionRecords, findLiveInstitution, institutionRecordById,
   migrateVillageState, saveVillage, normalizeVillage,
   getActiveVillageGM, isVillageDesignatedWriter,
-  enqueueVillageOperation, registerVillageChangeListener,
-  setVillageSceneReconciliationEnqueuer
+  enqueueVillageOperation, getVillageOperation, registerVillageChangeListener,
+  setVillageSceneReconciliationEnqueuer, institutionServicePolicy,
+  resolveVillageStockChance
 } from "./helpers/village.mjs";
+import {
+  VILLAGE_PROPOSAL_FLAG, VILLAGE_PROPOSAL_PHASES, VILLAGE_PROPOSAL_STATUSES,
+  createVillageProposal, proposeVillageAction, submitVillageProposal,
+  getVillageProposal, reviewVillageProposal, authorizeVillageProposal,
+  commitVillageProposal, getVillageProposalOperation, getVillageReadModel,
+  listVillageProposals, villageEconomics, villagePolicyFingerprint,
+  villageCommitAuthority
+} from "./helpers/village-interface.mjs";
 import {
   startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
   identifyMagicItem, reconcileCraftingProjects, craftingMaterialSetsFor,
@@ -95,6 +107,7 @@ import {
   registerVillageMapListener,
   villageSceneData
 } from "./helpers/village-map.mjs";
+import { VillageApplication, openVillageApplication } from "./applications/village.mjs";
 
 // Bumped with the Village setting schema.  Keep this in the existing world
 // migration gate: a second ready-time migration track would race the actor
@@ -247,6 +260,15 @@ Hooks.once("init", () => {
       get: getVillage, set: setVillage,
       found: foundInstitution, upgrade: upgradeInstitution, damage: damageInstitution,
       setProsperity, sellPercentage, availability: itemAvailability,
+      foundingPrice, upgradePrice, itemAvailability,
+      foundVillageQuote, villageCraftingQuote, workshopRental, innMaxBet,
+      beaconRadius, beaconTransportCost, capstoneActive,
+      auctionSalePercentage, auctionPriceMultiplier, auctionBuybackPrice,
+      institutionServicePolicy, policy: institutionServicePolicy,
+      readModel: getVillageReadModel, getReadModel: getVillageReadModel, read: getVillageReadModel,
+      policyFingerprint: villagePolicyFingerprint, quoteFingerprint: villagePolicyFingerprint,
+      economics: villageEconomics,
+      stockChance: resolveVillageStockChance, resolveStockChance: resolveVillageStockChance,
       endCycle, rollEvent: rollVillageEvent,
       institutionLevel: getInstitutionLevel, institution: getInstitution,
       isLiveInstitution, liveInstitutions: liveInstitutionRecords,
@@ -254,6 +276,7 @@ Hooks.once("init", () => {
       normalize: normalizeVillage, save: saveVillage,
       activeGM: getActiveVillageGM, isDesignatedWriter: isVillageDesignatedWriter,
       enqueue: enqueueVillageOperation,
+      operation: getVillageOperation, getOperation: getVillageOperation,
       onChange: registerVillageChangeListener,
       setSceneReconciliationEnqueuer: setVillageSceneReconciliationEnqueuer,
       map: getVillageMap,
@@ -273,6 +296,32 @@ Hooks.once("init", () => {
       housingCount: housingCountForProsperity,
       configureArtSet: configureVillageArtSet,
       mapGeneratorVersion: VILLAGE_MAP_GENERATOR_VERSION
+      proposalFlag: VILLAGE_PROPOSAL_FLAG,
+      proposalPhases: VILLAGE_PROPOSAL_PHASES,
+      proposalStatuses: VILLAGE_PROPOSAL_STATUSES,
+      propose: createVillageProposal,
+      proposeVillageAction, submitVillageProposal,
+      createProposal: createVillageProposal,
+      submitProposal: createVillageProposal,
+      proposal: getVillageProposal,
+      readProposal: getVillageProposal,
+      getProposal: getVillageProposal,
+      proposals: listVillageProposals,
+      listProposals: listVillageProposals,
+      reviewProposal: reviewVillageProposal,
+      review: reviewVillageProposal,
+      authorizeVillageProposal,
+      authorizeProposal: reviewVillageProposal,
+      approveProposal: reviewVillageProposal,
+      commitProposal: commitVillageProposal,
+      commitVillageProposal,
+      commitAction: commitVillageProposal,
+      commit: commitVillageProposal,
+      proposalOperation: getVillageProposalOperation,
+      getProposalOperation: getVillageProposalOperation,
+      commitAuthority: villageCommitAuthority,
+      open: openVillageApplication,
+      Application: VillageApplication,
     },
     crafting: {
       startProject: startCraftingProject, cancel: cancelProject,
@@ -298,6 +347,7 @@ Hooks.once("init", () => {
   SheetConfig.registerSheet(Actor, "crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
   SheetConfig.registerSheet(Actor, "crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/crow/sheet.hbs"]);
+  foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/village.hbs"]);
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/chat/test-card.hbs"]);
   foundry.applications.handlebars.loadTemplates([
     "systems/crows/templates/partials/physical-item.hbs",

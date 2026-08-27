@@ -1969,3 +1969,507 @@ export function getInstitutionLevel(type) {
 export function getInstitution(id) {
   return institutionRecordById(id, getVillage());
 }
+
+/* ========================================================================== */
+/*  Event-aware institution/service policy                                     */
+/* ========================================================================== */
+
+/**
+ * The policy boundary is deliberately read-only.  It is the one place where
+ * a caller turns a durable institution record plus the current cycle effects
+ * into terms for a service.  Browse and Ref commit both call this function;
+ * neither path is allowed to copy an advancement table or infer availability
+ * from a stale card.
+ *
+ * The first argument may be an explicit Village snapshot (useful to a queued
+ * commit preflight), or a request object in which case the live Village is
+ * read.  The result is always an owned value, so a template cannot mutate the
+ * setting through a policy response.
+ */
+export function institutionServicePolicy(villageOrRequest = null, requestMaybe = {}) {
+  const looksLikeVillage = villageOrRequest && typeof villageOrRequest === "object"
+    && (Array.isArray(villageOrRequest.institutions)
+      || (Object.prototype.hasOwnProperty.call(villageOrRequest, "name")
+        && Object.prototype.hasOwnProperty.call(villageOrRequest, "prosperity")));
+  const embeddedVillage = !looksLikeVillage && villageOrRequest?.village
+    && typeof villageOrRequest.village === "object"
+    && (Array.isArray(villageOrRequest.village.institutions)
+      || Object.prototype.hasOwnProperty.call(villageOrRequest.village, "villageId"));
+  const village = normalizeVillage(looksLikeVillage ? villageOrRequest
+    : embeddedVillage ? villageOrRequest.village : getVillage());
+  const request = cloneValue((looksLikeVillage ? requestMaybe : villageOrRequest ?? requestMaybe) ?? {});
+  const action = policyAction(request.action ?? request.operation ?? "browse");
+  const type = String(request.institutionType ?? request.type ?? request.institutionKey ?? "").trim();
+  const requestedId = request.institutionId ?? request.id ?? request.targetId ?? null;
+  const institution = requestedId != null
+    ? institutionRecordById(String(requestedId), village)
+    : (type ? (findLiveInstitution(type, village) ?? village.institutions.find(i => i.type === type) ?? null) : null);
+  const key = String(institution?.type ?? type);
+  const def = INSTITUTIONS[key] ?? null;
+  const actorUuid = request.actorUuid ?? request.beneficiaryActorUuid ?? null;
+  const effects = policyEffectsFor(institution, key, village);
+  const levelModifiers = effects.flatMap(effect => {
+    if (effect.kind === "merchantLevel" && def?.roles?.includes("merchant")
+      && policyEffectTargets(effect, institution, key)) return [{ delta: effect.delta }];
+    if (effect.kind === "institutionLevel" && policyEffectTargets(effect, institution, key)) return [{ delta: effect.delta }];
+    return [];
+  });
+  const level = institution && def
+    ? effectiveInstitutionLevel(institution, {
+      prosperity: village.prosperity,
+      cycle: village.cycle,
+      modifiers: levelModifiers
+    })
+    : { ok: false, level: 0, closed: true, base: 0, modifierDelta: 0, capstoneActive: false };
+
+  const statuses = [];
+  if (!def && key) statuses.push("unknown-institution");
+  if (institution?.destroyed) statuses.push("destroyed");
+  if (level.notYetOpen) statuses.push("not-yet-open");
+  if (institution && !institution.destroyed && level.level <= 0) statuses.push("level-zero");
+  const boycott = effects.some(effect => effect.kind === "boycott");
+  const ceaseOperations = effects.some(effect => effect.kind === "ceaseOperations"
+    && policyEffectTargets(effect, institution, key));
+  const artisanShutdown = effects.some(effect => effect.kind === "artisanShutdown"
+    && policyEffectTargets(effect, institution, key));
+  if (boycott) statuses.push("boycott");
+  if (ceaseOperations) statuses.push("cease-operations");
+  if (artisanShutdown) statuses.push("artisan-shutdown");
+
+  const rawEventReceipts = [
+    ...(Array.isArray(village.eventReceipts) ? village.eventReceipts : []),
+    ...(village.eventReceipt ? [village.eventReceipt] : [])
+  ].filter(Boolean).map(cloneValue);
+  const eventReceiptMap = new Map();
+  rawEventReceipts.forEach((receipt, index) => {
+    const identity = receipt.resolutionId ?? receipt.eventResolutionId ?? receipt.operationId
+      ?? `anonymous-${index}-${villageInputFingerprint(receipt)}`;
+    const key = String(identity);
+    // The additive latest projection is appended after the archive. Let it
+    // replace the archived copy without reporting one event twice to callers.
+    eventReceiptMap.delete(key);
+    eventReceiptMap.set(key, receipt);
+  });
+  const eventReceipts = [...eventReceiptMap.values()];
+  const latestEventReceipt = eventReceipts[eventReceipts.length - 1] ?? null;
+  const eventReceipt = {
+    ...(latestEventReceipt ?? {}),
+    effects: effects.map(cloneValue),
+    receipts: eventReceipts,
+    latest: latestEventReceipt,
+    boycott,
+    ceaseOperations,
+    artisanShutdown
+  };
+  const base = {
+    action,
+    villageId: village.villageId,
+    villageRevision: village.revision,
+    institution: institution ? cloneValue(institution) : null,
+    institutionId: institution?.id ?? (requestedId == null ? null : String(requestedId)),
+    institutionType: key || null,
+    rawLevel: institution?.level ?? 0,
+    currentLevel: institution?.level ?? 0,
+    pendingLevel: institution?.pendingLevel ?? null,
+    pendingFromCycle: institution?.pendingFromCycle ?? null,
+    effectiveLevel: level.level ?? 0,
+    level: cloneValue(level),
+    status: policyStatus(statuses, level),
+    statuses,
+    eventReceipt,
+    policy: {
+      // These are intentionally labelled implementation choices.  They are
+      // not hidden in a price table, and no caller should turn either into an
+      // automatic refund or an invented level-one upgrade.
+      interveningFreeLevelAbsorbsPaidTarget: true,
+      noAutomaticRefund: true,
+      levelZeroReopenUsesFoundingSemantics: true
+    },
+    requiresRef: action !== "browse",
+    canInvest: village.canInvest !== false
+  };
+
+  // Village-only commands still use this policy/read boundary so a queued
+  // Ref commit cannot bypass the expected revision, but they do not target an
+  // institution and therefore must not be rejected as an unknown type.
+  if (action === "rename" || action === "set-prosperity") {
+    return ownedPolicy({
+      ...base,
+      ok: true,
+      reason: null,
+      villageOnly: true,
+      quote: {
+        kind: action,
+        value: action === "rename" ? request.name ?? request.requested?.name ?? null
+          : request.value ?? request.prosperity ?? request.requested?.value ?? null
+      }
+    });
+  }
+
+  if (!def) {
+    return ownedPolicy({
+      ...base,
+      ok: false,
+      reason: key ? "unknown-institution" : "institution-required",
+      error: key ? `unknown institution: ${key}` : "institution type or id is required"
+    });
+  }
+
+  const criteria = {
+    ...(request.criteria && typeof request.criteria === "object" ? request.criteria : {}),
+    ...(request.itemCriteria && typeof request.itemCriteria === "object" ? request.itemCriteria : {}),
+    ...(request.uses != null ? { uses: request.uses } : {}),
+    ...(request.expertise != null ? { expertise: request.expertise } : {}),
+    ...(request.rank != null ? { rank: request.rank } : {}),
+    ...(request.quality != null ? { quality: request.quality } : {}),
+    ...(request.power != null ? { power: request.power } : {}),
+    ...(request.bet != null ? { bet: request.bet } : {}),
+    ...(request.hexes != null ? { hexes: request.hexes } : {}),
+    ...(request.kind != null ? { kind: request.kind } : {}),
+    prosperity: village.prosperity,
+    institutionRecord: institution
+  };
+  const availability = def.availability
+    ? itemAvailability(key, level.level, criteria)
+    : { ok: false, reason: "no-catalogue", error: `${def.label} stocks no catalogue to check availability against` };
+  const stockPercent = action === "browse" || action === "buy" || action === "auction-buy" || action === "merchant-purchase"
+    ? effects.reduce((max, effect) => effect.kind === "outOfStockChance"
+      && policyEffectTargets(effect, institution, key)
+      ? Math.max(max, Math.max(0, Math.min(100, Math.floor(Number(effect.percent) || 0)))) : max, 0)
+    : 0;
+  const stockChance = stockPercent > 0 ? {
+    kind: "chance",
+    percent: stockPercent,
+    purchaseId: request.purchaseId == null ? null : String(request.purchaseId),
+    resolved: false
+  } : null;
+  if (stockChance) availability.outOfStockChance = stockChance;
+
+  const saleDelta = effects.reduce((sum, effect) => {
+    if (!policyEffectTargets(effect, institution, key)) return sum;
+    if (effect.kind === "sellPercentage") return sum + (Math.floor(Number(effect.delta) || 0));
+    if (effect.kind === "outOfStockChance") return sum + (Math.floor(Number(effect.sellPercentageDelta) || 0));
+    return sum;
+  }, 0);
+  const salePercent = Math.max(0, Math.min(100, sellPercentage(village.prosperity) + saleDelta));
+  const itemPrice = nonNegativeInteger(request.itemPrice ?? request.price ?? request.grossPrice);
+  const itemValue = nonNegativeInteger(request.itemValue ?? request.value);
+  const creditToConsume = (action === "browse" || action === "buy"
+    || action === "merchant-purchase" || action === "service")
+    ? policyCredit(effects, institution, key, actorUuid, village.cycle) : null;
+  const craftingTerms = def.roles.includes("artisan")
+    ? villageCraftingQuote(key, level.level, itemPrice, {
+      rush: request.rush === true,
+      extraCraftingBonus: request.extraCraftingBonus ?? request.connectionBonus ?? 0
+    })
+    : null;
+  if (craftingTerms) {
+    const rollsEffect = effects.find(effect => effect.kind === "craftingRollsPerDay"
+      && policyEffectTargets(effect, institution, key));
+    if (rollsEffect) craftingTerms.rollsPerDay = Math.max(1, Math.floor(Number(rollsEffect.value) || 1));
+  }
+  const workshopTerms = def.workshop ? workshopRental(key, level.level) : null;
+  const quote = policyQuote({
+    action, request, village, key, def, institution, level, salePercent, itemPrice, itemValue,
+    availability, creditToConsume, craftingTerms, workshopTerms
+  });
+
+  const common = {
+    ...base,
+    availability: cloneValue(availability),
+    salePercentage: salePercent,
+    salePercentageBase: sellPercentage(village.prosperity),
+    salePercentageDelta: saleDelta,
+    creditToConsume: cloneValue(creditToConsume),
+    craftingTerms: cloneValue(craftingTerms),
+    workshopTerms: cloneValue(workshopTerms),
+    quote: cloneValue(quote),
+    capstoneActive: capstoneActive(key, level.level, village.prosperity),
+    auction: key === "auctionHouse" ? {
+      availability: cloneValue(availability),
+      salePercentage: { helper: "auctionSalePercentage" },
+      priceMultiplier: { helper: "auctionPriceMultiplier" },
+      buybackPrice: { helper: "auctionBuybackPrice" }
+    } : null
+  };
+
+  if (action === "browse") {
+    return ownedPolicy({ ...common, ok: true, reason: null, readable: true });
+  }
+  if (action === "found" || action === "reopen") {
+    if (village.canInvest === false) return ownedPolicy({ ...common, ok: false, reason: "foreign-village" });
+    if (institution && isLiveInstitution(institution) && Number(institution.level) > 0) {
+      return ownedPolicy({ ...common, ok: false, reason: "institution-exists", error: "institution-exists" });
+    }
+    return ownedPolicy({
+      ...common,
+      ok: true,
+      reason: null,
+      recovery: Boolean(institution),
+      foundingSemantics: true,
+      boycottClearingException: boycott,
+      quote: {
+        kind: "found",
+        price: foundingPrice(key),
+        opensAfterCycle: village.cycle + 1,
+        operatingFromCycle: village.cycle + 1,
+        prosperityDelta: 1,
+        foundingSemantics: true,
+        noAutomaticRefund: true
+      }
+    });
+  }
+
+  if (!institution) return ownedPolicy({ ...common, ok: false, reason: "institution-not-found" });
+  if (action === "upgrade") {
+    if (village.canInvest === false) return ownedPolicy({ ...common, ok: false, reason: "foreign-village" });
+    if (boycott) return ownedPolicy({ ...common, ok: false, reason: "boycott" });
+    if (institution.destroyed) return ownedPolicy({ ...common, ok: false, reason: "institution-destroyed" });
+    if (Number(institution.level) <= 0) return ownedPolicy({ ...common, ok: false, reason: "level-zero-recovery" });
+    if (level.notYetOpen) return ownedPolicy({ ...common, ok: false, reason: "not-yet-open" });
+    if (level.level <= 0) return ownedPolicy({ ...common, ok: false, reason: "institution-closed" });
+    if (ceaseOperations) return ownedPolicy({ ...common, ok: false, reason: "cease-operations" });
+    const currentPaidLevel = Math.max(0, Math.floor(Number(institution.pendingLevel ?? institution.level) || 0));
+    const requestedTarget = request.targetLevel ?? request.target ?? null;
+    const target = requestedTarget == null
+      ? currentPaidLevel + 1
+      : Math.floor(Number(requestedTarget) || 0);
+    if (target !== currentPaidLevel + 1) {
+      return ownedPolicy({ ...common, ok: false, reason: "invalid-upgrade-target", expectedTarget: currentPaidLevel + 1 });
+    }
+    const max = institutionPurchasableMaxLevel(key);
+    if (target > max) return ownedPolicy({ ...common, ok: false, reason: "upgrade-cap", maxLevel: max });
+    const price = upgradePrice(key, target);
+    return ownedPolicy({
+      ...common,
+      ok: price != null,
+      reason: price == null ? "upgrade-unpriced" : null,
+      targetLevel: target,
+      quote: {
+        kind: "upgrade", price, targetLevel: target, opensAfterCycle: village.cycle + 1,
+        prosperityDelta: 1, noAutomaticRefund: true,
+        interveningFreeLevelAbsorbsPaidTarget: true
+      }
+    });
+  }
+
+  const needsMerchant = ["service", "buy", "merchant-purchase", "sell", "auction-sell", "auction-buy", "inn", "beacon"].includes(action);
+  const needsArtisan = ["craft", "workshop"].includes(action);
+  if (needsMerchant && !def.roles.includes("merchant")) return ownedPolicy({ ...common, ok: false, reason: "not-merchant" });
+  if (needsArtisan && !def.roles.includes("artisan")) return ownedPolicy({ ...common, ok: false, reason: "not-artisan" });
+  if (action === "workshop" && !def.workshop) return ownedPolicy({ ...common, ok: false, reason: "no-workshop" });
+  if (["auction-sell", "auction-buy"].includes(action) && key !== "auctionHouse") {
+    return ownedPolicy({ ...common, ok: false, reason: "auction-only" });
+  }
+  if (boycott) return ownedPolicy({ ...common, ok: false, reason: "boycott" });
+  if (institution.destroyed) return ownedPolicy({ ...common, ok: false, reason: "institution-destroyed" });
+  if (level.notYetOpen) return ownedPolicy({ ...common, ok: false, reason: "not-yet-open" });
+  if (level.level <= 0) return ownedPolicy({ ...common, ok: false, reason: "institution-closed" });
+  if (ceaseOperations) return ownedPolicy({ ...common, ok: false, reason: "cease-operations" });
+  if (needsArtisan && artisanShutdown) return ownedPolicy({ ...common, ok: false, reason: "artisan-shutdown" });
+  if ((action === "buy" || action === "merchant-purchase") && !def.availability) {
+    return ownedPolicy({ ...common, ok: false, reason: "no-catalogue" });
+  }
+  if ((action === "buy" || action === "merchant-purchase") && availability.deterministic === true && availability.available === false) {
+    return ownedPolicy({ ...common, ok: false, reason: "unavailable" });
+  }
+  if (action === "inn" && request.bet != null) {
+    const bet = Math.floor(Number(request.bet) || 0);
+    const maxBet = innMaxBet(level.level, village.prosperity);
+    if (bet < 1) return ownedPolicy({ ...common, ok: false, reason: "invalid-bet" });
+    if (bet > maxBet) return ownedPolicy({ ...common, ok: false, reason: "bet-too-high" });
+  }
+  if (action === "beacon" && (request.hexes != null || request.distance != null)) {
+    const hexes = Math.max(0, Math.floor(Number(request.hexes ?? request.distance) || 0));
+    const radius = beaconRadius(level.level, village.prosperity);
+    if (hexes > radius) return ownedPolicy({ ...common, ok: false, reason: "beacon-out-of-range" });
+  }
+  if (action === "sell" || action === "auction-sell") {
+    return ownedPolicy({ ...common, ok: true, reason: null, sale: { itemValue, percentage: salePercent, proceeds: Math.floor(itemValue * salePercent / 100) } });
+  }
+  return ownedPolicy({ ...common, ok: true, reason: null });
+}
+
+/** Alias retained for callers that call the boundary a service policy. */
+export const villageInstitutionServicePolicy = institutionServicePolicy;
+
+function ownedPolicy(value) {
+  return cloneValue(value);
+}
+
+function policyAction(value) {
+  const normalized = String(value ?? "browse").trim().toLowerCase().replace(/[\s_-]+/g, "");
+  return {
+    browse: "browse", view: "browse", read: "browse",
+    found: "found", foundinstitution: "found", foundreopen: "found", reopen: "reopen", recover: "reopen",
+    upgrade: "upgrade", levelup: "upgrade",
+    service: "service", use: "service", buy: "buy", purchase: "buy", merchantpurchase: "merchant-purchase",
+    sell: "sell", sellitem: "sell", craft: "craft", commission: "craft",
+    workshop: "workshop", rentworkshop: "workshop", inn: "inn", bet: "inn",
+    beacon: "beacon", transport: "beacon", auctionsell: "auction-sell", auctionbuy: "auction-buy",
+    buyback: "auction-buy"
+  }[normalized] ?? normalized;
+}
+
+function policyStatus(statuses, level) {
+  if (statuses.includes("unknown-institution")) return "unknown";
+  if (statuses.includes("destroyed")) return "destroyed";
+  if (statuses.includes("not-yet-open")) return "not-yet-open";
+  if (statuses.includes("level-zero")) return "closed";
+  if (statuses.includes("boycott")) return "boycotted";
+  if (statuses.includes("cease-operations")) return "cease-operations";
+  if (statuses.includes("artisan-shutdown")) return "artisan-shutdown";
+  return level?.closed ? "closed" : "open";
+}
+
+function policyEffectsFor(institution, key, village) {
+  const active = (village?.activeEffects ?? []).filter(effect => {
+    if (!effect || typeof effect !== "object") return false;
+    if (!policyEffectIsCurrent(effect, village?.cycle)) return false;
+    return policyEffectTargets(effect, institution, key);
+  }).map(cloneValue);
+  const receipts = [
+    ...(Array.isArray(village?.eventReceipts) ? village.eventReceipts : []),
+    ...(village?.eventReceipt ? [village.eventReceipt] : [])
+  ];
+  const recorded = receipts.flatMap(receipt =>
+    (receipt?.normalizedEffects ?? receipt?.effects ?? [])
+      .filter(effect => effect && typeof effect === "object")
+      .filter(() => !receipt.phase || ["committed", "partial"].includes(String(receipt.phase)))
+      .map(effect => ({ effect, receipt }))
+  )
+    // A receipt is audit/recovery evidence. Permanent level and Village-local
+    // outcomes already live in canonical state; replaying them as modifiers
+    // would double-apply a committed event after reload. Only service-facing
+    // operating terms are projected from the receipt, and cycle-scoped terms
+    // expire against the receipt's event cycle when explicit expiry is absent.
+    .filter(({ effect }) => !["institutionLevel", "prosperity", "destroyInstitution",
+      "foundInstitution", "destroyItem", "grantItem"].includes(effect.kind))
+    .filter(({ effect, receipt }) => policyEffectIsCurrent(effect, village?.cycle, receipt))
+    .filter(({ effect }) => policyEffectTargets(effect, institution, key))
+    .map(({ effect }) => cloneValue(effect));
+  const seen = new Set();
+  return [...active, ...recorded].filter(effect => {
+    const keyValue = villageInputFingerprint(effect);
+    if (seen.has(keyValue)) return false;
+    seen.add(keyValue);
+    return true;
+  });
+}
+
+function policyEffectIsCurrent(effect, cycle, receipt = null) {
+  const expiry = effect?.expiresAfterCycle ?? effect?.expiresOnCycle;
+  if (expiry != null) return Number(cycle) <= Number(expiry);
+  if (effect?.duration !== "cycle") return true;
+  const started = effect?.startCycle ?? effect?.cycle ?? receipt?.cycle
+    ?? receipt?.eventCycle ?? receipt?.originCycle ?? receipt?.resolvedCycle;
+  return started == null || Number(cycle) <= Number(started);
+}
+
+function policyEffectTargets(effect, institution, key) {
+  const target = effect?.target ?? effect?.targets ?? effect?.institutionId
+    ?? effect?.institutionIds ?? effect?.institutionType ?? null;
+  if (Array.isArray(target)) {
+    return target.some(entry => String(entry) === String(institution?.id ?? "") || String(entry) === String(key));
+  }
+  if (target != null && String(target) !== String(institution?.id ?? "") && String(target) !== String(key)) return false;
+  if (target != null) return true;
+  return effect?.scope === "all" || effect?.scope === "one" || effect?.kind === "boycott";
+}
+
+function nonNegativeInteger(value) {
+  return Math.max(0, Math.floor(Number(value) || 0));
+}
+
+function policyCredit(effects, institution, key, actorUuid, cycle) {
+  for (const effect of effects) {
+    if (effect.kind !== "credit" || !policyEffectTargets(effect, institution, key)) continue;
+    const expiresOnCycle = effect.expiresAfterCycle ?? effect.expiresOnCycle;
+    if (expiresOnCycle != null && Number(expiresOnCycle) < Number(cycle)) continue;
+    const beneficiary = effect.beneficiaryActorUuid ?? effect.beneficiary ?? effect.actorUuid ?? actorUuid;
+    if (beneficiary && actorUuid && String(beneficiary) !== String(actorUuid)) continue;
+    if (beneficiary && !actorUuid) continue;
+    const byActor = effect.remainingByActor ?? effect.amountByActor ?? null;
+    const remaining = byActor && actorUuid != null
+      ? byActor[actorUuid]
+      : effect.remainingAmount ?? effect.amountRemaining ?? effect.remaining
+        ?? effect.amount ?? effect.value ?? effect.perPC;
+    const amount = nonNegativeInteger(remaining);
+    if (amount <= 0) continue;
+    return {
+      creditId: String(effect.creditId ?? `${effect.eventId ?? "credit"}-${institution?.id ?? key}-${beneficiary ?? "pc"}`),
+      grantingInstitutionId: institution?.id ?? key,
+      grantingInstitutionType: key,
+      beneficiaryActorUuid: beneficiary == null ? null : String(beneficiary),
+      remainingAmount: amount,
+      amountRemaining: amount,
+      amount,
+      remaining: amount,
+      expiresAfterCycle: effect.expiresAfterCycle ?? effect.expiresOnCycle
+        ?? (effect.duration === "cycle" ? cycle : null),
+      creditOperationId: String(effect.creditOperationId ?? `${effect.eventId ?? "credit"}-${institution?.id ?? key}-${beneficiary ?? "pc"}`)
+    };
+  }
+  return null;
+}
+
+function policyQuote({ action, request, village, key, def, institution, level, salePercent, itemPrice, itemValue,
+  availability, creditToConsume, craftingTerms, workshopTerms }) {
+  if (action === "found" || action === "reopen") {
+    return {
+      kind: "found", price: foundingPrice(key), opensAfterCycle: village.cycle + 1,
+      operatingFromCycle: village.cycle + 1, prosperityDelta: 1, foundingSemantics: true,
+      noAutomaticRefund: true
+    };
+  }
+  if (action === "upgrade") {
+    const target = Math.max(1, Math.floor(Number(institution?.pendingLevel ?? institution?.level) || 0) + 1);
+    return {
+      kind: "upgrade", price: upgradePrice(key, target), targetLevel: target,
+      opensAfterCycle: village.cycle + 1, prosperityDelta: 1, noAutomaticRefund: true,
+      interveningFreeLevelAbsorbsPaidTarget: true
+    };
+  }
+  if (action === "sell" || action === "auction-sell") {
+    return { kind: "sell", itemValue, percentage: salePercent, proceeds: Math.floor(itemValue * salePercent / 100) };
+  }
+  if (action === "craft") return { ...cloneValue(craftingTerms), kind: "craft", itemPrice };
+  if (action === "workshop") return { ...cloneValue(workshopTerms), kind: "workshop" };
+  if (action === "inn") return { kind: "inn", minBet: 1, maxBet: innMaxBet(level.level, village.prosperity), bet: nonNegativeInteger(request.bet) };
+  if (action === "beacon") {
+    const hexes = nonNegativeInteger(request.hexes ?? request.distance);
+    return { kind: "beacon", radius: beaconRadius(level.level, village.prosperity), hexes, fare: beaconTransportCost(hexes) };
+  }
+  if (action === "auction-buy") {
+    const soldFor = nonNegativeInteger(request.soldFor);
+    return { kind: "auction-buy", buybackPrice: auctionBuybackPrice(soldFor, itemValue), soldFor, itemValue };
+  }
+  return {
+    kind: action === "buy" || action === "merchant-purchase" ? "buy" : action,
+    grossPrice: itemPrice,
+    creditApplied: Math.min(itemPrice, creditToConsume?.remainingAmount ?? 0),
+    netPrice: Math.max(0, itemPrice - (creditToConsume?.remainingAmount ?? 0)),
+    availability: cloneValue(availability)
+  };
+}
+
+/**
+ * Resolve a targeted stock chance without using Math.random.  The purchase id
+ * is the retry identity, so a timeout/retry gets the same answer and a browse
+ * call cannot accidentally consume a roll.  This is a discriminated result,
+ * not a boolean folded into `itemAvailability`.
+ */
+export function resolveVillageStockChance(chance, purchaseId = null) {
+  const percent = Math.max(0, Math.min(100, Math.floor(Number(chance?.percent ?? chance) || 0)));
+  const id = String(purchaseId ?? chance?.purchaseId ?? "").trim();
+  if (!id) return { ok: false, reason: "purchase-id-required", kind: "chance", percent, resolved: false };
+  let hash = 2166136261;
+  for (const char of id) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  const roll = (hash >>> 0) % 100 + 1;
+  return { ok: true, kind: "chance", percent, purchaseId: id, roll, outOfStock: roll <= percent, resolved: true };
+}
+
+export const drawVillageStockChance = resolveVillageStockChance;

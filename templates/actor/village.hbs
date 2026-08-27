@@ -1,0 +1,150 @@
+<form class="crows-village" autocomplete="off">
+  <header class="crows-village-header">
+    <div>
+      <h1>{{name}}</h1>
+      <p class="village-scope">
+        {{#if isHome}}Home village{{else}}Foreign village — read-only investment scope{{/if}}
+        · Village revision {{revision}}
+      </p>
+    </div>
+    <div class="village-summary" aria-label="Village summary">
+      <span>Prosperity <strong>{{prosperity}}</strong></span>
+      <span>Cycle <strong>{{cycle}}</strong></span>
+      <button type="button" data-action="refreshVillage">Refresh</button>
+    </div>
+  </header>
+
+  {{#if quoteInvalidated}}
+    <p class="village-notice village-notice-warning" role="status">
+      Village state changed elsewhere. Unsubmitted quotes were invalidated; review the current terms before proposing.
+    </p>
+  {{/if}}
+
+  <section class="village-economics" aria-label="Village economics">
+    <div><span>Merchant sale percentage</span> <strong>{{economics.salePercentage}}%</strong></div>
+    <div><span>Merchant spend this cycle</span> <strong>{{spentThisCycle}}</strong> / {{economics.spendThreshold}} gc</div>
+    <div><span>Spend remaining</span> <strong>{{economics.spendRemaining}}</strong> gc</div>
+    {{#if economics.foundVillage}}
+      <div><span>Found a village</span> <strong>{{economics.foundVillage.price}} gc</strong> / {{economics.foundVillage.days}} days</div>
+    {{/if}}
+  </section>
+
+  <section class="village-institutions" aria-label="Institutions">
+    <h2>Institutions</h2>
+    {{#if institutions.length}}
+      <table class="village-institution-table">
+        <thead>
+          <tr>
+            <th>Institution</th>
+            <th>Raw</th>
+            <th>Pending</th>
+            <th>Effective</th>
+            <th>Status</th>
+            <th>Terms</th>
+            <th>Proposal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each institutions as |institution|}}
+            <tr data-institution-id="{{institution.id}}" class="village-institution village-status-{{institution.levelState}}">
+              <th scope="row">
+                <span>{{institution.name}}</span>
+                <small>{{institution.type}}</small>
+                {{#if institution.steward}}<small>Steward: {{institution.steward}}</small>{{/if}}
+              </th>
+              <td>{{institution.rawLevel}}</td>
+              <td>{{#if institution.pendingLevel}}{{institution.pendingLevel}} (cycle {{institution.pendingFromCycle}}){{else}}—{{/if}}</td>
+              <td>{{institution.effectiveLevel}}</td>
+              <td>
+                <strong>{{institution.levelState}}</strong>
+                {{#each institution.statuses as |status|}}<small class="village-status">{{status}}</small>{{/each}}
+              </td>
+              <td class="village-terms">
+                <div>Found: {{institution.terms.foundingPrice}} gc</div>
+                <div>Next: {{#if institution.terms.upgradePrice}}{{institution.terms.upgradePrice}} gc{{else}}—{{/if}}</div>
+                {{#if institution.terms.salePercentage}}<div>Sell: {{institution.terms.salePercentage}}%</div>{{/if}}
+                {{#if institution.terms.innMaxBet}}<div>Max bet: {{institution.terms.innMaxBet}} gc</div>{{/if}}
+                {{#if institution.terms.beaconRadius}}<div>Beacon radius: {{institution.terms.beaconRadius}} hexes</div>{{/if}}
+                {{#if institution.terms.crafting}}<div>Crafting: {{institution.terms.crafting.cost}} gc · {{institution.terms.crafting.rollsPerDay}} roll/day</div>{{/if}}
+                {{#if institution.terms.workshop}}<div>Workshop: {{institution.terms.workshop.pricePerDay}} gc/day</div>{{/if}}
+                {{#if institution.policy.creditToConsume}}<div>Credit: {{institution.policy.creditToConsume.remainingAmount}} gc</div>{{/if}}
+                {{#if institution.terms.auction}}<div>Auction chance: {{institution.terms.auction.chance.chancePercent}}%</div>{{/if}}
+              </td>
+              <td class="village-actions">
+                {{#if institution.upgradePolicy.ok}}
+                  <button type="button" data-action="proposeVillage" data-village-action="upgrade"
+                          data-institution-id="{{institution.id}}">
+                    Propose upgrade
+                  </button>
+                {{/if}}
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <p>No institutions are recorded.</p>
+    {{/if}}
+  </section>
+
+  {{#if canInvest}}
+    <section class="village-found" aria-label="Found institution">
+      <h2>Found or reopen an institution</h2>
+      <p>Founding also covers recovery of a destroyed or level-zero record. Boycott clearing and the founding price are policy terms.</p>
+      <label>Institution
+        <select name="institutionType">
+          {{#each institutionTypes as |type|}}
+            <option value="{{type.key}}">{{type.label}} — {{type.foundingPrice}} gc</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Name <input name="villageName" type="text"></label>
+      <label>Steward <input name="steward" type="text"></label>
+      <button type="button" data-action="proposeVillage" data-village-action="found">Submit founding proposal</button>
+    </section>
+  {{/if}}
+
+  <section class="village-effects" aria-label="Current effects">
+    <h2>Current effects</h2>
+    {{#if activeEffects.length}}
+      <ul>{{#each activeEffects as |effect|}}<li>{{effect.kind}}{{#if effect.eventId}} ({{effect.eventId}}){{/if}}</li>{{/each}}</ul>
+    {{else}}<p>No active event modifiers.</p>{{/if}}
+    {{#if pendingEvent}}
+      <div class="village-pending-event"><strong>Pending event:</strong> d10 {{pendingEvent.rolled}} + Prosperity = {{pendingEvent.total}} ({{pendingEvent.id}})</div>
+    {{/if}}
+  </section>
+
+  {{#if proposals.length}}
+    <section class="village-proposals" aria-label="Village proposals">
+      <h2>Proposals</h2>
+      <table class="village-proposal-table">
+        <thead><tr><th>Action</th><th>Proposer</th><th>Phase</th><th>Controls</th></tr></thead>
+        <tbody>
+          {{#each proposals as |proposal|}}
+            <tr data-proposal-id="{{proposal.proposalId}}">
+              <td>{{proposal.action}}</td>
+              <td>{{proposal.proposerUserId}}</td>
+              <td>{{proposal.phase}} / {{proposal.status}}</td>
+              <td>
+                {{#if ../isRef}}
+                  {{#if (eq proposal.status "pending")}}
+                    <button type="button" data-action="reviewVillageProposal" data-proposal-id="{{proposal.proposalId}}" data-decision="approve">Approve</button>
+                    <button type="button" data-action="reviewVillageProposal" data-proposal-id="{{proposal.proposalId}}" data-decision="decline">Decline</button>
+                  {{/if}}
+                  {{#if (eq proposal.status "approved")}}
+                    <button type="button" data-action="commitVillageProposal" data-proposal-id="{{proposal.proposalId}}">Commit</button>
+                  {{/if}}
+                {{else}}Awaiting Ref{{/if}}
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </section>
+  {{/if}}
+
+  <p class="village-authority-note">
+    Players may browse and propose. The Ref/GM must authorize and commit shared-state changes and Party-funded actions.
+    A proposal is not a reservation. Success appears only after a committed receipt.
+  </p>
+</form>
