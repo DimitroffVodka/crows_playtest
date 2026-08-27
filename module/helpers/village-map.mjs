@@ -34,10 +34,24 @@ export const SCENE_DEFAULTS = Object.freeze({
   width: 4800,
   height: 6600,
   padding: 0.25,
-  institutionWidth: 320,
-  institutionHeight: 260,
-  housingWidth: 180,
-  housingHeight: 150,
+  grid: Object.freeze({
+    type: 1,
+    size: 300,
+    style: "solidLines",
+    thickness: 1,
+    color: "#000000",
+    alpha: 0.2,
+    distance: 5,
+    units: "sq"
+  }),
+  institutionWidthGrid: 4,
+  institutionHeightGrid: 3,
+  housingWidthGrid: 2,
+  housingHeightGrid: 2,
+  institutionGapGrid: 0.5,
+  housingGapGrid: 0.25,
+  settlementGapGrid: 0.5,
+  settlementMarginGrid: 1,
   backgroundVariant: "day"
 });
 
@@ -283,6 +297,30 @@ function fnv1a(value) {
   return hash >>> 0;
 }
 
+function gridSizeFor(options = {}) {
+  const configured = options.gridSize ?? options.grid?.size ?? SCENE_DEFAULTS.grid.size;
+  const size = Math.floor(Number(configured));
+  return Number.isFinite(size) && size > 0 ? size : SCENE_DEFAULTS.grid.size;
+}
+
+function tileDimensionFor(options, kind, axis) {
+  const absoluteKey = `${kind}${axis}`;
+  const configuredAbsolute = Number(options[absoluteKey]);
+  if (Number.isFinite(configuredAbsolute) && configuredAbsolute > 0) {
+    return Math.round(configuredAbsolute);
+  }
+  const gridKey = `${absoluteKey}Grid`;
+  const configuredGrid = Number(options[gridKey] ?? SCENE_DEFAULTS[gridKey]);
+  const gridUnits = Number.isFinite(configuredGrid) && configuredGrid > 0 ? configuredGrid : 1;
+  return Math.max(1, Math.round(gridUnits * gridSizeFor(options)));
+}
+
+function gridLengthFor(options, key, fallback) {
+  const configured = Number(options[key] ?? SCENE_DEFAULTS[key] ?? fallback);
+  const units = Number.isFinite(configured) && configured >= 0 ? configured : fallback;
+  return Math.max(0, Math.round(units * gridSizeFor(options)));
+}
+
 /**
  * Deterministic, presentation-only coordinates.  The identity is included in
  * the hash so adding an institution does not renumber existing slots. Tile
@@ -320,37 +358,122 @@ export function deterministicPosition({
   };
 }
 
+const INSTITUTION_CLUSTER_COLUMNS = 3;
+const INSTITUTION_CLUSTER_ROWS = Math.ceil(INSTITUTION_KEYS.length / INSTITUTION_CLUSTER_COLUMNS);
+const MAX_HOUSING_TILES = 5;
+
+function sceneDimension(options, key) {
+  const configured = Number(options[key]);
+  const fallback = SCENE_DEFAULTS[key];
+  return Math.max(1, Math.floor(Number.isFinite(configured) && configured > 0 ? configured : fallback));
+}
+
+function boundedClusterOrigin({ sceneSize, extent, margin, seed }) {
+  const maxOrigin = Math.max(0, sceneSize - extent);
+  const minOrigin = Math.min(Math.max(0, margin), maxOrigin);
+  const maxOriginWithMargin = Math.max(minOrigin, maxOrigin - Math.max(0, margin));
+  const span = Math.max(1, maxOriginWithMargin - minOrigin + 1);
+  return minOrigin + (fnv1a(seed) % span);
+}
+
+/**
+ * A background-agnostic settlement footprint.  Its anchor varies by
+ * sceneSeed, but the institution grid and housing row stay clustered rather
+ * than following any one backdrop's path or landmarks.
+ */
+function settlementLayout(village, options = {}) {
+  const gridSize = gridSizeFor(options);
+  const institutionWidth = tileDimensionFor(options, "institution", "Width");
+  const institutionHeight = tileDimensionFor(options, "institution", "Height");
+  const housingWidth = tileDimensionFor(options, "housing", "Width");
+  const housingHeight = tileDimensionFor(options, "housing", "Height");
+  const institutionGap = gridLengthFor(options, "institutionGapGrid", 0.5);
+  const housingGap = gridLengthFor(options, "housingGapGrid", 0.25);
+  const settlementGap = gridLengthFor(options, "settlementGapGrid", 0.5);
+  const clusterWidth = INSTITUTION_CLUSTER_COLUMNS * institutionWidth
+    + (INSTITUTION_CLUSTER_COLUMNS - 1) * institutionGap;
+  const clusterHeight = INSTITUTION_CLUSTER_ROWS * institutionHeight
+    + (INSTITUTION_CLUSTER_ROWS - 1) * institutionGap;
+  const housingRowWidth = MAX_HOUSING_TILES * housingWidth + (MAX_HOUSING_TILES - 1) * housingGap;
+  const settlementWidth = Math.max(clusterWidth, housingRowWidth);
+  const settlementHeight = clusterHeight + settlementGap + housingHeight;
+  const configuredMargin = Number(options.margin);
+  const gridMargin = Number.isFinite(configuredMargin) && configuredMargin >= 0
+    ? Math.round(configuredMargin)
+    : gridLengthFor(options, "settlementMarginGrid", 1);
+  const width = sceneDimension(options, "width");
+  const height = sceneDimension(options, "height");
+  const sceneSeed = village?.sceneSeed ?? "";
+  return {
+    gridSize,
+    institutionWidth,
+    institutionHeight,
+    institutionGap,
+    housingWidth,
+    housingHeight,
+    housingGap,
+    clusterWidth,
+    clusterHeight,
+    housingRowWidth,
+    settlementWidth,
+    settlementHeight,
+    settlementGap,
+    left: boundedClusterOrigin({
+      sceneSize: width,
+      extent: settlementWidth,
+      margin: gridMargin,
+      seed: `${sceneSeed}|settlement|x`
+    }),
+    top: boundedClusterOrigin({
+      sceneSize: height,
+      extent: settlementHeight,
+      margin: gridMargin,
+      seed: `${sceneSeed}|settlement|y`
+    })
+  };
+}
+
 export function institutionPosition(village, institution, options = {}) {
   if (typeof options.positionForInstitution === "function") {
     return clone(options.positionForInstitution({ village: clone(village), institution: clone(institution) }));
   }
-  return deterministicPosition({
-    sceneSeed: village?.sceneSeed,
-    identity: institution?.id ?? institution?.type,
-    kind: "institution",
-    width: options.width ?? SCENE_DEFAULTS.width,
-    height: options.height ?? SCENE_DEFAULTS.height,
-    margin: options.margin ?? 220,
-    tileWidth: options.tileWidth ?? options.institutionWidth ?? SCENE_DEFAULTS.institutionWidth,
-    tileHeight: options.tileHeight ?? options.institutionHeight ?? SCENE_DEFAULTS.institutionHeight
+  const layout = settlementLayout(village, {
+    ...options,
+    ...(options.tileWidth != null ? { institutionWidth: options.tileWidth } : {}),
+    ...(options.tileHeight != null ? { institutionHeight: options.tileHeight } : {})
   });
+  const slot = INSTITUTION_KEYS.indexOf(String(institution?.type ?? ""));
+  const fallback = fnv1a(`${village?.sceneSeed ?? ""}|institution|${institution?.id ?? institution?.type}`)
+    % (INSTITUTION_CLUSTER_COLUMNS * INSTITUTION_CLUSTER_ROWS);
+  const resolvedSlot = slot >= 0 ? slot : fallback;
+  const column = resolvedSlot % INSTITUTION_CLUSTER_COLUMNS;
+  const row = Math.floor(resolvedSlot / INSTITUTION_CLUSTER_COLUMNS);
+  return {
+    x: Math.round(layout.left + column * (layout.institutionWidth + layout.institutionGap)),
+    y: Math.round(layout.top + row * (layout.institutionHeight + layout.institutionGap))
+  };
 }
 
 export function housingPosition(village, index, options = {}) {
   if (typeof options.positionForHousing === "function") {
     return clone(options.positionForHousing({ village: clone(village), index }));
   }
-  return deterministicPosition({
-    sceneSeed: village?.sceneSeed,
-    identity: index,
-    kind: "housing",
-    index,
-    width: options.width ?? SCENE_DEFAULTS.width,
-    height: options.height ?? SCENE_DEFAULTS.height,
-    margin: options.margin ?? 180,
-    tileWidth: options.tileWidth ?? options.housingWidth ?? SCENE_DEFAULTS.housingWidth,
-    tileHeight: options.tileHeight ?? options.housingHeight ?? SCENE_DEFAULTS.housingHeight
+  const layout = settlementLayout(village, {
+    ...options,
+    ...(options.tileWidth != null ? { housingWidth: options.tileWidth } : {}),
+    ...(options.tileHeight != null ? { housingHeight: options.tileHeight } : {})
   });
+  const resolvedIndex = Math.max(0, Math.min(MAX_HOUSING_TILES - 1,
+    Math.floor(Number(index) || 0)));
+  const activeHousingCount = Math.max(1, Math.min(MAX_HOUSING_TILES,
+    housingTierForProsperity(village?.prosperity ?? 0)));
+  const activeRowWidth = activeHousingCount * layout.housingWidth
+    + (activeHousingCount - 1) * layout.housingGap;
+  const housingLeft = layout.left + (layout.settlementWidth - activeRowWidth) / 2;
+  return {
+    x: Math.round(housingLeft + resolvedIndex * (layout.housingWidth + layout.housingGap)),
+    y: Math.round(layout.top + layout.clusterHeight + layout.settlementGap)
+  };
 }
 
 function artKeyAliases(key) {
@@ -744,6 +867,8 @@ function baseTileData({ name, asset, position, width, height, sort, flag }) {
 
 export function institutionTileData(village, institution, options = {}) {
   const effective = effectiveInstitutionForMap(institution, village);
+  const tileWidth = tileDimensionFor(options, "institution", "Width");
+  const tileHeight = tileDimensionFor(options, "institution", "Height");
   const asset = assetForInstitution({
     type: institution?.type,
     effectiveLevel: effective,
@@ -754,15 +879,17 @@ export function institutionTileData(village, institution, options = {}) {
   const position = institutionPosition(village, institution, {
     ...options,
     width: options.sceneWidth ?? options.width,
-    height: options.sceneHeight ?? options.height
+    height: options.sceneHeight ?? options.height,
+    tileWidth,
+    tileHeight
   });
   const name = text(institution?.name) || institutionLabel(institution?.type);
   return baseTileData({
     name: `${name} [${asset.visualState}]`,
     asset,
     position,
-    width: options.institutionWidth ?? SCENE_DEFAULTS.institutionWidth,
-    height: options.institutionHeight ?? SCENE_DEFAULTS.institutionHeight,
+    width: tileWidth,
+    height: tileHeight,
     sort: options.sort ?? 100,
     flag: villageTileFlag({
       kind: "institution",
@@ -780,19 +907,23 @@ export function institutionTileData(village, institution, options = {}) {
 }
 
 export function housingTileData(village, index, options = {}) {
+  const tileWidth = tileDimensionFor(options, "housing", "Width");
+  const tileHeight = tileDimensionFor(options, "housing", "Height");
   const asset = assetForHousing(options.artSet ?? configuredArtSet, "operating", index);
   const version = generatorVersion(options);
   const position = housingPosition(village, index, {
     ...options,
     width: options.sceneWidth ?? options.width,
-    height: options.sceneHeight ?? options.height
+    height: options.sceneHeight ?? options.height,
+    tileWidth,
+    tileHeight
   });
   return baseTileData({
     name: `Housing ${index + 1}`,
     asset,
     position,
-    width: options.housingWidth ?? SCENE_DEFAULTS.housingWidth,
-    height: options.housingHeight ?? SCENE_DEFAULTS.housingHeight,
+    width: tileWidth,
+    height: tileHeight,
     sort: options.housingSort ?? 1000 + index,
     flag: villageTileFlag({
       kind: "housing",
@@ -1129,6 +1260,26 @@ export function reconcileVillageScene(next, previous = null, options = {}) {
 export const reconcileVillageMap = reconcileVillageScene;
 export const reconcileScene = reconcileVillageScene;
 
+function sceneGridData(options = {}) {
+  const supplied = options.grid && typeof options.grid === "object" ? clone(options.grid) : {};
+  const value = (optionKey, suppliedKey, fallback) => {
+    const candidate = Number(options[optionKey] ?? supplied[suppliedKey] ?? fallback);
+    return Number.isFinite(candidate) ? candidate : fallback;
+  };
+  return {
+    ...SCENE_DEFAULTS.grid,
+    ...supplied,
+    type: Math.max(0, Math.floor(value("gridType", "type", SCENE_DEFAULTS.grid.type))),
+    size: Math.max(1, Math.floor(value("gridSize", "size", SCENE_DEFAULTS.grid.size))),
+    distance: Math.max(1, value("gridDistance", "distance", SCENE_DEFAULTS.grid.distance)),
+    units: options.gridUnits ?? supplied.units ?? SCENE_DEFAULTS.grid.units,
+    style: options.gridStyle ?? supplied.style ?? SCENE_DEFAULTS.grid.style,
+    thickness: Math.max(0, Math.floor(value("gridThickness", "thickness", SCENE_DEFAULTS.grid.thickness))),
+    color: options.gridColor ?? supplied.color ?? SCENE_DEFAULTS.grid.color,
+    alpha: Math.max(0, Math.min(1, value("gridAlpha", "alpha", SCENE_DEFAULTS.grid.alpha)))
+  };
+}
+
 export function villageSceneData(village, operationId, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
   const version = generatorVersion(options);
@@ -1142,6 +1293,7 @@ export function villageSceneData(village, operationId, options = {}) {
     width: options.width ?? SCENE_DEFAULTS.width,
     height: options.height ?? SCENE_DEFAULTS.height,
     padding: options.padding ?? SCENE_DEFAULTS.padding,
+    grid: sceneGridData(options),
     ...(background.src ? { background: { src: background.src } } : {}),
     navigation: true,
     ownership: { default: sceneOwnershipObserver() },

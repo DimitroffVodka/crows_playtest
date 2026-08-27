@@ -363,7 +363,7 @@ describe("Village Scene projection", () => {
     const village = defaultVillage();
     village.villageId = "portrait-village";
     village.sceneSeed = "portrait-seed";
-    village.prosperity = 10;
+    village.prosperity = 3;
     const template = village.institutions[0];
     village.institutions = INSTITUTION_KEYS.map((type, index) => ({
       ...template,
@@ -377,15 +377,60 @@ describe("Village Scene projection", () => {
       height: SCENE_DEFAULTS.height
     });
     assert.equal(projection.institutions.length, 12);
-    assert.equal(projection.housingCount, 5);
+    assert.equal(projection.housingCount, 3);
+    const gridSize = SCENE_DEFAULTS.grid.size;
+    assert.equal(SCENE_DEFAULTS.institutionWidthGrid, 4);
+    assert.equal(SCENE_DEFAULTS.institutionHeightGrid, 3);
+    assert.equal(SCENE_DEFAULTS.housingWidthGrid, 2);
+    assert.equal(SCENE_DEFAULTS.housingHeightGrid, 2);
+    for (const tile of projection.institutions) {
+      assert.equal(tile.width, 4 * gridSize);
+      assert.equal(tile.height, 3 * gridSize);
+    }
+    for (const tile of projection.housing) {
+      assert.equal(tile.width, 2 * gridSize);
+      assert.equal(tile.height, 2 * gridSize);
+    }
     for (const tile of projection.tiles) {
       assert.ok(tile.x >= 0);
       assert.ok(tile.y >= 0);
       assert.ok(tile.x + tile.width <= SCENE_DEFAULTS.width, `${tile.name} exceeds scene width`);
       assert.ok(tile.y + tile.height <= SCENE_DEFAULTS.height, `${tile.name} exceeds scene height`);
     }
-    const institutionYs = projection.institutions.map(tile => tile.y);
-    assert.ok(Math.max(...institutionYs) - Math.min(...institutionYs) > 2000);
+    const institutionLeft = Math.min(...projection.institutions.map(tile => tile.x));
+    const institutionRight = Math.max(...projection.institutions.map(tile => tile.x + tile.width));
+    const institutionTop = Math.min(...projection.institutions.map(tile => tile.y));
+    const institutionBottom = Math.max(...projection.institutions.map(tile => tile.y + tile.height));
+    assert.ok(institutionRight - institutionLeft <= 3900, "institutions are not clustered");
+    assert.ok(institutionBottom - institutionTop <= 4050, "institutions are not clustered");
+    const housingTop = Math.min(...projection.housing.map(tile => tile.y));
+    assert.ok(housingTop >= institutionBottom);
+    assert.ok(housingTop - institutionBottom <= gridSize);
+  });
+
+  test("projection dimensions follow a Ref-supplied grid size", () => {
+    const village = defaultVillage();
+    village.sceneSeed = "custom-grid-seed";
+    village.prosperity = 3;
+    const projection = buildVillageProjection(village, {
+      width: 2400,
+      height: 3600,
+      grid: { type: 1, size: 150 }
+    });
+    assert.ok(projection.institutions.every(tile => tile.width === 4 * 150 && tile.height === 3 * 150));
+    assert.ok(projection.housing.every(tile => tile.width === 2 * 150 && tile.height === 2 * 150));
+    assert.ok(projection.tiles.every(tile => tile.x >= 0 && tile.y >= 0
+      && tile.x + tile.width <= 2400 && tile.y + tile.height <= 3600));
+
+    const scene = villageSceneData(village, "custom-grid", {
+      width: 2400,
+      height: 3600,
+      grid: { type: 1, size: 150 }
+    });
+    assert.equal(scene.width, 2400);
+    assert.equal(scene.height, 3600);
+    assert.equal(scene.grid.size, 150);
+    assert.equal(scene.grid.type, 1);
   });
 
   test("Scene data explicitly grants Observer visibility and navigation", () => {
@@ -393,8 +438,13 @@ describe("Village Scene projection", () => {
     const data = villageSceneData(village, "boot-1");
     assert.equal(SCENE_DEFAULTS.width, 4800);
     assert.equal(SCENE_DEFAULTS.height, 6600);
+    assert.equal(SCENE_DEFAULTS.grid.size, 300);
     assert.equal(data.width, 4800);
     assert.equal(data.height, 6600);
+    assert.equal(data.grid.type, 1);
+    assert.equal(data.grid.size, 300);
+    assert.equal(data.grid.distance, 5);
+    assert.equal(data.grid.units, "sq");
     assert.equal(data.background.src,
       `${VILLAGE_ART_ASSET_ROOT}backgrounds/Meadow Picnic - Spring - Day - 16x22 - 300 DPI.jpg`);
     assert.equal(data.flags.crows.village.backgroundVariant, "day");
