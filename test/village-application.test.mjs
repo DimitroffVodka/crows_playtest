@@ -413,3 +413,57 @@ describe("Village cycle controls", () => {
     await app.close();
   });
 });
+
+describe("Village payer selection", () => {
+  /**
+   * WHY. A paid proposal raised from the standalone Village sheet carried
+   * `payerActorUuid: null` and refused at commit for want of a payer, because
+   * the sheet only ever inherited a payer from the crow sheet it was opened
+   * from. There was no control to pick one, so a Party could only be nominated
+   * programmatically. Found by funding a Party and discovering it could not be
+   * spent from the UI at all.
+   */
+  const actors = [
+    { id: "bruno", uuid: "Actor.bruno", name: "Bruno", type: "crow", isOwner: true },
+    { id: "mara", uuid: "Actor.mara", name: "Mara", type: "crow", isOwner: false },
+    { id: "purse", uuid: "Actor.purse", name: "Party Treasury", type: "party", isOwner: false },
+    { id: "ghoul", uuid: "Actor.ghoul", name: "Ghoul", type: "monster", isOwner: true }
+  ];
+
+  test("offers owned crows and every Party, and nothing else", async () => {
+    installWorld();
+    const app = quietApp({ payerCandidates: actors });
+    const context = await app._prepareContext({});
+    const names = context.payerCandidates.map(p => p.name);
+    assert.deepEqual(names, ["Bruno", "Party Treasury"],
+      "a crow you do not own, and a monster, are not payers");
+  });
+
+  test("a Party is offered even though nobody owns it", async () => {
+    // A Party is a shared stash. Filtering it by ownership like a crow would
+    // hide the actor the feature exists to spend from.
+    installWorld();
+    const app = quietApp({ payerCandidates: actors });
+    const context = await app._prepareContext({});
+    const party = context.payerCandidates.find(p => p.type === "party");
+    assert.ok(party, "the Party must be offered");
+    assert.equal(party.uuid, "Actor.purse");
+  });
+
+  test("an inherited payer is preselected, so opening from a crow sheet is unchanged", async () => {
+    installWorld();
+    const app = quietApp({ payerCandidates: actors, actorUuid: "Actor.bruno" });
+    const context = await app._prepareContext({});
+    const selected = context.payerCandidates.filter(p => p.selected).map(p => p.uuid);
+    assert.deepEqual(selected, ["Actor.bruno"]);
+  });
+
+  test("nothing is preselected when no payer was inherited", async () => {
+    // Deliberate: a paid action must name who pays. Defaulting to the Party
+    // would let a mis-click spend shared money.
+    installWorld();
+    const app = quietApp({ payerCandidates: actors });
+    const context = await app._prepareContext({});
+    assert.equal(context.payerCandidates.some(p => p.selected), false);
+  });
+});

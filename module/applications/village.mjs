@@ -127,6 +127,35 @@ function eventRosterSuggestions(app) {
     .filter(Boolean);
 }
 
+/**
+ * Actors this user may nominate to pay for a Village action.
+ *
+ * A Party is a shared stash, so it is offered to everyone; a crow is offered to
+ * whoever owns it, and a GM owns everything. Commerce still authorises the
+ * actual write — this list is a convenience, not a permission — but offering a
+ * player an actor they cannot spend from only produces a confusing refusal.
+ *
+ * `isOwner` is absent outside Foundry, so the no-DOM tests see every actor.
+ */
+function payerCandidates(app, selected = null) {
+  const supplied = app?.options?.payerCandidates;
+  const source = supplied != null ? collectionValues(supplied) : collectionValues(globalThis.game?.actors);
+  const chosen = String(selected ?? "").trim();
+  return source
+    .filter(actor => {
+      const type = actor?.type;
+      if (type !== "crow" && type !== "party") return false;
+      if (type === "party") return true;
+      return actor?.isOwner !== false;
+    })
+    .map(actor => {
+      const entry = rosterSuggestion(actor);
+      if (!entry) return null;
+      return { ...entry, selected: chosen !== "" && (entry.uuid === chosen || entry.id === chosen) };
+    })
+    .filter(Boolean);
+}
+
 function textValues(value) {
   if (Array.isArray(value)) return value.flatMap(textValues);
   if (value == null) return [];
@@ -810,7 +839,13 @@ export class VillageApplication extends HandlebarsMixin(ApplicationV2) {
       actionNotice,
       controlMessage: actionNotice?.message ?? null,
       cycleBlock: journalBlock ?? operationBlock(this._lastActionResult, liveVillage),
-      blockedOperation: this._blockedOperation ?? journalBlockEntry ?? null
+      blockedOperation: this._blockedOperation ?? journalBlockEntry ?? null,
+      // A paid proposal raised from the standalone sheet used to carry no payer
+      // at all and refuse at commit; the sheet only ever inherited one from the
+      // crow sheet it was opened from. Offer the choice, defaulting to whatever
+      // was inherited so opening from a crow still behaves as it did.
+      payerCandidates: payerCandidates(this,
+        this.options?.payerActorUuid ?? this.options?.actorUuid ?? null)
     };
   }
 

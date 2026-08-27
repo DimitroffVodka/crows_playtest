@@ -133,6 +133,20 @@
     {{/if}}
   </section>
 
+  {{#if payerCandidates.length}}
+    <section class="village-payer" aria-label="Who pays">
+      <label>Paying for this
+        <select name="payerActorUuid">
+          <option value="">— choose a payer —</option>
+          {{#each payerCandidates as |payer|}}
+            <option value="{{payer.uuid}}" {{#if payer.selected}}selected{{/if}}>{{payer.name}}{{#if (eq payer.type "party")}} (party){{/if}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <p class="hint">Founding and upgrading are paid actions. A proposal with no payer is refused when the Ref commits it.</p>
+    </section>
+  {{/if}}
+
   {{#if canInvest}}
     <section class="village-found" aria-label="Found institution">
       <h2>Found or reopen an institution</h2>
