@@ -8,6 +8,7 @@
 
 import { applyBackground } from "./creation.mjs";
 import { petOwnerUpdate } from "./pets.mjs";
+import { grantItemBatch, makeGrantContext } from "./item-grants.mjs";
 
 /**
  * Background pet strings -> the stat block that realises them.
@@ -235,21 +236,6 @@ async function compendiumItem(packKey, name) {
   return entry ? pack.getDocument(entry._id) : null;
 }
 
-function cloneEmbeddedItem(document, index) {
-  const data = document.toObject();
-  delete data._id;
-  delete data._key;
-  data.system = {
-    ...(data.system ?? {}),
-    location: {
-      container: "backpack",
-      index,
-      length: Math.max(1, Number(data.system?.slots) || 1)
-    }
-  };
-  return data;
-}
-
 /**
  * Universal kit (C:36): empty coin purse, knife, rope and six rations.
  * Bedroll was part of the PT1 creator and is deliberately not granted here.
@@ -264,7 +250,7 @@ export async function applyUniversalStarterItems(actor) {
     { name: "Rope", pack: "crows.crows-gear" },
     { name: "Ration", pack: "crows.crows-consumables", quantity: 6 }
   ];
-  const toCreate = [];
+  const toGrant = [];
   const missing = [];
 
   for (const wantedItem of wanted) {
@@ -274,8 +260,6 @@ export async function applyUniversalStarterItems(actor) {
       missing.push(wantedItem.name);
       continue;
     }
-    const data = cloneEmbeddedItem(document, toCreate.length);
-    if (wantedItem.quantity) data.system.quantity = wantedItem.quantity;
     // NO purse special-case here. The shipped Coin Purse now carries
     // `purse.isPurse: true` in the compendium itself, so the starting kit gets
     // a working purse by cloning the item like everything else.
@@ -286,17 +270,28 @@ export async function applyUniversalStarterItems(actor) {
     // silently held no coins — and probe p11 passed BECAUSE of the workaround,
     // which is what hid it. Do not reintroduce a name match; if a second purse
     // item ever ships, stamp its YAML.
-    toCreate.push(data);
+    toGrant.push({
+      source: document,
+      ...(wantedItem.quantity == null ? {} : { quantity: wantedItem.quantity }),
+      placement: { container: "backpack", index: toGrant.length }
+    });
   }
 
-  const created = toCreate.length
-    ? await actor.createEmbeddedDocuments("Item", toCreate)
-    : [];
+  let created = [];
+  let grant = null;
+  if (toGrant.length) {
+    grant = await grantItemBatch(actor, toGrant,
+      makeGrantContext(actor, "character-starter", {
+        placement: { policy: "auto-pack", containers: ["backpack"] }
+      }));
+    if (grant.ok) created = grant.items ?? grant.created ?? [];
+  }
   return {
-    ok: missing.length === 0,
+    ok: missing.length === 0 && (!grant || grant.ok),
     added: created.length,
     items: created.map((item) => item.name),
-    missing
+    missing,
+    ...(grant && !grant.ok ? { grant } : {})
   };
 }
 
@@ -330,6 +325,20 @@ export async function createCharacter(actor, opts = {}) {
   if (!backgroundResult.ok) return backgroundResult;
 
   const universal = await applyUniversalStarterItems(actor);
+  // A failed starter grant is a failed creation, not a partially successful
+  // character. Do not roll gold, realise pets, or post the success card after
+  // the bounded Item batch refused or became uncertain.
+  if (universal.grant && !universal.grant.ok) {
+    return {
+      ok: false,
+      error: universal.grant.error,
+      grant: universal.grant,
+      universal,
+      background: background.name,
+      characteristics: characteristicResult,
+      backgroundResult
+    };
+  }
   const gold = await rollStartingGold(background.system?.startingGold ?? "3d6");
   // Some backgrounds grant coins on TOP of the universal 3d6 — the Noble's
   // "50 gold coins" (C:36 is the universal roll; the extra is the background's).

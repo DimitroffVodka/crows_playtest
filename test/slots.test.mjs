@@ -13,7 +13,8 @@ import {
   speedPenaltyFromWounds, applyWoundSpeedPenalty,
   retrieveFromBackpack, magicOverloadFor,
   BURSTING_PURSE_ID, hasBurstingPurse, purseEntriesFor,
-  looseCoinSlots, coinSummary, depositCoins, withdrawCoins
+  looseCoinSlots, coinSummary, depositCoins, withdrawCoins,
+  isPartyActor, partyCapacityPolicy
 } from "../module/helpers/slots.mjs";
 import {
   CORPSE_SIZES, isKnownSize, corpseSlotCost, corpseStackLimit,
@@ -405,6 +406,19 @@ describe("coin (C:1917)", () => {
     assert.equal(sum.overflow, 120);
     assert.equal(sum.purses[0].over, 120);
     assert.equal(sum.purses[0].held, 620, "the coins are still there");
+  });
+
+  test("a Party uses the same Layout.coin purse authority without Crow carrying capacity", () => {
+    const party = { ...mkActor({ currency: 125, items: [emptyPurse("party-purse")] }), type: "party" };
+    party.items[0].system.purse.held = 250;
+    const layout = layoutFor(party);
+    assert.equal(isPartyActor(party), true);
+    assert.equal(layout.capacities.backpack, 0);
+    assert.deepEqual(layout.coin, {
+      loose: 125,
+      purses: [{ id: "party-purse", held: 250, cap: CROWS.purseBaseCapacity }]
+    });
+    assert.equal(partyCapacityPolicy(party).state, "unresolved");
   });
 });
 

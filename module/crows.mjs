@@ -1,6 +1,7 @@
 import { CROWS } from "./config.mjs";
 import { CrowsItemSheet } from "./sheets/item-sheet.mjs";
 import { CrowData } from "./data/actor/crow.mjs";
+import { PartyData } from "./data/actor/party.mjs";
 import { MonsterData } from "./data/actor/monster.mjs";
 import { WeaponData } from "./data/item/weapon.mjs";
 import { ArmorData } from "./data/item/armor.mjs";
@@ -43,20 +44,36 @@ import {
   registerVillageSettings, INSTITUTION_TYPES, STARTING_INSTITUTIONS,
   getVillage, setVillage,
   foundInstitution, upgradeInstitution, damageInstitution,
-  setProsperity, sellPercentage, itemAvailability,
+  setProsperity, sellPercentage, itemAvailability, foundingPrice, upgradePrice,
+  foundVillageQuote, villageCraftingQuote, workshopRental, innMaxBet,
+  beaconRadius, beaconTransportCost, capstoneActive,
+  auctionSalePercentage, auctionPriceMultiplier, auctionBuybackPrice,
   endCycle, rollVillageEvent, getInstitutionLevel, getInstitution,
   isLiveInstitution, liveInstitutionRecords, findLiveInstitution, institutionRecordById,
   migrateVillageState, saveVillage, normalizeVillage,
   getActiveVillageGM, isVillageDesignatedWriter,
-  enqueueVillageOperation, registerVillageChangeListener,
-  setVillageSceneReconciliationEnqueuer
+  enqueueVillageOperation, getVillageOperation,
+  registerVillageChangeListener, setVillageSceneReconciliationEnqueuer,
+  institutionServicePolicy, resolveVillageStockChance, resolvePendingEvent,
+  abandonPendingEvent, cancelPendingEvent, villageEventResolutionOptions,
+  getVillageEventReceipt, getPendingVillageEvent, villageEventTargetMode,
+  resolveVillageEvent, resolveEvent
 } from "./helpers/village.mjs";
+import {
+  VILLAGE_PROPOSAL_FLAG, VILLAGE_PROPOSAL_PHASES, VILLAGE_PROPOSAL_STATUSES,
+  createVillageProposal, proposeVillageAction, submitVillageProposal,
+  getVillageProposal, reviewVillageProposal, authorizeVillageProposal,
+  commitVillageProposal, getVillageProposalOperation, getVillageReadModel,
+  listVillageProposals, villageEconomics, villagePolicyFingerprint,
+  villageCommitAuthority
+} from "./helpers/village-interface.mjs";
 import {
   startCraftingProject, cancelProject, makeCraftingRoll, completeProject,
   identifyMagicItem, reconcileCraftingProjects, craftingMaterialSetsFor,
   recoverCraftingTransaction
 } from "./helpers/crafting.mjs";
 import { planCraftingMaterials } from "./helpers/materials.mjs";
+import { grantItem, grantItemBatch } from "./helpers/item-grants.mjs";
 import {
   openCharacterCreator, createCharacter, applyCharacteristics,
   applyUniversalStarterItems, rollBackground, rollStartingGold
@@ -78,13 +95,39 @@ import {
 } from "./helpers/migration.mjs";
 import { MonsterSheet } from "./sheets/monster-sheet.mjs";
 import { CrowSheet } from "./sheets/crow-sheet.mjs";
+import { PartySheet } from "./sheets/party-sheet.mjs";
+import {
+  partyCapacityPolicy, partyViewData, authorizePartyTransfer,
+  planPartyDeposit, planPartyWithdraw, depositPartyFunds, withdrawPartyFunds,
+  planPartyPurseTransfer, movePartyPurse, depositDropToParty,
+  canUserMoveMember
+} from "./helpers/party.mjs";
 import { CrowsCombat } from "./documents/combat.mjs";
 import { CrowsCombatant } from "./documents/combatant.mjs";
 import { CrowsCombatTracker } from "./applications/combat-tracker.mjs";
+import { VillageCreator } from "./applications/village-creator.mjs";
+import {
+  VILLAGE_MAP_GENERATOR_VERSION,
+  assetForInstitution,
+  bootstrapVillageScene,
+  buildVillageProjection,
+  configureVillageArtSet,
+  getVillageMap,
+  housingCountForProsperity,
+  openVillageCreator,
+  reconcileVillageScene,
+  registerVillageMapHooks,
+  registerVillageMapListener,
+  villageSceneData
+} from "./helpers/village-map.mjs";
+import { VillageApplication, openVillageApplication } from "./applications/village.mjs";
 
 // Bumped with the Village setting schema.  Keep this in the existing world
 // migration gate: a second ready-time migration track would race the actor
 // migration and would never repair worlds already stamped at 0.2.0/0.2.1.
+// PartyData is a new native document type with no legacy persisted instances;
+// its defaults require no normalization pass. Existing worlds therefore keep
+// the shared 0.2.2 gate and do not receive synthetic Party actors.
 const MIGRATION_TARGET_VERSION = "0.2.2";
 const MIGRATION_VERSION_SETTING = "systemMigrationVersion";
 const MIGRATION_BUDGET_SETTING = "migrationExpertiseBudget";
@@ -185,6 +228,7 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.trait = TraitData;
   CONFIG.Item.dataModels.background = BackgroundData;
   CONFIG.Actor.dataModels.crow = CrowData;
+  CONFIG.Actor.dataModels.party = PartyData;
   CONFIG.Actor.dataModels.monster = MonsterData;
   CONFIG.Combat ??= {};
   CONFIG.Combatant ??= {};
@@ -200,6 +244,7 @@ Hooks.once("init", () => {
   registerMiasmaSettings();
   registerCryptSettings();
   registerVillageSettings();
+  registerVillageMapHooks();
   game.crows = Object.assign(game.crows ?? {}, {
     applyBackground,
     applyDamage, applyHealing, repairArmor,
@@ -212,6 +257,7 @@ Hooks.once("init", () => {
     setCondition, mirrorConditions, expireDungeonTurnConditions,
     gainXP, bonusesEarned, nextBonusTXP, isTraitBuyable, purchaseTrait,
     bonusesAvailable, spendExpertiseBonus, spendCharBonus, advancementOptions,
+    grantItem, grantItems: grantItemBatch,
     advancementWindow: {
       get: spendingWindow,
       open: openSpendingWindow,
@@ -236,6 +282,15 @@ Hooks.once("init", () => {
       get: getVillage, set: setVillage,
       found: foundInstitution, upgrade: upgradeInstitution, damage: damageInstitution,
       setProsperity, sellPercentage, availability: itemAvailability,
+      foundingPrice, upgradePrice, itemAvailability,
+      foundVillageQuote, villageCraftingQuote, workshopRental, innMaxBet,
+      beaconRadius, beaconTransportCost, capstoneActive,
+      auctionSalePercentage, auctionPriceMultiplier, auctionBuybackPrice,
+      institutionServicePolicy, policy: institutionServicePolicy,
+      readModel: getVillageReadModel, getReadModel: getVillageReadModel, read: getVillageReadModel,
+      policyFingerprint: villagePolicyFingerprint, quoteFingerprint: villagePolicyFingerprint,
+      economics: villageEconomics,
+      stockChance: resolveVillageStockChance, resolveStockChance: resolveVillageStockChance,
       endCycle, rollEvent: rollVillageEvent,
       institutionLevel: getInstitutionLevel, institution: getInstitution,
       isLiveInstitution, liveInstitutions: liveInstitutionRecords,
@@ -243,8 +298,57 @@ Hooks.once("init", () => {
       normalize: normalizeVillage, save: saveVillage,
       activeGM: getActiveVillageGM, isDesignatedWriter: isVillageDesignatedWriter,
       enqueue: enqueueVillageOperation,
+      operation: getVillageOperation, getOperation: getVillageOperation,
+      resolvePendingEvent, abandonPendingEvent, cancelPendingEvent,
+      resolveVillageEvent, resolveEvent,
+      resolutionOptions: villageEventResolutionOptions,
+      receipt: getVillageEventReceipt, pendingEvent: getPendingVillageEvent,
+      targetMode: villageEventTargetMode,
       onChange: registerVillageChangeListener,
-      setSceneReconciliationEnqueuer: setVillageSceneReconciliationEnqueuer
+      setSceneReconciliationEnqueuer: setVillageSceneReconciliationEnqueuer,
+      map: getVillageMap,
+      mapProjection: buildVillageProjection,
+      mapListener: registerVillageMapListener,
+      reconcileScene: reconcileVillageScene,
+      reconcile: reconcileVillageScene,
+      bootstrapScene: bootstrapVillageScene,
+      bootstrap: bootstrapVillageScene,
+      createScene: bootstrapVillageScene,
+      create: bootstrapVillageScene,
+      creator: openVillageCreator,
+      openCreator: openVillageCreator,
+      creatorApplication: VillageCreator,
+      sceneData: villageSceneData,
+      assetForInstitution,
+      housingCount: housingCountForProsperity,
+      configureArtSet: configureVillageArtSet,
+      mapGeneratorVersion: VILLAGE_MAP_GENERATOR_VERSION,
+      proposalFlag: VILLAGE_PROPOSAL_FLAG,
+      proposalPhases: VILLAGE_PROPOSAL_PHASES,
+      proposalStatuses: VILLAGE_PROPOSAL_STATUSES,
+      propose: createVillageProposal,
+      proposeVillageAction, submitVillageProposal,
+      createProposal: createVillageProposal,
+      submitProposal: createVillageProposal,
+      proposal: getVillageProposal,
+      readProposal: getVillageProposal,
+      getProposal: getVillageProposal,
+      proposals: listVillageProposals,
+      listProposals: listVillageProposals,
+      reviewProposal: reviewVillageProposal,
+      review: reviewVillageProposal,
+      authorizeVillageProposal,
+      authorizeProposal: reviewVillageProposal,
+      approveProposal: reviewVillageProposal,
+      commitProposal: commitVillageProposal,
+      commitVillageProposal,
+      commitAction: commitVillageProposal,
+      commit: commitVillageProposal,
+      proposalOperation: getVillageProposalOperation,
+      getProposalOperation: getVillageProposalOperation,
+      commitAuthority: villageCommitAuthority,
+      open: openVillageApplication,
+      Application: VillageApplication,
     },
     crafting: {
       startProject: startCraftingProject, cancel: cancelProject,
@@ -262,6 +366,20 @@ Hooks.once("init", () => {
       create: createCharacter,
       applyCharacteristics, applyUniversalStarterItems,
       rollBackground, rollStartingGold
+    },
+    party: {
+      isParty: (actor) => actor?.type === "party",
+      capacity: partyCapacityPolicy,
+      view: partyViewData,
+      authorize: authorizePartyTransfer,
+      canUserMoveMember,
+      planDeposit: planPartyDeposit,
+      planWithdraw: planPartyWithdraw,
+      deposit: depositPartyFunds,
+      withdraw: withdrawPartyFunds,
+      planPurseTransfer: planPartyPurseTransfer,
+      movePurse: movePartyPurse,
+      depositDrop: depositDropToParty
     }
   });
   Object.assign(game.crows, ROLL_API);
@@ -269,7 +387,9 @@ Hooks.once("init", () => {
   SheetConfig.registerSheet(Item, "crows", CrowsItemSheet, { makeDefault: true, label: "Crows Item Sheet" });
   SheetConfig.registerSheet(Actor, "crows", MonsterSheet, { types: ["monster"], makeDefault: true, label: "Crows Monster Sheet" });
   SheetConfig.registerSheet(Actor, "crows", CrowSheet, { types: ["crow"], makeDefault: true, label: "Crow Sheet" });
+  SheetConfig.registerSheet(Actor, "crows", PartySheet, { types: ["party"], makeDefault: true, label: "Party Treasury Sheet" });
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/crow/sheet.hbs"]);
+  foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/village.hbs", "systems/crows/templates/actor/party.hbs"]);
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/chat/test-card.hbs"]);
   foundry.applications.handlebars.loadTemplates([
     "systems/crows/templates/partials/physical-item.hbs",
@@ -277,6 +397,7 @@ Hooks.once("init", () => {
     "systems/crows/templates/partials/item-header.hbs",
     "systems/crows/templates/partials/card-head.hbs"
   ]);
+  foundry.applications.handlebars.loadTemplates(["systems/crows/templates/apps/village-creator.hbs"]);
   foundry.applications.handlebars.loadTemplates(["systems/crows/templates/actor/monster.hbs"]);
 });
 
@@ -380,6 +501,30 @@ Hooks.on("deleteItem", reconcileCraftingOwner);
  */
 Hooks.on("renderChatMessageHTML", (message, html /*, context */) => {
   bindTestCardActions(message, html);
+  const villageEventButtons = html.querySelectorAll?.('[data-action="resolveVillageEvent"]') ?? [];
+  for (const btn of villageEventButtons) {
+    if (btn.dataset.wired === "1") continue;
+    btn.dataset.wired = "1";
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      if (!game.user?.isGM) {
+        globalThis.ui?.notifications?.warn("Only the Ref can resolve a Village event.");
+        return;
+      }
+      const resolutionId = ev.currentTarget.dataset.resolutionId;
+      const result = await game.crows?.village?.resolvePendingEvent?.({
+        resolutionId, selections: {}, context: { user: game.user }
+      });
+      if (result?.picker) {
+        const label = result.picker.kind === "recipients" ? "recipient Actors"
+          : result.picker.kind === "item" ? "an Actor and mundane Item"
+            : "event targets";
+        globalThis.ui?.notifications?.info(`Choose ${label}; the pending event remains unresolved until the Ref confirms.`);
+      } else if (result?.ok === false) {
+        globalThis.ui?.notifications?.warn(result.error ?? "Village event resolution refused.");
+      }
+    });
+  }
   const buttons = html.querySelectorAll('[data-action="applyDamage"]');
   for (const btn of buttons) {
     // Guard against listener stacking — chat log re-renders this html

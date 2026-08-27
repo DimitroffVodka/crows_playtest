@@ -9,6 +9,8 @@
  * matching trait Item by name in either the trait compendium or world items.
  */
 
+import { grantItemBatch, makeGrantContext } from "./item-grants.mjs";
+
 /**
  * Fold a name to a comparison key: case, punctuation and spacing are noise.
  *
@@ -185,7 +187,7 @@ export async function applyBackground(actor, bg) {
   }
   await actor.update(updates);
 
-  const toCreate = [];
+  const toGrant = [];
 
   // Equipment. Each string is parsed before lookup, because PT2 overloads the
   // trailing parenthetical (quantity / live pet / specialisation) and a stub
@@ -233,19 +235,25 @@ export async function applyBackground(actor, bg) {
     }
 
     if (eqDoc) {
-      const data = eqDoc.toObject();
-      delete data._id; delete data._key;
-      // Drop into the backpack so the slot grid picks it up.
-      data.system = { ...(data.system ?? {}), location: { container: "backpack", index: 0, length: data.system?.slots ?? 1 } };
-      if (parsed.quantity > 1) data.system.quantity = parsed.quantity;
       // A qualifier the item itself cannot hold ("musical instrument (lute)")
       // is kept on the embedded copy's name. Safe because this document is a
       // clone on the actor, so no compendium lookup depends on it.
-      data.name = embeddedItemName(data.name, parsed, matchedFullString);
-      toCreate.push(data);
+      toGrant.push({
+        source: eqDoc,
+        ...(parsed.quantity > 1 ? { quantity: parsed.quantity } : {}),
+        // Keep every background equipment grant in the backpack, while letting
+        // the shared planner choose a legal contiguous index on its cloned
+        // layout. The old path intended this placement but stamped index 0 on
+        // every card in the batch.
+        placement: { policy: "auto-pack", containers: ["backpack"] },
+        overrides: { name: embeddedItemName(eqDoc.name, parsed, matchedFullString) }
+      });
     } else {
       stubbed.push(parsed.raw);
-      toCreate.push({ name: parsed.raw, type: "gear", system: { location: { container: "backpack", index: 0, length: 1 } } });
+      toGrant.push({
+        source: { name: parsed.raw, type: "gear", system: { slots: 1 } },
+        placement: { policy: "auto-pack", containers: ["backpack"] }
+      });
     }
   }
 
@@ -253,11 +261,14 @@ export async function applyBackground(actor, bg) {
   for (const name of sys.spellbooks ?? []) {
     const spell = await _lookupItemByName(name, "crows.crows-spellbooks", "spellbook");
     if (spell) {
-      const data = spell.toObject();
-      delete data._id; delete data._key;
-      toCreate.push(data);
+      // Spellbooks were previously embedded without a positional location;
+      // retain that non-carried starter-card behavior explicitly.
+      toGrant.push({ source: spell, placement: { policy: "none" } });
     } else {
-      toCreate.push({ name, type: "spellbook" });
+      toGrant.push({
+        source: { name, type: "spellbook", system: {} },
+        placement: { policy: "none" }
+      });
     }
   }
 
@@ -267,14 +278,35 @@ export async function applyBackground(actor, bg) {
   if (parsed?.name) {
     const trait = await _lookupItemByName(parsed.name, "crows.crows-traits", "trait");
     if (trait) {
-      const data = trait.toObject();
-      delete data._id; delete data._key;
-      toCreate.push(data);
+      toGrant.push({ source: trait, placement: { policy: "none" } });
       startingTraitEmbedded = true;
     }
   }
 
-  if (toCreate.length) await actor.createEmbeddedDocuments("Item", toCreate);
+  let grant = null;
+  let created = [];
+  if (toGrant.length) {
+    grant = await grantItemBatch(actor, toGrant,
+      makeGrantContext(actor, "background-grants"));
+    if (!grant.ok) {
+      return {
+        ok: false,
+        error: grant.error,
+        reason: grant.reason,
+        grant,
+        applied: bg.name,
+        backgroundId: bg.id ?? bg._id ?? "",
+        expertiseUses: Object.fromEntries(grants),
+        startingTrait: parsed?.name ?? null,
+        startingTraitEmbedded: false,
+        itemsCreated: 0,
+        bonusGold: bonusGold.reduce((sum, n) => sum + n, 0),
+        pets,
+        stubbed
+      };
+    }
+    created = grant.items ?? grant.created ?? [];
+  }
 
   return {
     ok: true,
@@ -283,7 +315,7 @@ export async function applyBackground(actor, bg) {
     expertiseUses: Object.fromEntries(grants),
     startingTrait: parsed?.name ?? null,
     startingTraitEmbedded,
-    itemsCreated: toCreate.length,
+    itemsCreated: created.length,
     // Coins the background grants on top of the universal 3d6 (C:36). Returned
     // rather than written, because the purse is an Item the caller creates.
     bonusGold: bonusGold.reduce((sum, n) => sum + n, 0),

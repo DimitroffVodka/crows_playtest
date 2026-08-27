@@ -37,6 +37,7 @@
 import {
   CROWS, ALL_EXPERTISES, expertiseCategory, expertiseMaxForTxp, bonusesEarnedAtTxp
 } from "../config.mjs";
+import { grantItem, makeGrantContext } from "./item-grants.mjs";
 
 /** C:615 — the bonus's third option is "+2 Stamina max". Not in CROWS; see the
  *  note in the T1.4 report. Kept named rather than inline so the three options
@@ -591,7 +592,12 @@ export function traitPoolState(trait, crow) {
 
 /** Purchase a trait: validate, deduct spendable XP, embed the item. Gated to
  *  the end of a rest (C:609). */
-export async function purchaseTrait(actor, trait, { force = false } = {}) {
+export async function purchaseTrait(actor, trait, {
+  force = false,
+  txId = null,
+  expectedRevision = null,
+  grantContext = null
+} = {}) {
   if (!actor || actor.type !== "crow") return fail("not a crow");
   if (!trait || trait.type !== "trait") return fail("not a trait");
 
@@ -611,12 +617,46 @@ export async function purchaseTrait(actor, trait, { force = false } = {}) {
     return fail("insufficient XP", { cost, spendable: spendBefore });
   }
 
-  // toObject() strips the source id so the embedded copy gets a fresh one.
-  const itemData = trait.toObject ? trait.toObject() : { ...trait };
-  delete itemData._id;
-  delete itemData._key;
-  await actor.createEmbeddedDocuments("Item", [itemData]);
-  await actor.update({ "system.xp.spendable": spendBefore - cost });
+  // The grant is deliberately committed before XP is spent: a refused or
+  // capacity-blocked Item can never consume XP.  Traits are not positional
+  // inventory, so the explicit `none` policy preserves the old no-location
+  // embedded copy while still satisfying grantItem's placement contract.
+  const grantOptions = {
+    ...(grantContext && typeof grantContext === "object" ? grantContext : {}),
+    ...(txId == null ? {} : { txId }),
+    ...(expectedRevision == null ? {} : { expectedRevision }),
+    placement: grantContext?.placement ?? { policy: "none" }
+  };
+  const grant = await grantItem(actor, trait,
+    makeGrantContext(actor, "trait-purchase", grantOptions));
+  if (!grant?.ok) {
+    notify("warn", `Cannot grant ${trait.name}: ${grant?.reason ?? grant?.error ?? "write failed"}.`);
+    return { ...grant, cost, spendable: spendBefore };
+  }
+
+  try {
+    await actor.update({ "system.xp.spendable": spendBefore - cost });
+  } catch (error) {
+    // The two Actor writes cannot be asserted as one Foundry transaction. Make
+    // the best bounded compensation available and suppress the success card;
+    // an uncertain delete remains visible to the GM rather than being retried
+    // with a new token.
+    let compensated = false;
+    const ids = grant.itemIds ?? [];
+    if (ids.length && typeof actor.deleteEmbeddedDocuments === "function") {
+      try {
+        await actor.deleteEmbeddedDocuments("Item", ids);
+        compensated = true;
+      } catch { /* report the grant as uncertain below */ }
+    }
+    return fail("write-failed", {
+      state: compensated ? "compensated" : "unknown",
+      reconciliationRequired: !compensated,
+      cost, spendable: spendBefore,
+      txId: grant.txId, grant,
+      message: String(error?.message ?? error)
+    });
+  }
 
   await globalThis.ChatMessage?.create({
     content: `<div class="crows trait-purchase">

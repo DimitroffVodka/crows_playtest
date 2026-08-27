@@ -831,6 +831,39 @@ export function eventIsBoon(event) {
   return !!event && event.min >= 3;
 }
 
+/**
+ * The durable shape used by both the cycle writer and the Ref resolver.
+ *
+ * `id`/`eventId` and `selection`/`selections` are intentionally accepted as
+ * aliases: the first Playtest 2 setting shape only stored `{id, rolled,
+ * total}`.  Normalization is read-only; assigning a resolution token belongs
+ * to a successful cycle/event write or to the Ref's first resolution attempt.
+ */
+function normalizePendingVillageEvent(value, cycle = 0) {
+  if (!value || typeof value !== "object") return null;
+  const source = cloneValue(value);
+  const eventId = source.eventId ?? source.id ?? null;
+  const rolled = Math.max(0, Math.floor(Number(source.rolled ?? source.roll) || 0));
+  const total = Math.floor(Number(source.total) || 0);
+  const eventCycle = Math.max(0, Math.floor(Number(source.cycle ?? cycle) || 0));
+  const statuses = new Set(["pending", "resolving", "blocked", "partial", "uncertain"]);
+  const status = statuses.has(String(source.status ?? "")) ? String(source.status) : "pending";
+  const selection = source.selection ?? source.selections ?? {};
+  return {
+    ...source,
+    eventId,
+    id: source.id ?? eventId,
+    rolled,
+    roll: source.roll ?? rolled,
+    total,
+    cycle: eventCycle,
+    resolutionId: source.resolutionId ?? null,
+    status,
+    selection: cloneValue(selection ?? {}),
+    selections: cloneValue(source.selections ?? selection ?? {})
+  };
+}
+
 /* -------------------------------------------------------------------------- */
 /*  NPC connection (C:2234) and retirement (C:2654)                            */
 /* -------------------------------------------------------------------------- */
@@ -924,6 +957,8 @@ export function makeForeignVillage({ name = "Unnamed Village", prosperity = 0, i
     bootstrap: { txId: null, phase: "prepared", candidateSceneId: null },
     auctionLots: [],
     operationJournal: [],
+    eventReceipts: [],
+    eventReceipt: null,
     institutions: institutions.map((institution, index) =>
       normaliseInstitution(institution, index, identity.villageId)),
     activeEffects: [],
@@ -1072,6 +1107,8 @@ function buildDefaultVillage(identity = newVillageIdentity()) {
     },
     auctionLots: [],
     operationJournal: [],
+    eventReceipts: [],
+    eventReceipt: null,
     institutions,
     activeEffects: [],            // event effects live until the end of their cycle
     pendingEvent: null
@@ -1145,8 +1182,23 @@ export function normalizeVillage(value, { identity = null } = {}) {
   normalized.auctionLots = Array.isArray(source.auctionLots) ? cloneValue(source.auctionLots) : [];
   normalized.operationJournal = Array.isArray(source.operationJournal)
     ? cloneValue(source.operationJournal) : [];
+  normalized.eventReceipts = Array.isArray(source.eventReceipts)
+    ? cloneValue(source.eventReceipts) : [];
+  normalized.eventReceipt = source.eventReceipt && typeof source.eventReceipt === "object"
+    ? cloneValue(source.eventReceipt) : null;
+  // Older event records used `id` and had no lifecycle fields.  Keep those
+  // records readable while making the durable resolution shape uniform at the
+  // setting boundary.  A missing resolution id is filled by the first Ref
+  // resolution (or by the next cycle writer), never invented during a read.
   normalized.pendingEvent = Object.prototype.hasOwnProperty.call(source, "pendingEvent")
-    ? cloneValue(source.pendingEvent) : null;
+    ? normalizePendingVillageEvent(source.pendingEvent, normalized.cycle) : null;
+  if (normalized.eventReceipt && !normalized.eventReceipts.some(receipt =>
+    String(receipt?.resolutionId ?? "") === String(normalized.eventReceipt.resolutionId ?? ""))) {
+    normalized.eventReceipts.push(cloneValue(normalized.eventReceipt));
+  }
+  if (!normalized.eventReceipt && normalized.eventReceipts.length) {
+    normalized.eventReceipt = cloneValue(normalized.eventReceipts.at(-1));
+  }
   const bootstrap = source.bootstrap && typeof source.bootstrap === "object" ? source.bootstrap : {};
   normalized.bootstrap = {
     ...defaults.bootstrap,
@@ -1485,13 +1537,30 @@ export async function enqueueVillageOperation(request = {}, execute = null) {
         result: input.terminalResult ?? { ok: true, operationId },
         phase: input.phase ?? "committed"
       };
+      // A caller that owns a bounded multi-document saga may persist its
+      // prepared/child/terminal phases through saveVillage while still
+      // running inside this per-Village queue.  `persist: false` hands an
+      // already-persisted result back without asking the generic writer to
+      // write a second stale snapshot.  It is also the read-only escape hatch
+      // for a cancelled picker.  A partial-after-commit or uncertain outcome
+      // may use this branch only after its receipt was durably written; a
+      // preflight refusal before ANY child write may return it read-only.  The
+      // request-level `persist: false` spelling is accepted as the same
+      // additive opt-out; omitted/default callers retain the old writer path.
+      const requestedNoPersist = outcome?.persist === false || input.persist === false;
+      const outcomePhase = String(outcome?.phase ?? outcome?.result?.phase ?? "");
+      const requiresDurableRecovery = ["partial", "uncertain"].includes(outcomePhase);
+      if (requestedNoPersist && (!requiresDurableRecovery || outcome?.persisted === true)) {
+        return cloneValue(outcome?.result ?? input.terminalResult ?? { ok: true, operationId });
+      }
     } catch (error) {
       const uncertain = {
         operationId, action: input.action ?? "village-operation", villageId,
         originCycle: input.originCycle ?? current.cycle,
         expectedRevision, inputFingerprint: fingerprint,
         phase: "uncertain", childOperationIds,
-        result: { ok: false, error: "write-failed", state: "unknown", message: String(error?.message ?? error) },
+        result: { ok: false, error: "write-failed", phase: "uncertain", state: "unknown",
+          reconciliationRequired: true, message: String(error?.message ?? error) },
         createdAt: existing?.createdAt ?? Date.now(), updatedAt: Date.now()
       };
       const next = cloneValue(current);
@@ -1504,10 +1573,16 @@ export async function enqueueVillageOperation(request = {}, execute = null) {
       return cloneValue(uncertain.result);
     }
 
-    const returnedNext = outcome?.nextVillage ?? outcome?.next ?? current;
-    const next = normalizeVillage(returnedNext, { identity: { villageId, sceneSeed: current.sceneSeed } });
-    const result = outcome?.result ?? input.terminalResult ?? { ok: true, operationId };
-    const explicitPhase = input.phase ?? outcome?.phase;
+      const returnedNext = outcome?.nextVillage ?? outcome?.next ?? current;
+      const next = normalizeVillage(returnedNext, { identity: { villageId, sceneSeed: current.sceneSeed } });
+      const result = outcome?.result ?? input.terminalResult ?? { ok: true, operationId };
+      const outcomeChildOperationIds = outcome?.childOperationIds
+        ?? result?.childOperationIds ?? [];
+      const journalChildOperationIds = [...new Set([
+        ...childOperationIds,
+        ...(Array.isArray(outcomeChildOperationIds) ? outcomeChildOperationIds : [])
+      ].map(child => String(child)).filter(Boolean))];
+      const explicitPhase = input.phase ?? outcome?.phase;
     const terminal = outcome?.terminal === true
       || input.terminal === true
       || (!explicitPhase && outcome?.terminal !== false && input.terminal !== false)
@@ -1515,9 +1590,9 @@ export async function enqueueVillageOperation(request = {}, execute = null) {
     const phase = operationPhase(input, outcome, terminal);
     const entry = {
       operationId, action: input.action ?? "village-operation", villageId,
-      originCycle: input.originCycle ?? current.cycle,
-      expectedRevision, inputFingerprint: fingerprint,
-      phase, childOperationIds: cloneValue(childOperationIds),
+        originCycle: input.originCycle ?? current.cycle,
+        expectedRevision, inputFingerprint: fingerprint,
+        phase, childOperationIds: cloneValue(journalChildOperationIds),
       result: cloneValue(result),
       createdAt: existing?.createdAt ?? Date.now(), updatedAt: Date.now(),
       resultingRevision: current.revision + 1,
@@ -1578,7 +1653,8 @@ export async function migrateVillageState({ operationId = null } = {}) {
   const raw = settingRawVillage();
   if (!raw || typeof raw !== "object") return { ok: true, migrated: false, village: getVillage() };
   const normalized = normalizeVillage(raw);
-  const missing = ["villageId", "sceneSeed", "revision", "sceneId", "bootstrap", "auctionLots", "operationJournal"]
+  const missing = ["villageId", "sceneSeed", "revision", "sceneId", "bootstrap", "auctionLots", "operationJournal",
+    "eventReceipts", "eventReceipt"]
     .some(key => !Object.prototype.hasOwnProperty.call(raw, key));
   if (!missing) return { ok: true, migrated: false, village: normalized };
   const authority = authorityFailure();
@@ -1874,80 +1950,2143 @@ export async function recordSpend(amount, { silent = false, operationId = null }
   return { ok: true, ...result, prosperity: saved.prosperity };
 }
 
-/**
- * End the cycle: promote paid-for levels, expire cycle-scoped event effects,
- * dock Prosperity if nothing could have raised it, reset the spend tracker,
- * then roll next cycle's event.
- */
-export async function endCycle({ skipEvent = false, operationId = null } = {}) {
-  const prev = getVillage();
-  const next = cloneValue(prev);
-  const prevProsperity = next.prosperity;
-  const nextCycle = (next.cycle ?? 0) + 1;
+/* -------------------------------------------------------------------------- */
+/*  Durable event resolution                                                  */
+/* -------------------------------------------------------------------------- */
 
-  // C:2353 — paid-for levels go live at the start of the new cycle.
-  const promoted = [];
-  for (const inst of next.institutions) {
-    if (!isLiveInstitution(inst)) continue;
-    if (inst.pendingLevel != null && nextCycle >= (inst.pendingFromCycle ?? Infinity)) {
-      inst.level = inst.pendingLevel;
-      inst.pendingLevel = null;
-      inst.pendingFromCycle = null;
-      promoted.push(inst);
-    }
-  }
+const VILLAGE_EVENT_PENDING_STATUSES = Object.freeze([
+  "pending", "resolving", "blocked", "partial", "uncertain"
+]);
+const VILLAGE_EVENT_PENDING_STATUS_SET = new Set(VILLAGE_EVENT_PENDING_STATUSES);
+const VILLAGE_EVENT_NONTERMINAL_OPERATION_PHASES = new Set([
+  "prepared", "commerce-pending", "commerce-committed", "credit-pending",
+  "spend-pending", "partial", "uncertain", "blocked"
+]);
+const VILLAGE_EVENT_TERMINAL_RECEIPT_PHASES = new Set(["committed", "abandoned"]);
 
-  next.prosperity = prosperityAtCycleEnd(next.prosperity, {
-    raisingEventOccurred: !!next.raisingEventThisCycle
-  });
-  next.cycle = nextCycle;
-  next.raisingEventThisCycle = false;
-  next.spentThisCycle = 0;                    // C:2261 — "during a cycle"
-  next.spendBonusAwarded = false;
-  next.activeEffects = (next.activeEffects ?? []).filter(e => e.duration !== "cycle");
-
-  let event = null;
-  if (!skipEvent) {
-    const rolled = await new globalThis.Roll("1d10").evaluate();
-    const total = rolled.total + next.prosperity;
-    event = villageEventFor(total);
-    next.pendingEvent = { rolled: rolled.total, total, id: event?.id ?? null };
-    if (event?.effect?.duration === "cycle") next.activeEffects.push({ ...event.effect, eventId: event.id });
-  }
-  const saved = await save(next, { prev, operationId });
-
-  await createVillageChat({
-    content: `<div class="crows village-endcycle">
-      <header><strong>End of cycle ${nextCycle - 1} — entering cycle ${nextCycle}</strong></header>
-      <div>Prosperity: ${prevProsperity} &rarr; <strong>${saved.prosperity}</strong>${saved.prosperity < prevProsperity ? " (nothing raised it)" : ""}</div>
-      ${promoted.length ? `<div>Now operating: ${promoted.map(i => `${i.name} (level ${i.level})`).join(", ")}</div>` : ""}
-      ${event
-        ? `<div><strong>Event:</strong> d10=${saved.pendingEvent.rolled} + Prosperity ${saved.prosperity} = <strong>${saved.pendingEvent.total}</strong></div>
-           <div class="ve-text">${event.text}</div>`
-        : `<div><em>Event skipped.</em></div>`}
-    </div>`,
-    speaker: { alias: "Village" }
-  });
-  return { ok: true, cycle: saved.cycle, prosperity: saved.prosperity, event, promoted: cloneValue(promoted) };
+function villageEventStatus(pending) {
+  if (!pending) return null;
+  const status = String(pending.status ?? "pending");
+  return VILLAGE_EVENT_PENDING_STATUS_SET.has(status) ? status : "pending";
 }
 
-/** Roll a village event immediately (d10 + Prosperity). */
-export async function rollVillageEvent({ silent = false } = {}) {
-  const v = getVillage();
-  const r = await new globalThis.Roll("1d10").evaluate();
-  const total = r.total + (v.prosperity ?? 0);
-  const event = villageEventFor(total);
-  if (!silent) {
+function villageEventBlock(village, { operationId = null } = {}) {
+  const pending = village?.pendingEvent;
+  const status = villageEventStatus(pending);
+  if (status) {
+    return {
+      ok: false,
+      error: `event-${status}`,
+      code: `event-${status}`,
+      reason: `event-${status}`,
+      pendingEvent: cloneValue(pending)
+    };
+  }
+  const entry = (village?.operationJournal ?? []).find(candidate =>
+    candidate?.operationId !== operationId
+      && VILLAGE_EVENT_NONTERMINAL_OPERATION_PHASES.has(String(candidate?.phase ?? ""))
+  );
+  if (!entry) return null;
+  return {
+    ok: false,
+    error: String(entry.phase),
+    code: String(entry.phase),
+    reason: String(entry.phase),
+    operation: cloneValue(entry)
+  };
+}
+
+function eventResolutionToken(value) {
+  const token = String(value ?? "").trim();
+  return token || `village-resolution-${randomToken(16)}`;
+}
+
+function eventOperationToken(value, village, suffix) {
+  const token = String(value ?? "").trim();
+  return token || `village-${suffix}-${village.villageId}-${village.cycle}-${randomToken(10)}`;
+}
+
+function eventSelectionsValue(selections) {
+  if (selections == null) return {};
+  if (Array.isArray(selections)) return { institutionIds: selections };
+  return typeof selections === "object" ? selections : {};
+}
+
+function eventSelectionFingerprint(selections) {
+  const input = cloneValue(eventSelectionsValue(selections));
+  // Target arrays represent sets.  Keep the operation token stable when a
+  // Ref reopens a prepared card and presents the same roster in a different
+  // visual order; the child executor still applies its own deterministic
+  // Actor-UUID ordering.
+  for (const key of ["institutionIds", "recipientActorUuids", "recipientUuids", "actorUuids",
+    "pcUuids", "roster", "recipients", "actors", "targets"]) {
+    if (Array.isArray(input[key])) input[key] = [...input[key]].map(value =>
+      value && typeof value === "object" ? value.uuid ?? value.id ?? value.actorUuid ?? value.institutionId : value
+    ).map(value => String(value ?? "")).sort();
+  }
+  return villageInputFingerprint(input);
+}
+
+function eventSelectionList(selections, ...keys) {
+  const input = eventSelectionsValue(selections);
+  for (const key of keys) {
+    if (!Object.prototype.hasOwnProperty.call(input, key)) continue;
+    const value = input[key];
+    const values = Array.isArray(value) ? value : [value];
+    return values.map(item => {
+      if (item && typeof item === "object") return item.id ?? item.uuid ?? item.actorUuid ?? item.institutionId;
+      return item;
+    }).map(value => String(value ?? "").trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function eventSelectedInstitutionIds(selections) {
+  return [...new Set(eventSelectionList(
+    selections,
+    "institutionIds", "institutions", "institution", "targetInstitutionIds", "targets", "targetIds",
+    "institutionId", "target", "id", "destroyInstitution", "destroyedInstitutionId"
+  ))];
+}
+
+function eventSelectedRecipientUuids(selections) {
+  const input = eventSelectionsValue(selections);
+  const keys = ["recipientActorUuids", "recipientUuids", "actorUuids", "pcUuids", "pcs", "roster",
+    "recipients", "actors", "actorUuid", "actorId"];
+  for (const key of keys) {
+    if (!Object.prototype.hasOwnProperty.call(input, key)) continue;
+    const values = Array.isArray(input[key]) ? input[key] : [input[key]];
+    return [...new Set(values.map(item => item && typeof item === "object"
+      ? item.uuid ?? item.actorUuid ?? item.id : item)
+      .map(value => String(value ?? "").trim()).filter(Boolean))];
+  }
+  return [];
+}
+
+function eventSelectedType(selections) {
+  const input = eventSelectionsValue(selections);
+  const value = input.institutionType ?? input.foundType ?? input.type ?? input.institution ?? "";
+  return String(value && typeof value === "object" ? value.type ?? value.id ?? "" : value).trim();
+}
+
+function eventSelectedItemId(selections) {
+  const input = eventSelectionsValue(selections);
+  const item = input.item;
+  return String(input.itemId ?? input.embeddedItemId ?? (item && typeof item === "object" ? item.id ?? item._id : item) ?? "").trim();
+}
+
+function eventSelectedDestroyId(selections) {
+  const input = eventSelectionsValue(selections);
+  const value = input.destroyInstitutionId ?? input.destroyedInstitutionId ?? input.destroyOne
+    ?? input.destroyId ?? input.destroyInstitution ?? "";
+  return String(value && typeof value === "object" ? value.id ?? value.institutionId ?? "" : value).trim();
+}
+
+function eventInputFingerprint({ resolutionId, selections, context } = {}) {
+  if (typeof context?.inputFingerprint === "string" && context.inputFingerprint) {
+    return context.inputFingerprint;
+  }
+  // Resolver functions, Actor collections, capacity, and other live context
+  // are environment, not operation input.  Including them would make a
+  // legitimate same-token repair (for example, a freed Commerce slot) look
+  // like a new roster.  Callers that have an intentional stable input facet
+  // may provide `fingerprintContext` explicitly.
+  return villageInputFingerprint({
+    resolutionId,
+    selections: eventSelectionFingerprint(selections),
+    context: context?.fingerprintContext ?? null
+  });
+}
+
+function villageHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+async function villageEventD10(options = {}) {
+  const supplied = options.rollD10 ?? options.d10 ?? options.roll ?? options.rng;
+  if (typeof supplied === "function") {
+    const result = await supplied(options);
+    return Math.max(1, Math.min(10, Math.floor(Number(result?.total ?? result) || 0)));
+  }
+  if (supplied && typeof supplied === "object" && supplied.total != null) {
+    return Math.max(1, Math.min(10, Math.floor(Number(supplied.total) || 0)));
+  }
+  if (supplied != null && Number.isFinite(Number(supplied))) {
+    return Math.max(1, Math.min(10, Math.floor(Number(supplied))));
+  }
+  if (typeof globalThis.Roll !== "function") {
+    throw new Error("village-event-dice-unavailable");
+  }
+  const result = await new globalThis.Roll("1d10").evaluate();
+  return Math.max(1, Math.min(10, Math.floor(Number(result?.total) || 0)));
+}
+
+function villagePendingEvent(event, { rolled, total, cycle, resolutionId } = {}) {
+  return {
+    eventId: event?.id ?? null,
+    id: event?.id ?? null,
+    rolled: Math.max(1, Math.min(10, Math.floor(Number(rolled) || 0))),
+    roll: Math.max(1, Math.min(10, Math.floor(Number(rolled) || 0))),
+    total: Math.floor(Number(total) || 0),
+    cycle: Math.max(0, Math.floor(Number(cycle) || 0)),
+    resolutionId: resolutionId ?? null,
+    status: "pending",
+    selection: {},
+    selections: {}
+  };
+}
+
+function eventReceiptFor(village, resolutionId) {
+  const token = String(resolutionId ?? "");
+  // `eventReceipt` is the additive latest-receipt projection.  Prefer it when
+  // a legacy/current setting contains both fields with the same token but
+  // different timestamps; the per-resolution list is the recovery archive.
+  if (String(village?.eventReceipt?.resolutionId ?? "") === token) {
+    return cloneValue(village.eventReceipt);
+  }
+  const listed = (village?.eventReceipts ?? []).find(receipt =>
+    String(receipt?.resolutionId ?? "") === token
+  );
+  if (listed) return cloneValue(listed);
+  return null;
+}
+
+function putEventReceipt(next, receipt) {
+  const token = String(receipt?.resolutionId ?? "");
+  const receipts = (next.eventReceipts ?? []).filter(candidate =>
+    String(candidate?.resolutionId ?? "") !== token
+  );
+  receipts.push(cloneValue(receipt));
+  next.eventReceipts = receipts;
+  next.eventReceipt = cloneValue(receipt);
+}
+
+function eventJournalEntry(next, {
+  operationId, phase, expectedRevision, inputFingerprint, childOperationIds = [], result, originCycle
+} = {}) {
+  const entry = {
+    operationId: String(operationId),
+    action: "resolve-village-event",
+    villageId: next.villageId,
+    originCycle: originCycle ?? next.cycle,
+    expectedRevision,
+    inputFingerprint,
+    phase,
+    childOperationIds: [...new Set(childOperationIds.map(value => String(value)).filter(Boolean))],
+    result: cloneValue(result),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    resultingRevision: next.revision,
+    writerUserId: globalThis.game?.user?.id ?? null
+  };
+  next.operationJournal = [
+    ...(next.operationJournal ?? []).filter(candidate => candidate.operationId !== entry.operationId),
+    entry
+  ];
+  return entry;
+}
+
+function eventResult({ ok = false, error = null, phase = null, resolutionId, eventId, pendingEvent,
+  receipt = null, normalizedEffects = [], childOperationIds = [], ...extra } = {}) {
+  return {
+    ok,
+    ...(error ? { error } : {}),
+    ...(phase ? { phase } : {}),
+    resolutionId,
+    eventId,
+    ...(pendingEvent !== undefined ? { pendingEvent: cloneValue(pendingEvent) } : {}),
+    ...(receipt ? { receipt: cloneValue(receipt) } : {}),
+    normalizedEffects: cloneValue(normalizedEffects),
+    childOperationIds: [...new Set(childOperationIds.map(value => String(value)).filter(Boolean))],
+    ...extra
+  };
+}
+
+function eventPicker({ kind, selectionKey, count = null, candidates = [], reason = "selection-required", ...extra } = {}) {
+  return {
+    kind,
+    selectionKey,
+    ...(count == null ? {} : { count }),
+    reason,
+    candidates: candidates.map(candidate => ({
+      id: candidate.id,
+      type: candidate.type,
+      name: candidate.name,
+      level: candidate.level,
+      steward: candidate.steward
+    })),
+    ...extra
+  };
+}
+
+function eventSelectionFailure(pending, event, picker, reason = "selection-required", extra = {}) {
+  return eventResult({
+    ok: false,
+    error: reason,
+    phase: "pending",
+    resolutionId: pending?.resolutionId ?? null,
+    eventId: event?.id ?? pending?.eventId ?? pending?.id ?? null,
+    pendingEvent: pending,
+    picker,
+    requiresSelection: true,
+    ...extra
+  });
+}
+
+function eventInstitutionCandidates(village, kind, { excludeRetiredPC = false, context = {} } = {}) {
+  const retired = new Set([
+    ...(context.retiredPCUuids ?? []),
+  ...(context.retiredActorUuids ?? []),
+    ...(context.retiredPCs ?? [])
+  ].map(value => String(value?.uuid ?? value?.id ?? value ?? "")));
+  const isRetired = steward => retired.has(String(steward?.uuid ?? steward?.id ?? steward ?? ""))
+    || steward?.retired === true || steward?.isRetired === true
+    || (typeof context.isRetiredPC === "function" && context.isRetiredPC(steward));
+  return liveInstitutionRecords(village).filter(institution => {
+    const def = INSTITUTIONS[institution.type];
+    if (kind === "merchant") return !!def?.roles?.includes("merchant");
+    if (kind === "artisan") return !!def?.roles?.includes("artisan");
+    if (excludeRetiredPC && isRetired(institution.steward)) return false;
+    return true;
+  });
+}
+
+function validateInstitutionSelection(village, selections, {
+  kind = "any", count = 1, excludeRetiredPC = false, pickerKind = "institution", selectionKey = "institutionIds",
+  allowEmpty = false, context = {}, event = null, pending = null
+} = {}) {
+  const candidates = eventInstitutionCandidates(village, kind, { excludeRetiredPC, context });
+  const ids = eventSelectedInstitutionIds(selections);
+  if (!ids.length && !allowEmpty) {
+    return { ok: false, failure: eventSelectionFailure(pending, event, eventPicker({
+      kind: pickerKind, selectionKey, count, candidates
+    })) };
+  }
+  const unique = [...new Set(ids)];
+  if (unique.length !== count) {
+    return { ok: false, failure: eventSelectionFailure(pending, event, eventPicker({
+      kind: pickerKind, selectionKey, count, candidates, reason: "exact-target-count"
+    }), "exact-target-count", { selected: unique }) };
+  }
+  const candidateIds = new Set(candidates.map(candidate => String(candidate.id)));
+  const invalid = unique.filter(id => !candidateIds.has(String(id)));
+  if (invalid.length) {
+    return {
+      ok: false,
+      failure: eventResult({ ok: false, error: "invalid-selection", phase: "pending",
+        resolutionId: pending?.resolutionId ?? null, eventId: event?.id ?? null,
+        pendingEvent: pending, invalid, selected: unique, eligible: candidates.map(candidate => candidate.id) })
+    };
+  }
+  return { ok: true, ids: unique, candidates };
+}
+
+function eventActorItems(actor) {
+  const items = actor?.items;
+  if (typeof items?.values === "function") return [...items.values()];
+  if (Array.isArray(items)) return [...items];
+  if (items && typeof items[Symbol.iterator] === "function") return [...items];
+  return [];
+}
+
+function eventActorItem(actor, itemId) {
+  const items = actor?.items;
+  if (typeof items?.get === "function") return items.get(itemId) ?? null;
+  return eventActorItems(actor).find(item => String(item?.id ?? item?._id ?? "") === String(itemId)) ?? null;
+}
+
+async function resolveEventActor(uuid, context = {}) {
+  const token = String(uuid ?? "").trim();
+  if (!token) return null;
+  const resolver = context.resolveActor ?? context.actorResolver ?? context.getActor;
+  if (typeof resolver === "function") return resolver(token);
+  const direct = context.actorByUuid?.[token] ?? (typeof context.actorByUuid?.get === "function" ? context.actorByUuid.get(token) : null);
+  if (direct) return direct;
+  const actors = context.actors ?? globalThis.game?.actors;
+  if (typeof actors?.get === "function") {
+    const found = actors.get(token);
+    if (found) return found;
+  }
+  if (Array.isArray(actors)) return actors.find(actor => String(actor?.uuid ?? actor?.id ?? "") === token) ?? null;
+  if (actors && typeof actors[Symbol.iterator] === "function") {
+    return [...actors].map(value => Array.isArray(value) ? value[1] : value)
+      .find(actor => String(actor?.uuid ?? actor?.id ?? "") === token) ?? null;
+  }
+  if (typeof globalThis.fromUuid === "function") {
+    try { return await globalThis.fromUuid(token); } catch { return null; }
+  }
+  return null;
+}
+
+function eventActorUuid(actor, fallback = "") {
+  return String(actor?.uuid ?? actor?.id ?? fallback ?? "").trim();
+}
+
+function eventItemIsMundane(item, context = {}) {
+  if (!item) return false;
+  if (typeof context.isMundaneItem === "function") return !!context.isMundaneItem(item);
+  if (item.system?.magical === true || item.flags?.crows?.magical === true) return false;
+  const itemClass = item.itemClass ?? item.system?.itemClass ?? item.system?.class
+    ?? item.system?.rarity ?? null;
+  if (itemClass == null) return true;
+  return ["mundane", "common", "standard", "ordinary", "fine", "masterwork"].includes(String(itemClass).toLowerCase());
+}
+
+async function eventDeleteItem(actor, item, metadata, context = {}) {
+  const executor = context.deleteItem ?? context.deleteEmbeddedItem ?? context.executeDeleteItem;
+  try {
+    if (typeof executor === "function") {
+      return await executor(actor, item, metadata);
+    }
+    if (typeof actor?.deleteEmbeddedDocuments !== "function") {
+      return { ok: false, error: "delete-unavailable", state: "unknown" };
+    }
+    await actor.deleteEmbeddedDocuments("Item", [item.id ?? item._id]);
+    return { ok: true, phase: "committed", deleteId: metadata.deleteId };
+  } catch (error) {
+    return { ok: false, error: "write-failed", state: "unknown", message: String(error?.message ?? error) };
+  }
+}
+
+function eventChildCommitted(result) {
+  return !!result && result.ok !== false
+    && !["prepared", "pending", "uncertain", "partial", "blocked"].includes(String(result.phase ?? ""))
+    && result.status !== "uncertain"
+    && result.status !== "pending"
+    && result.state !== "unknown"
+    && !result.reconciliationRequired;
+}
+
+function eventChildUncertain(result) {
+  return !result || ["prepared", "pending", "uncertain", "partial"].includes(String(result.phase ?? ""))
+    || result.state === "unknown"
+    || result.status === "uncertain" || result.status === "pending"
+    || result.reconciliationRequired || ["write-failed", "item-not-found", "timeout", "unknown"]
+      .includes(String(result.error ?? ""));
+}
+
+function eventRecordBase(effect, event, resolutionId, village) {
+  return {
+    ...cloneValue(effect),
+    eventId: event.id,
+    resolutionId,
+    cycle: village.cycle
+  };
+}
+
+function eventTargetRecord(effect, event, resolutionId, village, institutionId) {
+  return {
+    ...eventRecordBase(effect, event, resolutionId, village),
+    institutionId,
+    target: institutionId
+  };
+}
+
+function eventRecipientRecord(effect, event, resolutionId, village, actorUuid, extra = {}) {
+  return {
+    ...eventRecordBase(effect, event, resolutionId, village),
+    ...extra,
+    target: extra.target ?? actorUuid,
+    beneficiaryActorUuid: actorUuid,
+    recipientActorUuid: actorUuid
+  };
+}
+
+function eventPendingWithSelection(pending, resolutionId, selections) {
+  const selected = cloneValue(eventSelectionsValue(selections));
+  return {
+    ...cloneValue(pending),
+    resolutionId: pending?.resolutionId ?? resolutionId,
+    selection: selected,
+    selections: selected
+  };
+}
+
+/**
+ * Resolve the Ref's explicit choices against one fresh Village snapshot.
+ * Nothing in this function writes a setting, Actor, or Item.  In particular,
+ * `scope: "all"` is expanded here, so the normalized receipt records the live
+ * merchant ids that were actually affected rather than a future, moving scope.
+ */
+async function buildEventPlan(village, pending, selections, context, resolutionId) {
+  const eventId = pending?.eventId ?? pending?.id;
+  const event = VILLAGE_EVENTS.find(candidate => candidate.id === eventId) ?? null;
+  if (!event) {
+    return { ok: false, result: eventResult({
+      ok: false, error: "unknown-event", resolutionId, eventId, pendingEvent: pending
+    }) };
+  }
+  const effect = cloneValue(event.effect ?? {});
+  const selected = eventPendingWithSelection(pending, resolutionId, selections);
+  const plan = {
+    event,
+    effect,
+    pending: selected,
+    normalizedEffects: [],
+    childOperationIds: [],
+    children: [],
+    preflightFailure: null,
+    local: true
+  };
+  const failSelection = (failure) => ({ ok: false, result: failure });
+
+  if (effect.kind === "destroyInstitution") {
+    const picked = validateInstitutionSelection(village, selections, {
+      count: Math.max(1, Math.floor(Number(effect.count) || 1)),
+      event, pending: selected, context
+    });
+    if (!picked.ok) return failSelection(picked.failure);
+    for (const institutionId of picked.ids) {
+      plan.normalizedEffects.push(eventTargetRecord(effect, event, resolutionId, village, institutionId));
+    }
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "institutionLevel" && effect.destroyIfAllFirstLevel) {
+    const picked = validateInstitutionSelection(village, selections, {
+      count: 2, event, pending: selected, context,
+      pickerKind: "institution-group", selectionKey: "institutionIds"
+    });
+    if (!picked.ok) return failSelection(picked.failure);
+    const pair = picked.ids.map(id => institutionRecordById(id, village));
+    const allFirstLevel = pair.every(institution => Number(institution?.level) === 1);
+    if (allFirstLevel) {
+      const destroyId = eventSelectedDestroyId(selections);
+      if (!destroyId) {
+        return failSelection(eventSelectionFailure(selected, event, eventPicker({
+          kind: "institution-group-destroy-one",
+          selectionKey: "destroyInstitutionId",
+          count: 1,
+          candidates: pair,
+          reason: "secondary-destroy-selection",
+          institutionIds: picked.ids,
+          predicate: "all-first-level"
+        }), "secondary-destroy-selection", { institutionIds: picked.ids }));
+      }
+      if (!picked.ids.includes(destroyId)) {
+        return failSelection(eventResult({ ok: false, error: "invalid-selection", phase: "pending",
+          resolutionId, eventId, pendingEvent: selected, invalid: [destroyId], eligible: picked.ids }));
+      }
+      plan.normalizedEffects.push({
+        ...eventRecordBase(effect, event, resolutionId, village),
+        kind: "monsterDamagesTwo",
+        institutionIds: [...picked.ids],
+        target: destroyId,
+        destroyInstitutionId: destroyId,
+        predicate: "all-first-level",
+        outcome: "destroy-one"
+      });
+      return { ok: true, plan };
+    }
+    for (const institutionId of picked.ids) {
+      plan.normalizedEffects.push({
+        ...eventTargetRecord(effect, event, resolutionId, village, institutionId),
+        institutionIds: [...picked.ids],
+        predicate: "mixed-levels",
+        outcome: "decrement-both"
+      });
+    }
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "prosperity" && effect.destroyInstitutionIfAtFloor
+      && village.prosperity <= PROSPERITY_MIN) {
+    const picked = validateInstitutionSelection(village, selections, {
+      count: 1, event, pending: selected, context,
+      pickerKind: "institution-at-floor", selectionKey: "institutionId"
+    });
+    if (!picked.ok) return failSelection(picked.failure);
+    plan.normalizedEffects.push({
+      ...eventTargetRecord(effect, event, resolutionId, village, picked.ids[0]),
+      kind: "destroyInstitution",
+      predicate: "prosperity-floor"
+    });
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "prosperity") {
+    plan.normalizedEffects.push({ ...eventRecordBase(effect, event, resolutionId, village) });
+    return { ok: true, plan };
+  }
+
+  if (["merchantLevel", "outOfStockChance"].includes(effect.kind)) {
+    const candidates = eventInstitutionCandidates(village, "merchant", { context });
+    const picked = effect.scope === "all"
+      ? { ok: true, ids: candidates.map(institution => institution.id), candidates }
+      : validateInstitutionSelection(village, selections, {
+        kind: "merchant", count: Math.max(1, Math.floor(Number(effect.count) || 1)),
+        event, pending: selected, context, pickerKind: "merchant", selectionKey: "institutionId"
+      });
+    if (!picked.ok) return failSelection(picked.failure);
+    if (!picked.ids.length) {
+      return failSelection(eventResult({ ok: false, error: "no-live-target", phase: "pending",
+        resolutionId, eventId, pendingEvent: selected }));
+    }
+    for (const institutionId of picked.ids) {
+      plan.normalizedEffects.push(eventTargetRecord(effect, event, resolutionId, village, institutionId));
+    }
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "institutionLevel") {
+    const picked = validateInstitutionSelection(village, selections, {
+      count: Math.max(1, Math.floor(Number(effect.count) || 1)), event, pending: selected, context
+    });
+    if (!picked.ok) return failSelection(picked.failure);
+    for (const institutionId of picked.ids) {
+      const institution = institutionRecordById(institutionId, village);
+      if (effect.onlyBelowLevel != null
+          && Number(institution?.level) >= Number(effect.onlyBelowLevel)) {
+        return failSelection(eventResult({ ok: false, error: "predicate-failed", phase: "pending",
+          resolutionId, eventId, pendingEvent: selected, institutionId,
+          predicate: `below-${effect.onlyBelowLevel}` }));
+      }
+      plan.normalizedEffects.push(eventTargetRecord(effect, event, resolutionId, village, institutionId));
+    }
+    return { ok: true, plan };
+  }
+
+  if (["ceaseOperations", "artisanShutdown", "craftingRollsPerDay"].includes(effect.kind)) {
+    const kind = effect.kind === "artisanShutdown" || effect.kind === "craftingRollsPerDay" ? "artisan" : "any";
+    const picked = validateInstitutionSelection(village, selections, {
+      kind, count: Math.max(1, Math.floor(Number(effect.count) || 1)),
+      excludeRetiredPC: !!effect.excludeRetiredPC, event, pending: selected, context
+    });
+    if (!picked.ok) return failSelection(picked.failure);
+    for (const institutionId of picked.ids) {
+      plan.normalizedEffects.push(eventTargetRecord(effect, event, resolutionId, village, institutionId));
+    }
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "sellPercentage" || effect.kind === "boycott") {
+    plan.normalizedEffects.push(eventRecordBase(effect, event, resolutionId, village));
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "credit") {
+    const picked = validateInstitutionSelection(village, selections, {
+      kind: "merchant", count: 1, event, pending: selected, context,
+      selectionKey: "institutionId"
+    });
+    if (!picked.ok) return failSelection(picked.failure);
+    const recipients = eventSelectedRecipientUuids(selections);
+    if (!recipients.length) {
+      return failSelection(eventSelectionFailure(selected, event, eventPicker({
+        kind: "recipients", selectionKey: "recipientActorUuids", count: "one-or-more",
+        candidates: context.rosterSuggestions ?? [], explicitOnly: true
+      })));
+    }
+    for (const actorUuid of [...new Set(recipients)].sort()) {
+      const creditId = `${resolutionId}:credit:${picked.ids[0]}:${actorUuid}`;
+      plan.normalizedEffects.push(eventRecipientRecord(effect, event, resolutionId, village, actorUuid, {
+        kind: "credit",
+        creditId,
+        institutionId: picked.ids[0],
+        target: picked.ids[0],
+        amountRemaining: Math.max(0, Math.floor(Number(effect.perPC) || 0)),
+        expiresOnCycle: village.cycle,
+        beneficiaryActorUuid: actorUuid
+      }));
+    }
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "grantItem") {
+    const recipients = eventSelectedRecipientUuids(selections);
+    if (!recipients.length) {
+      return failSelection(eventSelectionFailure(selected, event, eventPicker({
+        kind: "recipients", selectionKey: "recipientActorUuids", count: "one-or-more",
+        candidates: context.rosterSuggestions ?? [], explicitOnly: true
+      })));
+    }
+    const uniqueRecipients = [...new Set(recipients)].sort();
+    for (const actorUuid of uniqueRecipients) {
+      const actor = await resolveEventActor(actorUuid, context);
+      if (!actor) {
+        plan.preflightFailure = { ok: false, error: "invalid-recipient", actorUuid };
+      }
+      const grantId = `${resolutionId}:grant:${actorUuid}`;
+      plan.childOperationIds.push(grantId);
+      plan.children.push({ kind: "grant", grantId, actorUuid, actor, source: effect.item });
+      plan.normalizedEffects.push(eventRecipientRecord(effect, event, resolutionId, village, actorUuid, {
+        kind: "grant",
+        grantId,
+        item: effect.item,
+        commerceTxId: null
+      }));
+    }
+    plan.local = false;
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "destroyItem") {
+    const input = eventSelectionsValue(selections);
+    const itemSelection = input.item && typeof input.item === "object" ? input.item : {};
+    const actorSelection = input.actor ?? input.actorUuid ?? input.actorId
+      ?? itemSelection.actorUuid ?? itemSelection.parentUuid ?? "";
+    const actorUuid = String(actorSelection && typeof actorSelection === "object"
+      ? actorSelection.uuid ?? actorSelection.actorUuid ?? actorSelection.id ?? ""
+      : actorSelection).trim();
+    const itemId = eventSelectedItemId(selections);
+    if (!actorUuid || !itemId) {
+      return failSelection(eventSelectionFailure(selected, event, eventPicker({
+        kind: "item", selectionKey: "actorUuid/itemId", count: 1, explicitOnly: true
+      })));
+    }
+    const actor = await resolveEventActor(actorUuid, context);
+    const item = actor ? eventActorItem(actor, itemId) : null;
+    if (!actor) plan.preflightFailure = { ok: false, error: "invalid-recipient", actorUuid };
+    else if (!item) plan.preflightFailure = { ok: false, error: "item-not-found", actorUuid, itemId };
+    else if (!eventItemIsMundane(item, context)) {
+      plan.preflightFailure = { ok: false, error: "invalid-source", reason: "item-not-mundane", actorUuid, itemId };
+    }
+    const deleteId = `${resolutionId}:delete:${actorUuid}:${itemId}`;
+    plan.childOperationIds.push(deleteId);
+    plan.children.push({ kind: "deleteItem", deleteId, actorUuid, actor, item, itemId });
+    plan.normalizedEffects.push({
+      ...eventRecordBase(effect, event, resolutionId, village),
+      kind: "destroyItem", target: `${actorUuid}:${itemId}`, actorUuid, itemId,
+      itemClass: "mundane", deleteId
+    });
+    plan.local = false;
+    return { ok: true, plan };
+  }
+
+  if (effect.kind === "foundInstitution") {
+    const type = eventSelectedType(selections);
+    if (!INSTITUTIONS[type]) {
+      return failSelection(eventSelectionFailure(selected, event, eventPicker({
+        kind: "institution-type", selectionKey: "institutionType", count: 1,
+        candidates: INSTITUTION_KEYS.map(key => ({ id: key, type: key, name: INSTITUTIONS[key].label })),
+        reason: type ? "invalid-institution-type" : "selection-required"
+      }), type ? "invalid-institution-type" : "selection-required"));
+    }
+    const existing = (village.institutions ?? []).find(institution => institution.type === type);
+    const liveExisting = (village.institutions ?? []).find(institution => institution.type === type
+      && isLiveInstitution(institution) && Number(institution.level) > 0);
+    if (liveExisting) {
+      return failSelection(eventResult({ ok: false, error: "institution-exists", phase: "pending",
+        resolutionId, eventId, pendingEvent: selected, institution: liveExisting }));
+    }
+    plan.normalizedEffects.push({
+      ...eventRecordBase(effect, event, resolutionId, village),
+      kind: "foundInstitution", institutionType: type, type,
+      target: type,
+      name: eventSelectionsValue(selections).name ?? null,
+      steward: eventSelectionsValue(selections).steward ?? ""
+    });
+    return { ok: true, plan };
+  }
+
+  return { ok: false, result: eventResult({ ok: false, error: "unsupported-effect", phase: "pending",
+    resolutionId, eventId, pendingEvent: selected, effect: effect.kind }) };
+}
+
+function eventPendingOperationId(institution) {
+  return institution?.pendingOperationId ?? institution?.pendingOperation
+    ?? institution?.operationId ?? null;
+}
+
+function markEventLinkedOperation(next, institution, outcome, resolutionId) {
+  const operationId = eventPendingOperationId(institution);
+  if (!operationId) return;
+  const entry = (next.operationJournal ?? []).find(candidate =>
+    String(candidate?.operationId ?? "") === String(operationId)
+  );
+  if (!entry) return;
+  entry.phase = "committed";
+  entry.updatedAt = Date.now();
+  entry.result = {
+    ...(entry.result && typeof entry.result === "object" ? entry.result : {}),
+    ok: true,
+    resolutionId,
+    pendingDisposition: outcome
+  };
+}
+
+function markEventInstitutionDestroyed(next, institutionId, { resolutionId, eventId, reason = "event" } = {}) {
+  const index = (next.institutions ?? []).findIndex(institution => institution.id === institutionId);
+  if (index < 0) return null;
+  const institution = next.institutions[index];
+  if (institution.destroyed) return institution;
+  const linkedOperationId = eventPendingOperationId(institution);
+  next.institutions[index] = {
+    ...institution,
+    destroyed: true,
+    destroyedOnCycle: next.cycle,
+    pendingLevel: null,
+    pendingFromCycle: null,
+    pendingOperationId: null,
+    pendingOperation: null,
+    operationId: null,
+    destruction: {
+      ...(institution.destruction ?? {}),
+      resolutionId,
+      eventId,
+      reason
+    },
+    destructionMetadata: { resolutionId, eventId, reason }
+  };
+  markEventLinkedOperation(next, institution, "superseded-by-destruction", resolutionId);
+  // A direct mutation above clears the pointer before the helper can inspect
+  // it, so mark the old operation explicitly as well.
+  if (linkedOperationId) {
+    const entry = (next.operationJournal ?? []).find(candidate =>
+      String(candidate?.operationId ?? "") === String(linkedOperationId)
+    );
+    if (entry) {
+      entry.phase = "committed";
+      entry.updatedAt = Date.now();
+      entry.result = {
+        ...(entry.result && typeof entry.result === "object" ? entry.result : {}),
+        ok: true,
+        pendingDisposition: "superseded-by-destruction",
+        resolutionId
+      };
+    }
+  }
+  return next.institutions[index];
+}
+
+function validEventPendingLevel(institution) {
+  if (institution?.pendingLevel == null) return { valid: true, target: null };
+  const raw = Math.max(0, Math.floor(Number(institution.level) || 0));
+  const target = Math.floor(Number(institution.pendingLevel));
+  const max = institutionPurchasableMaxLevel(institution.type);
+  return {
+    valid: Number.isInteger(target) && target > raw && target <= max,
+    target,
+    max,
+    raw
+  };
+}
+
+/** Apply a permanent event level delta to canonical raw institution state. */
+function applyPermanentEventLevel(next, institutionId, delta, { resolutionId, eventId } = {}) {
+  const index = (next.institutions ?? []).findIndex(institution => institution.id === institutionId);
+  if (index < 0) return { ok: false, error: "no-such-institution" };
+  const institution = next.institutions[index];
+  const pending = validEventPendingLevel(institution);
+  if (!pending.valid) {
+    return { ok: false, error: "invalid-pending-level", institutionId, pendingLevel: institution.pendingLevel };
+  }
+  const amount = Math.floor(Number(delta) || 0);
+  const oldLevel = Math.max(0, Math.floor(Number(institution.level) || 0));
+  const nextLevel = Math.max(0, Math.min(institutionMaxLevel(institution.type), oldLevel + amount));
+  const changed = { ...institution, level: nextLevel };
+
+  if (nextLevel <= 0) {
+    const linkedOperationId = eventPendingOperationId(institution);
+    changed.pendingLevel = null;
+    changed.pendingFromCycle = null;
+    changed.pendingOperationId = null;
+    changed.pendingOperation = null;
+    changed.operationId = null;
+    next.institutions[index] = changed;
+    if (linkedOperationId) {
+      const entry = (next.operationJournal ?? []).find(candidate =>
+        String(candidate?.operationId ?? "") === String(linkedOperationId)
+      );
+      if (entry) {
+        entry.phase = "committed";
+        entry.updatedAt = Date.now();
+        entry.result = {
+          ...(entry.result && typeof entry.result === "object" ? entry.result : {}),
+          ok: true, pendingDisposition: "superseded-by-closure", resolutionId
+        };
+      }
+    }
+    return { ok: true, institution: changed, oldLevel, newLevel: nextLevel,
+      pendingDisposition: "superseded-by-closure" };
+  }
+
+  if (pending.target != null) {
+    const shifted = Math.min(pending.max, pending.target + amount);
+    if (shifted <= nextLevel) {
+      // Policy (the book does not settle this collision): an intervening
+      // free level absorbs the paid target.  The committed payment receives
+      // no automatic refund.
+      changed.pendingLevel = null;
+      changed.pendingFromCycle = null;
+      changed.pendingOperationId = null;
+      changed.pendingOperation = null;
+      changed.operationId = null;
+      markEventLinkedOperation(next, institution, "fulfilled-by-event", resolutionId);
+      changed.pendingDisposition = "fulfilled-by-event";
+    } else {
+      changed.pendingLevel = shifted;
+      // The operation remains tied to its original paid-for cycle.  The event
+      // can cap or absorb the target but never retimes it.
+      changed.pendingFromCycle = institution.pendingFromCycle ?? null;
+      changed.pendingOperationId = institution.pendingOperationId ?? institution.pendingOperation
+        ?? institution.operationId ?? null;
+    }
+  }
+  next.institutions[index] = changed;
+  return { ok: true, institution: changed, oldLevel, newLevel: nextLevel,
+    pendingDisposition: changed.pendingDisposition ?? "shifted" };
+}
+
+function appendEventActiveEffect(next, effect) {
+  const record = cloneValue(effect);
+  const duplicate = (next.activeEffects ?? []).some(existing =>
+    String(existing?.resolutionId ?? "") === String(record?.resolutionId ?? "")
+      && String(existing?.kind ?? "") === String(record?.kind ?? "")
+      && String(existing?.target ?? existing?.institutionId ?? "") === String(record?.target ?? record?.institutionId ?? "")
+      && String(existing?.beneficiaryActorUuid ?? "") === String(record?.beneficiaryActorUuid ?? "")
+  );
+  if (!duplicate) next.activeEffects = [...(next.activeEffects ?? []), record];
+}
+
+function applyVillagersFoundEvent(next, effect, { resolutionId, eventId } = {}) {
+  const type = effect.institutionType ?? effect.type;
+  const def = INSTITUTIONS[type];
+  if (!def) return { ok: false, error: "unknown-institution", type };
+  const existingIndex = (next.institutions ?? []).findIndex(institution => institution.type === type);
+  const existing = existingIndex < 0 ? null : next.institutions[existingIndex];
+  if (existing && isLiveInstitution(existing) && Number(existing.level) > 0) {
+    return { ok: false, error: "institution-exists", institution: cloneValue(existing) };
+  }
+  const revived = {
+    ...(existing ?? {}),
+    id: existing?.id ?? `inst-${randomToken(10)}`,
+    type,
+    name: effect.name ?? existing?.name ?? def.label,
+    steward: effect.steward ?? existing?.steward ?? "",
+    level: 1,
+    foundedOnCycle: next.cycle,
+    operatingFromCycle: next.cycle + 1,
+    pendingLevel: null,
+    pendingFromCycle: null,
+    pendingOperationId: null,
+    destroyed: false,
+    destroyedOnCycle: null,
+    destruction: null,
+    destructionMetadata: null,
+    foundedBy: "villagersFound",
+    foundingResolutionId: resolutionId,
+    foundingEventId: eventId
+  };
+  if (existingIndex < 0) next.institutions.push(revived);
+  else next.institutions[existingIndex] = revived;
+  // This lower-level event mutation deliberately does not touch prosperity,
+  // raisingEventThisCycle, or boycott.  The villagers supplied the money;
+  // only a PC/Party-funded founding gets those paid-investment side effects.
+  return { ok: true, institution: revived };
+}
+
+/** Apply all Village-local effects after the complete plan is known. */
+function applyEventLocalPlan(next, plan, { resolutionId } = {}) {
+  const result = { effects: [], institutions: [], prosperity: next.prosperity };
+  for (const effect of plan.normalizedEffects ?? []) {
+    const kind = effect.kind;
+    if (kind === "grant" || kind === "destroyItem") continue;
+
+    if (kind === "monsterDamagesTwo") {
+      const pair = effect.institutionIds ?? [];
+      if (effect.outcome === "destroy-one") {
+        const destroyed = markEventInstitutionDestroyed(next, effect.destroyInstitutionId, {
+          resolutionId, eventId: plan.event.id, reason: "monsterDamagesTwo"
+        });
+        if (destroyed) result.institutions.push(cloneValue(destroyed));
+      } else {
+        for (const institutionId of pair) {
+          const transition = applyPermanentEventLevel(next, institutionId, -1, {
+            resolutionId, eventId: plan.event.id
+          });
+          if (!transition.ok) return transition;
+          result.institutions.push(cloneValue(transition.institution));
+        }
+      }
+      result.effects.push(cloneValue(effect));
+      continue;
+    }
+
+    if (kind === "destroyInstitution") {
+      const destroyed = markEventInstitutionDestroyed(next, effect.institutionId ?? effect.target, {
+        resolutionId, eventId: plan.event.id, reason: effect.predicate ?? "event"
+      });
+      if (destroyed) result.institutions.push(cloneValue(destroyed));
+      result.effects.push(cloneValue(effect));
+      continue;
+    }
+
+    if (kind === "institutionLevel") {
+      const institution = institutionRecordById(effect.institutionId ?? effect.target, next);
+      if (!institution) return { ok: false, error: "no-such-institution", institutionId: effect.institutionId };
+      if (effect.destroyIfFirstLevel && Number(institution.level) <= 1) {
+        const destroyed = markEventInstitutionDestroyed(next, institution.id, {
+          resolutionId, eventId: plan.event.id, reason: "destroyIfFirstLevel"
+        });
+        if (destroyed) result.institutions.push(cloneValue(destroyed));
+      } else if (effect.duration === "permanent") {
+        const transition = applyPermanentEventLevel(next, institution.id, effect.delta, {
+          resolutionId, eventId: plan.event.id
+        });
+        if (!transition.ok) return transition;
+        result.institutions.push(cloneValue(transition.institution));
+      } else {
+        appendEventActiveEffect(next, effect);
+      }
+      result.effects.push(cloneValue(effect));
+      continue;
+    }
+
+    if (kind === "merchantLevel" || kind === "outOfStockChance"
+        || kind === "ceaseOperations" || kind === "artisanShutdown"
+        || kind === "craftingRollsPerDay") {
+      appendEventActiveEffect(next, effect);
+      result.effects.push(cloneValue(effect));
+      continue;
+    }
+
+    if (kind === "sellPercentage" || kind === "boycott") {
+      appendEventActiveEffect(next, effect);
+      result.effects.push(cloneValue(effect));
+      continue;
+    }
+
+    if (kind === "credit") {
+      appendEventActiveEffect(next, effect);
+      result.effects.push(cloneValue(effect));
+      continue;
+    }
+
+    if (kind === "foundInstitution") {
+      const founded = applyVillagersFoundEvent(next, effect, {
+        resolutionId, eventId: plan.event.id
+      });
+      if (!founded.ok) return founded;
+      result.institutions.push(cloneValue(founded.institution));
+      result.effects.push(cloneValue(effect));
+      continue;
+    }
+
+    if (kind === "prosperity") {
+      if (Number(effect.delta) > 0) next.raisingEventThisCycle = true;
+      if (next.prosperity >= PROSPERITY_MAX && effect.atCapInstead) {
+        appendEventActiveEffect(next, {
+          ...eventRecordBase(effect.atCapInstead, plan.event, resolutionId, next),
+          ...cloneValue(effect.atCapInstead),
+          kind: effect.atCapInstead.kind,
+          scope: effect.atCapInstead.scope ?? "all"
+        });
+      } else {
+        next.prosperity = clampProsperity(next.prosperity + Math.floor(Number(effect.delta) || 0));
+      }
+      result.prosperity = next.prosperity;
+      result.effects.push(cloneValue(effect));
+      continue;
+    }
+  }
+  result.prosperity = next.prosperity;
+  return { ok: true, ...result };
+}
+
+function eventGrantFunction(context = {}) {
+  if (typeof context.grantItem === "function") return context.grantItem;
+  if (typeof context.commerce?.grantItem === "function") return context.commerce.grantItem.bind(context.commerce);
+  if (typeof context.commerceGrantItem === "function") return context.commerceGrantItem;
+  if (typeof globalThis.game?.crows?.commerce?.grantItem === "function") {
+    return globalThis.game.crows.commerce.grantItem.bind(globalThis.game.crows.commerce);
+  }
+  if (typeof globalThis.game?.crows?.grantItem === "function") return globalThis.game.crows.grantItem;
+  return null;
+}
+
+function eventGrantPreflightFunction(context = {}) {
+  if (typeof context.preflightGrant === "function") return context.preflightGrant;
+  if (typeof context.commerce?.preflightGrant === "function") return context.commerce.preflightGrant.bind(context.commerce);
+  const grant = eventGrantFunction(context);
+  if (typeof grant?.preflight === "function") return grant.preflight.bind(grant);
+  return null;
+}
+
+async function preflightEventChild(child, plan, context = {}) {
+  if (child.kind === "deleteItem") {
+    if (!child.actor) return { ok: false, error: "invalid-recipient", actorUuid: child.actorUuid };
+    if (!child.item) {
+      return { ok: false, error: "conflict", code: "item-not-found", state: "unknown",
+        reconciliationRequired: true, actorUuid: child.actorUuid, itemId: child.itemId };
+    }
+    if (!eventItemIsMundane(child.item, context)) {
+      return { ok: false, error: "invalid-source", reason: "item-not-mundane", itemId: child.itemId };
+    }
+    return { ok: true, phase: "preflight" };
+  }
+  if (child.kind !== "grant") return { ok: true, phase: "preflight" };
+  if (!child.actor) return { ok: false, error: "invalid-recipient", actorUuid: child.actorUuid };
+  const grant = eventGrantFunction(context);
+  if (!grant) return { ok: false, error: "commerce-unavailable" };
+
+  let source = child.source;
+  const resolveSource = context.resolveGrantSource ?? context.resolveItemSource
+    ?? context.commerce?.resolveGrantSource;
+  if (typeof resolveSource === "function") {
+    try {
+      source = await resolveSource.call(context.commerce, source, { actor: child.actor, event: plan.event });
+    } catch (error) {
+      return { ok: false, error: "invalid-source", message: String(error?.message ?? error) };
+    }
+    if (!source) return { ok: false, error: "invalid-source" };
+  }
+  child.source = source;
+
+  const preflight = eventGrantPreflightFunction(context);
+  if (!preflight) return { ok: true, phase: "preflight", assumed: true };
+  try {
+    const result = await preflight(child.actor, source, {
+      operationId: child.grantId,
+      txId: child.grantId,
+      grantId: child.grantId,
+      source,
+      item: source,
+      resolutionId: plan.pending.resolutionId,
+      eventId: plan.event.id,
+      actorUuid: child.actorUuid,
+      context
+    });
+    if (result === false) return { ok: false, error: "no-capacity" };
+    if (result && typeof result === "object") return result;
+    return { ok: true, phase: "preflight" };
+  } catch (error) {
+    return { ok: false, error: "write-failed", state: "unknown", message: String(error?.message ?? error) };
+  }
+}
+
+function eventReceiptChild(receipt, childId) {
+  return (receipt?.childResults ?? []).find(child => String(child?.childOperationId ?? child?.id ?? "") === String(childId)) ?? null;
+}
+
+function updateEventReceiptChild(receipt, childId, result, extra = {}) {
+  const children = (receipt.childResults ?? []).filter(child =>
+    String(child?.childOperationId ?? child?.id ?? "") !== String(childId)
+  );
+  children.push({ childOperationId: childId, ...cloneValue(extra), result: cloneValue(result),
+    phase: result?.phase ?? (eventChildUncertain(result) ? "uncertain"
+      : result?.ok === false ? "refused" : "committed"), updatedAt: Date.now() });
+  receipt.childResults = children;
+  return receipt;
+}
+
+function eventReceiptForPlan(village, plan, {
+  resolutionId, expectedRevision, inputFingerprint, phase = "prepared", result = null
+} = {}) {
+  const existing = eventReceiptFor(village, resolutionId);
+  const receipt = existing ?? {
+    resolutionId,
+    eventId: plan.event.id,
+    villageId: village.villageId,
+    createdAt: Date.now()
+  };
+  receipt.eventId = plan.event.id;
+  receipt.villageId = village.villageId;
+  receipt.expectedRevision = expectedRevision;
+  receipt.inputFingerprint = inputFingerprint;
+  receipt.villageRevision = village.revision;
+  receipt.revision = village.revision;
+  receipt.preStateFingerprint ??= villageInputFingerprint(village);
+  receipt.phase = phase;
+  receipt.selections = cloneValue(plan.pending.selection ?? {});
+  const priorEffects = receipt.normalizedEffects ?? [];
+  receipt.normalizedEffects = cloneValue(plan.normalizedEffects ?? []).map(effect => {
+    const identity = effect?.grantId ?? effect?.deleteId
+      ?? `${effect?.kind ?? ""}:${effect?.institutionId ?? effect?.target ?? ""}`;
+    const previous = priorEffects.find(candidate => {
+      const previousIdentity = candidate?.grantId ?? candidate?.deleteId
+        ?? `${candidate?.kind ?? ""}:${candidate?.institutionId ?? candidate?.target ?? ""}`;
+      return String(previousIdentity) === String(identity);
+    });
+    return previous ? { ...effect, ...Object.fromEntries(["commerceTxId", "childResult"].filter(key =>
+      previous[key] !== undefined).map(key => [key, cloneValue(previous[key])])) } : effect;
+  });
+  receipt.childOperationIds = [...new Set((plan.childOperationIds ?? []).map(value => String(value)))];
+  receipt.result = cloneValue(result);
+  receipt.updatedAt = Date.now();
+  return receipt;
+}
+
+/** Persist one managed event phase from inside the shared Village queue. */
+async function persistManagedEventPhase(next, previous, {
+  operationId, expectedRevision, inputFingerprint, phase, receipt, result, originCycle
+} = {}) {
+  const authority = authorityFailure();
+  if (authority) return { ok: false, failure: authority };
+  const live = getVillage();
+  if (live.villageId !== previous.villageId || live.revision !== previous.revision) {
+    return {
+      ok: false,
+      failure: { ok: false, error: "conflict", code: "stale-revision", reason: "stale-revision",
+        retryable: true, expectedRevision: previous.revision, currentRevision: live.revision }
+    };
+  }
+  const candidate = normalizeVillage(next, { identity: { villageId: live.villageId, sceneSeed: live.sceneSeed } });
+    const ownedReceipt = cloneValue(receipt);
+    ownedReceipt.phase = phase;
+    ownedReceipt.villageRevision = live.revision + 1;
+    ownedReceipt.revision = ownedReceipt.villageRevision;
+    ownedReceipt.result = cloneValue(result);
+    ownedReceipt.updatedAt = Date.now();
+  putEventReceipt(candidate, ownedReceipt);
+  const priorJournal = (candidate.operationJournal ?? []).find(entry =>
+    String(entry?.operationId ?? "") === String(operationId)
+  );
+  const journal = eventJournalEntry(candidate, {
+    operationId, phase, expectedRevision, inputFingerprint,
+    childOperationIds: ownedReceipt.childOperationIds ?? [], result,
+    originCycle: originCycle ?? candidate.cycle
+  });
+  journal.createdAt = priorJournal?.createdAt ?? journal.createdAt;
+  journal.resultingRevision = live.revision + 1;
+  try {
+    const saved = await saveVillage(candidate, {
+      prev: live, operationId, action: "resolve-village-event"
+    });
+    // `persistManagedEventPhase` intentionally runs inside the shared queue,
+    // but its write is still an independent setting operation.  Re-check the
+    // designated GM after acknowledgement so a handover in this residual
+    // window is reported as unknown for reconciliation, just like the
+    // generic queue's own writer check.
+    const activeAfterWrite = activeVillageGM();
+    if (!activeAfterWrite || !isVillageDesignatedWriter()) {
+      return {
+        ok: false,
+        failure: { ok: false, error: "write-failed", state: "unknown",
+          reconciliationRequired: true, operationId,
+          reason: "gm-transition-overlap", village: saved }
+      };
+    }
+    return { ok: true, village: saved, receipt: eventReceiptFor(saved, operationId) ?? ownedReceipt };
+  } catch (error) {
+    return { ok: false, failure: { ok: false, error: "write-failed", state: "unknown",
+      reconciliationRequired: true, operationId,
+      message: String(error?.message ?? error) } };
+  }
+}
+
+function managedEventOutcome({ next, receipt, result, phase, pendingStatus, plan, operationId,
+  expectedRevision, inputFingerprint } = {}) {
+  const pending = next.pendingEvent ? cloneValue(next.pendingEvent) : null;
+  if (pending && pendingStatus) pending.status = pendingStatus;
+  if (pending) {
+    pending.resolutionId = pending.resolutionId ?? operationId;
+    pending.selection = cloneValue(plan?.pending?.selection ?? pending.selection ?? {});
+    pending.selections = cloneValue(pending.selection);
+    next.pendingEvent = pending;
+  }
+  const ownedReceipt = cloneValue(receipt);
+  ownedReceipt.phase = phase;
+  // The enclosing queue will advance this snapshot by one revision when it
+  // persists the managed outcome.  Record the revision the receipt will have
+  // after that write, rather than leaving blocked/preflight receipts pointing
+  // at the stale pre-operation revision.
+  ownedReceipt.villageRevision = next.revision + 1;
+  ownedReceipt.revision = ownedReceipt.villageRevision;
+  ownedReceipt.result = cloneValue(result);
+  ownedReceipt.updatedAt = Date.now();
+  putEventReceipt(next, ownedReceipt);
+  const eventResultValue = {
+    ...cloneValue(result),
+    operationId,
+    resolutionId: operationId,
+    eventId: plan?.event?.id ?? next.pendingEvent?.eventId ?? null,
+    phase,
+    receipt: cloneValue(ownedReceipt),
+    pendingEvent: cloneValue(next.pendingEvent),
+    normalizedEffects: cloneValue(ownedReceipt.normalizedEffects ?? []),
+    childOperationIds: cloneValue(ownedReceipt.childOperationIds ?? [])
+  };
+  eventJournalEntry(next, {
+    operationId, phase, expectedRevision, inputFingerprint,
+    childOperationIds: ownedReceipt.childOperationIds ?? [], result: eventResultValue,
+    originCycle: plan?.pending?.cycle ?? next.cycle
+  });
+  return { next, result: eventResultValue, phase, terminal: VILLAGE_EVENT_TERMINAL_RECEIPT_PHASES.has(phase) };
+}
+
+/**
+ * Persist an uncertain managed phase after a prior saga write has already
+ * advanced the Village revision.  The generic queue deliberately compares
+ * against the snapshot it captured before the saga began, so handing this
+ * outcome back to that writer would produce a false stale-revision conflict.
+ * Re-enter the same setting choke point with the live snapshot instead.
+ */
+async function persistManagedUncertainOutcome({ receipt, result, plan, resolutionId,
+  expectedRevision, inputFingerprint } = {}) {
+  const live = getVillage();
+  const landedReceipt = eventReceiptFor(live, resolutionId);
+  if (!live.pendingEvent && landedReceipt?.phase === "committed") {
+    // A setting adapter may have applied the final snapshot before losing its
+    // acknowledgement.  Do not write an artificial pending/uncertain state
+    // over that durable terminal proof: replaying the event would otherwise
+    // apply permanent levels a second time.
+    return { persist: false, persisted: true, result: {
+      ...cloneValue(result), ok: false, phase: "uncertain", state: "unknown",
+      reconciliationRequired: true, receipt: cloneValue(landedReceipt), pendingEvent: null
+    } };
+  }
+  const next = cloneValue(live);
+  next.pendingEvent = {
+    ...cloneValue(plan.pending), status: "uncertain", resolutionId,
+    selection: cloneValue(plan.pending.selection), selections: cloneValue(plan.pending.selection)
+  };
+  const written = await persistManagedEventPhase(next, live, {
+    operationId: resolutionId, expectedRevision, inputFingerprint, phase: "uncertain",
+    receipt, result, originCycle: plan.pending.cycle
+  });
+  if (!written.ok) {
+    return { persist: false, result: {
+      ...cloneValue(result), ok: false, error: written.failure?.error ?? "write-failed",
+      phase: "uncertain", state: "unknown", reconciliationRequired: true,
+      receipt: cloneValue(receipt), pendingEvent: cloneValue(next.pendingEvent)
+    } };
+  }
+  return { persist: false, persisted: true, result: {
+    ...cloneValue(result), ok: false, phase: "uncertain", state: "unknown",
+    reconciliationRequired: true, receipt: written.receipt ?? cloneValue(receipt),
+    pendingEvent: cloneValue(written.village.pendingEvent)
+  } };
+}
+
+async function executeManagedEventPlan(village, plan, {
+  resolutionId, expectedRevision, inputFingerprint, context = {}
+} = {}) {
+  const priorReceipt = eventReceiptFor(village, resolutionId);
+  const existingChildCount = (priorReceipt?.childResults ?? []).filter(child =>
+    String(child?.phase ?? "") === "committed" || eventChildCommitted(child?.result)
+  ).length;
+
+  // A delete may have committed before the Actor acknowledgement or final
+  // Village write was lost.  An item that is now absent is a terminal success
+  // only when the matching delete child receipt proves that exact operation;
+  // an unreceipted absence remains a refusal/repair case.
+  if (plan.preflightFailure && priorReceipt) {
+    const provedChild = (plan.children ?? []).find(child => {
+      const childId = child.grantId ?? child.deleteId;
+      return childId && eventChildCommitted(eventReceiptChild(priorReceipt, childId)?.result);
+    });
+    if (provedChild && plan.preflightFailure.error === "item-not-found") plan.preflightFailure = null;
+  }
+
+  if (plan.local) {
+    const next = cloneValue(village);
+    const applied = applyEventLocalPlan(next, plan, { resolutionId });
+    if (!applied.ok) {
+      return {
+        persist: false,
+        result: eventResult({ ok: false, error: applied.error ?? "event-apply-refused",
+          phase: "pending", resolutionId, eventId: plan.event.id,
+          pendingEvent: plan.pending, ...applied })
+      };
+    }
+    next.pendingEvent = null;
+    const receipt = eventReceiptForPlan(village, plan, {
+      resolutionId, expectedRevision, inputFingerprint, phase: "committed"
+    });
+    receipt.villageRevision = next.revision + 1;
+    receipt.revision = receipt.villageRevision;
+    const result = eventResult({
+      ok: true,
+      phase: "committed",
+      resolutionId,
+      eventId: plan.event.id,
+      cycle: next.cycle,
+      prosperity: next.prosperity,
+      normalizedEffects: plan.normalizedEffects,
+      childOperationIds: plan.childOperationIds,
+      applied: { ...applied, effects: applied.effects ?? [] }
+    });
+    receipt.result = cloneValue(result);
+    putEventReceipt(next, receipt);
+    return { next, result, phase: "committed", terminal: true };
+  }
+
+  // All external children are preflighted before any one is allowed to write.
+  // On a retry, an already committed child is proved by its durable child
+  // result and is not preflighted or replayed.
+  const unresolvedChildren = plan.children.filter(child => {
+    const prior = eventReceiptChild(priorReceipt, child.grantId ?? child.deleteId);
+    return !eventChildCommitted(prior?.result) && prior?.phase !== "committed";
+  });
+  let preflightFailure = null;
+  for (const child of unresolvedChildren) {
+    // Keep probing the complete frozen roster even after the first refusal;
+    // the Ref needs one all-recipient preflight result before any grant write.
+    let preflight = null;
+    if (plan.preflightFailure && String(plan.preflightFailure.actorUuid ?? "") === String(child.actorUuid ?? "")) {
+      preflight = plan.preflightFailure;
+    } else preflight = await preflightEventChild(child, plan, context);
+    if (preflight?.ok === false && !preflightFailure) {
+      preflightFailure = { child, result: preflight };
+    }
+  }
+  if (preflightFailure) {
+    const { child, result: preflight } = preflightFailure;
+    const phase = existingChildCount ? "partial" : eventChildUncertain(preflight) ? "uncertain" : "blocked";
+    const pendingStatus = phase;
+    const next = cloneValue(village);
+    const receipt = eventReceiptForPlan(village, plan, {
+      resolutionId, expectedRevision, inputFingerprint, phase
+    });
+    updateEventReceiptChild(receipt, child.grantId ?? child.deleteId, preflight, {
+      actorUuid: child.actorUuid, itemId: child.itemId, grantId: child.grantId, deleteId: child.deleteId
+    });
+    const resultValue = eventResult({
+      ok: false,
+      error: preflight.error ?? (phase === "uncertain" ? "write-failed" : "preflight-refused"),
+      phase,
+      resolutionId,
+      eventId: plan.event.id,
+      state: phase === "uncertain" ? "unknown" : undefined,
+      normalizedEffects: receipt.normalizedEffects,
+      childOperationIds: receipt.childOperationIds,
+      actorUuid: child.actorUuid,
+      itemId: child.itemId,
+      reason: preflight.reason
+    });
+    return managedEventOutcome({ next, receipt, result: resultValue, phase, pendingStatus, plan,
+      operationId: resolutionId, expectedRevision, inputFingerprint });
+  }
+
+  // If this is the first physical child, persist the immutable prepared
+  // roster/plan before calling Commerce or deleting an embedded Item.
+  let current = getVillage();
+  if (!priorReceipt && current.revision !== village.revision) {
+    // Preflight is intentionally awaited before the prepared write.  A new
+    // token must still honor the revision captured by the queue before that
+    // wait; do not rebase a stale target plan onto a remote Village update.
+    return { persist: false, result: {
+      ok: false, error: "conflict", code: "stale-revision", reason: "stale-revision",
+      stale: true, retryable: true, resolutionId, expectedRevision,
+      currentRevision: current.revision, childOperationIds: plan.childOperationIds
+    } };
+  }
+  let receipt = eventReceiptForPlan(current, plan, {
+    resolutionId, expectedRevision, inputFingerprint, phase: priorReceipt?.phase ?? "prepared"
+  });
+  if (!priorReceipt || !["prepared", "partial", "uncertain"].includes(String(priorReceipt.phase))) {
+    receipt.phase = "prepared";
+  }
+  const preparedNext = cloneValue(current);
+  preparedNext.pendingEvent = {
+    ...cloneValue(plan.pending),
+    status: "resolving",
+    resolutionId,
+    selection: cloneValue(plan.pending.selection),
+    selections: cloneValue(plan.pending.selection)
+  };
+  receipt.phase = "prepared";
+  const preparedResult = eventResult({ ok: false, phase: "prepared", resolutionId,
+    eventId: plan.event.id, normalizedEffects: receipt.normalizedEffects,
+    childOperationIds: receipt.childOperationIds });
+  const preparedWrite = await persistManagedEventPhase(preparedNext, current, {
+    operationId: resolutionId, expectedRevision, inputFingerprint, phase: "prepared",
+    receipt, result: preparedResult, originCycle: plan.pending.cycle
+  });
+  if (!preparedWrite.ok) {
+    const result = eventResult({ ok: false, error: preparedWrite.failure?.error ?? "write-failed",
+      phase: "uncertain", resolutionId, eventId: plan.event.id, state: "unknown",
+      reconciliationRequired: true, normalizedEffects: receipt.normalizedEffects,
+      childOperationIds: receipt.childOperationIds });
+    // The prepared write may have failed before any receipt was durable.  Let
+    // the enclosing queue make one last ordinary uncertain write so this
+    // outcome is not silently collapsed into a non-persisting return.
+    return persistManagedUncertainOutcome({ receipt, result, plan, resolutionId,
+      expectedRevision, inputFingerprint });
+  }
+  current = preparedWrite.village;
+  receipt = preparedWrite.receipt ?? eventReceiptForPlan(current, plan, {
+    resolutionId, expectedRevision, inputFingerprint, phase: "prepared"
+  });
+
+  const committedChildren = [];
+  for (const child of plan.children) {
+    const childId = child.grantId ?? child.deleteId;
+    const previousChild = eventReceiptChild(receipt, childId);
+    if (eventChildCommitted(previousChild?.result) || previousChild?.phase === "committed") {
+      committedChildren.push(childId);
+      continue;
+    }
+    let childResult;
+    if (child.kind === "grant") {
+      const grant = eventGrantFunction(context);
+      const latestActor = await resolveEventActor(child.actorUuid, context);
+      if (!latestActor) {
+        childResult = { ok: false, error: "invalid-recipient", state: "unknown",
+          reconciliationRequired: true, actorUuid: child.actorUuid };
+      } else {
+        child.actor = latestActor;
+        try {
+          childResult = await grant(latestActor, child.source, {
+            operationId: child.grantId,
+            txId: child.grantId,
+            grantId: child.grantId,
+            source: child.source,
+            item: child.source,
+            resolutionId,
+            eventId: plan.event.id,
+            actorUuid: child.actorUuid,
+            context
+          });
+        } catch (error) {
+          childResult = { ok: false, error: "write-failed", state: "unknown",
+            message: String(error?.message ?? error) };
+        }
+      }
+    } else {
+      // Embedded Items are addressed by (parent Actor UUID, item id), not by
+      // a stale object captured while the Ref picker was open.  Re-resolve
+      // both immediately before the delete.  A disappearance without this
+      // delete's durable receipt is an uncertain/conflict outcome; only the
+      // committed-child branch above can prove an already-missing Item was
+      // removed by this exact operation.
+      const latestActor = await resolveEventActor(child.actorUuid, context);
+      const latestItem = latestActor ? eventActorItem(latestActor, child.itemId) : null;
+      if (!latestActor || !latestItem) {
+        childResult = {
+          ok: false, error: "item-not-found", code: "item-missing-before-delete",
+          state: "unknown", reconciliationRequired: true,
+          actorUuid: child.actorUuid, itemId: child.itemId
+        };
+      } else if (!eventItemIsMundane(latestItem, context)) {
+        childResult = { ok: false, error: "invalid-source", reason: "item-not-mundane",
+          actorUuid: child.actorUuid, itemId: child.itemId };
+      } else {
+        childResult = await eventDeleteItem(latestActor, latestItem, {
+          deleteId: child.deleteId, operationId: child.deleteId, resolutionId,
+          eventId: plan.event.id, actorUuid: child.actorUuid, itemId: child.itemId
+        }, context);
+      }
+    }
+    const commerceTxId = childResult?.commerceTxId ?? childResult?.txId ?? childResult?.receipt?.txId
+      ?? (eventChildCommitted(childResult) && child.kind === "grant" ? childId : null);
+    updateEventReceiptChild(receipt, childId, childResult, {
+      actorUuid: child.actorUuid,
+      itemId: child.itemId,
+      grantId: child.grantId,
+      deleteId: child.deleteId,
+      commerceTxId
+    });
+    const normalized = receipt.normalizedEffects.find(effect =>
+      String(effect?.grantId ?? effect?.deleteId ?? "") === String(childId)
+    );
+    if (normalized) {
+      if (child.kind === "grant") {
+        const commerceTxId = childResult?.commerceTxId ?? childResult?.txId
+          ?? childResult?.receipt?.txId;
+        if (commerceTxId != null) normalized.commerceTxId = commerceTxId;
+        else if (eventChildCommitted(childResult)) {
+          normalized.commerceTxId = normalized.commerceTxId ?? childId;
+        }
+      }
+      normalized.childResult = cloneValue(childResult);
+    }
+    if (eventChildCommitted(childResult)) {
+      committedChildren.push(childId);
+      const progress = eventResult({ ok: false, phase: "prepared", resolutionId,
+        eventId: plan.event.id, normalizedEffects: receipt.normalizedEffects,
+        childOperationIds: receipt.childOperationIds, childResults: receipt.childResults });
+      const progressNext = cloneValue(getVillage());
+      progressNext.pendingEvent = { ...cloneValue(plan.pending), status: "resolving",
+        resolutionId, selection: cloneValue(plan.pending.selection), selections: cloneValue(plan.pending.selection) };
+      const progressWrite = await persistManagedEventPhase(progressNext, current, {
+        operationId: resolutionId, expectedRevision, inputFingerprint, phase: "prepared",
+        receipt, result: progress, originCycle: plan.pending.cycle
+      });
+      if (!progressWrite.ok) {
+        const result = eventResult({ ok: false, error: "write-failed", phase: "uncertain",
+          resolutionId, eventId: plan.event.id, state: "unknown", reconciliationRequired: true,
+          normalizedEffects: receipt.normalizedEffects,
+          childOperationIds: receipt.childOperationIds, childResults: receipt.childResults });
+        return persistManagedUncertainOutcome({ receipt, result, plan, resolutionId,
+          expectedRevision, inputFingerprint });
+      }
+      current = progressWrite.village;
+      receipt = progressWrite.receipt ?? receipt;
+      continue;
+    }
+
+    const uncertain = eventChildUncertain(childResult);
+    const phase = uncertain ? "uncertain" : committedChildren.length ? "partial" : "blocked";
+    const pendingStatus = phase;
+    const failureResult = eventResult({
+      ok: false,
+      error: childResult?.error ?? (uncertain ? "write-failed" : "child-refused"),
+      phase,
+      resolutionId,
+      eventId: plan.event.id,
+      state: uncertain ? "unknown" : undefined,
+      reconciliationRequired: uncertain ? true : undefined,
+      normalizedEffects: receipt.normalizedEffects,
+      childOperationIds: receipt.childOperationIds,
+      childResults: receipt.childResults,
+      actorUuid: child.actorUuid,
+      itemId: child.itemId
+    });
+    const failureNext = cloneValue(getVillage());
+    failureNext.pendingEvent = { ...cloneValue(plan.pending), status: pendingStatus,
+      resolutionId, selection: cloneValue(plan.pending.selection), selections: cloneValue(plan.pending.selection) };
+    receipt.phase = phase;
+    const failureWrite = await persistManagedEventPhase(failureNext, current, {
+      operationId: resolutionId, expectedRevision, inputFingerprint, phase,
+      receipt, result: failureResult, originCycle: plan.pending.cycle
+    });
+    if (!failureWrite.ok) {
+      const result = eventResult({ ok: false, error: "write-failed", phase: "uncertain",
+        resolutionId, eventId: plan.event.id, state: "unknown", reconciliationRequired: true,
+        normalizedEffects: receipt.normalizedEffects,
+        childOperationIds: receipt.childOperationIds, childResults: receipt.childResults });
+      return persistManagedUncertainOutcome({ receipt, result, plan, resolutionId,
+        expectedRevision, inputFingerprint });
+    }
+    return { persist: false, persisted: true, result: {
+      ...failureResult,
+      receipt: cloneValue(failureWrite.receipt ?? receipt),
+      pendingEvent: cloneValue(failureWrite.village.pendingEvent)
+    } };
+  }
+
+  // Every physical child is confirmed.  Apply the Village-local effect only
+  // now, then consume the pending event and write the terminal receipt.
+  const finalNext = cloneValue(getVillage());
+  const applied = applyEventLocalPlan(finalNext, plan, { resolutionId });
+  if (!applied.ok) {
+    const result = eventResult({ ok: false, error: "event-apply-refused", phase: "uncertain",
+      resolutionId, eventId: plan.event.id, state: "unknown", childOperationIds: receipt.childOperationIds,
+      childResults: receipt.childResults, reason: applied.error });
+    finalNext.pendingEvent = { ...cloneValue(plan.pending), status: "uncertain", resolutionId,
+      selection: cloneValue(plan.pending.selection), selections: cloneValue(plan.pending.selection) };
+    receipt.phase = "uncertain";
+    const failed = await persistManagedEventPhase(finalNext, getVillage(), {
+      operationId: resolutionId, expectedRevision, inputFingerprint, phase: "uncertain",
+      receipt, result, originCycle: plan.pending.cycle
+    });
+    if (failed.ok) return { persist: false, persisted: true, result: { ...result, receipt: failed.receipt,
+      pendingEvent: failed.village.pendingEvent } };
+    return persistManagedUncertainOutcome({ receipt, result, plan, resolutionId,
+      expectedRevision, inputFingerprint });
+  }
+  finalNext.pendingEvent = null;
+  receipt.phase = "committed";
+  const result = eventResult({ ok: true, phase: "committed", resolutionId,
+    eventId: plan.event.id, cycle: finalNext.cycle, prosperity: finalNext.prosperity,
+    normalizedEffects: receipt.normalizedEffects, childOperationIds: receipt.childOperationIds,
+    childResults: receipt.childResults, applied });
+  const finalWrite = await persistManagedEventPhase(finalNext, getVillage(), {
+    operationId: resolutionId, expectedRevision, inputFingerprint, phase: "committed",
+    receipt, result, originCycle: plan.pending.cycle
+  });
+  if (!finalWrite.ok) {
+    const uncertain = eventResult({ ok: false, error: "write-failed", phase: "uncertain",
+      resolutionId, eventId: plan.event.id, state: "unknown", reconciliationRequired: true,
+      normalizedEffects: receipt.normalizedEffects,
+      childOperationIds: receipt.childOperationIds, childResults: receipt.childResults });
+    return persistManagedUncertainOutcome({ receipt, result: uncertain, plan, resolutionId,
+      expectedRevision, inputFingerprint });
+  }
+  return { persist: false, persisted: true, result: { ...result, receipt: finalWrite.receipt ?? receipt,
+    pendingEvent: null, revision: finalWrite.village.revision } };
+}
+
+function eventCyclePromotion(next, nextCycle) {
+  const promoted = [];
+  for (const inst of next.institutions ?? []) {
+    if (!isLiveInstitution(inst)) {
+      if (inst.pendingLevel != null) {
+        const operationId = eventPendingOperationId(inst);
+        inst.pendingLevel = null;
+        inst.pendingFromCycle = null;
+        inst.pendingOperationId = null;
+        inst.pendingOperation = null;
+        inst.operationId = null;
+        if (operationId) {
+          const entry = (next.operationJournal ?? []).find(candidate =>
+            String(candidate?.operationId ?? "") === String(operationId)
+          );
+          if (entry) {
+            entry.phase = "committed";
+            entry.updatedAt = Date.now();
+            entry.result = {
+              ...(entry.result && typeof entry.result === "object" ? entry.result : {}),
+              ok: true, pendingDisposition: "superseded-by-destruction"
+            };
+          }
+        }
+      }
+      continue;
+    }
+    if (inst.pendingLevel == null || nextCycle < (inst.pendingFromCycle ?? Infinity)) continue;
+    const pending = validEventPendingLevel(inst);
+    const target = Math.floor(Number(inst.pendingLevel));
+    if (Number(inst.level) > 0 && pending.valid && target > Number(inst.level)
+        && target <= institutionPurchasableMaxLevel(inst.type)) {
+      inst.level = target;
+      inst.pendingLevel = null;
+      inst.pendingFromCycle = null;
+      inst.pendingOperationId = null;
+      inst.pendingOperation = null;
+      inst.operationId = null;
+      promoted.push(cloneValue(inst));
+    } else if (inst.destroyed || Number(inst.level) <= 0 || !pending.valid) {
+      // A closure/tombstone or an invalid paid target cannot be resurrected by
+      // the cycle boundary.  Paid level-zero reopening follows founding
+      // semantics through the interface/Commerce path; keep this operation's
+      // journal as the audit trail instead of promoting it here.
+      const operationId = eventPendingOperationId(inst);
+      inst.pendingLevel = null;
+      inst.pendingFromCycle = null;
+      inst.pendingOperationId = null;
+      inst.pendingOperation = null;
+      inst.operationId = null;
+      if (operationId) {
+        const entry = (next.operationJournal ?? []).find(candidate =>
+          String(candidate?.operationId ?? "") === String(operationId)
+        );
+        if (entry) {
+          entry.phase = "committed";
+          entry.updatedAt = Date.now();
+          entry.result = {
+            ...(entry.result && typeof entry.result === "object" ? entry.result : {}),
+            ok: true,
+            pendingDisposition: inst.destroyed ? "superseded-by-destruction" : "superseded-by-closure"
+          };
+        }
+      }
+    }
+  }
+  return promoted;
+}
+
+function eventCycleChat({ saved, previousProsperity, previousCycle, event, promoted } = {}) {
+  const pending = saved.pendingEvent;
+  const resolveButton = event && pending?.resolutionId && isVillageDesignatedWriter()
+    ? `<button type="button" data-action="resolveVillageEvent" data-resolution-id="${villageHtml(pending.resolutionId)}">Resolve event (Ref)</button>`
+    : "";
+  return `<div class="crows village-endcycle">
+    <header><strong>End of cycle ${previousCycle} — entering cycle ${saved.cycle}</strong></header>
+    <div>Prosperity: ${previousProsperity} &rarr; <strong>${saved.prosperity}</strong>${saved.prosperity < previousProsperity ? " (nothing raised it)" : ""}</div>
+    ${promoted?.length ? `<div>Now operating: ${promoted.map(i => `${villageHtml(i.name)} (level ${i.level})`).join(", ")}</div>` : ""}
+    ${event
+      ? `<div><strong>Event:</strong> d10=${pending.rolled} + Prosperity ${saved.prosperity} = <strong>${pending.total}</strong></div>
+         <div class="ve-text">${villageHtml(event.text)}</div>${resolveButton}`
+      : `<div><em>Event skipped.</em></div>`}
+  </div>`;
+}
+
+/**
+ * End the cycle through the shared designated-writer queue.  A cycle close
+ * never appends a targeted effect before a Ref has supplied its target; it
+ * only records the immutable roll as a pending event.
+ */
+export async function endCycle(options = {}) {
+  const { skipEvent = false, operationId: requestedOperationId = null,
+    expectedRevision: requestedRevision = null } = options ?? {};
+  const before = getVillage();
+  const operationId = eventOperationToken(requestedOperationId, before, "end-cycle");
+  const blocked = villageEventBlock(before, { operationId });
+  if (blocked && !operationEntry(before, operationId)) return blocked;
+  const expectedRevision = Number.isInteger(Number(requestedRevision))
+    ? Number(requestedRevision) : before.revision;
+  const inputFingerprint = options.inputFingerprint ?? villageInputFingerprint({
+    action: "endCycle", skipEvent: !!skipEvent,
+    rollD10: typeof options.rollD10 === "function" ? "injected" : options.rollD10 ?? options.d10 ?? options.roll ?? null
+  });
+  const result = await enqueueVillageOperation({
+    operationId,
+    villageId: before.villageId,
+    expectedRevision,
+    inputFingerprint,
+    action: "end-cycle",
+    execute: async ({ village }) => {
+      const guard = villageEventBlock(village, { operationId });
+      if (guard) return { persist: false, result: guard };
+      const next = cloneValue(village);
+      const previousProsperity = next.prosperity;
+      const previousCycle = next.cycle;
+      const nextCycle = previousCycle + 1;
+      const promoted = eventCyclePromotion(next, nextCycle);
+      next.prosperity = prosperityAtCycleEnd(next.prosperity, {
+        raisingEventOccurred: !!next.raisingEventThisCycle
+      });
+      next.cycle = nextCycle;
+      next.raisingEventThisCycle = false;
+      next.spentThisCycle = 0;                    // C:2261 — "during a cycle"
+      next.spendBonusAwarded = false;
+      next.activeEffects = (next.activeEffects ?? []).filter(effect => effect.duration !== "cycle");
+      let event = null;
+      if (!skipEvent) {
+        let rolled;
+        try {
+          rolled = await villageEventD10(options);
+        } catch (error) {
+          return { persist: false, result: { ok: false, error: "dice-unavailable",
+            reason: String(error?.message ?? error) } };
+        }
+        const total = rolled + next.prosperity;
+        event = villageEventFor(total);
+        const resolutionId = eventResolutionToken(options.resolutionId ?? `${operationId}:resolution`);
+        next.pendingEvent = villagePendingEvent(event, {
+          rolled, total, cycle: nextCycle, resolutionId
+        });
+      } else next.pendingEvent = null;
+      return {
+        next,
+        result: { ok: true, cycle: next.cycle, prosperity: next.prosperity,
+          event, promoted, pendingEvent: next.pendingEvent, previousProsperity, previousCycle },
+        phase: "committed"
+      };
+    }
+  });
+  if (result.ok && !result.replayed && !result.reconciliationRequired) {
+    await createVillageChat({
+      content: eventCycleChat({
+        saved: getVillage(), previousProsperity: result.previousProsperity ?? before.prosperity,
+        previousCycle: result.previousCycle ?? before.cycle, event: result.event,
+        promoted: result.promoted
+      }),
+      speaker: { alias: "Village" }
+    });
+  }
+  return result;
+}
+
+/** Roll and persist an immediate pending event without advancing the cycle. */
+export async function rollVillageEvent(options = {}) {
+  const { silent = false, operationId: requestedOperationId = null,
+    expectedRevision: requestedRevision = null } = options ?? {};
+  const before = getVillage();
+  const operationId = eventOperationToken(requestedOperationId, before, "event-roll");
+  const blocked = villageEventBlock(before, { operationId });
+  if (blocked && !operationEntry(before, operationId)) return blocked;
+  const expectedRevision = Number.isInteger(Number(requestedRevision))
+    ? Number(requestedRevision) : before.revision;
+  const inputFingerprint = options.inputFingerprint ?? villageInputFingerprint({
+    action: "rollVillageEvent",
+    rollD10: typeof options.rollD10 === "function" ? "injected" : options.rollD10 ?? options.d10 ?? options.roll ?? null
+  });
+  const result = await enqueueVillageOperation({
+    operationId,
+    villageId: before.villageId,
+    expectedRevision,
+    inputFingerprint,
+    action: "roll-village-event",
+    execute: async ({ village }) => {
+      const guard = villageEventBlock(village, { operationId });
+      if (guard) return { persist: false, result: guard };
+      const next = cloneValue(village);
+      let rolled;
+      try {
+        rolled = await villageEventD10(options);
+      } catch (error) {
+        return { persist: false, result: { ok: false, error: "dice-unavailable",
+          reason: String(error?.message ?? error) } };
+      }
+      const total = rolled + next.prosperity;
+      const event = villageEventFor(total);
+      const resolutionId = eventResolutionToken(options.resolutionId ?? `${operationId}:resolution`);
+      next.pendingEvent = villagePendingEvent(event, {
+        rolled, total, cycle: next.cycle, resolutionId
+      });
+      return {
+        next,
+        result: { ok: true, rolled, total, event, resolutionId, pendingEvent: next.pendingEvent },
+        phase: "committed"
+      };
+    }
+  });
+  if (result.ok && !result.replayed && !silent && !result.reconciliationRequired) {
+    const pending = result.pendingEvent ?? getVillage().pendingEvent;
     await createVillageChat({
       content: `<div class="crows village-event">
-        <header><strong>Village Event</strong> — d10=${r.total} + Prosperity ${v.prosperity} = <strong>${total}</strong></header>
-        <div>${event.text}</div>
+        <header><strong>Village Event</strong> — d10=${pending.rolled} + Prosperity ${getVillage().prosperity} = <strong>${pending.total}</strong></header>
+        <div>${villageHtml(result.event?.text ?? "No event")}</div>
+        ${result.event && pending.resolutionId && isVillageDesignatedWriter()
+          ? `<button type="button" data-action="resolveVillageEvent" data-resolution-id="${villageHtml(pending.resolutionId)}">Resolve event (Ref)</button>` : ""}
       </div>`,
       speaker: { alias: "Village" }
     });
   }
-  return { ok: true, rolled: r.total, total, event };
+  return result;
 }
+
+/**
+ * Resolve the one pending event through effect-specific target records and
+ * the shared Village operation queue.  A missing/dismissed picker is a
+ * read-only response; only a committed or explicitly abandoned resolution
+ * consumes the pending event.
+ */
+export async function resolvePendingEvent({ resolutionId = null, selections = {}, context = {} } = {}) {
+  const before = getVillage();
+  const token = String(resolutionId ?? "").trim();
+  if (!token) return { ok: false, error: "invalid-request", reason: "resolution-id-required" };
+  const pending = before.pendingEvent;
+  const knownReceipt = eventReceiptFor(before, token);
+  if (!pending) {
+    if (knownReceipt && VILLAGE_EVENT_TERMINAL_RECEIPT_PHASES.has(String(knownReceipt.phase))) {
+      return { ...(knownReceipt.result ?? { ok: true, resolutionId: token }), replayed: true,
+        receipt: cloneValue(knownReceipt), phase: knownReceipt.phase };
+    }
+    return { ok: false, error: "no-pending-event", resolutionId: token };
+  }
+  if (pending.resolutionId && String(pending.resolutionId) !== token) {
+    return { ok: false, error: "conflict", reason: "different-resolution-pending",
+      resolutionId: token, pendingEvent: cloneValue(pending) };
+  }
+  if (context?.isGM === false || context?.user?.isGM === false) {
+    return { ok: false, error: "unauthorized", reason: "ref-required" };
+  }
+  const suppliedSelections = eventSelectionsValue(selections);
+  const frozenSelections = knownReceipt?.selections
+    ?? pending.selection ?? pending.selections ?? {};
+  const hasSuppliedSelections = Object.keys(suppliedSelections).length > 0;
+  let resolutionSelections = suppliedSelections;
+  if (!hasSuppliedSelections && Object.keys(eventSelectionsValue(frozenSelections)).length > 0) {
+    // Prepared/partial/uncertain retries may reuse the immutable selection
+    // captured by the receipt.  This is especially important for grant
+    // repair: reopening a card should not require the Ref to reconstruct the
+    // roster, and it must never silently choose a new one.
+    resolutionSelections = cloneValue(frozenSelections);
+  } else if (hasSuppliedSelections && Object.keys(eventSelectionsValue(frozenSelections)).length > 0
+      && eventSelectionFingerprint(suppliedSelections) !== eventSelectionFingerprint(frozenSelections)) {
+    return { ok: false, error: "conflict", reason: "frozen-selection-conflict",
+      resolutionId: token, pendingEvent: cloneValue(pending), selections: cloneValue(frozenSelections) };
+  } else if (knownReceipt && Object.keys(eventSelectionsValue(frozenSelections)).length > 0) {
+    // Keep the first durable representation as the canonical frozen plan even
+    // when a retry supplied the same set in a different UI order.
+    resolutionSelections = cloneValue(frozenSelections);
+  }
+  const expectedRevision = Number.isInteger(Number(context.expectedRevision))
+    ? Number(context.expectedRevision) : before.revision;
+  const inputFingerprint = context?.inputFingerprint ?? knownReceipt?.inputFingerprint
+    ?? eventInputFingerprint({ resolutionId: token, selections: resolutionSelections, context });
+  const result = await enqueueVillageOperation({
+    operationId: token,
+    villageId: before.villageId,
+    expectedRevision,
+    inputFingerprint,
+    action: "resolve-village-event",
+    childOperationIds: knownReceipt?.childOperationIds ?? [],
+    execute: async ({ village }) => {
+      const livePending = village.pendingEvent;
+      if (!livePending) {
+        const receipt = eventReceiptFor(village, token);
+        if (receipt && VILLAGE_EVENT_TERMINAL_RECEIPT_PHASES.has(String(receipt.phase))) {
+          return { persist: false, result: { ...(receipt.result ?? {}), ok: true,
+            resolutionId: token, replayed: true, receipt } };
+        }
+        return { persist: false, result: { ok: false, error: "no-pending-event", resolutionId: token } };
+      }
+      if (livePending.resolutionId && String(livePending.resolutionId) !== token) {
+        return { persist: false, result: { ok: false, error: "conflict",
+          reason: "different-resolution-pending", resolutionId: token,
+          pendingEvent: cloneValue(livePending) } };
+      }
+      const built = await buildEventPlan(village, livePending, resolutionSelections, context, token);
+      if (!built.ok) return { persist: false, result: built.result };
+      return executeManagedEventPlan(village, built.plan, {
+        resolutionId: token, expectedRevision, inputFingerprint, context
+      });
+    }
+  });
+  if (result.ok && result.phase === "committed" && !result.replayed && !result.reconciliationRequired) {
+    await createVillageChat({
+      content: `<div class="crows village-event-resolved">
+        <header><strong>Village event resolved</strong> — ${villageHtml(result.eventId)}</header>
+        <div>Resolution <code>${villageHtml(token)}</code> committed.</div>
+      </div>`,
+      speaker: { alias: "Village" }
+    });
+  }
+  return result;
+}
+
+/** Explicit Ref abandonment for a blocked/partial/uncertain event. */
+export async function abandonPendingEvent({ resolutionId = null, context = {}, reason = "ref-abandoned" } = {}) {
+  const token = String(resolutionId ?? "").trim();
+  const before = getVillage();
+  if (!token) return { ok: false, error: "invalid-request", reason: "resolution-id-required" };
+  if (context?.isGM === false || context?.user?.isGM === false) {
+    return { ok: false, error: "unauthorized", reason: "ref-required" };
+  }
+  if (!before.pendingEvent) {
+    const receipt = eventReceiptFor(before, token);
+    if (receipt && String(receipt.phase) === "abandoned") {
+      return { ...(receipt.result ?? { ok: true, phase: "abandoned", resolutionId: token }),
+        replayed: true, receipt: cloneValue(receipt), phase: "abandoned" };
+    }
+    return { ok: false, error: "no-pending-event", resolutionId: token };
+  }
+  if (before.pendingEvent.resolutionId && String(before.pendingEvent.resolutionId) !== token) {
+    return { ok: false, error: "conflict", reason: "different-resolution-pending" };
+  }
+  const operationId = `${token}:abandon`;
+  const expectedRevision = Number.isInteger(Number(context.expectedRevision))
+    ? Number(context.expectedRevision) : before.revision;
+  const inputFingerprint = context.inputFingerprint ?? villageInputFingerprint({ action: "abandon", resolutionId: token, reason });
+  const result = await enqueueVillageOperation({
+    operationId,
+    villageId: before.villageId,
+    expectedRevision,
+    inputFingerprint,
+    action: "abandon-village-event",
+    execute: async ({ village }) => {
+      const pending = village.pendingEvent;
+      if (!pending || (pending.resolutionId && String(pending.resolutionId) !== token)) {
+        return { persist: false, result: { ok: false, error: "conflict", reason: "different-resolution-pending" } };
+      }
+      const next = cloneValue(village);
+      next.pendingEvent = null;
+      const event = VILLAGE_EVENTS.find(candidate => candidate.id === (pending.eventId ?? pending.id));
+      // Preserve the frozen prepared roster/effects and every child result
+      // from a blocked, partial, or uncertain attempt.  Rebuilding from an
+      // empty plan here would erase repair-forward evidence and make an
+      // explicit abandonment look like a fresh, targetless cancellation.
+      const existingReceipt = eventReceiptFor(village, token);
+      const receipt = existingReceipt ?? eventReceiptForPlan(village, {
+        event: event ?? { id: pending.eventId ?? pending.id }, pending,
+        normalizedEffects: [], childOperationIds: []
+      }, { resolutionId: token, expectedRevision, inputFingerprint, phase: "abandoned" });
+      receipt.expectedRevision = expectedRevision;
+      receipt.inputFingerprint = inputFingerprint;
+      receipt.villageRevision = next.revision + 1;
+      receipt.revision = receipt.villageRevision;
+      receipt.phase = "abandoned";
+      const result = eventResult({ ok: true, phase: "abandoned", resolutionId: token,
+        eventId: event?.id ?? pending.eventId ?? pending.id,
+        normalizedEffects: receipt.normalizedEffects ?? [],
+        childOperationIds: receipt.childOperationIds ?? [],
+        childResults: receipt.childResults ?? [],
+        skippedChildOperationIds: (receipt.childOperationIds ?? []).filter(childId => {
+          const child = eventReceiptChild(receipt, childId);
+          return !eventChildCommitted(child?.result) && child?.phase !== "committed";
+        }),
+        reason });
+      receipt.result = cloneValue(result);
+      receipt.updatedAt = Date.now();
+      putEventReceipt(next, receipt);
+      const originalEntry = (next.operationJournal ?? []).find(candidate =>
+        String(candidate?.operationId ?? "") === token
+      );
+      if (originalEntry) {
+        originalEntry.phase = "abandoned";
+        originalEntry.updatedAt = Date.now();
+        originalEntry.result = cloneValue(result);
+      }
+      return { next, result, phase: "abandoned" };
+    }
+  });
+  if (result.ok && result.phase === "abandoned" && !result.replayed && !result.reconciliationRequired) {
+    await createVillageChat({
+      content: `<div class="crows village-event-abandoned">
+        <header><strong>Village event adjudicated</strong> — ${villageHtml(result.eventId ?? before.pendingEvent.eventId)}</header>
+        <div>Resolution <code>${villageHtml(token)}</code> abandoned by the Ref; no unresolved child will be retried.</div>
+      </div>`,
+      speaker: { alias: "Village" }
+    });
+  }
+  return result;
+}
+
+export const cancelPendingEvent = abandonPendingEvent;
+export const abandonVillageEvent = abandonPendingEvent;
+export const resolveVillageEvent = resolvePendingEvent;
+export const resolveEvent = resolvePendingEvent;
+
+/**
+ * Read-only picker metadata for a Ref card/application.  The resolver remains
+ * the authority; this helper only exposes the candidate institution rows and
+ * never enumerates world Actors for a recipient roster.
+ */
+export function villageEventResolutionOptions(village = getVillage(), context = {}) {
+  const pending = village?.pendingEvent;
+  const event = pending && VILLAGE_EVENTS.find(candidate => candidate.id === (pending.eventId ?? pending.id));
+  if (!pending || !event) return null;
+  const effect = event.effect ?? {};
+  let kind = null;
+  let selectionKey = null;
+  let count = null;
+  let candidates = [];
+  if (effect.kind === "destroyInstitution") {
+    kind = "institution"; selectionKey = "institutionIds"; count = effect.count ?? 1;
+    candidates = eventInstitutionCandidates(village, "any", { context });
+  } else if (effect.kind === "institutionLevel") {
+    kind = effect.destroyIfAllFirstLevel ? "institution-group" : "institution";
+    selectionKey = "institutionIds"; count = effect.count ?? 1;
+    candidates = eventInstitutionCandidates(village, "any", { context });
+  } else if (effect.kind === "prosperity" && effect.destroyInstitutionIfAtFloor
+      && village.prosperity <= PROSPERITY_MIN) {
+    kind = "institution-at-floor"; selectionKey = "institutionId"; count = 1;
+    candidates = eventInstitutionCandidates(village, "any", { context });
+  } else if (["merchantLevel", "outOfStockChance", "credit"].includes(effect.kind)) {
+    kind = "merchant"; selectionKey = "institutionId"; count = effect.scope === "all" ? 0 : effect.count ?? 1;
+    candidates = eventInstitutionCandidates(village, "merchant", { context });
+  } else if (["ceaseOperations"].includes(effect.kind)) {
+    kind = "institution"; selectionKey = "institutionIds"; count = effect.count ?? 1;
+    candidates = eventInstitutionCandidates(village, "any", { excludeRetiredPC: true, context });
+  } else if (["artisanShutdown", "craftingRollsPerDay"].includes(effect.kind)) {
+    kind = "artisan"; selectionKey = "institutionIds"; count = effect.count ?? 1;
+    candidates = eventInstitutionCandidates(village, "artisan", { context });
+  } else if (effect.kind === "destroyItem") {
+    return { kind: "item", selectionKey: "actorUuid/itemId", count: 1, explicitOnly: true,
+      candidates: cloneValue(context.itemCandidates ?? []) };
+  } else if (effect.kind === "grantItem" || effect.kind === "credit") {
+    const candidates = (context.rosterSuggestions ?? []).map(actor => ({
+      ...cloneValue(actor), id: actor?.uuid ?? actor?.id,
+      name: actor?.name ?? actor?.label ?? actor?.uuid ?? actor?.id
+    }));
+    return eventPicker({ kind: "recipients", selectionKey: "recipientActorUuids", count: "one-or-more",
+      explicitOnly: true, candidates });
+  } else if (effect.kind === "foundInstitution") {
+    return { kind: "institution-type", selectionKey: "institutionType", count: 1,
+      candidates: INSTITUTION_KEYS.map(key => ({ id: key, type: key, name: INSTITUTIONS[key].label })) };
+  }
+  const predicate = effect.kind === "institutionLevel" && effect.destroyIfAllFirstLevel
+    ? "all-first-level-or-decrement"
+    : effect.kind === "prosperity" && effect.destroyInstitutionIfAtFloor
+      ? "prosperity-floor"
+      : undefined;
+  return kind ? eventPicker({ kind, selectionKey, count, candidates, ...(predicate ? { predicate } : {}) })
+    : { kind: "none", candidates: [] };
+}
+
+export const eventResolutionOptions = villageEventResolutionOptions;
+export const getPendingVillageEvent = (village = getVillage()) => cloneValue(village?.pendingEvent ?? null);
+export const getPendingEvent = getPendingVillageEvent;
+export function getVillageEventReceipt(resolutionId, village = getVillage()) {
+  return eventReceiptFor(village, resolutionId);
+}
+export const eventReceipt = getVillageEventReceipt;
+export const getEventReceipt = getVillageEventReceipt;
+
+/** The target contract used by the generic applier/card, without parsing text. */
+export function villageEventTargetMode(eventOrId) {
+  const source = typeof eventOrId === "string" ? { eventId: eventOrId } : eventOrId;
+  const event = source?.effect ? source
+    : VILLAGE_EVENTS.find(candidate => candidate.id === (source?.eventId ?? source?.id));
+  const effect = event?.effect ?? {};
+  if (effect.scope === "all" && effect.kind === "sellPercentage") return "village-wide";
+  if (effect.scope === "all") return "all-merchants";
+  if (effect.kind === "grantItem") return "pc-roster";
+  if (effect.kind === "destroyItem") return "actor-item";
+  if (effect.kind === "foundInstitution") return "institution-type";
+  if (effect.kind === "credit") return "merchant-and-pc-roster";
+  if (effect.kind === "prosperity" && effect.destroyInstitutionIfAtFloor) return "institution-if-prosperity-floor";
+  if (effect.kind === "prosperity" && effect.atCapInstead) return "prosperity-or-sale-cap";
+  if (effect.kind === "institutionLevel" && effect.destroyIfAllFirstLevel) return "institution-pair-with-conditional-destroy";
+  if (["merchantLevel", "outOfStockChance"].includes(effect.kind)) return "merchant";
+  if (["artisanShutdown", "craftingRollsPerDay"].includes(effect.kind)) return "artisan";
+  if (Number(effect.count) > 1) return "institution-group";
+  if (["destroyInstitution", "institutionLevel", "ceaseOperations"].includes(effect.kind)) return "institution";
+  return "none";
+}
+
+export const eventTargetMode = villageEventTargetMode;
 
 /**
  * The operating level of an institution by type, including pending upgrades,
@@ -1960,8 +4099,9 @@ export function getInstitutionLevel(type) {
   const inst = findLiveInstitution(type, v);
   if (!inst) return 0;
   const modifiers = (v.activeEffects ?? [])
-    .filter(e => (e.kind === "merchantLevel" && (e.scope === "all" || e.target === inst.id))
-              || (e.kind === "institutionLevel" && e.target === inst.id));
+    .filter(e => (e.kind === "merchantLevel" && (e.scope === "all"
+      || e.target === inst.id || e.institutionId === inst.id))
+              || (e.kind === "institutionLevel" && (e.target === inst.id || e.institutionId === inst.id)));
   return effectiveInstitutionLevel(inst, { prosperity: v.prosperity, cycle: v.cycle, modifiers }).level;
 }
 
@@ -1969,3 +4109,507 @@ export function getInstitutionLevel(type) {
 export function getInstitution(id) {
   return institutionRecordById(id, getVillage());
 }
+
+/* ========================================================================== */
+/*  Event-aware institution/service policy                                     */
+/* ========================================================================== */
+
+/**
+ * The policy boundary is deliberately read-only.  It is the one place where
+ * a caller turns a durable institution record plus the current cycle effects
+ * into terms for a service.  Browse and Ref commit both call this function;
+ * neither path is allowed to copy an advancement table or infer availability
+ * from a stale card.
+ *
+ * The first argument may be an explicit Village snapshot (useful to a queued
+ * commit preflight), or a request object in which case the live Village is
+ * read.  The result is always an owned value, so a template cannot mutate the
+ * setting through a policy response.
+ */
+export function institutionServicePolicy(villageOrRequest = null, requestMaybe = {}) {
+  const looksLikeVillage = villageOrRequest && typeof villageOrRequest === "object"
+    && (Array.isArray(villageOrRequest.institutions)
+      || (Object.prototype.hasOwnProperty.call(villageOrRequest, "name")
+        && Object.prototype.hasOwnProperty.call(villageOrRequest, "prosperity")));
+  const embeddedVillage = !looksLikeVillage && villageOrRequest?.village
+    && typeof villageOrRequest.village === "object"
+    && (Array.isArray(villageOrRequest.village.institutions)
+      || Object.prototype.hasOwnProperty.call(villageOrRequest.village, "villageId"));
+  const village = normalizeVillage(looksLikeVillage ? villageOrRequest
+    : embeddedVillage ? villageOrRequest.village : getVillage());
+  const request = cloneValue((looksLikeVillage ? requestMaybe : villageOrRequest ?? requestMaybe) ?? {});
+  const action = policyAction(request.action ?? request.operation ?? "browse");
+  const type = String(request.institutionType ?? request.type ?? request.institutionKey ?? "").trim();
+  const requestedId = request.institutionId ?? request.id ?? request.targetId ?? null;
+  const institution = requestedId != null
+    ? institutionRecordById(String(requestedId), village)
+    : (type ? (findLiveInstitution(type, village) ?? village.institutions.find(i => i.type === type) ?? null) : null);
+  const key = String(institution?.type ?? type);
+  const def = INSTITUTIONS[key] ?? null;
+  const actorUuid = request.actorUuid ?? request.beneficiaryActorUuid ?? null;
+  const effects = policyEffectsFor(institution, key, village);
+  const levelModifiers = effects.flatMap(effect => {
+    if (effect.kind === "merchantLevel" && def?.roles?.includes("merchant")
+      && policyEffectTargets(effect, institution, key)) return [{ delta: effect.delta }];
+    if (effect.kind === "institutionLevel" && policyEffectTargets(effect, institution, key)) return [{ delta: effect.delta }];
+    return [];
+  });
+  const level = institution && def
+    ? effectiveInstitutionLevel(institution, {
+      prosperity: village.prosperity,
+      cycle: village.cycle,
+      modifiers: levelModifiers
+    })
+    : { ok: false, level: 0, closed: true, base: 0, modifierDelta: 0, capstoneActive: false };
+
+  const statuses = [];
+  if (!def && key) statuses.push("unknown-institution");
+  if (institution?.destroyed) statuses.push("destroyed");
+  if (level.notYetOpen) statuses.push("not-yet-open");
+  if (institution && !institution.destroyed && level.level <= 0) statuses.push("level-zero");
+  const boycott = effects.some(effect => effect.kind === "boycott");
+  const ceaseOperations = effects.some(effect => effect.kind === "ceaseOperations"
+    && policyEffectTargets(effect, institution, key));
+  const artisanShutdown = effects.some(effect => effect.kind === "artisanShutdown"
+    && policyEffectTargets(effect, institution, key));
+  if (boycott) statuses.push("boycott");
+  if (ceaseOperations) statuses.push("cease-operations");
+  if (artisanShutdown) statuses.push("artisan-shutdown");
+
+  const rawEventReceipts = [
+    ...(Array.isArray(village.eventReceipts) ? village.eventReceipts : []),
+    ...(village.eventReceipt ? [village.eventReceipt] : [])
+  ].filter(Boolean).map(cloneValue);
+  const eventReceiptMap = new Map();
+  rawEventReceipts.forEach((receipt, index) => {
+    const identity = receipt.resolutionId ?? receipt.eventResolutionId ?? receipt.operationId
+      ?? `anonymous-${index}-${villageInputFingerprint(receipt)}`;
+    const key = String(identity);
+    // The additive latest projection is appended after the archive. Let it
+    // replace the archived copy without reporting one event twice to callers.
+    eventReceiptMap.delete(key);
+    eventReceiptMap.set(key, receipt);
+  });
+  const eventReceipts = [...eventReceiptMap.values()];
+  const latestEventReceipt = eventReceipts[eventReceipts.length - 1] ?? null;
+  const eventReceipt = {
+    ...(latestEventReceipt ?? {}),
+    effects: effects.map(cloneValue),
+    receipts: eventReceipts,
+    latest: latestEventReceipt,
+    boycott,
+    ceaseOperations,
+    artisanShutdown
+  };
+  const base = {
+    action,
+    villageId: village.villageId,
+    villageRevision: village.revision,
+    institution: institution ? cloneValue(institution) : null,
+    institutionId: institution?.id ?? (requestedId == null ? null : String(requestedId)),
+    institutionType: key || null,
+    rawLevel: institution?.level ?? 0,
+    currentLevel: institution?.level ?? 0,
+    pendingLevel: institution?.pendingLevel ?? null,
+    pendingFromCycle: institution?.pendingFromCycle ?? null,
+    effectiveLevel: level.level ?? 0,
+    level: cloneValue(level),
+    status: policyStatus(statuses, level),
+    statuses,
+    eventReceipt,
+    policy: {
+      // These are intentionally labelled implementation choices.  They are
+      // not hidden in a price table, and no caller should turn either into an
+      // automatic refund or an invented level-one upgrade.
+      interveningFreeLevelAbsorbsPaidTarget: true,
+      noAutomaticRefund: true,
+      levelZeroReopenUsesFoundingSemantics: true
+    },
+    requiresRef: action !== "browse",
+    canInvest: village.canInvest !== false
+  };
+
+  // Village-only commands still use this policy/read boundary so a queued
+  // Ref commit cannot bypass the expected revision, but they do not target an
+  // institution and therefore must not be rejected as an unknown type.
+  if (action === "rename" || action === "set-prosperity") {
+    return ownedPolicy({
+      ...base,
+      ok: true,
+      reason: null,
+      villageOnly: true,
+      quote: {
+        kind: action,
+        value: action === "rename" ? request.name ?? request.requested?.name ?? null
+          : request.value ?? request.prosperity ?? request.requested?.value ?? null
+      }
+    });
+  }
+
+  if (!def) {
+    return ownedPolicy({
+      ...base,
+      ok: false,
+      reason: key ? "unknown-institution" : "institution-required",
+      error: key ? `unknown institution: ${key}` : "institution type or id is required"
+    });
+  }
+
+  const criteria = {
+    ...(request.criteria && typeof request.criteria === "object" ? request.criteria : {}),
+    ...(request.itemCriteria && typeof request.itemCriteria === "object" ? request.itemCriteria : {}),
+    ...(request.uses != null ? { uses: request.uses } : {}),
+    ...(request.expertise != null ? { expertise: request.expertise } : {}),
+    ...(request.rank != null ? { rank: request.rank } : {}),
+    ...(request.quality != null ? { quality: request.quality } : {}),
+    ...(request.power != null ? { power: request.power } : {}),
+    ...(request.bet != null ? { bet: request.bet } : {}),
+    ...(request.hexes != null ? { hexes: request.hexes } : {}),
+    ...(request.kind != null ? { kind: request.kind } : {}),
+    prosperity: village.prosperity,
+    institutionRecord: institution
+  };
+  const availability = def.availability
+    ? itemAvailability(key, level.level, criteria)
+    : { ok: false, reason: "no-catalogue", error: `${def.label} stocks no catalogue to check availability against` };
+  const stockPercent = action === "browse" || action === "buy" || action === "auction-buy" || action === "merchant-purchase"
+    ? effects.reduce((max, effect) => effect.kind === "outOfStockChance"
+      && policyEffectTargets(effect, institution, key)
+      ? Math.max(max, Math.max(0, Math.min(100, Math.floor(Number(effect.percent) || 0)))) : max, 0)
+    : 0;
+  const stockChance = stockPercent > 0 ? {
+    kind: "chance",
+    percent: stockPercent,
+    purchaseId: request.purchaseId == null ? null : String(request.purchaseId),
+    resolved: false
+  } : null;
+  if (stockChance) availability.outOfStockChance = stockChance;
+
+  const saleDelta = effects.reduce((sum, effect) => {
+    if (!policyEffectTargets(effect, institution, key)) return sum;
+    if (effect.kind === "sellPercentage") return sum + (Math.floor(Number(effect.delta) || 0));
+    if (effect.kind === "outOfStockChance") return sum + (Math.floor(Number(effect.sellPercentageDelta) || 0));
+    return sum;
+  }, 0);
+  const salePercent = Math.max(0, Math.min(100, sellPercentage(village.prosperity) + saleDelta));
+  const itemPrice = nonNegativeInteger(request.itemPrice ?? request.price ?? request.grossPrice);
+  const itemValue = nonNegativeInteger(request.itemValue ?? request.value);
+  const creditToConsume = (action === "browse" || action === "buy"
+    || action === "merchant-purchase" || action === "service")
+    ? policyCredit(effects, institution, key, actorUuid, village.cycle) : null;
+  const craftingTerms = def.roles.includes("artisan")
+    ? villageCraftingQuote(key, level.level, itemPrice, {
+      rush: request.rush === true,
+      extraCraftingBonus: request.extraCraftingBonus ?? request.connectionBonus ?? 0
+    })
+    : null;
+  if (craftingTerms) {
+    const rollsEffect = effects.find(effect => effect.kind === "craftingRollsPerDay"
+      && policyEffectTargets(effect, institution, key));
+    if (rollsEffect) craftingTerms.rollsPerDay = Math.max(1, Math.floor(Number(rollsEffect.value) || 1));
+  }
+  const workshopTerms = def.workshop ? workshopRental(key, level.level) : null;
+  const quote = policyQuote({
+    action, request, village, key, def, institution, level, salePercent, itemPrice, itemValue,
+    availability, creditToConsume, craftingTerms, workshopTerms
+  });
+
+  const common = {
+    ...base,
+    availability: cloneValue(availability),
+    salePercentage: salePercent,
+    salePercentageBase: sellPercentage(village.prosperity),
+    salePercentageDelta: saleDelta,
+    creditToConsume: cloneValue(creditToConsume),
+    craftingTerms: cloneValue(craftingTerms),
+    workshopTerms: cloneValue(workshopTerms),
+    quote: cloneValue(quote),
+    capstoneActive: capstoneActive(key, level.level, village.prosperity),
+    auction: key === "auctionHouse" ? {
+      availability: cloneValue(availability),
+      salePercentage: { helper: "auctionSalePercentage" },
+      priceMultiplier: { helper: "auctionPriceMultiplier" },
+      buybackPrice: { helper: "auctionBuybackPrice" }
+    } : null
+  };
+
+  if (action === "browse") {
+    return ownedPolicy({ ...common, ok: true, reason: null, readable: true });
+  }
+  if (action === "found" || action === "reopen") {
+    if (village.canInvest === false) return ownedPolicy({ ...common, ok: false, reason: "foreign-village" });
+    if (institution && isLiveInstitution(institution) && Number(institution.level) > 0) {
+      return ownedPolicy({ ...common, ok: false, reason: "institution-exists", error: "institution-exists" });
+    }
+    return ownedPolicy({
+      ...common,
+      ok: true,
+      reason: null,
+      recovery: Boolean(institution),
+      foundingSemantics: true,
+      boycottClearingException: boycott,
+      quote: {
+        kind: "found",
+        price: foundingPrice(key),
+        opensAfterCycle: village.cycle + 1,
+        operatingFromCycle: village.cycle + 1,
+        prosperityDelta: 1,
+        foundingSemantics: true,
+        noAutomaticRefund: true
+      }
+    });
+  }
+
+  if (!institution) return ownedPolicy({ ...common, ok: false, reason: "institution-not-found" });
+  if (action === "upgrade") {
+    if (village.canInvest === false) return ownedPolicy({ ...common, ok: false, reason: "foreign-village" });
+    if (boycott) return ownedPolicy({ ...common, ok: false, reason: "boycott" });
+    if (institution.destroyed) return ownedPolicy({ ...common, ok: false, reason: "institution-destroyed" });
+    if (Number(institution.level) <= 0) return ownedPolicy({ ...common, ok: false, reason: "level-zero-recovery" });
+    if (level.notYetOpen) return ownedPolicy({ ...common, ok: false, reason: "not-yet-open" });
+    if (level.level <= 0) return ownedPolicy({ ...common, ok: false, reason: "institution-closed" });
+    if (ceaseOperations) return ownedPolicy({ ...common, ok: false, reason: "cease-operations" });
+    const currentPaidLevel = Math.max(0, Math.floor(Number(institution.pendingLevel ?? institution.level) || 0));
+    const requestedTarget = request.targetLevel ?? request.target ?? null;
+    const target = requestedTarget == null
+      ? currentPaidLevel + 1
+      : Math.floor(Number(requestedTarget) || 0);
+    if (target !== currentPaidLevel + 1) {
+      return ownedPolicy({ ...common, ok: false, reason: "invalid-upgrade-target", expectedTarget: currentPaidLevel + 1 });
+    }
+    const max = institutionPurchasableMaxLevel(key);
+    if (target > max) return ownedPolicy({ ...common, ok: false, reason: "upgrade-cap", maxLevel: max });
+    const price = upgradePrice(key, target);
+    return ownedPolicy({
+      ...common,
+      ok: price != null,
+      reason: price == null ? "upgrade-unpriced" : null,
+      targetLevel: target,
+      quote: {
+        kind: "upgrade", price, targetLevel: target, opensAfterCycle: village.cycle + 1,
+        prosperityDelta: 1, noAutomaticRefund: true,
+        interveningFreeLevelAbsorbsPaidTarget: true
+      }
+    });
+  }
+
+  const needsMerchant = ["service", "buy", "merchant-purchase", "sell", "auction-sell", "auction-buy", "inn", "beacon"].includes(action);
+  const needsArtisan = ["craft", "workshop"].includes(action);
+  if (needsMerchant && !def.roles.includes("merchant")) return ownedPolicy({ ...common, ok: false, reason: "not-merchant" });
+  if (needsArtisan && !def.roles.includes("artisan")) return ownedPolicy({ ...common, ok: false, reason: "not-artisan" });
+  if (action === "workshop" && !def.workshop) return ownedPolicy({ ...common, ok: false, reason: "no-workshop" });
+  if (["auction-sell", "auction-buy"].includes(action) && key !== "auctionHouse") {
+    return ownedPolicy({ ...common, ok: false, reason: "auction-only" });
+  }
+  if (boycott) return ownedPolicy({ ...common, ok: false, reason: "boycott" });
+  if (institution.destroyed) return ownedPolicy({ ...common, ok: false, reason: "institution-destroyed" });
+  if (level.notYetOpen) return ownedPolicy({ ...common, ok: false, reason: "not-yet-open" });
+  if (level.level <= 0) return ownedPolicy({ ...common, ok: false, reason: "institution-closed" });
+  if (ceaseOperations) return ownedPolicy({ ...common, ok: false, reason: "cease-operations" });
+  if (needsArtisan && artisanShutdown) return ownedPolicy({ ...common, ok: false, reason: "artisan-shutdown" });
+  if ((action === "buy" || action === "merchant-purchase") && !def.availability) {
+    return ownedPolicy({ ...common, ok: false, reason: "no-catalogue" });
+  }
+  if ((action === "buy" || action === "merchant-purchase") && availability.deterministic === true && availability.available === false) {
+    return ownedPolicy({ ...common, ok: false, reason: "unavailable" });
+  }
+  if (action === "inn" && request.bet != null) {
+    const bet = Math.floor(Number(request.bet) || 0);
+    const maxBet = innMaxBet(level.level, village.prosperity);
+    if (bet < 1) return ownedPolicy({ ...common, ok: false, reason: "invalid-bet" });
+    if (bet > maxBet) return ownedPolicy({ ...common, ok: false, reason: "bet-too-high" });
+  }
+  if (action === "beacon" && (request.hexes != null || request.distance != null)) {
+    const hexes = Math.max(0, Math.floor(Number(request.hexes ?? request.distance) || 0));
+    const radius = beaconRadius(level.level, village.prosperity);
+    if (hexes > radius) return ownedPolicy({ ...common, ok: false, reason: "beacon-out-of-range" });
+  }
+  if (action === "sell" || action === "auction-sell") {
+    return ownedPolicy({ ...common, ok: true, reason: null, sale: { itemValue, percentage: salePercent, proceeds: Math.floor(itemValue * salePercent / 100) } });
+  }
+  return ownedPolicy({ ...common, ok: true, reason: null });
+}
+
+/** Alias retained for callers that call the boundary a service policy. */
+export const villageInstitutionServicePolicy = institutionServicePolicy;
+
+function ownedPolicy(value) {
+  return cloneValue(value);
+}
+
+function policyAction(value) {
+  const normalized = String(value ?? "browse").trim().toLowerCase().replace(/[\s_-]+/g, "");
+  return {
+    browse: "browse", view: "browse", read: "browse",
+    found: "found", foundinstitution: "found", foundreopen: "found", reopen: "reopen", recover: "reopen",
+    upgrade: "upgrade", levelup: "upgrade",
+    service: "service", use: "service", buy: "buy", purchase: "buy", merchantpurchase: "merchant-purchase",
+    sell: "sell", sellitem: "sell", craft: "craft", commission: "craft",
+    workshop: "workshop", rentworkshop: "workshop", inn: "inn", bet: "inn",
+    beacon: "beacon", transport: "beacon", auctionsell: "auction-sell", auctionbuy: "auction-buy",
+    buyback: "auction-buy"
+  }[normalized] ?? normalized;
+}
+
+function policyStatus(statuses, level) {
+  if (statuses.includes("unknown-institution")) return "unknown";
+  if (statuses.includes("destroyed")) return "destroyed";
+  if (statuses.includes("not-yet-open")) return "not-yet-open";
+  if (statuses.includes("level-zero")) return "closed";
+  if (statuses.includes("boycott")) return "boycotted";
+  if (statuses.includes("cease-operations")) return "cease-operations";
+  if (statuses.includes("artisan-shutdown")) return "artisan-shutdown";
+  return level?.closed ? "closed" : "open";
+}
+
+function policyEffectsFor(institution, key, village) {
+  const active = (village?.activeEffects ?? []).filter(effect => {
+    if (!effect || typeof effect !== "object") return false;
+    if (!policyEffectIsCurrent(effect, village?.cycle)) return false;
+    return policyEffectTargets(effect, institution, key);
+  }).map(cloneValue);
+  const receipts = [
+    ...(Array.isArray(village?.eventReceipts) ? village.eventReceipts : []),
+    ...(village?.eventReceipt ? [village.eventReceipt] : [])
+  ];
+  const recorded = receipts.flatMap(receipt =>
+    (receipt?.normalizedEffects ?? receipt?.effects ?? [])
+      .filter(effect => effect && typeof effect === "object")
+      .filter(() => !receipt.phase || ["committed", "partial"].includes(String(receipt.phase)))
+      .map(effect => ({ effect, receipt }))
+  )
+    // A receipt is audit/recovery evidence. Permanent level and Village-local
+    // outcomes already live in canonical state; replaying them as modifiers
+    // would double-apply a committed event after reload. Only service-facing
+    // operating terms are projected from the receipt, and cycle-scoped terms
+    // expire against the receipt's event cycle when explicit expiry is absent.
+    .filter(({ effect }) => !["institutionLevel", "prosperity", "destroyInstitution",
+      "foundInstitution", "destroyItem", "grantItem"].includes(effect.kind))
+    .filter(({ effect, receipt }) => policyEffectIsCurrent(effect, village?.cycle, receipt))
+    .filter(({ effect }) => policyEffectTargets(effect, institution, key))
+    .map(({ effect }) => cloneValue(effect));
+  const seen = new Set();
+  return [...active, ...recorded].filter(effect => {
+    const keyValue = villageInputFingerprint(effect);
+    if (seen.has(keyValue)) return false;
+    seen.add(keyValue);
+    return true;
+  });
+}
+
+function policyEffectIsCurrent(effect, cycle, receipt = null) {
+  const expiry = effect?.expiresAfterCycle ?? effect?.expiresOnCycle;
+  if (expiry != null) return Number(cycle) <= Number(expiry);
+  if (effect?.duration !== "cycle") return true;
+  const started = effect?.startCycle ?? effect?.cycle ?? receipt?.cycle
+    ?? receipt?.eventCycle ?? receipt?.originCycle ?? receipt?.resolvedCycle;
+  return started == null || Number(cycle) <= Number(started);
+}
+
+function policyEffectTargets(effect, institution, key) {
+  const target = effect?.target ?? effect?.targets ?? effect?.institutionId
+    ?? effect?.institutionIds ?? effect?.institutionType ?? null;
+  if (Array.isArray(target)) {
+    return target.some(entry => String(entry) === String(institution?.id ?? "") || String(entry) === String(key));
+  }
+  if (target != null && String(target) !== String(institution?.id ?? "") && String(target) !== String(key)) return false;
+  if (target != null) return true;
+  return effect?.scope === "all" || effect?.scope === "one" || effect?.kind === "boycott";
+}
+
+function nonNegativeInteger(value) {
+  return Math.max(0, Math.floor(Number(value) || 0));
+}
+
+function policyCredit(effects, institution, key, actorUuid, cycle) {
+  for (const effect of effects) {
+    if (effect.kind !== "credit" || !policyEffectTargets(effect, institution, key)) continue;
+    const expiresOnCycle = effect.expiresAfterCycle ?? effect.expiresOnCycle;
+    if (expiresOnCycle != null && Number(expiresOnCycle) < Number(cycle)) continue;
+    const beneficiary = effect.beneficiaryActorUuid ?? effect.beneficiary ?? effect.actorUuid ?? actorUuid;
+    if (beneficiary && actorUuid && String(beneficiary) !== String(actorUuid)) continue;
+    if (beneficiary && !actorUuid) continue;
+    const byActor = effect.remainingByActor ?? effect.amountByActor ?? null;
+    const remaining = byActor && actorUuid != null
+      ? byActor[actorUuid]
+      : effect.remainingAmount ?? effect.amountRemaining ?? effect.remaining
+        ?? effect.amount ?? effect.value ?? effect.perPC;
+    const amount = nonNegativeInteger(remaining);
+    if (amount <= 0) continue;
+    return {
+      creditId: String(effect.creditId ?? `${effect.eventId ?? "credit"}-${institution?.id ?? key}-${beneficiary ?? "pc"}`),
+      grantingInstitutionId: institution?.id ?? key,
+      grantingInstitutionType: key,
+      beneficiaryActorUuid: beneficiary == null ? null : String(beneficiary),
+      remainingAmount: amount,
+      amountRemaining: amount,
+      amount,
+      remaining: amount,
+      expiresAfterCycle: effect.expiresAfterCycle ?? effect.expiresOnCycle
+        ?? (effect.duration === "cycle" ? cycle : null),
+      creditOperationId: String(effect.creditOperationId ?? `${effect.eventId ?? "credit"}-${institution?.id ?? key}-${beneficiary ?? "pc"}`)
+    };
+  }
+  return null;
+}
+
+function policyQuote({ action, request, village, key, def, institution, level, salePercent, itemPrice, itemValue,
+  availability, creditToConsume, craftingTerms, workshopTerms }) {
+  if (action === "found" || action === "reopen") {
+    return {
+      kind: "found", price: foundingPrice(key), opensAfterCycle: village.cycle + 1,
+      operatingFromCycle: village.cycle + 1, prosperityDelta: 1, foundingSemantics: true,
+      noAutomaticRefund: true
+    };
+  }
+  if (action === "upgrade") {
+    const target = Math.max(1, Math.floor(Number(institution?.pendingLevel ?? institution?.level) || 0) + 1);
+    return {
+      kind: "upgrade", price: upgradePrice(key, target), targetLevel: target,
+      opensAfterCycle: village.cycle + 1, prosperityDelta: 1, noAutomaticRefund: true,
+      interveningFreeLevelAbsorbsPaidTarget: true
+    };
+  }
+  if (action === "sell" || action === "auction-sell") {
+    return { kind: "sell", itemValue, percentage: salePercent, proceeds: Math.floor(itemValue * salePercent / 100) };
+  }
+  if (action === "craft") return { ...cloneValue(craftingTerms), kind: "craft", itemPrice };
+  if (action === "workshop") return { ...cloneValue(workshopTerms), kind: "workshop" };
+  if (action === "inn") return { kind: "inn", minBet: 1, maxBet: innMaxBet(level.level, village.prosperity), bet: nonNegativeInteger(request.bet) };
+  if (action === "beacon") {
+    const hexes = nonNegativeInteger(request.hexes ?? request.distance);
+    return { kind: "beacon", radius: beaconRadius(level.level, village.prosperity), hexes, fare: beaconTransportCost(hexes) };
+  }
+  if (action === "auction-buy") {
+    const soldFor = nonNegativeInteger(request.soldFor);
+    return { kind: "auction-buy", buybackPrice: auctionBuybackPrice(soldFor, itemValue), soldFor, itemValue };
+  }
+  return {
+    kind: action === "buy" || action === "merchant-purchase" ? "buy" : action,
+    grossPrice: itemPrice,
+    creditApplied: Math.min(itemPrice, creditToConsume?.remainingAmount ?? 0),
+    netPrice: Math.max(0, itemPrice - (creditToConsume?.remainingAmount ?? 0)),
+    availability: cloneValue(availability)
+  };
+}
+
+/**
+ * Resolve a targeted stock chance without using Math.random.  The purchase id
+ * is the retry identity, so a timeout/retry gets the same answer and a browse
+ * call cannot accidentally consume a roll.  This is a discriminated result,
+ * not a boolean folded into `itemAvailability`.
+ */
+export function resolveVillageStockChance(chance, purchaseId = null) {
+  const percent = Math.max(0, Math.min(100, Math.floor(Number(chance?.percent ?? chance) || 0)));
+  const id = String(purchaseId ?? chance?.purchaseId ?? "").trim();
+  if (!id) return { ok: false, reason: "purchase-id-required", kind: "chance", percent, resolved: false };
+  let hash = 2166136261;
+  for (const char of id) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  const roll = (hash >>> 0) % 100 + 1;
+  return { ok: true, kind: "chance", percent, purchaseId: id, roll, outOfStock: roll <= percent, resolved: true };
+}
+
+export const drawVillageStockChance = resolveVillageStockChance;

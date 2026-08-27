@@ -19,6 +19,7 @@ import {
   layoutFor, packItem, unpackItem, slotsNeeded, coinSummary, planSwap, occupantsOfSpan, wieldRefusal,
   applyWoundSpeedPenalty, CARRY_CONTAINERS, MAGIC_CONTAINERS
 } from "../helpers/slots.mjs";
+import { grantItem, makeGrantContext } from "../helpers/item-grants.mjs";
 import {
   getInMiasma, setInMiasma, rollMiasmaResist, clearMiasma, MIASMA_EFFECTS
 } from "../helpers/miasma.mjs";
@@ -36,6 +37,7 @@ import {
   completeProject, identifyMagicItem, reconcileCraftingProjects, craftingMaterialSetsFor
 } from "../helpers/crafting.mjs";
 import { openCharacterCreator } from "../helpers/character-creator.mjs";
+import { openVillageApplication } from "../applications/village.mjs";
 
 const PHYSICAL_ITEM_TYPES = new Set([
   "weapon", "armor", "ammunition", "consumable", "gear", "spellbook"
@@ -1386,12 +1388,17 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     const source = await fromUuid(uuid);
     if (!source) return;
-    const data = source.toObject();
-    delete data._id;
-    delete data._key;
-    data.system = { ...(data.system ?? {}),
-      location: { container, index, length: slotsNeeded(source) } };
-    await this.document.createEmbeddedDocuments("Item", [data]);
+    const grant = await grantItem(this.document, source,
+      makeGrantContext(this.document, "sheet-add-to-slot", {
+        placement: { container, index, length: slotsNeeded(source) },
+        layout: base
+      }));
+    if (!grant.ok) {
+      notify("warn", grant.error === "no-capacity"
+        ? "CROWS.Dialog.AddToSlot.none"
+        : "CROWS.Dialog.InventoryDrop.bad-arguments", { slot: slotLabel(container, index) });
+      return;
+    }
     this.render();
   }
 
@@ -1555,7 +1562,22 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
   }
 
+  /**
+   * The dedicated hybrid surface is the default entry point.  Keep the old
+   * GM dialog as an explicit compatibility path until paid Village sagas are
+   * available; a failed application bootstrap must not strand existing GM
+   * controls in a live world.
+   */
   static async _onOpenVillage() {
+    try {
+      return await openVillageApplication();
+    } catch (error) {
+      console.error("crows | Village application failed to open; using legacy dialog", error);
+      return CrowSheet._onOpenVillageLegacy.call(this);
+    }
+  }
+
+  static async _onOpenVillageLegacy() {
     const isGM = Boolean(game.user.isGM);
     const village = getVillage();
     const rows = village.institutions.map(institution => `<tr>
@@ -1595,7 +1617,7 @@ export class CrowSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await dialog.render({ force: true });
     const root = dialog.element;
     if (!root) return;
-    const reopen = async () => { await dialog.close(); CrowSheet._onOpenVillage.call(this); };
+    const reopen = async () => { await dialog.close(); CrowSheet._onOpenVillageLegacy.call(this); };
     root.querySelector?.('[data-village-found="1"]')?.addEventListener("click", async () => {
       await foundInstitution({
         type: root.querySelector('select[name="newType"]')?.value,
