@@ -13,6 +13,16 @@ packs/*/LOCK
 packs/*/LOG
 packs/*/LOG.old
 
+# `lost/` is what LevelDB's repair pass writes when it rebuilds a manifest: the
+# files it could not place, not pack content. Recovering `crows-traits` left one
+# behind holding two zero-byte write-ahead logs and a stale manifest.
+packs/*/lost/
+
+# A LevelDB opened at the wrong path mints an empty database directory INSIDE
+# the pack — `packs/crows-traits/crows-traits/` was tracked for exactly this
+# reason. The rules above only match one level down, so pin the nested case too.
+packs/*/*/
+
 # Local-only dev tooling — not part of the public release.
 dev/
 .claude/
