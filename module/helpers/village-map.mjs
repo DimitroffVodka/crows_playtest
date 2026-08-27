@@ -1339,6 +1339,13 @@ export function villageSceneData(village, operationId, options = {}) {
           }]
         }
       : {}),
+    // The village map is a shared overview the whole table reads, not a place
+    // anyone explores with a torch — which is why it grants Observer below.
+    // Foundry's defaults fight that: token vision on, no global light, and
+    // per-user fog exploration. A player opening the village would see black.
+    // FOG_EXPLORATION_MODES.DISABLED is 0.
+    tokenVision: false,
+    fog: { mode: 0 },
     navigation: true,
     ownership: { default: sceneOwnershipObserver() },
     flags: {

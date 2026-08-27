@@ -459,6 +459,16 @@ describe("Village Scene projection", () => {
     assert.equal(data.flags.crows.village.bootstrap, "boot-1");
   });
 
+  test("the village map is lit and unfogged, because the table reads it", () => {
+    // The Scene grants Observer to every player. Foundry's defaults — token
+    // vision on, global light off, per-user fog — would hand those players a
+    // black rectangle. Observed live before the fix.
+    const data = villageSceneData(defaultVillage(), "boot-vision");
+    assert.equal(data.ownership.default, 2, "players must be able to open the map");
+    assert.equal(data.tokenVision, false);
+    assert.equal(data.fog.mode, 0, "FOG_EXPLORATION_MODES.DISABLED");
+  });
+
   test("no Scene padding, so a tile coordinate is a background pixel", () => {
     // Foundry places Tiles in canvas space and shifts the background image by
     // the padding (rounded up to a whole grid square per axis). This projection
