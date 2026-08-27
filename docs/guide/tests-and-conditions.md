@@ -626,11 +626,8 @@ await game.crows.setCondition(actor, "defeated", true)
 
 The monster sheet shows a **DEFEATED** badge; a creature with slots also shows
 its slot grid. The Crow sheet shows the wounds in the backpack and the mirrored
-token status rather than a separate Defeated checkbox. In the current damage
-summary, the monster branch prints `(defeated)` correctly; the Crow branch
-still looks for a `dead` result field that the damage helper does not return, so
-a Crow's summary can omit the `(dead)` text even though the Defeated state and
-skull status were set.
+token status rather than a separate Defeated checkbox. The damage summary reports either
+outcome: a defeated monster reads `(defeated)`, a defeated Crow reads `(dead)`.
 
 The printed rules do not define a general resurrection procedure, so treat
 recovery from a defeated creature as a Ref decision rather than assuming that

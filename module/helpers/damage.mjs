@@ -556,3 +556,35 @@ async function _pickWoundSlotsDialog(actor, layout, count) {
     return null;                          // cancelled -> automatic placement
   }
 }
+
+/**
+ * One `<li>` of the "Damage applied" chat summary.
+ *
+ * Extracted from the inline builder in `crows.mjs` so it can be tested. It was
+ * inline, and two of its branches had been dead for a long time without anyone
+ * noticing: the Crow branch read `r.dead` and the boned note read
+ * `r.bonedBonus`, neither of which `applyDamage` returns. The Crow summary
+ * therefore never printed `(dead)` even when the actor was defeated and the
+ * token had been given the skull, which reads as "the damage did not kill
+ * them" — the opposite of what happened.
+ *
+ * `defeated` is the canonical boolean for both Actor types (`damage.mjs`
+ * computes it, `syncDefeatedCondition` maintains it). Only the WORD differs:
+ * a monster is *defeated*, a Crow is *dead*, which is the one id where the two
+ * status vocabularies diverge (`combat.mjs`).
+ */
+export function damageSummaryLine(result) {
+  if (!result?.ok) return "";
+  const name = result.actorName ?? "Unknown";
+  if (result.actorType === "monster") {
+    const defeated = result.defeated ? " <em>(defeated)</em>" : "";
+    return `<li><b>${name}</b>: ${result.total} → Stamina ${result.stamina.before}→${result.stamina.after}${defeated}</li>`;
+  }
+  const parts = [];
+  if (result.absorbed?.armor) parts.push(`armor ${result.absorbed.armor}`);
+  if (result.absorbed?.stamina) parts.push(`stamina ${result.absorbed.stamina}`);
+  if (result.absorbed?.wounds) parts.push(`wounds ${result.absorbed.wounds}`);
+  const broken = result.armorBroken?.length ? ` <em>broken: ${result.armorBroken.join(", ")}</em>` : "";
+  const dead = result.defeated ? " <strong>(dead)</strong>" : "";
+  return `<li><b>${name}</b>: ${result.total} → ${parts.join(" · ") || "no effect"}${broken}${dead}</li>`;
+}

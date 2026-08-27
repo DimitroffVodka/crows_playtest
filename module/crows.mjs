@@ -15,7 +15,7 @@ import { BackgroundData } from "./data/item/background.mjs";
 import { ROLL_API } from "./helpers/roll.mjs";
 import { bindTestCardActions } from "./helpers/expertise.mjs";
 import { applyBackground } from "./helpers/creation.mjs";
-import { applyDamage, applyHealing, repairArmor } from "./helpers/damage.mjs";
+import { applyDamage, applyHealing, repairArmor, damageSummaryLine } from "./helpers/damage.mjs";
 import { rollBacklash, lookupBacklash } from "./helpers/backlash.mjs";
 import { castSpell, registerSpellcastingHooks } from "./helpers/spellcasting.mjs";
 import {
@@ -582,17 +582,7 @@ Hooks.on("renderChatMessageHTML", (message, html /*, context */) => {
       const results = [];
       for (const a of actors) results.push(await applyDamage(a, amount, { piercing }));
       // Brief summary in chat (whisper to GM if rollMode is whisper; otherwise public)
-      const lines = results.filter(r => r?.ok).map(r => {
-        if (r.actorType === "monster") return `<li><b>${r.actorName}</b>: ${r.total} → Stamina ${r.stamina.before}→${r.stamina.after}${r.defeated ? " <em>(defeated)</em>" : ""}</li>`;
-        const parts = [];
-        if (r.absorbed.armor) parts.push(`armor ${r.absorbed.armor}`);
-        if (r.absorbed.stamina) parts.push(`stamina ${r.absorbed.stamina}`);
-        if (r.absorbed.wounds) parts.push(`wounds ${r.absorbed.wounds}`);
-        const broken = r.armorBroken?.length ? ` <em>broken: ${r.armorBroken.join(", ")}</em>` : "";
-        const bonedNote = r.bonedBonus ? ` <em>+${r.bonedBonus} boned</em>` : "";
-        const dead = r.dead ? " <strong>(dead)</strong>" : "";
-        return `<li><b>${r.actorName}</b>: ${r.total}${bonedNote} → ${parts.join(" · ") || "no effect"}${broken}${dead}</li>`;
-      });
+      const lines = results.filter(r => r?.ok).map(damageSummaryLine);
       const summary = `<div class="crows damage-applied"><strong>Damage applied:</strong><ul>${lines.join("")}</ul></div>`;
       await ChatMessage.create({ content: summary, speaker: { alias: "Damage" } });
     });
