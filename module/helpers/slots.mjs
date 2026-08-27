@@ -671,6 +671,64 @@ export function looseCoinSlots(loose) {
 }
 
 /**
+ * Query the capacity reservation for loose coin without changing a Layout.
+ *
+ * `layoutFor()` deliberately remains tolerant: it reproduces stored Item
+ * placement and records anything that does not fit in `unplaced`.  Loose coin
+ * is not a positional document, so it cannot be inserted into `layout.slots`
+ * just to answer a capacity question.  Instead, this helper treats the
+ * current loose reservation as a computed block and asks whether a
+ * prospective amount would fit in the carry containers' still-legal slots.
+ * Existing loose coin is included in the block count, so a receive that stays
+ * within the same 250-gc block does not consume another slot.
+ *
+ * Wounds do not reduce `free`: a wound-only slot has no Item and therefore is
+ * still eligible, matching the wound semantics in `layoutFor()`.  Whether a
+ * future positional representation of reserved coin should count as the
+ * wound-plus-item case for R:524's speed penalty is unsettled; that belongs to
+ * placement/speed policy, not this capacity query.  The helper performs no
+ * packing, displacement, repair, or mutation.
+ */
+export function looseCoinReservation(layout, prospectiveLoose = layout?.coin?.loose ?? 0) {
+  const currentLoose = Math.max(0, Math.floor(Number(layout?.coin?.loose) || 0));
+  const prospective = Math.max(0, Math.floor(Number(prospectiveLoose) || 0));
+  const currentSlots = looseCoinSlots(currentLoose);
+  const requiredSlots = looseCoinSlots(prospective);
+  const slots = Array.isArray(layout?.slots) ? layout.slots : [];
+  const carrySlots = slots.filter(s => s && CARRY_CONTAINERS.includes(s.container));
+  const occupied = carrySlots.filter(s => (s?.items?.length ?? 0) > 0).length;
+  const capacity = carrySlots.length;
+  const free = Math.max(0, capacity - occupied);
+  // `free` is the total number of slots not already claimed by positional
+  // Items.  The current loose block is not present in `slots`, but it still
+  // claims part of that same capacity; adding `currentSlots` back here would
+  // allow an over-capacity prospective block.
+  const availableSlots = free;
+  const additionalSlots = Math.max(0, requiredSlots - currentSlots);
+  const fits = requiredSlots <= availableSlots;
+  const maximumLoose = availableSlots * CROWS.coinPerSlot;
+  return {
+    ok: fits,
+    loose: prospective,
+    currentLoose,
+    currentSlots,
+    requiredSlots,
+    additionalSlots,
+    capacity,
+    occupied,
+    free,
+    availableSlots,
+    maximumLoose,
+    excess: fits ? 0 : Math.max(0, prospective - maximumLoose)
+  };
+}
+
+// Descriptive aliases keep the query discoverable to callers without creating
+// a second capacity implementation.
+export const canReserveLooseCoin = looseCoinReservation;
+export const looseCoinCapacity = looseCoinReservation;
+
+/**
  * Everything a sheet needs to render money, plus the overflow figure.
  *
  * `overflow` is coin held beyond a purse's effective capacity. It is REPORTED,

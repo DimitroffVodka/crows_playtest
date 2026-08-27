@@ -4,6 +4,7 @@ import {
   CROWS, ALL_EXPERTISES, MATERIAL_IDENTITY_KEYS,
   expertiseMaxForTxp, bonusesEarnedAtTxp, effectiveCapacities
 } from "../../config.mjs";
+import { commerceFields } from "../../helpers/schema.mjs";
 import { migrateCrowSystem, expertiseOverBudget } from "../../helpers/migration.mjs";
 
 const CRAFTING_PROJECT_STATUSES = ["active", "blocked", "pending"];
@@ -201,12 +202,6 @@ export class CrowData extends TypeDataModel {
         charBonusesSpent: new fields.NumberField({ initial: 0, min: 0, integer: true })
       }),
 
-      // CONTRACT: `currency` is LOOSE coin carried on the person. A slot holds
-      // 250 loose (C:1917); a Coin Purse is an ITEM with its own capacity, so
-      // purses live in the inventory, not here. slots.mjs assembles both into
-      // Layout.coin — do not add a purse field to the actor.
-      currency: new fields.NumberField({ initial: 0, min: 0, integer: true }),
-
       // Strictly boolean in PT2 — "You can't gain a second instance of a
       // condition you already have" (R:528). `boned` is DELETED; it has no PT2
       // equivalent and must not be silently converted to `weakened`.
@@ -306,7 +301,12 @@ export class CrowData extends TypeDataModel {
         // Bounded material sagas remain recoverable after an uncertain Item
         // update/delete. Never infer completion from a missing journal entry.
         transactions: new fields.ArrayField(craftingTransactionField(), { initial: [] })
-      })
+      }),
+
+      // Durable option-(b) commerce state (including loose currency and the
+      // receipt journal) lives on the Actor so a designated GM can reconcile a
+      // disconnect or a later retry after reload.
+      ...commerceFields()
     };
   }
 
