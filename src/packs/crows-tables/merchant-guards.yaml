@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: resa1feb85f70428
   _key: '!tables.results!crowsrtcf938c2d2.resa1feb85f70428'
-  type: 0
+  type: text
   name: Archer (Power 4)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -21,7 +21,7 @@ results:
   documentId: null
 - _id: res5c9e3fb28d479
   _key: '!tables.results!crowsrtcf938c2d2.res5c9e3fb28d479'
-  type: 0
+  type: text
   name: Archer (Power 7)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -33,7 +33,7 @@ results:
   documentId: null
 - _id: rese87490818fa93
   _key: '!tables.results!crowsrtcf938c2d2.rese87490818fa93'
-  type: 0
+  type: text
   name: Archer (Power 8)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -45,7 +45,7 @@ results:
   documentId: null
 - _id: rese87b32f9f111e
   _key: '!tables.results!crowsrtcf938c2d2.rese87b32f9f111e'
-  type: 0
+  type: text
   name: Elementalist
   img: icons/svg/d20-black.svg
   weight: 1
@@ -57,7 +57,7 @@ results:
   documentId: null
 - _id: res860ff05fb17c5
   _key: '!tables.results!crowsrtcf938c2d2.res860ff05fb17c5'
-  type: 0
+  type: text
   name: Pike Warrior (Power 4)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -69,7 +69,7 @@ results:
   documentId: null
 - _id: resb6ec3de33db0f
   _key: '!tables.results!crowsrtcf938c2d2.resb6ec3de33db0f'
-  type: 0
+  type: text
   name: Pike Warrior (Power 7)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -81,7 +81,7 @@ results:
   documentId: null
 - _id: res025e70422a6d1
   _key: '!tables.results!crowsrtcf938c2d2.res025e70422a6d1'
-  type: 0
+  type: text
   name: Pike Warrior (Power 10)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -93,7 +93,7 @@ results:
   documentId: null
 - _id: res620191666afea
   _key: '!tables.results!crowsrtcf938c2d2.res620191666afea'
-  type: 0
+  type: text
   name: Sword Warrior (Power 4)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -105,7 +105,7 @@ results:
   documentId: null
 - _id: resc9a0aef7a468c
   _key: '!tables.results!crowsrtcf938c2d2.resc9a0aef7a468c'
-  type: 0
+  type: text
   name: Sword Warrior (Power 7)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -117,7 +117,7 @@ results:
   documentId: null
 - _id: res8839a50e75b7b
   _key: '!tables.results!crowsrtcf938c2d2.res8839a50e75b7b'
-  type: 0
+  type: text
   name: Sword Warrior (Power 10)
   img: icons/svg/d20-black.svg
   weight: 1

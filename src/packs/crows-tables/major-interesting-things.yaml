@@ -10,7 +10,7 @@ displayRoll: true
 results:
 - _id: res52169ec0d02d9
   _key: '!tables.results!crowsrt69dcc9cbb.res52169ec0d02d9'
-  type: 0
+  type: text
   name: Roll on the Minor Interesting Things table instead.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -22,7 +22,7 @@ results:
   documentId: null
 - _id: resf1e8d3d7a1686
   _key: '!tables.results!crowsrt69dcc9cbb.resf1e8d3d7a1686'
-  type: 0
+  type: text
   name: Quiver of archmage obsidian arrows
   img: icons/svg/d20-black.svg
   weight: 1
@@ -34,7 +34,7 @@ results:
   documentId: null
 - _id: resd137b0aa84f8a
   _key: '!tables.results!crowsrt69dcc9cbb.resd137b0aa84f8a'
-  type: 0
+  type: text
   name: Case of archmage obsidian bolts
   img: icons/svg/d20-black.svg
   weight: 1
@@ -46,7 +46,7 @@ results:
   documentId: null
 - _id: res8cdd2e3147f02
   _key: '!tables.results!crowsrt69dcc9cbb.res8cdd2e3147f02'
-  type: 0
+  type: text
   name: Waterwalking light armor
   img: icons/svg/d20-black.svg
   weight: 1
@@ -58,7 +58,7 @@ results:
   documentId: null
 - _id: res9a1773b4b8af6
   _key: '!tables.results!crowsrt69dcc9cbb.res9a1773b4b8af6'
-  type: 0
+  type: text
   name: Archmage obsidian bar
   img: icons/svg/d20-black.svg
   weight: 1
@@ -70,7 +70,7 @@ results:
   documentId: null
 - _id: resc39982c8f9a0e
   _key: '!tables.results!crowsrt69dcc9cbb.resc39982c8f9a0e'
-  type: 0
+  type: text
   name: Steel medium armor with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -82,7 +82,7 @@ results:
   documentId: null
 - _id: resc27eaf8328ac6
   _key: '!tables.results!crowsrt69dcc9cbb.resc27eaf8328ac6'
-  type: 0
+  type: text
   name: Fine lockpick set
   img: icons/svg/d20-black.svg
   weight: 1
@@ -94,7 +94,7 @@ results:
   documentId: null
 - _id: res925d942ba5163
   _key: '!tables.results!crowsrt69dcc9cbb.res925d942ba5163'
-  type: 0
+  type: text
   name: Fine padlock
   img: icons/svg/d20-black.svg
   weight: 1
@@ -106,7 +106,7 @@ results:
   documentId: null
 - _id: res74fb840d8a70f
   _key: '!tables.results!crowsrt69dcc9cbb.res74fb840d8a70f'
-  type: 0
+  type: text
   name: Fine compass
   img: icons/svg/d20-black.svg
   weight: 1
@@ -118,7 +118,7 @@ results:
   documentId: null
 - _id: resb3abdb29d689e
   _key: '!tables.results!crowsrt69dcc9cbb.resb3abdb29d689e'
-  type: 0
+  type: text
   name: Fine lantern
   img: icons/svg/d20-black.svg
   weight: 1
@@ -130,7 +130,7 @@ results:
   documentId: null
 - _id: rese98f57d7afcbe
   _key: '!tables.results!crowsrt69dcc9cbb.rese98f57d7afcbe'
-  type: 0
+  type: text
   name: Fine lore book with an expertise chosen by the Ref
   img: icons/svg/d20-black.svg
   weight: 1
@@ -142,7 +142,7 @@ results:
   documentId: null
 - _id: res8f7e787211a75
   _key: '!tables.results!crowsrt69dcc9cbb.res8f7e787211a75'
-  type: 0
+  type: text
   name: Masterwork block and tackle
   img: icons/svg/d20-black.svg
   weight: 1
@@ -154,7 +154,7 @@ results:
   documentId: null
 - _id: res2d09ac54b804b
   _key: '!tables.results!crowsrt69dcc9cbb.res2d09ac54b804b'
-  type: 0
+  type: text
   name: Masterwork alchemist’s tools
   img: icons/svg/d20-black.svg
   weight: 1
@@ -166,7 +166,7 @@ results:
   documentId: null
 - _id: resd3edbcf06da2a
   _key: '!tables.results!crowsrt69dcc9cbb.resd3edbcf06da2a'
-  type: 0
+  type: text
   name: Masterwork blacksmith’s tools
   img: icons/svg/d20-black.svg
   weight: 1
@@ -178,7 +178,7 @@ results:
   documentId: null
 - _id: res9860d58f05dc5
   _key: '!tables.results!crowsrt69dcc9cbb.res9860d58f05dc5'
-  type: 0
+  type: text
   name: Masterwork enchanter’s tools
   img: icons/svg/d20-black.svg
   weight: 1
@@ -190,7 +190,7 @@ results:
   documentId: null
 - _id: res635840457a185
   _key: '!tables.results!crowsrt69dcc9cbb.res635840457a185'
-  type: 0
+  type: text
   name: Masterwork coinpurse
   img: icons/svg/d20-black.svg
   weight: 1
@@ -202,7 +202,7 @@ results:
   documentId: null
 - _id: resdcf8b89807951
   _key: '!tables.results!crowsrt69dcc9cbb.resdcf8b89807951'
-  type: 0
+  type: text
   name: Masterwork rope
   img: icons/svg/d20-black.svg
   weight: 1
@@ -214,7 +214,7 @@ results:
   documentId: null
 - _id: res4880b98a28667
   _key: '!tables.results!crowsrt69dcc9cbb.res4880b98a28667'
-  type: 0
+  type: text
   name: Masterwork spyglass
   img: icons/svg/d20-black.svg
   weight: 1
@@ -226,7 +226,7 @@ results:
   documentId: null
 - _id: res33531290b070e
   _key: '!tables.results!crowsrt69dcc9cbb.res33531290b070e'
-  type: 0
+  type: text
   name: Cart
   img: icons/svg/d20-black.svg
   weight: 1
@@ -238,7 +238,7 @@ results:
   documentId: null
 - _id: res02f8964a56c7a
   _key: '!tables.results!crowsrt69dcc9cbb.res02f8964a56c7a'
-  type: 0
+  type: text
   name: Necromancer silver bar
   img: icons/svg/d20-black.svg
   weight: 1
@@ -250,7 +250,7 @@ results:
   documentId: null
 - _id: res7d9d301ac5f19
   _key: '!tables.results!crowsrt69dcc9cbb.res7d9d301ac5f19'
-  type: 0
+  type: text
   name: Demon’s head shield
   img: icons/svg/d20-black.svg
   weight: 1
@@ -262,7 +262,7 @@ results:
   documentId: null
 - _id: resd717cce9163ee
   _key: '!tables.results!crowsrt69dcc9cbb.resd717cce9163ee'
-  type: 0
+  type: text
   name: Feather light armor
   img: icons/svg/d20-black.svg
   weight: 1
@@ -274,7 +274,7 @@ results:
   documentId: null
 - _id: res81662a075e5ed
   _key: '!tables.results!crowsrt69dcc9cbb.res81662a075e5ed'
-  type: 0
+  type: text
   name: Glow shield
   img: icons/svg/d20-black.svg
   weight: 1
@@ -286,7 +286,7 @@ results:
   documentId: null
 - _id: rese58618829a213
   _key: '!tables.results!crowsrt69dcc9cbb.rese58618829a213'
-  type: 0
+  type: text
   name: Glow light armor
   img: icons/svg/d20-black.svg
   weight: 1
@@ -298,7 +298,7 @@ results:
   documentId: null
 - _id: resd84bdee79155e
   _key: '!tables.results!crowsrt69dcc9cbb.resd84bdee79155e'
-  type: 0
+  type: text
   name: Luring shield
   img: icons/svg/d20-black.svg
   weight: 1
@@ -310,7 +310,7 @@ results:
   documentId: null
 - _id: resa6e0dbbe58977
   _key: '!tables.results!crowsrt69dcc9cbb.resa6e0dbbe58977'
-  type: 0
+  type: text
   name: Luring light armor
   img: icons/svg/d20-black.svg
   weight: 1
@@ -322,7 +322,7 @@ results:
   documentId: null
 - _id: rese5e8e045d4900
   _key: '!tables.results!crowsrt69dcc9cbb.rese5e8e045d4900'
-  type: 0
+  type: text
   name: Spell-storing shield
   img: icons/svg/d20-black.svg
   weight: 1
@@ -334,7 +334,7 @@ results:
   documentId: null
 - _id: res86b8356be7316
   _key: '!tables.results!crowsrt69dcc9cbb.res86b8356be7316'
-  type: 0
+  type: text
   name: Spell-storing light armor
   img: icons/svg/d20-black.svg
   weight: 1
@@ -346,7 +346,7 @@ results:
   documentId: null
 - _id: res2580577157423
   _key: '!tables.results!crowsrt69dcc9cbb.res2580577157423'
-  type: 0
+  type: text
   name: Impact bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -358,7 +358,7 @@ results:
   documentId: null
 - _id: resb3006ebafa8dd
   _key: '!tables.results!crowsrt69dcc9cbb.resb3006ebafa8dd'
-  type: 0
+  type: text
   name: Impact melee weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -370,7 +370,7 @@ results:
   documentId: null
 - _id: resf59ba19c684eb
   _key: '!tables.results!crowsrt69dcc9cbb.resf59ba19c684eb'
-  type: 0
+  type: text
   name: Raging bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -382,7 +382,7 @@ results:
   documentId: null
 - _id: res4badb1b12c822
   _key: '!tables.results!crowsrt69dcc9cbb.res4badb1b12c822'
-  type: 0
+  type: text
   name: Raging melee weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -394,7 +394,7 @@ results:
   documentId: null
 - _id: resd1224e6174677
   _key: '!tables.results!crowsrt69dcc9cbb.resd1224e6174677'
-  type: 0
+  type: text
   name: Defending bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -406,7 +406,7 @@ results:
   documentId: null
 - _id: res368f7409dfa87
   _key: '!tables.results!crowsrt69dcc9cbb.res368f7409dfa87'
-  type: 0
+  type: text
   name: Defending melee weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -418,7 +418,7 @@ results:
   documentId: null
 - _id: resa5523247f4d44
   _key: '!tables.results!crowsrt69dcc9cbb.resa5523247f4d44'
-  type: 0
+  type: text
   name: Heavy steel armor with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -430,7 +430,7 @@ results:
   documentId: null
 - _id: res135c25dd4cf7b
   _key: '!tables.results!crowsrt69dcc9cbb.res135c25dd4cf7b'
-  type: 0
+  type: text
   name: Masterwork lockpick set
   img: icons/svg/d20-black.svg
   weight: 1
@@ -442,7 +442,7 @@ results:
   documentId: null
 - _id: resf7573f508d469
   _key: '!tables.results!crowsrt69dcc9cbb.resf7573f508d469'
-  type: 0
+  type: text
   name: Masterwork padlock
   img: icons/svg/d20-black.svg
   weight: 1
@@ -454,7 +454,7 @@ results:
   documentId: null
 - _id: res21d57f8da8cbe
   _key: '!tables.results!crowsrt69dcc9cbb.res21d57f8da8cbe'
-  type: 0
+  type: text
   name: Archmage willow log
   img: icons/svg/d20-black.svg
   weight: 1
@@ -466,7 +466,7 @@ results:
   documentId: null
 - _id: res7583d104b9939
   _key: '!tables.results!crowsrt69dcc9cbb.res7583d104b9939'
-  type: 0
+  type: text
   name: Archmage obsidian shield with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -478,7 +478,7 @@ results:
   documentId: null
 - _id: res8b613ea120074
   _key: '!tables.results!crowsrt69dcc9cbb.res8b613ea120074'
-  type: 0
+  type: text
   name: Masterwork compass
   img: icons/svg/d20-black.svg
   weight: 1
@@ -490,7 +490,7 @@ results:
   documentId: null
 - _id: res73399db96a695
   _key: '!tables.results!crowsrt69dcc9cbb.res73399db96a695'
-  type: 0
+  type: text
   name: Masterwork lantern
   img: icons/svg/d20-black.svg
   weight: 1
@@ -502,7 +502,7 @@ results:
   documentId: null
 - _id: resff52d800901ce
   _key: '!tables.results!crowsrt69dcc9cbb.resff52d800901ce'
-  type: 0
+  type: text
   name: Masterwork lore book with an expertise chosen by the Ref
   img: icons/svg/d20-black.svg
   weight: 1
@@ -514,7 +514,7 @@ results:
   documentId: null
 - _id: resd285e753194a1
   _key: '!tables.results!crowsrt69dcc9cbb.resd285e753194a1'
-  type: 0
+  type: text
   name: Telepathic node light armor
   img: icons/svg/d20-black.svg
   weight: 1
@@ -526,7 +526,7 @@ results:
   documentId: null
 - _id: res3aecd3f97d05f
   _key: '!tables.results!crowsrt69dcc9cbb.res3aecd3f97d05f'
-  type: 0
+  type: text
   name: Exploding bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -538,7 +538,7 @@ results:
   documentId: null
 - _id: res21e1db8a3c5c4
   _key: '!tables.results!crowsrt69dcc9cbb.res21e1db8a3c5c4'
-  type: 0
+  type: text
   name: Exploding melee weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -550,7 +550,7 @@ results:
   documentId: null
 - _id: res492d1349ee7fc
   _key: '!tables.results!crowsrt69dcc9cbb.res492d1349ee7fc'
-  type: 0
+  type: text
   name: Lightning bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -562,7 +562,7 @@ results:
   documentId: null
 - _id: res35b8763303eaa
   _key: '!tables.results!crowsrt69dcc9cbb.res35b8763303eaa'
-  type: 0
+  type: text
   name: Lightning melee weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -574,7 +574,7 @@ results:
   documentId: null
 - _id: res1210ab3854858
   _key: '!tables.results!crowsrt69dcc9cbb.res1210ab3854858'
-  type: 0
+  type: text
   name: Poison bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -586,7 +586,7 @@ results:
   documentId: null
 - _id: res0265e27349a05
   _key: '!tables.results!crowsrt69dcc9cbb.res0265e27349a05'
-  type: 0
+  type: text
   name: Poison melee weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -598,7 +598,7 @@ results:
   documentId: null
 - _id: resf4cee2d3ff29d
   _key: '!tables.results!crowsrt69dcc9cbb.resf4cee2d3ff29d'
-  type: 0
+  type: text
   name: Undead bone light armor
   img: icons/svg/d20-black.svg
   weight: 1
@@ -610,7 +610,7 @@ results:
   documentId: null
 - _id: res4f7b8175c87e4
   _key: '!tables.results!crowsrt69dcc9cbb.res4f7b8175c87e4'
-  type: 0
+  type: text
   name: Archmage obsidian weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1

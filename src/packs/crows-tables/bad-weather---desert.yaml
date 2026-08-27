@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: resb535ad5a3dfc4
   _key: '!tables.results!crowsrtd7680a94e.resb535ad5a3dfc4'
-  type: 0
+  type: text
   name: 'Heat Wave: Traveling >2 hexes requires Strength RR (Tier 1: 2d6 P dam, Tier
     2: 1d6 P dam, Tier 3: No effect).'
   img: icons/svg/d20-black.svg
@@ -22,7 +22,7 @@ results:
   documentId: null
 - _id: resf3ad43e81305a
   _key: '!tables.results!crowsrtd7680a94e.resf3ad43e81305a'
-  type: 0
+  type: text
   name: 'Sandstorm: Daily speed reduced by 2 hexes. Double bane to guide/scout/tracker
     roles.'
   img: icons/svg/d20-black.svg

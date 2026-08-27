@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: rese3b684292435f
   _key: '!tables.results!crowsrt29fce878e.rese3b684292435f'
-  type: 0
+  type: text
   name: Alchemist
   img: icons/svg/d20-black.svg
   weight: 1
@@ -21,7 +21,7 @@ results:
   documentId: null
 - _id: resc6c357c39819c
   _key: '!tables.results!crowsrt29fce878e.resc6c357c39819c'
-  type: 0
+  type: text
   name: Archer (Power 4)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -33,7 +33,7 @@ results:
   documentId: null
 - _id: rese2699393ecb5f
   _key: '!tables.results!crowsrt29fce878e.rese2699393ecb5f'
-  type: 0
+  type: text
   name: Archer (Power 7)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -45,7 +45,7 @@ results:
   documentId: null
 - _id: resca9f9b5707119
   _key: '!tables.results!crowsrt29fce878e.resca9f9b5707119'
-  type: 0
+  type: text
   name: Archer (Power 8)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -57,7 +57,7 @@ results:
   documentId: null
 - _id: resb68f3eeb0aa43
   _key: '!tables.results!crowsrt29fce878e.resb68f3eeb0aa43'
-  type: 0
+  type: text
   name: Blacksmith
   img: icons/svg/d20-black.svg
   weight: 1
@@ -69,7 +69,7 @@ results:
   documentId: null
 - _id: resf4d8111a474d9
   _key: '!tables.results!crowsrt29fce878e.resf4d8111a474d9'
-  type: 0
+  type: text
   name: Conjurer
   img: icons/svg/d20-black.svg
   weight: 1
@@ -81,7 +81,7 @@ results:
   documentId: null
 - _id: res505222c12c485
   _key: '!tables.results!crowsrt29fce878e.res505222c12c485'
-  type: 0
+  type: text
   name: Cultist
   img: icons/svg/d20-black.svg
   weight: 1
@@ -93,7 +93,7 @@ results:
   documentId: null
 - _id: resca5cedb439afc
   _key: '!tables.results!crowsrt29fce878e.resca5cedb439afc'
-  type: 0
+  type: text
   name: Elementalist
   img: icons/svg/d20-black.svg
   weight: 1
@@ -105,7 +105,7 @@ results:
   documentId: null
 - _id: resbf0d0740d47fb
   _key: '!tables.results!crowsrt29fce878e.resbf0d0740d47fb'
-  type: 0
+  type: text
   name: Enchanter
   img: icons/svg/d20-black.svg
   weight: 1
@@ -117,7 +117,7 @@ results:
   documentId: null
 - _id: res2677768be7a4d
   _key: '!tables.results!crowsrt29fce878e.res2677768be7a4d'
-  type: 0
+  type: text
   name: Guide
   img: icons/svg/d20-black.svg
   weight: 1
@@ -129,7 +129,7 @@ results:
   documentId: null
 - _id: res1facb7920df89
   _key: '!tables.results!crowsrt29fce878e.res1facb7920df89'
-  type: 0
+  type: text
   name: Illusionist
   img: icons/svg/d20-black.svg
   weight: 1
@@ -141,7 +141,7 @@ results:
   documentId: null
 - _id: res55897c1a97ac6
   _key: '!tables.results!crowsrt29fce878e.res55897c1a97ac6'
-  type: 0
+  type: text
   name: Priest
   img: icons/svg/d20-black.svg
   weight: 1
@@ -153,7 +153,7 @@ results:
   documentId: null
 - _id: res180adfd88af21
   _key: '!tables.results!crowsrt29fce878e.res180adfd88af21'
-  type: 0
+  type: text
   name: Sage (Power 3)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -165,7 +165,7 @@ results:
   documentId: null
 - _id: res6f69e8a39252c
   _key: '!tables.results!crowsrt29fce878e.res6f69e8a39252c'
-  type: 0
+  type: text
   name: Sage (Power 6)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -177,7 +177,7 @@ results:
   documentId: null
 - _id: res555ecc488ffb4
   _key: '!tables.results!crowsrt29fce878e.res555ecc488ffb4'
-  type: 0
+  type: text
   name: Thief (Power 3)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -189,7 +189,7 @@ results:
   documentId: null
 - _id: resd27f9a4775e27
   _key: '!tables.results!crowsrt29fce878e.resd27f9a4775e27'
-  type: 0
+  type: text
   name: Thief (Power 6)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -201,7 +201,7 @@ results:
   documentId: null
 - _id: resce12df47942b1
   _key: '!tables.results!crowsrt29fce878e.resce12df47942b1'
-  type: 0
+  type: text
   name: Thief (Power 9)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -213,7 +213,7 @@ results:
   documentId: null
 - _id: res49814d8249a84
   _key: '!tables.results!crowsrt29fce878e.res49814d8249a84'
-  type: 0
+  type: text
   name: Transmuter
   img: icons/svg/d20-black.svg
   weight: 1
@@ -225,7 +225,7 @@ results:
   documentId: null
 - _id: rese2e3ce10fd108
   _key: '!tables.results!crowsrt29fce878e.rese2e3ce10fd108'
-  type: 0
+  type: text
   name: Trapper
   img: icons/svg/d20-black.svg
   weight: 1
@@ -237,7 +237,7 @@ results:
   documentId: null
 - _id: resd28f926e7d8ac
   _key: '!tables.results!crowsrt29fce878e.resd28f926e7d8ac'
-  type: 0
+  type: text
   name: Pike Warrior (Power 4)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -249,7 +249,7 @@ results:
   documentId: null
 - _id: res794ca414a214b
   _key: '!tables.results!crowsrt29fce878e.res794ca414a214b'
-  type: 0
+  type: text
   name: Pike Warrior (Power 7)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -261,7 +261,7 @@ results:
   documentId: null
 - _id: resab6e4465d2141
   _key: '!tables.results!crowsrt29fce878e.resab6e4465d2141'
-  type: 0
+  type: text
   name: Pike Warrior (Power 10)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -273,7 +273,7 @@ results:
   documentId: null
 - _id: res0ed2dae6a588a
   _key: '!tables.results!crowsrt29fce878e.res0ed2dae6a588a'
-  type: 0
+  type: text
   name: Sword Warrior (Power 4)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -285,7 +285,7 @@ results:
   documentId: null
 - _id: res183f710060e0e
   _key: '!tables.results!crowsrt29fce878e.res183f710060e0e'
-  type: 0
+  type: text
   name: Sword Warrior (Power 7)
   img: icons/svg/d20-black.svg
   weight: 1
@@ -297,7 +297,7 @@ results:
   documentId: null
 - _id: res6e9b1def18c89
   _key: '!tables.results!crowsrt29fce878e.res6e9b1def18c89'
-  type: 0
+  type: text
   name: Sword Warrior (Power 10)
   img: icons/svg/d20-black.svg
   weight: 1

@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: rese69721fe6f85d
   _key: '!tables.results!crowsrt26fd018dc.rese69721fe6f85d'
-  type: 0
+  type: text
   name: An angel creature corpse
   img: icons/svg/d20-black.svg
   weight: 1
@@ -21,7 +21,7 @@ results:
   documentId: null
 - _id: res04e4218c02004
   _key: '!tables.results!crowsrt26fd018dc.res04e4218c02004'
-  type: 0
+  type: text
   name: A blood creature corpse
   img: icons/svg/d20-black.svg
   weight: 1
@@ -33,7 +33,7 @@ results:
   documentId: null
 - _id: resbf819569cca41
   _key: '!tables.results!crowsrt26fd018dc.resbf819569cca41'
-  type: 0
+  type: text
   name: A demon corpse
   img: icons/svg/d20-black.svg
   weight: 1
@@ -45,7 +45,7 @@ results:
   documentId: null
 - _id: res495c3485a667f
   _key: '!tables.results!crowsrt26fd018dc.res495c3485a667f'
-  type: 0
+  type: text
   name: A plant creature corpse
   img: icons/svg/d20-black.svg
   weight: 1
@@ -57,7 +57,7 @@ results:
   documentId: null
 - _id: res3d92a7ed0d8db
   _key: '!tables.results!crowsrt26fd018dc.res3d92a7ed0d8db'
-  type: 0
+  type: text
   name: An undead creature’s remains
   img: icons/svg/d20-black.svg
   weight: 1
@@ -69,7 +69,7 @@ results:
   documentId: null
 - _id: res96fa01ce1b209
   _key: '!tables.results!crowsrt26fd018dc.res96fa01ce1b209'
-  type: 0
+  type: text
   name: A map to a hidden POI
   img: icons/svg/d20-black.svg
   weight: 1
@@ -81,7 +81,7 @@ results:
   documentId: null
 - _id: res27271c3a08236
   _key: '!tables.results!crowsrt26fd018dc.res27271c3a08236'
-  type: 0
+  type: text
   name: A map to buried treasure
   img: icons/svg/d20-black.svg
   weight: 1
@@ -93,7 +93,7 @@ results:
   documentId: null
 - _id: res5cc83182efeeb
   _key: '!tables.results!crowsrt26fd018dc.res5cc83182efeeb'
-  type: 0
+  type: text
   name: An empty coinpurse
   img: icons/svg/d20-black.svg
   weight: 1
@@ -105,7 +105,7 @@ results:
   documentId: null
 - _id: res661c27488071c
   _key: '!tables.results!crowsrt26fd018dc.res661c27488071c'
-  type: 0
+  type: text
   name: A bag of ball bearings
   img: icons/svg/d20-black.svg
   weight: 1
@@ -117,7 +117,7 @@ results:
   documentId: null
 - _id: res8f63f1ca54df4
   _key: '!tables.results!crowsrt26fd018dc.res8f63f1ca54df4'
-  type: 0
+  type: text
   name: A bag of caltrops
   img: icons/svg/d20-black.svg
   weight: 1
@@ -129,7 +129,7 @@ results:
   documentId: null
 - _id: res70e47b805fd64
   _key: '!tables.results!crowsrt26fd018dc.res70e47b805fd64'
-  type: 0
+  type: text
   name: 10 feet of chain
   img: icons/svg/d20-black.svg
   weight: 1
@@ -141,7 +141,7 @@ results:
   documentId: null
 - _id: res61ceba1729def
   _key: '!tables.results!crowsrt26fd018dc.res61ceba1729def'
-  type: 0
+  type: text
   name: Flask of oil
   img: icons/svg/d20-black.svg
   weight: 1
@@ -153,7 +153,7 @@ results:
   documentId: null
 - _id: res965c752802f42
   _key: '!tables.results!crowsrt26fd018dc.res965c752802f42'
-  type: 0
+  type: text
   name: Net
   img: icons/svg/d20-black.svg
   weight: 1
@@ -165,7 +165,7 @@ results:
   documentId: null
 - _id: resb74f2828ba7b3
   _key: '!tables.results!crowsrt26fd018dc.resb74f2828ba7b3'
-  type: 0
+  type: text
   name: Quiver of arrows
   img: icons/svg/d20-black.svg
   weight: 1
@@ -177,7 +177,7 @@ results:
   documentId: null
 - _id: res21dfee2731eb4
   _key: '!tables.results!crowsrt26fd018dc.res21dfee2731eb4'
-  type: 0
+  type: text
   name: Case of crossbow bolts
   img: icons/svg/d20-black.svg
   weight: 1
@@ -189,7 +189,7 @@ results:
   documentId: null
 - _id: res2483edd31d288
   _key: '!tables.results!crowsrt26fd018dc.res2483edd31d288'
-  type: 0
+  type: text
   name: Soap
   img: icons/svg/d20-black.svg
   weight: 1
@@ -201,7 +201,7 @@ results:
   documentId: null
 - _id: res9739747c33c98
   _key: '!tables.results!crowsrt26fd018dc.res9739747c33c98'
-  type: 0
+  type: text
   name: Acid vial
   img: icons/svg/d20-black.svg
   weight: 1
@@ -213,7 +213,7 @@ results:
   documentId: null
 - _id: resb3eec5c0a831d
   _key: '!tables.results!crowsrt26fd018dc.resb3eec5c0a831d'
-  type: 0
+  type: text
   name: Poison vial
   img: icons/svg/d20-black.svg
   weight: 1
@@ -225,7 +225,7 @@ results:
   documentId: null
 - _id: res6584f73c3c060
   _key: '!tables.results!crowsrt26fd018dc.res6584f73c3c060'
-  type: 0
+  type: text
   name: An IOU note for 5d10 gc from an NPC in a nearby village
   img: icons/svg/d20-black.svg
   weight: 1
@@ -237,7 +237,7 @@ results:
   documentId: null
 - _id: res6738bae3938f8
   _key: '!tables.results!crowsrt26fd018dc.res6738bae3938f8'
-  type: 0
+  type: text
   name: Bashing weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -249,7 +249,7 @@ results:
   documentId: null
 - _id: res306ef28a30906
   _key: '!tables.results!crowsrt26fd018dc.res306ef28a30906'
-  type: 0
+  type: text
   name: Bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -261,7 +261,7 @@ results:
   documentId: null
 - _id: resfb17e52aceb16
   _key: '!tables.results!crowsrt26fd018dc.resfb17e52aceb16'
-  type: 0
+  type: text
   name: Chopping weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -273,7 +273,7 @@ results:
   documentId: null
 - _id: resf1d1148e46804
   _key: '!tables.results!crowsrt26fd018dc.resf1d1148e46804'
-  type: 0
+  type: text
   name: Slashing weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -285,7 +285,7 @@ results:
   documentId: null
 - _id: resb4c5ab8096e0d
   _key: '!tables.results!crowsrt26fd018dc.resb4c5ab8096e0d'
-  type: 0
+  type: text
   name: Stabbing weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -297,7 +297,7 @@ results:
   documentId: null
 - _id: res5b16f7abc914d
   _key: '!tables.results!crowsrt26fd018dc.res5b16f7abc914d'
-  type: 0
+  type: text
   name: Shield with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -309,7 +309,7 @@ results:
   documentId: null
 - _id: res6b9884ba9cb1d
   _key: '!tables.results!crowsrt26fd018dc.res6b9884ba9cb1d'
-  type: 0
+  type: text
   name: Gluepot
   img: icons/svg/d20-black.svg
   weight: 1
@@ -321,7 +321,7 @@ results:
   documentId: null
 - _id: res7fb52ffeec582
   _key: '!tables.results!crowsrt26fd018dc.res7fb52ffeec582'
-  type: 0
+  type: text
   name: Padlock
   img: icons/svg/d20-black.svg
   weight: 1
@@ -333,7 +333,7 @@ results:
   documentId: null
 - _id: res3961796789123
   _key: '!tables.results!crowsrt26fd018dc.res3961796789123'
-  type: 0
+  type: text
   name: Lockpick set
   img: icons/svg/d20-black.svg
   weight: 1
@@ -345,7 +345,7 @@ results:
   documentId: null
 - _id: res3937e69452b02
   _key: '!tables.results!crowsrt26fd018dc.res3937e69452b02'
-  type: 0
+  type: text
   name: Gem worth 10d10 gc
   img: icons/svg/d20-black.svg
   weight: 1
@@ -357,7 +357,7 @@ results:
   documentId: null
 - _id: res4d889c266f58a
   _key: '!tables.results!crowsrt26fd018dc.res4d889c266f58a'
-  type: 0
+  type: text
   name: Lore book with an expertise chosen by the Ref
   img: icons/svg/d20-black.svg
   weight: 1
@@ -369,7 +369,7 @@ results:
   documentId: null
 - _id: res621534f883f43
   _key: '!tables.results!crowsrt26fd018dc.res621534f883f43'
-  type: 0
+  type: text
   name: Light armor with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -381,7 +381,7 @@ results:
   documentId: null
 - _id: resf0f73565d487b
   _key: '!tables.results!crowsrt26fd018dc.resf0f73565d487b'
-  type: 0
+  type: text
   name: Smoke bomb
   img: icons/svg/d20-black.svg
   weight: 1
@@ -393,7 +393,7 @@ results:
   documentId: null
 - _id: rese2610ccfd8ef3
   _key: '!tables.results!crowsrt26fd018dc.rese2610ccfd8ef3'
-  type: 0
+  type: text
   name: Healing potion
   img: icons/svg/d20-black.svg
   weight: 1
@@ -405,7 +405,7 @@ results:
   documentId: null
 - _id: res345f5c25b149b
   _key: '!tables.results!crowsrt26fd018dc.res345f5c25b149b'
-  type: 0
+  type: text
   name: Surgical kit
   img: icons/svg/d20-black.svg
   weight: 1
@@ -417,7 +417,7 @@ results:
   documentId: null
 - _id: res7d134fb9527f3
   _key: '!tables.results!crowsrt26fd018dc.res7d134fb9527f3'
-  type: 0
+  type: text
   name: Speed potion
   img: icons/svg/d20-black.svg
   weight: 1
@@ -429,7 +429,7 @@ results:
   documentId: null
 - _id: resb674cce78c6ed
   _key: '!tables.results!crowsrt26fd018dc.resb674cce78c6ed'
-  type: 0
+  type: text
   name: Quiver of steel arrows
   img: icons/svg/d20-black.svg
   weight: 1
@@ -441,7 +441,7 @@ results:
   documentId: null
 - _id: res9072a7e6a6b1d
   _key: '!tables.results!crowsrt26fd018dc.res9072a7e6a6b1d'
-  type: 0
+  type: text
   name: Case of steel crossbow bolts
   img: icons/svg/d20-black.svg
   weight: 1
@@ -453,7 +453,7 @@ results:
   documentId: null
 - _id: res553278e8b766a
   _key: '!tables.results!crowsrt26fd018dc.res553278e8b766a'
-  type: 0
+  type: text
   name: Fine torch
   img: icons/svg/d20-black.svg
   weight: 1
@@ -465,7 +465,7 @@ results:
   documentId: null
 - _id: res2d8fe4bbebf31
   _key: '!tables.results!crowsrt26fd018dc.res2d8fe4bbebf31'
-  type: 0
+  type: text
   name: Art object worth 20d10 gc
   img: icons/svg/d20-black.svg
   weight: 1
@@ -477,7 +477,7 @@ results:
   documentId: null
 - _id: res85ecca25b6d6e
   _key: '!tables.results!crowsrt26fd018dc.res85ecca25b6d6e'
-  type: 0
+  type: text
   name: Medium armor with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -489,7 +489,7 @@ results:
   documentId: null
 - _id: res07cc852b48887
   _key: '!tables.results!crowsrt26fd018dc.res07cc852b48887'
-  type: 0
+  type: text
   name: Masterwork torch
   img: icons/svg/d20-black.svg
   weight: 1
@@ -501,7 +501,7 @@ results:
   documentId: null
 - _id: resa5ee94b0fcf83
   _key: '!tables.results!crowsrt26fd018dc.resa5ee94b0fcf83'
-  type: 0
+  type: text
   name: Strong Acid Vial
   img: icons/svg/d20-black.svg
   weight: 1
@@ -513,7 +513,7 @@ results:
   documentId: null
 - _id: res736d90cbb77bb
   _key: '!tables.results!crowsrt26fd018dc.res736d90cbb77bb'
-  type: 0
+  type: text
   name: Strong Poison Vial
   img: icons/svg/d20-black.svg
   weight: 1
@@ -525,7 +525,7 @@ results:
   documentId: null
 - _id: res5a74539e508c2
   _key: '!tables.results!crowsrt26fd018dc.res5a74539e508c2'
-  type: 0
+  type: text
   name: Fire bomb
   img: icons/svg/d20-black.svg
   weight: 1
@@ -537,7 +537,7 @@ results:
   documentId: null
 - _id: res5b91e64814083
   _key: '!tables.results!crowsrt26fd018dc.res5b91e64814083'
-  type: 0
+  type: text
   name: Rage potion
   img: icons/svg/d20-black.svg
   weight: 1
@@ -549,7 +549,7 @@ results:
   documentId: null
 - _id: reseeafe91fc373c
   _key: '!tables.results!crowsrt26fd018dc.reseeafe91fc373c'
-  type: 0
+  type: text
   name: Rank 0 alteration spellbook of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -561,7 +561,7 @@ results:
   documentId: null
 - _id: res30226ba5ef7c7
   _key: '!tables.results!crowsrt26fd018dc.res30226ba5ef7c7'
-  type: 0
+  type: text
   name: Rank 0 benefaction spellbook of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -573,7 +573,7 @@ results:
   documentId: null
 - _id: res493ac93d4dc0a
   _key: '!tables.results!crowsrt26fd018dc.res493ac93d4dc0a'
-  type: 0
+  type: text
   name: Rank 0 conjuration spellbook of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -585,7 +585,7 @@ results:
   documentId: null
 - _id: resea6baaf57eba4
   _key: '!tables.results!crowsrt26fd018dc.resea6baaf57eba4'
-  type: 0
+  type: text
   name: Rank 0 elemental spellbook of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -597,7 +597,7 @@ results:
   documentId: null
 - _id: res4f4749bfd3e47
   _key: '!tables.results!crowsrt26fd018dc.res4f4749bfd3e47'
-  type: 0
+  type: text
   name: Rank 0 illusion spellbook of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -609,7 +609,7 @@ results:
   documentId: null
 - _id: res8fdd8805a30c6
   _key: '!tables.results!crowsrt26fd018dc.res8fdd8805a30c6'
-  type: 0
+  type: text
   name: Rank 0 necromancy spellbook of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -621,7 +621,7 @@ results:
   documentId: null
 - _id: res6d60ecc3d71c4
   _key: '!tables.results!crowsrt26fd018dc.res6d60ecc3d71c4'
-  type: 0
+  type: text
   name: Bear trap
   img: icons/svg/d20-black.svg
   weight: 1
@@ -633,7 +633,7 @@ results:
   documentId: null
 - _id: resd0a5bfed4ec33
   _key: '!tables.results!crowsrt26fd018dc.resd0a5bfed4ec33'
-  type: 0
+  type: text
   name: Gem worth 1d6 × 100 gc
   img: icons/svg/d20-black.svg
   weight: 1
@@ -645,7 +645,7 @@ results:
   documentId: null
 - _id: rese3f489ef4209f
   _key: '!tables.results!crowsrt26fd018dc.rese3f489ef4209f'
-  type: 0
+  type: text
   name: Steel shield with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -657,7 +657,7 @@ results:
   documentId: null
 - _id: res8b0a8fcf27617
   _key: '!tables.results!crowsrt26fd018dc.res8b0a8fcf27617'
-  type: 0
+  type: text
   name: Yew bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -669,7 +669,7 @@ results:
   documentId: null
 - _id: res160ed38804861
   _key: '!tables.results!crowsrt26fd018dc.res160ed38804861'
-  type: 0
+  type: text
   name: Heavy armor with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -681,7 +681,7 @@ results:
   documentId: null
 - _id: res6ab0f49af5ca3
   _key: '!tables.results!crowsrt26fd018dc.res6ab0f49af5ca3'
-  type: 0
+  type: text
   name: Boom wand
   img: icons/svg/d20-black.svg
   weight: 1
@@ -693,7 +693,7 @@ results:
   documentId: null
 - _id: rese845a3cf53157
   _key: '!tables.results!crowsrt26fd018dc.rese845a3cf53157'
-  type: 0
+  type: text
   name: Fine block and tackle
   img: icons/svg/d20-black.svg
   weight: 1
@@ -705,7 +705,7 @@ results:
   documentId: null
 - _id: resd690f5e314e00
   _key: '!tables.results!crowsrt26fd018dc.resd690f5e314e00'
-  type: 0
+  type: text
   name: Fine ladder
   img: icons/svg/d20-black.svg
   weight: 1
@@ -717,7 +717,7 @@ results:
   documentId: null
 - _id: res862374970d40d
   _key: '!tables.results!crowsrt26fd018dc.res862374970d40d'
-  type: 0
+  type: text
   name: Fine spyglass
   img: icons/svg/d20-black.svg
   weight: 1
@@ -729,7 +729,7 @@ results:
   documentId: null
 - _id: resb0d81c4db43df
   _key: '!tables.results!crowsrt26fd018dc.resb0d81c4db43df'
-  type: 0
+  type: text
   name: Fine coinpurse
   img: icons/svg/d20-black.svg
   weight: 1
@@ -741,7 +741,7 @@ results:
   documentId: null
 - _id: resdbff740f34448
   _key: '!tables.results!crowsrt26fd018dc.resdbff740f34448'
-  type: 0
+  type: text
   name: Fine rope
   img: icons/svg/d20-black.svg
   weight: 1
@@ -753,7 +753,7 @@ results:
   documentId: null
 - _id: res0fc426e4b1d35
   _key: '!tables.results!crowsrt26fd018dc.res0fc426e4b1d35'
-  type: 0
+  type: text
   name: Fine alchemist’s tools
   img: icons/svg/d20-black.svg
   weight: 1
@@ -765,7 +765,7 @@ results:
   documentId: null
 - _id: res925975e5a543e
   _key: '!tables.results!crowsrt26fd018dc.res925975e5a543e'
-  type: 0
+  type: text
   name: Fine blacksmith’s tool
   img: icons/svg/d20-black.svg
   weight: 1
@@ -777,7 +777,7 @@ results:
   documentId: null
 - _id: res93b29dfa0f003
   _key: '!tables.results!crowsrt26fd018dc.res93b29dfa0f003'
-  type: 0
+  type: text
   name: Fine enchanter’s tools
   img: icons/svg/d20-black.svg
   weight: 1
@@ -789,7 +789,7 @@ results:
   documentId: null
 - _id: res3fc1dab0fdec0
   _key: '!tables.results!crowsrt26fd018dc.res3fc1dab0fdec0'
-  type: 0
+  type: text
   name: Plague mask
   img: icons/svg/d20-black.svg
   weight: 1
@@ -801,7 +801,7 @@ results:
   documentId: null
 - _id: res9f9e256c7ea85
   _key: '!tables.results!crowsrt26fd018dc.res9f9e256c7ea85'
-  type: 0
+  type: text
   name: Light bloodhide armor with 0 AD remaining
   img: icons/svg/d20-black.svg
   weight: 1
@@ -813,7 +813,7 @@ results:
   documentId: null
 - _id: resf795b5f3dd269
   _key: '!tables.results!crowsrt26fd018dc.resf795b5f3dd269'
-  type: 0
+  type: text
   name: Steel bashing weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -825,7 +825,7 @@ results:
   documentId: null
 - _id: res2c67368d0e8ea
   _key: '!tables.results!crowsrt26fd018dc.res2c67368d0e8ea'
-  type: 0
+  type: text
   name: Steel chopping weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -837,7 +837,7 @@ results:
   documentId: null
 - _id: resb40fcb7bd9cb7
   _key: '!tables.results!crowsrt26fd018dc.resb40fcb7bd9cb7'
-  type: 0
+  type: text
   name: Steel slashing weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -849,7 +849,7 @@ results:
   documentId: null
 - _id: resddaf2ab74d58b
   _key: '!tables.results!crowsrt26fd018dc.resddaf2ab74d58b'
-  type: 0
+  type: text
   name: Steel stabbing weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -861,7 +861,7 @@ results:
   documentId: null
 - _id: res78869520c0cd8
   _key: '!tables.results!crowsrt26fd018dc.res78869520c0cd8'
-  type: 0
+  type: text
   name: Absorbing bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -873,7 +873,7 @@ results:
   documentId: null
 - _id: res6810e40525479
   _key: '!tables.results!crowsrt26fd018dc.res6810e40525479'
-  type: 0
+  type: text
   name: Absorbing melee weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -885,7 +885,7 @@ results:
   documentId: null
 - _id: res82101bc3ea8dc
   _key: '!tables.results!crowsrt26fd018dc.res82101bc3ea8dc'
-  type: 0
+  type: text
   name: Vicious bow weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -897,7 +897,7 @@ results:
   documentId: null
 - _id: resdd7d712fa6974
   _key: '!tables.results!crowsrt26fd018dc.resdd7d712fa6974'
-  type: 0
+  type: text
   name: Vicious melee weapon of the Ref’s choice
   img: icons/svg/d20-black.svg
   weight: 1
@@ -909,7 +909,7 @@ results:
   documentId: null
 - _id: resbdc866ba9ece3
   _key: '!tables.results!crowsrt26fd018dc.resbdc866ba9ece3'
-  type: 0
+  type: text
   name: Roll on the Major Interesting Things table instead
   img: icons/svg/d20-black.svg
   weight: 1

@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: resec1d405b2019b
   _key: '!tables.results!crowsrtbd822bd91.resec1d405b2019b'
-  type: 0
+  type: text
   name: 1 ape
   img: icons/svg/d20-black.svg
   weight: 1
@@ -21,7 +21,7 @@ results:
   documentId: null
 - _id: res15a07123efe5b
   _key: '!tables.results!crowsrtbd822bd91.res15a07123efe5b'
-  type: 0
+  type: text
   name: 1d6 apes
   img: icons/svg/d20-black.svg
   weight: 1
@@ -33,7 +33,7 @@ results:
   documentId: null
 - _id: res0ae8c9606904b
   _key: '!tables.results!crowsrtbd822bd91.res0ae8c9606904b'
-  type: 0
+  type: text
   name: 1 bear
   img: icons/svg/d20-black.svg
   weight: 1
@@ -45,7 +45,7 @@ results:
   documentId: null
 - _id: res6dcee37507066
   _key: '!tables.results!crowsrtbd822bd91.res6dcee37507066'
-  type: 0
+  type: text
   name: 2 bears
   img: icons/svg/d20-black.svg
   weight: 1
@@ -57,7 +57,7 @@ results:
   documentId: null
 - _id: resbefafccd4a4be
   _key: '!tables.results!crowsrtbd822bd91.resbefafccd4a4be'
-  type: 0
+  type: text
   name: 1 big cat
   img: icons/svg/d20-black.svg
   weight: 1
@@ -69,7 +69,7 @@ results:
   documentId: null
 - _id: resf118a22dbb411
   _key: '!tables.results!crowsrtbd822bd91.resf118a22dbb411'
-  type: 0
+  type: text
   name: 1 wildcat
   img: icons/svg/d20-black.svg
   weight: 1
@@ -81,7 +81,7 @@ results:
   documentId: null
 - _id: res98ca62522b6de
   _key: '!tables.results!crowsrtbd822bd91.res98ca62522b6de'
-  type: 0
+  type: text
   name: 1d6 giant crows
   img: icons/svg/d20-black.svg
   weight: 1
@@ -93,7 +93,7 @@ results:
   documentId: null
 - _id: resccc08fdd04de0
   _key: '!tables.results!crowsrtbd822bd91.resccc08fdd04de0'
-  type: 0
+  type: text
   name: 2d6 deer
   img: icons/svg/d20-black.svg
   weight: 1
@@ -105,7 +105,7 @@ results:
   documentId: null
 - _id: resdee1b4410cc3b
   _key: '!tables.results!crowsrtbd822bd91.resdee1b4410cc3b'
-  type: 0
+  type: text
   name: 2d6 dogs
   img: icons/svg/d20-black.svg
   weight: 1
@@ -117,7 +117,7 @@ results:
   documentId: null
 - _id: res98ddbfa784d98
   _key: '!tables.results!crowsrtbd822bd91.res98ddbfa784d98'
-  type: 0
+  type: text
   name: 1 elephant
   img: icons/svg/d20-black.svg
   weight: 1
@@ -129,7 +129,7 @@ results:
   documentId: null
 - _id: res6e314ac16986e
   _key: '!tables.results!crowsrtbd822bd91.res6e314ac16986e'
-  type: 0
+  type: text
   name: 2d6 elephants
   img: icons/svg/d20-black.svg
   weight: 1
@@ -141,7 +141,7 @@ results:
   documentId: null
 - _id: res176217c714d81
   _key: '!tables.results!crowsrtbd822bd91.res176217c714d81'
-  type: 0
+  type: text
   name: 1 hawk
   img: icons/svg/d20-black.svg
   weight: 1
@@ -153,7 +153,7 @@ results:
   documentId: null
 - _id: res798f715eda844
   _key: '!tables.results!crowsrtbd822bd91.res798f715eda844'
-  type: 0
+  type: text
   name: 1 constrictor snake
   img: icons/svg/d20-black.svg
   weight: 1
@@ -165,7 +165,7 @@ results:
   documentId: null
 - _id: res16cb896f87876
   _key: '!tables.results!crowsrtbd822bd91.res16cb896f87876'
-  type: 0
+  type: text
   name: 1 venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
@@ -177,7 +177,7 @@ results:
   documentId: null
 - _id: res06d194d246ea2
   _key: '!tables.results!crowsrtbd822bd91.res06d194d246ea2'
-  type: 0
+  type: text
   name: 1 giant venomous snake
   img: icons/svg/d20-black.svg
   weight: 1
@@ -189,7 +189,7 @@ results:
   documentId: null
 - _id: res60f23eeb0895d
   _key: '!tables.results!crowsrtbd822bd91.res60f23eeb0895d'
-  type: 0
+  type: text
   name: 1 giant venomous snake and 1d6 venomous snakes
   img: icons/svg/d20-black.svg
   weight: 1
@@ -201,7 +201,7 @@ results:
   documentId: null
 - _id: resc17a5b7ccb64d
   _key: '!tables.results!crowsrtbd822bd91.resc17a5b7ccb64d'
-  type: 0
+  type: text
   name: 1 giant spider
   img: icons/svg/d20-black.svg
   weight: 1
@@ -213,7 +213,7 @@ results:
   documentId: null
 - _id: resb9d4d69845489
   _key: '!tables.results!crowsrtbd822bd91.resb9d4d69845489'
-  type: 0
+  type: text
   name: 2 giant spiders
   img: icons/svg/d20-black.svg
   weight: 1
@@ -225,7 +225,7 @@ results:
   documentId: null
 - _id: rese709f6cc8c460
   _key: '!tables.results!crowsrtbd822bd91.rese709f6cc8c460'
-  type: 0
+  type: text
   name: 1d6 wolves
   img: icons/svg/d20-black.svg
   weight: 1
@@ -237,7 +237,7 @@ results:
   documentId: null
 - _id: res016bc55736342
   _key: '!tables.results!crowsrtbd822bd91.res016bc55736342'
-  type: 0
+  type: text
   name: 1 dire wolf and 1d6 wolves
   img: icons/svg/d20-black.svg
   weight: 1

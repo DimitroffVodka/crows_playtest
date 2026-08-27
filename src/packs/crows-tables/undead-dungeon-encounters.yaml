@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: res15ca418e716b0
   _key: '!tables.results!crowsrtdb0ff8abd.res15ca418e716b0'
-  type: 0
+  type: text
   name: 1d6 undead A
   img: icons/svg/d20-black.svg
   weight: 1
@@ -21,7 +21,7 @@ results:
   documentId: null
 - _id: resb21f2969e611a
   _key: '!tables.results!crowsrtdb0ff8abd.resb21f2969e611a'
-  type: 0
+  type: text
   name: 1d6 undead A and 1 undead B
   img: icons/svg/d20-black.svg
   weight: 1
@@ -33,7 +33,7 @@ results:
   documentId: null
 - _id: resfc4bb174b9f97
   _key: '!tables.results!crowsrtdb0ff8abd.resfc4bb174b9f97'
-  type: 0
+  type: text
   name: 1d6 undead B
   img: icons/svg/d20-black.svg
   weight: 1
@@ -45,7 +45,7 @@ results:
   documentId: null
 - _id: resf627668589697
   _key: '!tables.results!crowsrtdb0ff8abd.resf627668589697'
-  type: 0
+  type: text
   name: 2d6 undead A
   img: icons/svg/d20-black.svg
   weight: 1
@@ -57,7 +57,7 @@ results:
   documentId: null
 - _id: res8791a5e5acbde
   _key: '!tables.results!crowsrtdb0ff8abd.res8791a5e5acbde'
-  type: 0
+  type: text
   name: 1d6 undead A and 1d6 undead B
   img: icons/svg/d20-black.svg
   weight: 1
@@ -69,7 +69,7 @@ results:
   documentId: null
 - _id: resa1be61e76ce2b
   _key: '!tables.results!crowsrtdb0ff8abd.resa1be61e76ce2b'
-  type: 0
+  type: text
   name: 1 undead C
   img: icons/svg/d20-black.svg
   weight: 1
@@ -81,7 +81,7 @@ results:
   documentId: null
 - _id: res768284df818f5
   _key: '!tables.results!crowsrtdb0ff8abd.res768284df818f5'
-  type: 0
+  type: text
   name: 2 undead C
   img: icons/svg/d20-black.svg
   weight: 1
@@ -93,7 +93,7 @@ results:
   documentId: null
 - _id: reseaa88e31ee456
   _key: '!tables.results!crowsrtdb0ff8abd.reseaa88e31ee456'
-  type: 0
+  type: text
   name: 1 undead D
   img: icons/svg/d20-black.svg
   weight: 1
@@ -105,7 +105,7 @@ results:
   documentId: null
 - _id: resebd58fc496aa6
   _key: '!tables.results!crowsrtdb0ff8abd.resebd58fc496aa6'
-  type: 0
+  type: text
   name: 1 undead E
   img: icons/svg/d20-black.svg
   weight: 1
@@ -117,7 +117,7 @@ results:
   documentId: null
 - _id: rese4adcdc7b1064
   _key: '!tables.results!crowsrtdb0ff8abd.rese4adcdc7b1064'
-  type: 0
+  type: text
   name: 1 undead F
   img: icons/svg/d20-black.svg
   weight: 1

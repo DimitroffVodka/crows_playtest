@@ -10,7 +10,7 @@ displayRoll: true
 results:
 - _id: rese5990f1c9323f
   _key: '!tables.results!crowsrt1aa023f2b.rese5990f1c9323f'
-  type: 0
+  type: text
   name: '[1-1] Acolyte of the Gardner'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -22,7 +22,7 @@ results:
   documentId: null
 - _id: res7119ed36ac852
   _key: '!tables.results!crowsrt1aa023f2b.res7119ed36ac852'
-  type: 0
+  type: text
   name: '[1-2] Acolyte of the Healer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -34,7 +34,7 @@ results:
   documentId: null
 - _id: rese805508282436
   _key: '!tables.results!crowsrt1aa023f2b.rese805508282436'
-  type: 0
+  type: text
   name: '[1-3] Acolyte of the Smith'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -46,7 +46,7 @@ results:
   documentId: null
 - _id: res161dbde20e1e5
   _key: '!tables.results!crowsrt1aa023f2b.res161dbde20e1e5'
-  type: 0
+  type: text
   name: '[1-4] Acolyte of the Three'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -58,7 +58,7 @@ results:
   documentId: null
 - _id: rescd9dfc8091536
   _key: '!tables.results!crowsrt1aa023f2b.rescd9dfc8091536'
-  type: 0
+  type: text
   name: '[1-5] Acolyte of the Warrior'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -70,7 +70,7 @@ results:
   documentId: null
 - _id: resf45cf149d248b
   _key: '!tables.results!crowsrt1aa023f2b.resf45cf149d248b'
-  type: 0
+  type: text
   name: '[1-6] Alchemist'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -82,7 +82,7 @@ results:
   documentId: null
 - _id: rese955391e1e780
   _key: '!tables.results!crowsrt1aa023f2b.rese955391e1e780'
-  type: 0
+  type: text
   name: '[2-1] Apprentice Mage'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -94,7 +94,7 @@ results:
   documentId: null
 - _id: res190c6dea5bcac
   _key: '!tables.results!crowsrt1aa023f2b.res190c6dea5bcac'
-  type: 0
+  type: text
   name: '[2-2] Archer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -106,7 +106,7 @@ results:
   documentId: null
 - _id: res905a82779838e
   _key: '!tables.results!crowsrt1aa023f2b.res905a82779838e'
-  type: 0
+  type: text
   name: '[2-3] Assassin'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -118,7 +118,7 @@ results:
   documentId: null
 - _id: res1b1c9f1abfed0
   _key: '!tables.results!crowsrt1aa023f2b.res1b1c9f1abfed0'
-  type: 0
+  type: text
   name: '[2-4] Beggar'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -130,7 +130,7 @@ results:
   documentId: null
 - _id: res4c7f797150abc
   _key: '!tables.results!crowsrt1aa023f2b.res4c7f797150abc'
-  type: 0
+  type: text
   name: '[2-5] Blacksmith'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -142,7 +142,7 @@ results:
   documentId: null
 - _id: res87465cef6d730
   _key: '!tables.results!crowsrt1aa023f2b.res87465cef6d730'
-  type: 0
+  type: text
   name: '[2-6] Bodyguard'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -154,7 +154,7 @@ results:
   documentId: null
 - _id: res2d21264d402aa
   _key: '!tables.results!crowsrt1aa023f2b.res2d21264d402aa'
-  type: 0
+  type: text
   name: '[3-1] Cartographer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -166,7 +166,7 @@ results:
   documentId: null
 - _id: res7c2cdf8fd9992
   _key: '!tables.results!crowsrt1aa023f2b.res7c2cdf8fd9992'
-  type: 0
+  type: text
   name: '[3-2] Conjurer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -178,7 +178,7 @@ results:
   documentId: null
 - _id: reseaa307a59418b
   _key: '!tables.results!crowsrt1aa023f2b.reseaa307a59418b'
-  type: 0
+  type: text
   name: '[3-3] Cook'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -190,7 +190,7 @@ results:
   documentId: null
 - _id: res24c871adfd7c0
   _key: '!tables.results!crowsrt1aa023f2b.res24c871adfd7c0'
-  type: 0
+  type: text
   name: '[3-4] Duelist'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -202,7 +202,7 @@ results:
   documentId: null
 - _id: res6f3e222a4f696
   _key: '!tables.results!crowsrt1aa023f2b.res6f3e222a4f696'
-  type: 0
+  type: text
   name: '[3-5] Entertainer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -214,7 +214,7 @@ results:
   documentId: null
 - _id: resc3e8ed14d347d
   _key: '!tables.results!crowsrt1aa023f2b.resc3e8ed14d347d'
-  type: 0
+  type: text
   name: '[3-6] Executioner'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -226,7 +226,7 @@ results:
   documentId: null
 - _id: resfbf273f222496
   _key: '!tables.results!crowsrt1aa023f2b.resfbf273f222496'
-  type: 0
+  type: text
   name: '[4-1] Farmer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -238,7 +238,7 @@ results:
   documentId: null
 - _id: res45c8e216b5a40
   _key: '!tables.results!crowsrt1aa023f2b.res45c8e216b5a40'
-  type: 0
+  type: text
   name: '[4-2] Gladiator'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -250,7 +250,7 @@ results:
   documentId: null
 - _id: res3ef385b780e91
   _key: '!tables.results!crowsrt1aa023f2b.res3ef385b780e91'
-  type: 0
+  type: text
   name: '[4-3] Hunter'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -262,7 +262,7 @@ results:
   documentId: null
 - _id: rescfaadebb867a7
   _key: '!tables.results!crowsrt1aa023f2b.rescfaadebb867a7'
-  type: 0
+  type: text
   name: '[4-4] Hydromancer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -274,7 +274,7 @@ results:
   documentId: null
 - _id: resb098919ae70fc
   _key: '!tables.results!crowsrt1aa023f2b.resb098919ae70fc'
-  type: 0
+  type: text
   name: '[4-5] Illusionist'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -286,7 +286,7 @@ results:
   documentId: null
 - _id: resbad0f1bed9e67
   _key: '!tables.results!crowsrt1aa023f2b.resbad0f1bed9e67'
-  type: 0
+  type: text
   name: '[4-6] Keraunomancer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -298,7 +298,7 @@ results:
   documentId: null
 - _id: resc9a3ec16d5e8a
   _key: '!tables.results!crowsrt1aa023f2b.resc9a3ec16d5e8a'
-  type: 0
+  type: text
   name: '[5-1] Knight'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -310,7 +310,7 @@ results:
   documentId: null
 - _id: resbbf29a5605b24
   _key: '!tables.results!crowsrt1aa023f2b.resbbf29a5605b24'
-  type: 0
+  type: text
   name: '[5-2] Merchant'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -322,7 +322,7 @@ results:
   documentId: null
 - _id: res5a63c5b9c8b81
   _key: '!tables.results!crowsrt1aa023f2b.res5a63c5b9c8b81'
-  type: 0
+  type: text
   name: '[5-3] Miner'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -334,7 +334,7 @@ results:
   documentId: null
 - _id: res11cece178a7b0
   _key: '!tables.results!crowsrt1aa023f2b.res11cece178a7b0'
-  type: 0
+  type: text
   name: '[5-4] Noble'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -346,7 +346,7 @@ results:
   documentId: null
 - _id: res2ec30bdee7860
   _key: '!tables.results!crowsrt1aa023f2b.res2ec30bdee7860'
-  type: 0
+  type: text
   name: '[5-5] Pugilist'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -358,7 +358,7 @@ results:
   documentId: null
 - _id: res53f8b3c24c644
   _key: '!tables.results!crowsrt1aa023f2b.res53f8b3c24c644'
-  type: 0
+  type: text
   name: '[5-6] Pyromancer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -370,7 +370,7 @@ results:
   documentId: null
 - _id: res9b2ced5bf2511
   _key: '!tables.results!crowsrt1aa023f2b.res9b2ced5bf2511'
-  type: 0
+  type: text
   name: '[6-1] Sage'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -382,7 +382,7 @@ results:
   documentId: null
 - _id: resb54f19e8a83bf
   _key: '!tables.results!crowsrt1aa023f2b.resb54f19e8a83bf'
-  type: 0
+  type: text
   name: '[6-2] Soldier'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -394,7 +394,7 @@ results:
   documentId: null
 - _id: res838ef36547661
   _key: '!tables.results!crowsrt1aa023f2b.res838ef36547661'
-  type: 0
+  type: text
   name: '[6-3] Thief'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -406,7 +406,7 @@ results:
   documentId: null
 - _id: res6e9ca04eb57e1
   _key: '!tables.results!crowsrt1aa023f2b.res6e9ca04eb57e1'
-  type: 0
+  type: text
   name: '[6-4] Tinkerer'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -418,7 +418,7 @@ results:
   documentId: null
 - _id: resba810ec981315
   _key: '!tables.results!crowsrt1aa023f2b.resba810ec981315'
-  type: 0
+  type: text
   name: '[6-5] Transmuter'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -430,7 +430,7 @@ results:
   documentId: null
 - _id: res52fc7cadbd493
   _key: '!tables.results!crowsrt1aa023f2b.res52fc7cadbd493'
-  type: 0
+  type: text
   name: '[6-6] Village Watch'
   img: icons/svg/d20-black.svg
   weight: 1

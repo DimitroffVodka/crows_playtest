@@ -29,7 +29,7 @@ displayRoll: true
 results:
 - _id: resf1ec0b134afa6
   _key: '!tables.results!crowsrtf6fdcf8fc.resf1ec0b134afa6'
-  type: 0
+  type: text
   name: 'Arm: The attacker chooses which arm is removed. Any object held in the arm
     is dropped and any creature grabbed by the arm is no longer grabbed. If the
     creature uses the arm as part of a natural weapon attack (such as with claws)
@@ -45,7 +45,7 @@ results:
   documentId: null
 - _id: res2b71db8b35e03
   _key: '!tables.results!crowsrtf6fdcf8fc.res2b71db8b35e03'
-  type: 0
+  type: text
   name: 'Leg: The attacker chooses which leg is removed. The creature’s speed is
     reduced proportionally. If the creature has no legs remaining, they can’t stand
     and their speed is 0.'
@@ -59,7 +59,7 @@ results:
   documentId: null
 - _id: rese050d82b6584c
   _key: '!tables.results!crowsrtf6fdcf8fc.rese050d82b6584c'
-  type: 0
+  type: text
   name: 'Arm or Leg: The attacker chooses to remove an arm or leg of their choice.'
   img: icons/svg/d20-black.svg
   weight: 1
@@ -71,7 +71,7 @@ results:
   documentId: null
 - _id: resce3c17a218ba3
   _key: '!tables.results!crowsrtf6fdcf8fc.resce3c17a218ba3'
-  type: 0
+  type: text
   name: 'Head: The creature dies.'
   img: icons/svg/d20-black.svg
   weight: 1

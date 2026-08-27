@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: res858a5d3dae3dd
   _key: '!tables.results!crowsrtb685188c0.res858a5d3dae3dd'
-  type: 0
+  type: text
   name: 'Rain: Travel speed reduced by 1 hex. Mind test for rations (Tier 1: lose
     1d6+1 rations, Tier 2: lose 1 ration, Tier 3: no effect).'
   img: icons/svg/d20-black.svg
@@ -22,7 +22,7 @@ results:
   documentId: null
 - _id: res98b2213f6316f
   _key: '!tables.results!crowsrtb685188c0.res98b2213f6316f'
-  type: 0
+  type: text
   name: 'Thunderstorm: Travel pace reduced by 2 hexes. Mind test for rations (Tier
     1: lose 2d6 rations, Tier 2: lose 1d6 rations, Tier 3: no effect). Bane on guide/scout/tracker.'
   img: icons/svg/d20-black.svg

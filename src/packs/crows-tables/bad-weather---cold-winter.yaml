@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: res94dfd0e8af187
   _key: '!tables.results!crowsrtc601aa05b.res94dfd0e8af187'
-  type: 0
+  type: text
   name: 'Blizzard: Daily speed reduced by 2 hexes. Hourly Strength RR without cold
     weather gear (Tier 1: 4d6 P dam, Tier 2: 3d6 P dam, Tier 3: 2d6 P dam with cumulative
     -2). Double bane to guide/scout/tracker.'
@@ -23,7 +23,7 @@ results:
   documentId: null
 - _id: resa829cdb6ea028
   _key: '!tables.results!crowsrtc601aa05b.resa829cdb6ea028'
-  type: 0
+  type: text
   name: 'Cold Snap: Hourly Strength RR without cold weather gear (Tier 1: 3d6 P dam,
     Tier 2: 2d6 P dam, Tier 3: 1d6 P dam with cumulative -2).'
   img: icons/svg/d20-black.svg

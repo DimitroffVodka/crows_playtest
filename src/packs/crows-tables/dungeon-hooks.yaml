@@ -9,7 +9,7 @@ displayRoll: true
 results:
 - _id: res2271c64cbb5cd
   _key: '!tables.results!crowsrt6d07fee68.res2271c64cbb5cd'
-  type: 0
+  type: text
   name: A regional map of known dungeons, villages, and POIs found on a corpse or
     provided by an NPC connection.
   img: icons/svg/d20-black.svg
@@ -22,7 +22,7 @@ results:
   documentId: null
 - _id: res19636573e6a47
   _key: '!tables.results!crowsrt6d07fee68.res19636573e6a47'
-  type: 0
+  type: text
   name: Overheard rumors from a friendly NPC crow or contact at the local tavern.
   img: icons/svg/d20-black.svg
   weight: 1
@@ -34,7 +34,7 @@ results:
   documentId: null
 - _id: resb88b8af54f791
   _key: '!tables.results!crowsrt6d07fee68.resb88b8af54f791'
-  type: 0
+  type: text
   name: Route instructions purchased or learned from a traveling merchant passing
     through the village.
   img: icons/svg/d20-black.svg
@@ -47,7 +47,7 @@ results:
   documentId: null
 - _id: res035534aaba0ec
   _key: '!tables.results!crowsrt6d07fee68.res035534aaba0ec'
-  type: 0
+  type: text
   name: A map left behind by a missing expedition of NPC crows who ventured out and
     never returned.
   img: icons/svg/d20-black.svg
