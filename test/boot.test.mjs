@@ -85,6 +85,7 @@ globalThis.foundry.applications = {
 /* -------------------------------------------------------------------------- */
 
 const MODULE_DIR = new URL("../module/", import.meta.url);
+const MANIFEST = JSON.parse(readFileSync(new URL("../system.json", import.meta.url), "utf8"));
 
 /** Every `.mjs` under a directory, recursively, as paths relative to it. */
 function mjsFilesUnder(dirUrl, prefix = "") {
@@ -114,6 +115,17 @@ function walkFields(fields, path, visit) {
 
 const choiceCount = (c) =>
   Array.isArray(c) ? c.length : (c && typeof c === "object" ? Object.keys(c).length : -1);
+
+describe("native Party actor declaration", () => {
+  test("manifest declares Party and the implementation uses the system registration point", () => {
+    assert.ok(MANIFEST.documentTypes?.Actor?.party,
+      "system.json must declare Actor.party");
+    const source = readFileSync(new URL("../module/data/actor/party.mjs", import.meta.url), "utf8");
+    assert.match(source, /class PartyData/);
+    assert.doesNotMatch(source, /MutationObserver/);
+    assert.doesNotMatch(source, /Actor\.create/);
+  });
+});
 
 /* -------------------------------------------------------------------------- */
 /*  Layer 0 — the discovery itself                                             */
@@ -388,11 +400,16 @@ describe("module/crows.mjs imports resolve", () => {
       assert.equal(game.crows[key], fn, `ROLL_API.${key} was not wired onto game.crows`);
     }
     assert.equal(CONFIG.Actor.dataModels.crow.name, "CrowData");
+    assert.equal(CONFIG.Actor.dataModels.party.name, "PartyData");
     assert.equal(CONFIG.Actor.dataModels.monster.name, "MonsterData");
     assert.equal(CONFIG.Item.dataModels.background.name, "BackgroundData");
     assert.equal(CONFIG.statusEffects.blessed.id, "blessed");
     assert.equal(CONFIG.statusEffects.dead.id, "dead");
-    assert.equal(registeredSheets.length, 3);
+    assert.equal(registeredSheets.length, 4);
+    assert.deepEqual(
+      registeredSheets.find(({ sheetClass }) => sheetClass.name === "PartySheet")?.options?.types,
+      ["party"]
+    );
     assert.ok(registeredSettings.some(({ key }) => key === "woundSpeedRule"));
     assert.ok(registeredSettings.some(({ key }) => key === "systemMigrationVersion"));
     assert.ok(registeredSettings.some(({ key }) => key === "migrationExpertiseBudget"));
@@ -436,8 +453,18 @@ describe("module/crows.mjs imports resolve", () => {
     ]);
     game.user = { isGM: true };
     game.system = { version: "0.2.0" };
-    game.actors = [];
+    const existingParty = {
+      id: "party-existing",
+      name: "Shared Treasury",
+      type: "party",
+      system: { currency: 125 },
+      items: [],
+      updates: [],
+      async update(changes) { this.updates.push(changes); }
+    };
+    game.actors = [existingParty];
     game.packs = new Map([["crows.crows-backgrounds", { getDocuments: async () => [] }]]);
+    globalThis.JournalEntry = { create: async () => ({}) };
     game.settings.get = (namespace, key) => settingStore.get(key);
     game.settings.set = async (namespace, key, value) => { settingStore.set(key, value); return value; };
     foundry.utils.isNewerVersion = (left, right) => {
@@ -450,6 +477,9 @@ describe("module/crows.mjs imports resolve", () => {
     const firstMigration = await game.crows.runWorldMigration();
     const secondMigration = await game.crows.runWorldMigration();
     assert.equal(firstMigration.ran, true);
+    assert.equal(firstMigration.actors, 1);
+    assert.deepEqual(existingParty.updates, [],
+      "adding Actor.party must not rewrite or recreate an existing Party");
     assert.deepEqual(secondMigration, { ran: false, reason: "current", stored: "0.2.2" });
   });
 });

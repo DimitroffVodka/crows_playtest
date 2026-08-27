@@ -3789,3 +3789,145 @@
 .village-found label { display: inline-flex; flex-direction: column; margin: 0 8px 8px 0; }
 .village-notice { padding: 8px; border-left: 3px solid #a06a1b; background: rgba(160, 106, 27, .08); }
 .village-pending-event { border: 1px dashed var(--village-rule); padding: 7px; }
+/* ====================================================================
+   Party treasury sheet — a non-carried strongbox, not a creature sheet
+   ==================================================================== */
+
+.crows-party {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  color: var(--crows-ink);
+  background: var(--crows-paper);
+  font-size: var(--crows-sheet-text);
+}
+
+.crows-party input,
+.crows-party select {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 3px 5px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--crows-ink-fade);
+  font: inherit;
+}
+
+.cp-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px;
+  background: var(--crows-white);
+  border: 1px solid var(--crows-ink);
+}
+
+.cp-identity {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+}
+
+.cp-identity label,
+.cp-kind,
+.cp-section-title {
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.cp-kind { opacity: .72; }
+
+.cp-capacity,
+.cp-money,
+.cp-purses,
+.cp-transfer,
+.cp-unsupported {
+  padding: 8px;
+  background: var(--crows-white);
+  border: 1px solid var(--crows-ink-fade);
+}
+
+.cp-section-title {
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--crows-ink);
+}
+
+.cp-warning {
+  margin: 6px 0;
+  padding: 6px;
+  color: var(--crows-attack, #5c1a1a);
+  border-left: 3px solid currentColor;
+  background: var(--crows-paper-warm, #f2ead8);
+}
+
+.cp-alternatives,
+.cp-unsupported ul { margin: 4px 0 0 18px; }
+
+.cp-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.cp-purse-list {
+  display: grid;
+  gap: 6px;
+}
+
+.cp-purse {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--crows-ink-fade);
+  cursor: grab;
+}
+
+.cp-purse-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+}
+
+.cp-purse-name { font-weight: 700; }
+.cp-purse-value { font-variant-numeric: tabular-nums; }
+.cp-empty,
+.cp-hint { margin: 4px 0; opacity: .76; }
+
+.cp-transfer-form {
+  display: grid;
+  grid-template-columns: 1fr minmax(90px, .4fr);
+  gap: 8px;
+  align-items: end;
+}
+
+.cp-transfer-form label {
+  display: grid;
+  gap: 3px;
+  font-weight: 700;
+}
+
+.cp-transfer-buttons {
+  display: flex;
+  gap: 6px;
+  grid-column: 1 / -1;
+}
+
+.cp-transfer-buttons button {
+  flex: 1;
+  padding: 5px 8px;
+}
+
+@media (max-width: 500px) {
+  .cp-transfer-form { grid-template-columns: 1fr; }
+  .cp-transfer-buttons { grid-column: auto; }
+  .cp-purse { grid-template-columns: auto 1fr; }
+  .cp-purse-value { grid-column: 2; }
+}

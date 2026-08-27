@@ -37,6 +37,7 @@
   "documentTypes": {
     "Actor": {
       "crow": {},
+      "party": {},
       "monster": {}
     },
     "Item": {

@@ -43,6 +43,74 @@ export const MAGIC_CONTAINERS = [...CROWS.magicSlots];
 /** The union, in display order. `Slot.container` is always one of these. */
 export const CONTAINER_ORDER = [...CROWS.containerKeys];
 
+/**
+ * Party stash capacity is intentionally not a carrying-capacity constant.
+ *
+ * The Party ticket settles the behaviour (a generous strongbox) while leaving
+ * the numeric bound open.  Keep the three later adjudication choices explicit
+ * in the read boundary so a caller cannot accidentally fall back to a Crow's
+ * backpack capacity.  `unresolved` is the default and is a state, not a
+ * capacity of zero.
+ */
+export const PARTY_CAPACITY_MODES = Object.freeze([
+  "unresolved", "fixed", "configured", "uncapped"
+]);
+export const PARTY_CAPACITY_ALTERNATIVES = Object.freeze([
+  "fixed system-wide generous bound",
+  "per-Party configured bound",
+  "uncapped/Ref-adjudicated strongbox"
+]);
+
+export function isPartyActor(actor) {
+  return actor?.type === "party";
+}
+
+/**
+ * Resolve the Party stash policy without inventing a number.
+ *
+ * `capacity.mode` is the durable extension point used by PartyData.  The
+ * aliases keep hand-made/test documents and a future migration readable while
+ * still treating an absent value as explicitly unresolved.  `limit: 0` is a
+ * sentinel only for the unresolved/default schema state; it never means that
+ * a Party has no room.
+ */
+export function partyCapacityPolicy(actor) {
+  const source = actor?.system?.capacity ?? actor?.system?.stash?.capacity ?? {};
+  const rawMode = String(
+    source?.mode ?? source?.policy ?? actor?.system?.capacityMode ?? "unresolved"
+  ).trim().toLowerCase();
+  const mode = PARTY_CAPACITY_MODES.includes(rawMode) ? rawMode : "unresolved";
+  const rawLimit = Number(source?.limit ?? source?.bound ?? actor?.system?.capacityLimit);
+  const limit = Number.isInteger(rawLimit) && rawLimit > 0 ? rawLimit : null;
+
+  if (mode === "uncapped") {
+    return {
+      state: "uncapped",
+      mode,
+      resolved: true,
+      limit: null,
+      alternatives: [...PARTY_CAPACITY_ALTERNATIVES]
+    };
+  }
+  if ((mode === "fixed" || mode === "configured") && limit !== null) {
+    return {
+      state: "configured",
+      mode,
+      resolved: true,
+      limit,
+      alternatives: [...PARTY_CAPACITY_ALTERNATIVES]
+    };
+  }
+  return {
+    state: "unresolved",
+    mode: "unresolved",
+    resolved: false,
+    limit: null,
+    reason: "capacity-undecided",
+    alternatives: [...PARTY_CAPACITY_ALTERNATIVES]
+  };
+}
+
 /* -------------------------------------------------------------------------- */
 /*  The wound/speed rule setting                                               */
 /* -------------------------------------------------------------------------- */
@@ -245,8 +313,30 @@ export function slotAt(layout, container, index) {
  * Enforcement belongs at the DROP, which is `packItem`.
  */
 export function layoutFor(actor) {
-  const capacities = effectiveCapacities(collectSlotGrants(actor));
+  // A Party is a non-carried strongbox.  It still exposes the same `coin`
+  // shape as a Crow, but borrowing the Crow's hand/belt/backpack capacities
+  // would silently answer the unresolved Party capacity question and would
+  // make a stash impose creature rules.  Its explicit policy is carried on
+  // the layout for consumers such as the Party sheet and money service.
+  const party = isPartyActor(actor);
+  const capacities = party ? {} : effectiveCapacities(collectSlotGrants(actor));
   const layout = emptyLayout(actor?.id ?? actor?._id ?? "", capacities);
+
+  if (party) {
+    layout.party = true;
+    layout.partyCapacity = partyCapacityPolicy(actor);
+    // Purses are ordinary embedded Items but are not carried in a Party's
+    // positional grid.  Everything else is deliberately surfaced as
+    // unsupported rather than becoming a second, accidental Party inventory.
+    for (const item of actor?.items ?? []) {
+      if (item?.system?.purse?.isPurse) continue;
+      const id = itemId(item);
+      if (id) layout.unplaced.push({ id, reason: "party-item-unsupported" });
+    }
+    layout.coin = { loose: looseCoinOf(actor), purses: purseEntriesFor(actor) };
+    layout.magicOverload = false;
+    return layout;
+  }
 
   for (const item of actor?.items ?? []) {
     const loc = item?.system?.location;

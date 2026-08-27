@@ -1,0 +1,101 @@
+<div class="crows-party">
+  <header class="cp-header">
+    <div class="cp-identity">
+      <label for="cp-party-name">{{localize "CROWS.Party.name"}}</label>
+      <input id="cp-party-name" type="text" name="name" value="{{actor.name}}">
+    </div>
+    <div class="cp-kind">{{localize "TYPES.Actor.party"}}</div>
+  </header>
+
+  <section class="cp-capacity" aria-live="polite">
+    <div class="cp-section-title">{{localize "CROWS.Party.capacityTitle"}}</div>
+    {{#if capacityUndecided}}
+      <p class="cp-warning" data-party-capacity-state="unresolved">
+        {{localize "CROWS.Party.capacityUndecided"}}
+      </p>
+      <ul class="cp-alternatives">
+        {{#each capacityAlternatives as |alternative|}}<li>{{alternative}}</li>{{/each}}
+      </ul>
+    {{else if (eq capacity.state "uncapped")}}
+      <p data-party-capacity-state="uncapped">{{localize "CROWS.Party.capacityUncapped"}}</p>
+    {{else}}
+      <p data-party-capacity-state="configured">{{localize "CROWS.Party.capacityConfigured" limit=capacity.limit}}</p>
+    {{/if}}
+  </section>
+
+  <section class="cp-money">
+    <div class="cp-section-title">{{localize "CROWS.Party.fundsTitle"}}</div>
+    <div class="cp-total-row">
+      <span>{{localize "CROWS.Party.looseCoin"}}</span>
+      <strong>{{coin.loose}} gc</strong>
+    </div>
+    <div class="cp-total-row">
+      <span>{{localize "CROWS.Party.totalCoin"}}</span>
+      <strong>{{coin.totalHeld}} gc</strong>
+    </div>
+    {{#if coin.overflow}}
+      <p class="cp-warning">{{localize "CROWS.Party.purseOverflow" amount=coin.overflow}}</p>
+    {{/if}}
+  </section>
+
+  <section class="cp-purses">
+    <div class="cp-section-title">{{localize "CROWS.Party.pursesTitle"}}</div>
+    {{#if purses.length}}
+      <div class="cp-purse-list">
+        {{#each purses as |purse|}}
+          <article class="cp-purse" draggable="true" data-item-id="{{purse.id}}">
+            {{#if purse.img}}<img src="{{purse.img}}" alt="" class="cp-purse-icon">{{/if}}
+            <div class="cp-purse-name">{{purse.name}}</div>
+            <div class="cp-purse-value">{{purse.held}} / {{purse.capacity}} gc</div>
+            {{#if purse.overflow}}<div class="cp-warning">{{localize "CROWS.Party.purseOverflow" amount=purse.overflow}}</div>{{/if}}
+          </article>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="cp-empty">{{localize "CROWS.Party.noPurses"}}</p>
+    {{/if}}
+  </section>
+
+  {{#if canTransfer}}
+    <section class="cp-transfer">
+      <div class="cp-section-title">{{localize "CROWS.Party.transferTitle"}}</div>
+      <p class="cp-hint">{{localize "CROWS.Party.transferHint"}}</p>
+      <form class="cp-transfer-form">
+        <label>
+          {{localize "CROWS.Party.sourceCrow"}}
+          <select name="sourceUuid">
+            <option value="">{{localize "CROWS.Party.chooseCrow"}}</option>
+            {{#each crowActors as |crow|}}<option value="{{crow.uuid}}">{{crow.name}}</option>{{/each}}
+          </select>
+        </label>
+        <label>
+          {{localize "CROWS.Party.amount"}}
+          <input type="number" name="amount" min="0" step="1" value="0" inputmode="numeric">
+        </label>
+        <div class="cp-transfer-buttons">
+          <button type="button" data-action="depositFunds">{{localize "CROWS.Party.deposit"}}</button>
+          <button type="button" data-action="withdrawFunds">{{localize "CROWS.Party.withdraw"}}</button>
+        </div>
+        <label>
+          {{localize "CROWS.Party.targetCrow"}}
+          <select name="targetUuid">
+            <option value="">{{localize "CROWS.Party.chooseCrow"}}</option>
+            {{#each crowActors as |crow|}}<option value="{{crow.uuid}}">{{crow.name}}</option>{{/each}}
+          </select>
+        </label>
+      </form>
+    </section>
+  {{else}}
+    <p class="cp-warning">{{localize "CROWS.Party.ownerOnly"}}</p>
+  {{/if}}
+
+  {{#if unsupportedItems.length}}
+    <section class="cp-unsupported">
+      <div class="cp-section-title">{{localize "CROWS.Party.unsupportedTitle"}}</div>
+      <p class="cp-warning">{{localize "CROWS.Party.unsupportedHint"}}</p>
+      <ul>
+        {{#each unsupportedItems as |item|}}<li data-item-id="{{item.id}}">{{item.id}} — {{item.reason}}</li>{{/each}}
+      </ul>
+    </section>
+  {{/if}}
+</div>
