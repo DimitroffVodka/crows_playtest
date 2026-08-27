@@ -1304,3 +1304,45 @@ export function migrateEnchantmentSystem(source, { kind = "" } = {}) {
   delete out.enchantment;
   return out;
 }
+
+/**
+ * Collapse a value the duplicate-binding bug doubled.
+ *
+ * WHY. `templates/actor/crow/sheet.hbs` bound TWO inputs to
+ * `system.background` and two to `system.details.feature`. A form cannot carry
+ * one field name twice: Foundry collected both controls into an array, the
+ * StringField cast it to `"Transmuter,Transmuter"`, the sheet rendered that
+ * doubled value back into both inputs, and the next submit doubled it again.
+ * Three saves produced eight copies — the growth is 2^n, so this gets ugly
+ * fast and looks like data loss to a player.
+ *
+ * Only collapses when EVERY comma-separated part is identical, which is the
+ * provable signature of the doubling. A genuine value containing a comma —
+ * "Smith, retired" — has unequal parts and is left exactly as it is. Repairing
+ * a value we cannot prove was corrupted would be worse than the bug.
+ */
+export function collapseDoubledText(value) {
+  if (typeof value !== "string") return value;
+  const parts = value.split(",");
+  if (parts.length < 2) return value;
+  const first = parts[0].trim();
+  if (!first) return value;
+  return parts.every(part => part.trim() === first) ? first : value;
+}
+
+/** Fields the duplicate-binding bug could reach. */
+export const DOUBLED_TEXT_PATHS = Object.freeze([
+  "system.background",
+  "system.details.feature"
+]);
+
+/** The updates needed to repair one Actor, or an empty object when it is clean. */
+export function doubledTextRepair(actor) {
+  const updates = {};
+  for (const path of DOUBLED_TEXT_PATHS) {
+    const current = path.split(".").reduce((o, k) => o?.[k], actor);
+    const collapsed = collapseDoubledText(current);
+    if (collapsed !== current) updates[path] = collapsed;
+  }
+  return updates;
+}

@@ -16,7 +16,7 @@
       </div>
       <div class="cc-field feature">
         <label>{{localize "CROWS.Sheet.Crow.feature"}}</label>
-        <input type="text" name="system.details.feature" value="{{system.details.feature}}">
+        <input type="text" value="{{system.details.feature}}" readonly tabindex="-1" aria-label="{{localize 'CROWS.Sheet.Crow.feature'}} (edit on the Bio tab)">
       </div>
     </div>
     <div class="cc-xp">
@@ -643,7 +643,6 @@
       </button>
       <span class="cc-creator-hint"><em>{{localize "CROWS.Sheet.Crow.creator.summary"}}</em></span>
     </div>
-    <div class="cc-field"><label>{{localize "CROWS.Sheet.Crow.background"}}</label><input type="text" name="system.background" value="{{system.background}}"></div>
     {{#if background}}
     <div class="cc-origin">
       <div class="cc-origin-hd">
