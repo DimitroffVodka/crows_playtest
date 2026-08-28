@@ -34,7 +34,6 @@ import {
 } from "../module/helpers/village-map.mjs";
 import {
   VILLAGE_ART_ASSET_ROOT,
-  VILLAGE_ART_BACKGROUND_FILENAMES,
   VILLAGE_ART_FILENAMES,
   VILLAGE_ART_SET
 } from "../module/helpers/village-art.mjs";
@@ -301,17 +300,13 @@ describe("Village creator data and art resolution", () => {
     );
     const missing = VILLAGE_ART_FILENAMES.filter(file => !existsSync(join("assets/village", file)));
     assert.deepEqual(missing, []);
-    assert.equal(VILLAGE_ART_BACKGROUND_FILENAMES.length, 2);
-    assert.deepEqual(
-      readdirSync("assets/village/backgrounds").filter(file => file.endsWith(".jpg")).sort(),
-      [...VILLAGE_ART_BACKGROUND_FILENAMES].sort()
-    );
-    const missingBackgrounds = VILLAGE_ART_BACKGROUND_FILENAMES
-      .filter(file => !existsSync(join("assets/village/backgrounds", file)));
-    assert.deepEqual(missingBackgrounds, []);
+    // This set ships no Scene background. It carried the Meadow Picnic maps
+    // until the canonical village replaced them for both variants, at which
+    // point they were two licensed JPGs nothing drew.
+    assert.equal(VILLAGE_ART_SET.backgrounds, undefined);
+    assert.ok(!existsSync("assets/village/backgrounds"));
     const notice = readFileSync("NOTICE.md", "utf8");
-    assert.match(notice, /Meadow Picnic/);
-    for (const file of VILLAGE_ART_BACKGROUND_FILENAMES) assert.ok(notice.includes(file));
+    assert.doesNotMatch(notice, /Meadow Picnic/, "NOTICE still attributes a removed asset");
     assert.equal(VILLAGE_ART_SET.root, VILLAGE_ART_ASSET_ROOT);
     assert.equal(VILLAGE_ART_SET.resolution, "300 DPI");
     assert.equal(VILLAGE_ART_SET.license.shortName, "CC BY-NC 4.0");

@@ -210,10 +210,14 @@ It is safe to call more than once — it recognises a Scene it has already made
 rather than creating a second one. Tiles it generated carry a flag; anything
 you add or move yourself is left alone, so you can decorate freely.
 
-The default backdrop is *Meadow Picnic* by 2 Minute Tabletop, in day and night
-variants (see [NOTICE.md](../../NOTICE.md) for attribution). A Ref can swap in
-a different map — building placement is deliberately not tied to any feature of
-the backdrop.
+The backdrop is the canonical village map, and every village shares it. Each
+institution has a fixed plot: found the smithy and it stands where the smithy
+stands in every other village, so the ground stays learnable across a campaign.
+Prosperity fills in around them — houses, fields, the clutter of a lived-in
+place — and empties again if the village declines.
+
+A Ref can still swap in a different backdrop, but building placement comes from
+the canonical layout and will not follow it.
 
 ---
 

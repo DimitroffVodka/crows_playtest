@@ -13,14 +13,6 @@ Support the author: <https://www.patreon.com/2minutetabletop>
 **Unmodified.** The files are copied from the publisher's `Assets (300 DPI)`
 set and retain their published filenames.
 
-The Village Scene background product **Meadow Picnic** is also by **2 Minute
-Tabletop**. Its Day and Night JPGs in `assets/village/backgrounds/` use the same
-**CC BY-NC 4.0** licence above. The map is named here because the author asks
-that attribution appear where the map is shown.
-
-- `Meadow Picnic - Spring - Day - 16x22 - 300 DPI.jpg` — default Village Scene map
-- `Meadow Picnic - Spring - Night - 16x22 - 300 DPI.jpg` — Night variant
-
 ## Background icons — game-icons.net
 
 The 36 SVG files in `icons/backgrounds/` are from **game-icons.net** and are used
