@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Enchanter institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Enchanter institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M103 296 H353 L347 322 H109 Z" fill="#9F7D68" stroke-width="2.1"/>
+
+    <path d="M97 132 H359 V216 H97 Z" fill="#B7A0A2" stroke="none"/>
+    <path d="M97 216 H359 V300 H97 Z" fill="#947B86" stroke="none"/>
+    <path d="M97 132 H359 V300 H97 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M97 132 H359 V300 H97 Z" fill="none" stroke-width="2.8"/>
+    <path d="M97 216 C162 214, 293 218, 359 216" fill="none" stroke-width="3.1"/>
+
+    <g fill="#A9856E" stroke-width="1.6">
+      <rect x="91" y="125" width="14" height="14" rx="2"/>
+      <rect x="351" y="125" width="14" height="14" rx="2"/>
+      <rect x="91" y="293" width="14" height="14" rx="2"/>
+      <rect x="351" y="293" width="14" height="14" rx="2"/>
+    </g>
+
+    <path d="M208 297 H242 L239 326 H211 Z" fill="#745846" stroke-width="1.8"/>
+    <path d="M213 306 H237 M214 315 H237" fill="none" stroke-width="1.05" opacity="0.72"/>
+
+    <!-- Octagonal enchanting turret. -->
+    <path d="M359 170 L380 151 H420 L442 170 L454 211 L442 252 L420 271 H380 L359 252 L347 211 Z" fill="#85819B" stroke-width="2.7"/>
+    <path d="M359 170 L380 151 H420 L442 170 L454 211 L442 252 L420 271 H380 L359 252 L347 211 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M359 170 L380 151 H420 L442 170 L454 211 L442 252 L420 271 H380 L359 252 L347 211 Z" fill="none" stroke-width="2.7"/>
+    <path d="M374 181 L389 168 H411 L427 181 L436 211 L427 241 L411 254 H389 L374 241 L365 211 Z" fill="#6E6882" stroke-width="1.8"/>
+    <!-- Exterior ward circle: the approved star with five colored anchors. -->
+    <circle cx="263" cy="391" r="44" fill="#565071" opacity="0.82" stroke-width="2"/>
+    <circle cx="263" cy="391" r="33" fill="#343047" stroke="#B7C8C9" stroke-width="1.8"/>
+    <path d="M263 357 L272 380 L298 382 L278 399 L284 425 L263 411 L241 425 L248 399 L228 382 L254 380 Z"
+          fill="#D4C7AC" fill-opacity="0.12" stroke="#E2D59F" stroke-width="2"/>
+    <g stroke="#010206" stroke-width="1.5">
+      <circle cx="263" cy="357" r="6" fill="#D6B65C"/>
+      <circle cx="298" cy="382" r="6" fill="#62B8C8"/>
+      <circle cx="284" cy="425" r="6" fill="#A77AC1"/>
+      <circle cx="241" cy="425" r="6" fill="#79A965"/>
+      <circle cx="228" cy="382" r="6" fill="#C97569"/>
+    </g>
+    <!-- Saturated crystal pylons echo the ward colors. -->
+    <path d="M133 357 L147 343 L160 357 L156 402 L139 402 Z" fill="#59BFD0" stroke-width="2"/>
+    <path d="M370 357 L384 341 L399 357 L395 402 L376 402 Z" fill="#AE73C1" stroke-width="2"/>
+    <path d="M147 343 V389 M384 341 V389" fill="none" stroke="#E8F7F6" stroke-width="1.5" opacity="0.9"/>
+
+  </g>
+</svg>

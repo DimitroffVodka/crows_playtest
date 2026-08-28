@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Barracks institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Barracks institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M72 289 H438 L432 317 H78 Z" fill="#96765F" stroke-width="2.1"/>
+
+    <path d="M66 142 H444 V217 H66 Z" fill="#B79A83" stroke="none"/>
+    <path d="M66 217 H444 V293 H66 Z" fill="#A77F69" stroke="none"/>
+    <path d="M66 142 H444 V293 H66 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M66 142 H444 V293 H66 Z" fill="none" stroke-width="2.8"/>
+    <path d="M66 217 C160 215, 349 219, 444 217" fill="none" stroke-width="3.1"/>
+
+    <g fill="#A9856E" stroke-width="1.6">
+      <rect x="60" y="135" width="14" height="14" rx="2"/>
+      <rect x="436" y="135" width="14" height="14" rx="2"/>
+      <rect x="60" y="286" width="14" height="14" rx="2"/>
+      <rect x="436" y="286" width="14" height="14" rx="2"/>
+    </g>
+
+    <!-- Armory wing. -->
+    <path d="M332 293 H444 V356 H338 Z" fill="#8F715E" stroke-width="2.3"/>
+    <path d="M332 293 H444 V324 H332 Z" fill="#9AA7A4" stroke-width="2.2"/>
+    <!-- Two heavy entrances. -->
+    <path d="M135 290 H176 L172 322 H139 Z M266 290 H307 L303 322 H270 Z" fill="#654D40" stroke-width="1.9"/>
+    <!-- Training yard weapon rack. -->
+    <path d="M108 354 H206 L210 365 H104 Z" fill="#745846" stroke-width="2"/>
+    <path d="M116 363 V411 M198 363 V411 M130 365 L130 401 M148 365 L148 407 M166 365 L166 400 M184 365 L184 408" fill="none" stroke-width="3"/>
+    <path d="M126 374 L134 366 M144 375 L152 366 M162 374 L170 366 M180 375 L188 366" fill="none" stroke-width="2"/>
+    <!-- One archery target and one unmistakable training dummy. -->
+    <circle cx="265" cy="386" r="19" fill="#A9856E" stroke-width="1.8"/>
+    <path d="M253 386 H277 M265 374 V398 M265 405 V423" fill="none" stroke-width="2"/>
+    <g id="training-dummy">
+      <circle cx="333" cy="365" r="9" fill="#B08A68" stroke-width="1.8"/>
+      <path d="M333 374 V414 M312 388 H354 M322 414 L333 398 L344 414"
+            fill="none" stroke="#654D40" stroke-width="5"/>
+      <path d="M321 379 H345 L348 401 H318 Z" fill="#A9856E" stroke-width="1.8"/>
+      <circle cx="333" cy="390" r="6" fill="#8E5F4B" stroke-width="1.2"/>
+    </g>
+
+  </g>
+</svg>

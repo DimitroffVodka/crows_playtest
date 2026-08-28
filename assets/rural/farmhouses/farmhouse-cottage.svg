@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Farmhouse Cottage</title>
+  <desc id="desc">Compact thatched cottage with hearth chimney, pantry lean-to, wood rack, crate, and rain barrel.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="soilHatch" width="18" height="18" patternUnits="userSpaceOnUse">
+      <path d="M0 5 Q9 1 18 5 M0 14 Q9 10 18 14" fill="none" stroke="#5D4637" stroke-width="0.8" opacity="0.28"/>
+    </pattern>
+    <pattern id="woodHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10 M7 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+
+    <path d="M82 150 H368 V236 H82 Z" fill="#C8A98E" stroke="none"/>
+    <path d="M82 236 H368 V322 H82 Z" fill="#AC8269" stroke="none"/>
+    <path d="M82 150 H368 V322 H82 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M82 150 H368 V322 H82 Z" fill="none" stroke-width="2.8"/>
+    <path d="M82 236 C153 234, 296 238, 368 236"
+          fill="none" stroke-width="3"/>
+
+    <g fill="#A9856E" stroke-width="1.5">
+      <rect x="76" y="143" width="14" height="14" rx="2"/>
+      <rect x="360" y="143" width="14" height="14" rx="2"/>
+      <rect x="76" y="315" width="14" height="14" rx="2"/>
+      <rect x="360" y="315" width="14" height="14" rx="2"/>
+    </g>
+
+    <path d="M88 322 H362 L355 354 H95 Z" fill="#9D7862" stroke-width="2.1"/>
+    <path d="M211 322 H255 L251 352 H215 Z" fill="#654B3E" stroke-width="1.8"/>
+    <!-- Stone hearth chimney, straight from roof to crown. -->
+    <path d="M128 110 H165 V213 H128 Z" fill="#77746D" stroke-width="2.1"/>
+    <path d="M124 110 H169 V126 H124 Z" fill="#928E85" stroke-width="2"/>
+    <path d="M128 148 H165 M128 173 H165 M128 198 H165 M141 126 V148 M152 148 V173 M140 173 V198"
+          fill="none" stroke="#4D4A46" stroke-width="1.1"/>
+    <!-- Lean-to pantry and domestic yard props. -->
+    <path d="M346 205 H430 V327 H346 Z" fill="#93A3A1" stroke-width="2.2"/>
+    <path d="M346 205 H430 V327 H346 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M346 266 H430" fill="none" stroke-width="2.4"/>
+    <path d="M109 374 H178 M109 389 H178 M119 366 V400 M144 366 V400 M169 366 V400"
+          fill="none" stroke="#654D40" stroke-width="4"/>
+    <path d="M307 376 H352 L358 405 H301 Z" fill="#876752" stroke-width="1.8"/>
+    <path d="M311 384 H348 M315 394 H350" fill="none" stroke-width="1"/>
+
+    <path d="M376 360 Q389 353 402 360 V388
+             Q389 394 376 388 Z" fill="#8A6249" stroke-width="1.7"/>
+    <path d="M376 360 Q389 366 402 360 M376 376 H402"
+          fill="none" stroke-width="1.1"/>
+
+
+  </g>
+</svg>

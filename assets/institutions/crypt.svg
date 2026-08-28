@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Crypt institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Crypt institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Pitched stone mausoleum with a rounded northern apse. -->
+    <path d="M151 168 Q151 132 184 116 H328 Q361 132 361 168 V302 H151 Z"
+          fill="#8D8A82" stroke="none"/>
+    <path d="M151 168 Q151 132 184 116 H328 Q361 132 361 168 V210 H151 Z"
+          fill="#A5A198" stroke="none"/>
+    <path d="M151 210 H361 V302 H151 Z" fill="#77746D" stroke="none"/>
+    <path d="M151 168 Q151 132 184 116 H328 Q361 132 361 168 V302 H151 Z"
+          fill="url(#stoneHatch)" stroke="none"/>
+    <path d="M151 168 Q151 132 184 116 H328 Q361 132 361 168 V302 H151 Z"
+          fill="none" stroke-width="2.8"/>
+    <path d="M151 210 C204 207,308 213,361 210" fill="none" stroke-width="3"/>
+    <!-- Heavy corner buttresses and a black recessed entrance. -->
+    <path d="M143 174 H163 V205 H143 Z M349 174 H369 V205 H349 Z
+             M143 268 H164 V305 H143 Z M348 268 H369 V305 H348 Z"
+          fill="#7F7B74" stroke-width="1.8"/>
+    <path d="M221 295 H291 L286 340 H226 Z" fill="#282624" stroke-width="2.3"/>
+    <path d="M232 302 H280 L277 334 H235 Z" fill="#4D4945" stroke-width="1.4"/>
+    <path d="M217 340 H295 L302 352 H210 Z M210 352 H302 L310 365 H202 Z"
+          fill="#A09C94" stroke-width="1.8"/>
+    <!-- Skull crest makes the burial function legible at map scale. -->
+    <path d="M240 252 Q240 232 256 226 Q272 232 272 252 L267 266 H245 Z"
+          fill="#C2BDB3" stroke-width="1.8"/>
+    <circle cx="250" cy="247" r="4" fill="#34312E" stroke="none"/>
+    <circle cx="263" cy="247" r="4" fill="#34312E" stroke="none"/>
+    <path d="M253 258 H260 M250 264 V270 M256 264 V271 M262 264 V270"
+          fill="none" stroke-width="1.4"/>
+    <!-- Coffin-shaped grave slabs and varied headstones. -->
+    <path d="M82 342 L94 330 H116 L128 342 L123 389 H87 Z"
+          fill="#8D8A82" stroke-width="1.9"/>
+    <path d="M384 338 L396 326 H418 L430 338 L425 386 H389 Z"
+          fill="#8D8A82" stroke-width="1.9"/>
+    <path d="M94 348 H116 M105 337 V376 M396 344 H418 M407 333 V373"
+          fill="none" stroke-width="1.4"/>
+    <g fill="#8D8A82" stroke-width="1.7">
+      <path d="M127 402 Q127 389 140 385 Q153 389 153 402 V433 H127 Z"/>
+      <path d="M359 400 Q359 387 372 383 Q385 387 385 400 V431 H359 Z"/>
+    </g>
+    <path d="M134 405 H146 M140 397 V413 M366 403 H378 M372 395 V411"
+          fill="none" stroke-width="1.3"/>
+
+  </g>
+</svg>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Alchemist institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Alchemist institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M112 298 H362 L356 324 H118 Z" fill="#9F7D68" stroke-width="2.1"/>
+
+    <path d="M106 132 H362 V217 H106 Z" fill="#C4A68F" stroke="none"/>
+    <path d="M106 217 H362 V302 H106 Z" fill="#B58F78" stroke="none"/>
+    <path d="M106 132 H362 V302 H106 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M106 132 H362 V302 H106 Z" fill="none" stroke-width="2.8"/>
+    <path d="M106 217 C170 215, 298 219, 362 217" fill="none" stroke-width="3.1"/>
+
+    <g fill="#A9856E" stroke-width="1.6">
+      <rect x="100" y="125" width="14" height="14" rx="2"/>
+      <rect x="354" y="125" width="14" height="14" rx="2"/>
+      <rect x="100" y="295" width="14" height="14" rx="2"/>
+      <rect x="354" y="295" width="14" height="14" rx="2"/>
+    </g>
+
+    <path d="M214 299 H248 L245 328 H217 Z" fill="#745846" stroke-width="1.8"/>
+    <path d="M219 308 H243 M220 317 H243" fill="none" stroke-width="1.05" opacity="0.72"/>
+
+    <!-- Glazed herb-and-distillation annex. -->
+    <path d="M362 170 H454 V303 H362 Z" fill="#9DB2A7" stroke-width="2.5"/>
+    <path d="M362 170 H454 V303 H362 Z" fill="url(#leanHatch)" stroke="none"/>
+    <path d="M362 236 H454 M390 171 V302 M426 171 V302" fill="none" stroke-width="1.8" opacity="0.75"/>
+    <path d="M370 301 H450 L447 326 H374 Z" fill="#8D715E" stroke-width="2"/>
+    <!-- Herb-drying rack: open frame, hanging bundles, no tabletop clutter. -->
+    <path d="M276 354 H336 L341 363 H272 Z M280 362 V410 M333 362 V410"
+          fill="none" stroke="#654D40" stroke-width="3"/>
+    <path d="M288 363 V380 M302 363 V383 M317 363 V379 M328 363 V385"
+          fill="none" stroke="#654D40" stroke-width="1.5"/>
+    <g fill="#71885F" stroke-width="1.1">
+      <path d="M282 378 Q288 372 294 378 L291 392 L285 392 Z"/>
+      <path d="M295 381 Q302 374 309 381 L306 396 L299 396 Z"/>
+      <path d="M311 377 Q317 371 323 377 L321 391 L314 391 Z"/>
+      <path d="M321 383 Q328 375 335 383 L332 399 L325 399 Z"/>
+    </g>
+    <!-- One grounded copper still and condenser basin. -->
+    <ellipse cx="370" cy="361" rx="18" ry="10" fill="#B97755" stroke-width="1.8"/>
+    <path d="M353 361 L356 392 Q370 402 384 392 L387 361 Q370 371 353 361 Z"
+          fill="#9F6249" stroke-width="1.8"/>
+    <path d="M370 351 C372 336 388 334 396 347 C401 356 398 368 408 374"
+          fill="none" stroke="#745846" stroke-width="3"/>
+    <ellipse cx="416" cy="383" rx="13" ry="8" fill="#789B9C" stroke-width="1.6"/>
+    <path d="M405 383 L407 396 Q416 402 425 396 L427 383" fill="#6F898A" stroke-width="1.4"/>
+    <!-- Bottle-shaped exterior sign. -->
+    <path d="M168 350 H179 V359 L188 375 Q191 388 174 391 Q157 388 160 375 L168 359 Z" fill="#8FAE9C" stroke-width="2"/>
+    <path d="M164 375 H184" fill="none" stroke="#D7C39A" stroke-width="2.4"/>
+
+  </g>
+</svg>

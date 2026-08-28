@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Stables institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Stables institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- U-shaped stable roofs around an open yard. -->
+
+    <path d="M70 128 H194 V247 H70 Z" fill="#BDA083" stroke="none"/>
+    <path d="M70 247 H194 V366 H70 Z" fill="#A77F67" stroke="none"/>
+    <path d="M70 128 H194 V366 H70 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M70 128 H194 V366 H70 Z" fill="none" stroke-width="2.8"/>
+    <path d="M70 247 C101 245, 163 249, 194 247" fill="none" stroke-width="3.1"/>
+
+    <path d="M318 128 H442 V247 H318 Z" fill="#BDA083" stroke="none"/>
+    <path d="M318 247 H442 V366 H318 Z" fill="#A77F67" stroke="none"/>
+    <path d="M318 128 H442 V366 H318 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M318 128 H442 V366 H318 Z" fill="none" stroke-width="2.8"/>
+    <path d="M318 247 C349 245, 411 249, 442 247" fill="none" stroke-width="3.1"/>
+
+    <path d="M194 128 H318 V180 H194 Z" fill="#C3A58A" stroke="none"/>
+    <path d="M194 180 H318 V232 H194 Z" fill="#AF876E" stroke="none"/>
+    <path d="M194 128 H318 V232 H194 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M194 128 H318 V232 H194 Z" fill="none" stroke-width="2.8"/>
+    <path d="M194 180 C225 178, 287 182, 318 180" fill="none" stroke-width="3.1"/>
+
+    <path d="M194 128 H318 V232 H194 Z" fill="url(#roofHatch)" stroke="none"/>
+    <!-- Stall fronts facing the central yard. -->
+    <path d="M181 236 H207 V354 H181 Z M305 236 H331 V354 H305 Z" fill="#8C6D58" stroke-width="2"/>
+    <path d="M183 250 H205 M183 276 H205 M183 302 H205 M183 328 H205 M307 250 H329 M307 276 H329 M307 302 H329 M307 328 H329" fill="none" stroke-width="1.5"/>
+    <!-- Yard fence and gate. -->
+    <path d="M207 354 H245 M267 354 H305 M207 340 V370 M305 340 V370 M218 345 V365 M294 345 V365" fill="none" stroke="#654D40" stroke-width="3"/>
+    <!-- Water trough and hay cart. -->
+    <path d="M226 270 H286 L282 298 H230 Z" fill="#7D8D89" stroke-width="2"/>
+    <path d="M234 276 H278 L276 290 H236 Z" fill="#789B9C" stroke-width="1.2"/>
+    <!-- A tethered horse in clear side profile for map-scale recognition. -->
+    <ellipse cx="251" cy="322" rx="31" ry="15" fill="#8B6048" stroke-width="2"/>
+    <path d="M273 316 Q280 302 292 297 L304 301 L308 309 L302 318 L287 318 L278 331 Z"
+          fill="#8B6048" stroke-width="2"/>
+    <path d="M294 298 L293 290 L300 297 M302 301 L307 294 L306 304"
+          fill="#9A6C50" stroke-width="1.5"/>
+    <circle cx="301" cy="307" r="2" fill="#25211E" stroke="none"/>
+    <path d="M226 326 Q215 321 211 312 M233 333 L229 352 M245 336 L243 353
+             M264 336 L266 353 M276 331 L282 349"
+          fill="none" stroke="#654536" stroke-width="3.2"/>
+    <path d="M278 309 Q286 305 292 303" fill="none" stroke="#4E372D" stroke-width="2.4"/>
+    <!-- Loose hay piles reinforce the stable yard. -->
+    <path d="M82 382 Q95 364 110 378 Q123 361 138 382 Q151 377 158 397
+             Q137 409 108 405 Q89 407 82 382 Z"
+          fill="#C9A75B" stroke-width="1.9"/>
+    <path d="M352 382 Q365 362 381 378 Q394 360 410 382 Q423 378 430 398
+             Q407 409 380 405 Q361 408 352 382 Z"
+          fill="#C9A75B" stroke-width="1.9"/>
+    <path d="M91 390 L111 377 M108 398 L130 376 M126 399 L145 386
+             M361 391 L381 376 M378 399 L401 376 M398 400 L417 387"
+          fill="none" stroke="#8B6D3F" stroke-width="1.2"/>
+    <path d="M202 392 H275 L283 426 H194 Z" fill="#876A56" stroke-width="2"/>
+    <path d="M211 382 H267 L276 395 H201 Z" fill="#B49A68" stroke-width="1.8"/>
+    <circle cx="211" cy="433" r="11" fill="#4D4B47" stroke-width="2"/><circle cx="270" cy="433" r="11" fill="#4D4B47" stroke-width="2"/>
+    <path d="M281 399 L313 381" fill="none" stroke-width="4"/>
+
+  </g>
+</svg>

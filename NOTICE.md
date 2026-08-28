@@ -468,5 +468,11 @@ recorded below. The two exact filename matches are Feather and Infinity.
 
 ## Everything else
 
+The native-vector village art in `assets/institutions/` and `assets/rural/` is
+part of this system rather than a third-party asset, and is not covered by any
+of the licences above. It is generated from the `crows_design` package and is
+listed here only so the distinction from the 2 Minute Tabletop PNGs in
+`assets/village/` is on the record.
+
 All other icon paths in this system point at Foundry VTT's own bundled icon
 library (`icons/...`) and are not redistributed here.

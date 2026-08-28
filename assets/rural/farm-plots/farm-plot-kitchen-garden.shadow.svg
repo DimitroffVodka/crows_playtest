@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Kitchen Garden shadow</title>
+  <desc id="desc">Separate aligned native-vector cast shadow for Kitchen Garden.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+
+    <path d="M78 75 H438 V435 H78 Z" opacity="0.10"/>
+    <circle cx="256" cy="252" r="36"/><path d="M227 217 H285 V270 H227 Z"/>
+    <path d="M102 392 H190 V430 H102 Z"/>
+
+  </g>
+</svg>

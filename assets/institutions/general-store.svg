@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">General Store institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the General Store institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M110 296 H376 L370 322 H116 Z" fill="#9F7D68" stroke-width="2.1"/>
+
+    <path d="M104 134 H382 V217 H104 Z" fill="#C2A187" stroke="none"/>
+    <path d="M104 217 H382 V300 H104 Z" fill="#AF856D" stroke="none"/>
+    <path d="M104 134 H382 V300 H104 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M104 134 H382 V300 H104 Z" fill="none" stroke-width="2.8"/>
+    <path d="M104 217 C173 215, 312 219, 382 217" fill="none" stroke-width="3.1"/>
+
+    <g fill="#A9856E" stroke-width="1.6">
+      <rect x="98" y="127" width="14" height="14" rx="2"/>
+      <rect x="374" y="127" width="14" height="14" rx="2"/>
+      <rect x="98" y="293" width="14" height="14" rx="2"/>
+      <rect x="374" y="293" width="14" height="14" rx="2"/>
+    </g>
+
+    <path d="M222 297 H256 L253 326 H225 Z" fill="#745846" stroke-width="1.8"/>
+    <path d="M227 306 H251 M228 315 H251" fill="none" stroke-width="1.05" opacity="0.72"/>
+
+    <!-- Full-width covered merchant porch. -->
+    <path d="M126 297 H360 L369 348 H117 Z" fill="#9A7B66" stroke-width="2.3"/>
+    <path d="M126 297 H360 L366 322 H121 Z" fill="#97A5A2" stroke-width="2"/>
+    <path d="M132 321 V347 M354 321 V347" fill="none" stroke-width="3"/>
+    <!-- Crates, barrels, sacks, and handcart. -->
+
+    <path d="M98 366 H146 L149 398 H95 Z" fill="#876A56" stroke-width="1.8"/>
+    <path d="M104 371 L141 393 M141 371 L103 393" fill="none" stroke="#5F4434" stroke-width="1" opacity="0.7"/>
+
+    <path d="M158 374 H203 L206 403 H155 Z" fill="#876A56" stroke-width="1.8"/>
+    <path d="M164 379 L198 398 M198 379 L163 398" fill="none" stroke="#5F4434" stroke-width="1" opacity="0.7"/>
+
+    <ellipse cx="337" cy="365" rx="14" ry="8" fill="#A17A5C" stroke-width="1.7"/>
+    <path d="M323 365 L325 395 Q337 403 349 395 L351 365 Q337 373 323 365 Z" fill="#876449" stroke-width="1.7"/>
+    <path d="M325 375 Q337 381 349 375 M325 386 Q337 392 349 386" fill="none" stroke="#4D4B47" stroke-width="1.3"/>
+
+    <path d="M227 371 Q242 356 257 371 L263 408 H221 Z M269 374 Q282 360 296 374 L301 410 H265 Z" fill="#B79C74" stroke-width="1.8"/>
+    <path d="M379 359 H432 L440 397 H372 Z" fill="#876A56" stroke-width="2"/>
+    <circle cx="384" cy="405" r="10" fill="#4D4B47" stroke-width="2"/><circle cx="428" cy="405" r="10" fill="#4D4B47" stroke-width="2"/>
+    <path d="M432 365 L456 349" fill="none" stroke-width="4"/>
+    <!-- General-goods identifiers: coiled rope and hanging lantern. -->
+    <circle cx="184" cy="337" r="12" fill="none" stroke="#C49A5B" stroke-width="4"/>
+    <circle cx="184" cy="337" r="5" fill="none" stroke="#745846" stroke-width="2"/>
+    <path d="M82 351 H111 M91 351 V363" fill="none" stroke="#654D40" stroke-width="3"/>
+    <path d="M84 363 H98 L101 386 H81 Z" fill="#D6B65C" stroke-width="1.8"/>
+    <path d="M87 368 H95 V381 H85 Z" fill="#F0D78C" stroke-width="1"/>
+
+  </g>
+</svg>

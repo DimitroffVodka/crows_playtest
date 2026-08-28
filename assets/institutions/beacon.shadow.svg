@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Beacon shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the Beacon building SVG.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <path d="M138 258 H374 V354 H146 Z"/>
+    <path d="M195 132 L229 108 H283 L317 132 L336 196 L317 260 L283 284 H229 L195 260 L176 196 Z"/>
+    <ellipse cx="256" cy="194" rx="60" ry="50"/>
+    <path d="M256 224 C226 207 232 184 244 169 C241 151 253 137 265 153 C281 168 286 191 273 206 C269 218 262 224 256 224 Z"/>
+
+  </g>
+</svg>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Temple institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Temple institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Three-wing sacred plan around a central octagonal dome. -->
+
+    <path d="M180 92 H332 V169 H180 Z" fill="#C3B19C" stroke="none"/>
+    <path d="M180 169 H332 V246 H180 Z" fill="#A88E7C" stroke="none"/>
+    <path d="M180 92 H332 V246 H180 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M180 92 H332 V246 H180 Z" fill="none" stroke-width="2.8"/>
+    <path d="M180 169 C218 167, 294 171, 332 169" fill="none" stroke-width="3.1"/>
+
+    <path d="M82 196 H256 V260 H82 Z" fill="#BCA58D" stroke="none"/>
+    <path d="M82 260 H256 V324 H82 Z" fill="#9E806C" stroke="none"/>
+    <path d="M82 196 H256 V324 H82 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M82 196 H256 V324 H82 Z" fill="none" stroke-width="2.8"/>
+    <path d="M82 260 C125 258, 212 262, 256 260" fill="none" stroke-width="3.1"/>
+
+    <path d="M256 196 H430 V260 H256 Z" fill="#BCA58D" stroke="none"/>
+    <path d="M256 260 H430 V324 H256 Z" fill="#9E806C" stroke="none"/>
+    <path d="M256 196 H430 V324 H256 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M256 196 H430 V324 H256 Z" fill="none" stroke-width="2.8"/>
+    <path d="M256 260 C299 258, 386 262, 430 260" fill="none" stroke-width="3.1"/>
+
+    <path d="M205 165 L226 146 H286 L307 165 L320 208 L307 251 L286 270 H226 L205 251 L192 208 Z" fill="#8FA1A1" stroke-width="3"/>
+    <path d="M205 165 L226 146 H286 L307 165 L320 208 L307 251 L286 270 H226 L205 251 L192 208 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M205 165 L226 146 H286 L307 165 L320 208 L307 251 L286 270 H226 L205 251 L192 208 Z" fill="none" stroke-width="3"/>
+    <!-- Saturated threefold sacred emblem and gold sun-ring. -->
+    <circle cx="256" cy="208" r="40" fill="none" stroke="#D6B65C" stroke-width="3"/>
+    <circle cx="256" cy="208" r="33" fill="#58757D" stroke-width="2"/>
+    <path d="M256 157 V168 M256 248 V259 M205 208 H216 M296 208 H307
+             M220 172 L228 180 M284 236 L292 244 M292 172 L284 180 M228 236 L220 244"
+          fill="none" stroke="#D6B65C" stroke-width="2.2"/>
+    <circle cx="256" cy="190" r="11" fill="#E0B75F" stroke-width="1.5"/>
+    <circle cx="240" cy="217" r="11" fill="#78A96D" stroke-width="1.5"/>
+    <circle cx="272" cy="217" r="11" fill="#A77BC0" stroke-width="1.5"/>
+    <!-- Columned processional entrance and broad pale steps. -->
+    <path d="M190 318 H211 V365 H190 Z M301 318 H322 V365 H301 Z"
+          fill="#B8B2A8" stroke-width="1.9"/>
+    <path d="M221 323 H291 L297 340 H215 Z M214 340 H298 L305 356 H207 Z M207 356 H305 L313 372 H199 Z"
+          fill="#B3ADA3" stroke-width="1.8"/>
+    <path d="M236 389 H276 L281 420 H231 Z" fill="#4D4B47" stroke-width="2"/>
+    <path d="M234 389 Q256 373 278 389 V398 H234 Z" fill="#6F5B4D" stroke-width="1.8"/>
+    <path d="M254 397 H262 V407 H254 Z" fill="#D4B466" stroke-width="1"/>
+    <!-- Colored side shrines frame the central exchange chest. -->
+    <path d="M123 367 H166 L170 407 H119 Z M342 367 H385 L389 407 H338 Z"
+          fill="#8A857D" stroke-width="1.8"/>
+    <ellipse cx="144" cy="368" rx="16" ry="8" fill="#78A96D" stroke-width="1.5"/>
+    <ellipse cx="363" cy="368" rx="16" ry="8" fill="#A77BC0" stroke-width="1.5"/>
+    <path d="M144 363 C136 354 142 346 148 340 C151 351 154 357 144 363 Z"
+          fill="#E0B75F" stroke-width="1.2"/>
+    <path d="M363 363 C355 354 361 346 367 340 C370 351 373 357 363 363 Z"
+          fill="#62B8C8" stroke-width="1.2"/>
+
+  </g>
+</svg>

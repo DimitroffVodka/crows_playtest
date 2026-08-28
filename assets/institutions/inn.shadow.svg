@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Inn shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the Inn building SVG.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <path d="M74 140 H188 V104 H326 V140 H440 V319 H434 L440 319 H326 V326 H356 L365 356 H149 L158 316 H188 V319 H80 L74 295 Z"/>
+    <path d="M98 91 H144 V174 H98 Z"/>
+    <path d="M113 342 Q126 334 139 342 V378 H113 Z M376 342 Q389 334 402 342 V378 H376 Z"/>
+    <ellipse cx="253" cy="407" rx="34" ry="15"/><path d="M207 397 H217 V417 H197 V397 Z M289 397 H309 V417 H289 Z M247 407 H259 V445 H247 Z"/>
+    <path d="M387 365 H454 V447 H387 Z"/>
+
+  </g>
+</svg>

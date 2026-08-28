@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Bookseller shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the Bookseller building SVG.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <path d="M102 132 H358 V324 H108 L102 302 Z"/>
+    <path d="M358 174 H456 V302 L450 326 H366 L358 302 Z"/>
+    <path d="M151 351 H225 L229 389 H151 Z M244 351 H318 L322 389 H244 Z"/>
+    <path d="M342 353 Q355 347 369 355 Q383 347 396 353 V380 Q383 374 369 382 Q355 374 342 380 Z M349 384 H384 L389 393 H349 Z"/>
+
+  </g>
+</svg>

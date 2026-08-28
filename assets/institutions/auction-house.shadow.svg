@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Auction House institution shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the asset.</desc>
+
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <!-- Octagon hall, vault, portico -->
+    <polygon points="180,95 332,95 390,153 390,265 332,323 180,323 122,265 122,153"/>
+    <rect x="195" y="60" width="122" height="45" rx="3"/>
+    <rect x="170" y="320" width="172" height="35" rx="3"/>
+    <!-- Relic dais, Stanchions -->
+    <circle cx="150" cy="385" r="18"/>
+    <rect x="200" y="372" width="112" height="28" rx="3"/>
+    <circle cx="360" cy="385" r="16"/>
+  </g>
+</svg>

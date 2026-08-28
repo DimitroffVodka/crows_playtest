@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Bookseller institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Bookseller institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M108 298 H358 L352 324 H114 Z" fill="#9F7D68" stroke-width="2.1"/>
+
+    <path d="M102 132 H358 V217 H102 Z" fill="#C4A68F" stroke="none"/>
+    <path d="M102 217 H358 V302 H102 Z" fill="#B58F78" stroke="none"/>
+    <path d="M102 132 H358 V302 H102 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M102 132 H358 V302 H102 Z" fill="none" stroke-width="2.8"/>
+    <path d="M102 217 C166 215, 294 219, 358 217" fill="none" stroke-width="3.1"/>
+
+    <g fill="#A9856E" stroke-width="1.6">
+      <rect x="96" y="125" width="14" height="14" rx="2"/>
+      <rect x="350" y="125" width="14" height="14" rx="2"/>
+      <rect x="96" y="295" width="14" height="14" rx="2"/>
+      <rect x="350" y="295" width="14" height="14" rx="2"/>
+    </g>
+
+    <path d="M216 299 H250 L247 328 H219 Z" fill="#745846" stroke-width="1.8"/>
+    <path d="M221 308 H245 M222 317 H245" fill="none" stroke-width="1.05" opacity="0.72"/>
+
+    <!-- Covered side display porch with three book bays. -->
+    <path d="M358 174 H456 V302 H358 Z" fill="#91A3A4" stroke-width="2.6"/>
+    <path d="M358 174 H456 V302 H358 Z" fill="url(#leanHatch)" stroke="none"/>
+    <path d="M358 238 C388 236,426 240,456 238" fill="none" stroke-width="2.8"/>
+    <path d="M369 248 H447 L450 326 H366 Z" fill="#987760" stroke-width="2.1"/>
+    <path d="M376 258 H441 L443 316 H373 Z" fill="#6E5A4C" stroke-width="2"/>
+    <path d="M381 264 H398 V309 H379 Z M401 264 H418 L419 309 H401 Z M421 264 H437 L439 309 H421 Z" fill="#C6B293" stroke-width="1.4"/>
+    <path d="M381 278 H398 M380 292 H398 M401 278 H418 M401 292 H419 M421 278 H438 M421 292 H439" fill="none" stroke="#6F5443" stroke-width="1.2"/>
+    <!-- Outdoor book tables and visible volumes. -->
+    <path d="M151 358 H225 L229 389 H151 Z M244 358 H318 L322 389 H244 Z" fill="#876A56" stroke-width="2.2"/>
+    <path d="M164 351 H216 L225 361 H155 Z M257 351 H309 L318 361 H248 Z" fill="#A9856E" stroke-width="1.8"/>
+    <path d="M166 351 H181 V360 H166 Z M184 351 H202 V360 H184 Z M205 351 H216 V360 H205 Z M259 351 H276 V360 H259 Z M279 351 H294 V360 H279 Z M297 351 H309 V360 H297 Z" fill="#D4C7AC" stroke-width="0.9"/>
+    <!-- Open-book sign. -->
+    <path d="M342 353 Q355 347 369 355 V382 Q355 374 342 380 Z" fill="#D4C7AC" stroke-width="2"/>
+    <path d="M369 355 Q383 347 396 353 V380 Q383 374 369 382 Z" fill="#C3D0CE" stroke-width="2"/>
+    <path d="M369 355 V382 M354 384 H384 L389 393 H349 Z" fill="#745846" stroke-width="1.8"/>
+
+  </g>
+</svg>

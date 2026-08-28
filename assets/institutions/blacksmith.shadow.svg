@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Blacksmith institution shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the Default Blacksmith SVG.</desc>
+
+  <!-- Native vector shadow: #9699AE, approximately 30 degrees and length 1.0. -->
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <!-- Workshop, southern wall, chimney, and forge lean-to silhouettes. -->
+    <path d="M99 127 H368 V322 H108 L99 302 Z"/>
+    <path d="M368 174 H461 V301 L458 332 H375 L368 301 Z"/>
+    <path d="M66 142 H110 V182 H108 V270 H68 V182 H66 Z"/>
+
+    <!-- Detached anvil, charcoal, and metal bundles. -->
+    <path d="M102 365 L125 360 L133 353 H158 L164 359 H178 V370
+             L160 372 L153 379 L150 389 L160 394 L168 398 L164 423
+             Q142 435 119 423 L114 398 L124 394 L135 389 L132 379
+             L126 372 L111 372 Z"/>
+    <path d="M218 397 Q221 388 229 385 Q237 379 246 386
+             Q255 382 264 386 Q272 378 279 388 Q289 387 290 397
+             Q299 399 296 409 Q298 417 289 422 Q281 427 274 423
+             Q265 429 257 423 Q247 428 240 422 Q230 425 226 418
+             Q216 418 218 409 Q214 403 218 397 Z"/>
+    <path d="M317 374 H367 L370 418 H317 Z"/>
+    <path d="M383 374 H431 L437 418 H383 Z"/>
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Farmhouse Longhouse shadow</title>
+  <desc id="desc">Separate aligned native-vector cast shadow for Farmhouse Longhouse.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+
+    <path d="M46 166 H184 V102 H328 V166 H466 V320 H460 L453 352 H59 L52 320 H46 Z"/>
+    <path d="M82 370 H174 V428 H82 Z M352 374 H425 V402 H352 Z"/>
+    <path d="M214 377 H280 V412 H214 Z"/>
+
+  </g>
+</svg>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Inn institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Inn institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M80 291 H434 L428 319 H86 Z" fill="#A07A63" stroke-width="2.1"/>
+
+    <path d="M74 140 H440 V217 H74 Z" fill="#C19C82" stroke="none"/>
+    <path d="M74 217 H440 V295 H74 Z" fill="#A97B65" stroke="none"/>
+    <path d="M74 140 H440 V295 H74 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M74 140 H440 V295 H74 Z" fill="none" stroke-width="2.8"/>
+    <path d="M74 217 C165 215, 348 219, 440 217" fill="none" stroke-width="3.1"/>
+
+    <g fill="#A9856E" stroke-width="1.6">
+      <rect x="68" y="133" width="14" height="14" rx="2"/>
+      <rect x="432" y="133" width="14" height="14" rx="2"/>
+      <rect x="68" y="288" width="14" height="14" rx="2"/>
+      <rect x="432" y="288" width="14" height="14" rx="2"/>
+    </g>
+
+    <!-- Cross-wing guest hall. -->
+    <path d="M188 104 H326 V326 H188 Z" fill="#B9987F" stroke="none"/>
+    <path d="M188 104 H257 V326 H188 Z" fill="#C8AA90" stroke="none"/>
+    <path d="M188 104 H326 V326 H188 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M188 104 H326 V326 H188 Z" fill="none" stroke-width="2.8"/>
+    <path d="M257 104 C255 157,259 273,257 326" fill="none" stroke-width="3.1"/>
+    <!-- Large hearth chimney gives the lodging hall a distinct silhouette. -->
+    <path d="M103 91 H139 V174 H103 Z" fill="#77746D" stroke-width="2.2"/>
+    <path d="M98 91 H144 V107 H98 Z" fill="#8C8880" stroke-width="2"/>
+    <path d="M103 124 H139 M103 147 H139 M115 107 V124 M128 124 V147 M116 147 V170"
+          fill="none" stroke="#4E4C48" stroke-width="1.3"/>
+    <!-- Broad porch and a gabled, unmistakable public entrance. -->
+    <path d="M158 316 H356 L365 356 H149 Z" fill="#92735D" stroke-width="2.2"/>
+    <path d="M211 316 L257 284 L303 316 Z" fill="#6F7C7A" stroke-width="2.2"/>
+    <path d="M232 316 H282 L278 350 H236 Z" fill="#4E3A32" stroke-width="1.9"/>
+    <path d="M169 337 H222 L225 349 H166 Z M292 337 H345 L348 349 H289 Z"
+          fill="#745846" stroke-width="1.8"/>
+
+    <ellipse cx="126" cy="342" rx="13" ry="8" fill="#A17A5C" stroke-width="1.7"/>
+    <path d="M113 342 L115 370 Q126 378 137 370 L139 342 Q126 350 113 342 Z" fill="#876449" stroke-width="1.7"/>
+    <path d="M115 352 Q126 358 137 352 M115 363 Q126 369 137 363" fill="none" stroke="#4D4B47" stroke-width="1.3"/>
+
+    <ellipse cx="389" cy="342" rx="13" ry="8" fill="#A17A5C" stroke-width="1.7"/>
+    <path d="M376 342 L378 370 Q389 378 400 370 L402 342 Q389 350 376 342 Z" fill="#876449" stroke-width="1.7"/>
+    <path d="M378 352 Q389 358 400 352 M378 363 Q389 369 400 363" fill="none" stroke="#4D4B47" stroke-width="1.3"/>
+
+    <!-- Outdoor tavern table and stools. -->
+    <ellipse cx="253" cy="407" rx="31" ry="13" fill="#896A54" stroke-width="2"/>
+    <path d="M247 418 H259 V445 H247 Z" fill="#654D40" stroke-width="1.7"/>
+    <circle cx="207" cy="407" r="10" fill="#745846" stroke-width="1.7"/>
+    <circle cx="299" cy="407" r="10" fill="#745846" stroke-width="1.7"/>
+    <path d="M239 400 H248 V412 H239 Z M258 400 H267 V412 H258 Z"
+          fill="#D1AD68" stroke-width="1.2"/>
+    <!-- Oversized hanging tankard sign replaces the ambiguous dice. -->
+    <path d="M390 368 V444 M390 376 H451" fill="none" stroke="#5A4034" stroke-width="5"/>
+    <path d="M405 383 H453 V429 H405 Z" fill="#59453A" stroke-width="2.2"/>
+    <path d="M416 394 H437 V417 Q427 423 416 417 Z" fill="#D1A14C" stroke-width="1.7"/>
+    <path d="M437 399 Q451 398 450 409 Q449 417 437 414" fill="none" stroke="#D1A14C" stroke-width="4"/>
+    <path d="M416 394 Q421 389 426 394 Q431 389 437 394" fill="#E5D7B1" stroke-width="1.2"/>
+
+  </g>
+</svg>

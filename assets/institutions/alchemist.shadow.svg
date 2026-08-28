@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Alchemist shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the Alchemist building SVG.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <path d="M106 132 H362 V324 H112 L106 302 Z"/>
+    <path d="M362 170 H454 V303 L447 326 H374 L362 303 Z"/>
+    <path d="M272 354 H341 V410 H280 Z"/>
+    <path d="M352 351 Q370 337 388 351 Q402 347 408 374 L429 383 V402 H405 L398 391 H352 Z"/>
+    <path d="M168 350 H179 V359 L188 375 Q191 388 174 391 Q157 388 160 375 L168 359 Z"/>
+
+  </g>
+</svg>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">General Store shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the General Store building SVG.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <path d="M104 134 H382 V322 H110 L104 300 Z"/>
+    <path d="M117 297 H369 V348 H117 Z"/>
+    <path d="M95 366 H146 L149 398 H95 Z M155 374 H203 L206 403 H155 Z"/>
+    <path d="M323 365 Q337 355 351 365 V403 H323 Z"/>
+    <path d="M221 371 Q242 356 263 371 V408 H221 Z M265 374 Q282 360 301 374 V410 H265 Z"/>
+    <path d="M372 359 H432 L440 397 L438 415 H374 L372 397 Z"/>
+    <circle cx="184" cy="337" r="14"/><path d="M81 351 H111 V386 H81 Z"/>
+
+  </g>
+</svg>

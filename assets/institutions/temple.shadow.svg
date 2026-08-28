@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Temple shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the Temple building SVG.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <path d="M180 92 H332 V196 H430 V324 H291 L297 340 L305 356 L313 372 H199 L207 356 L214 340 L221 324 H82 V196 H180 Z"/>
+    <path d="M205 165 L226 146 H286 L307 165 L320 208 L307 251 L286 270 H226 L205 251 L192 208 Z"/>
+    <path d="M231 389 H281 V420 H231 Z"/>
+    <path d="M119 367 H166 L170 407 H119 Z M338 367 H385 L389 407 H338 Z"/>
+
+  </g>
+</svg>

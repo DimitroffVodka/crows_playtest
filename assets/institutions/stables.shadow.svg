@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Stables shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the Stables building SVG.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <path d="M70 128 H194 V366 H70 Z M318 128 H442 V366 H318 Z M194 128 H318 V232 H194 Z"/>
+    <path d="M181 236 H207 V370 H181 Z M305 236 H331 V370 H305 Z"/>
+    <path d="M226 270 H286 L282 298 H230 Z"/>
+    <ellipse cx="251" cy="322" rx="33" ry="17"/><path d="M273 316 Q280 302 292 297 L304 301 L308 309 L302 318 H287 L278 331 Z"/>
+    <path d="M82 382 Q95 364 110 378 Q123 361 138 382 Q151 377 158 397 Q137 409 108 405 Q89 407 82 382 Z
+             M352 382 Q365 362 381 378 Q394 360 410 382 Q423 378 430 398 Q407 409 380 405 Q361 408 352 382 Z"/>
+    <path d="M194 382 H275 L283 426 L281 444 H200 L194 426 Z"/>
+
+  </g>
+</svg>

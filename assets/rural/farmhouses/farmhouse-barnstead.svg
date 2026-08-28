@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Barn-Attached Homestead</title>
+  <desc id="desc">L-shaped farmhouse and barn with large doors, hay loft, round granary, and hay stack.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="soilHatch" width="18" height="18" patternUnits="userSpaceOnUse">
+      <path d="M0 5 Q9 1 18 5 M0 14 Q9 10 18 14" fill="none" stroke="#5D4637" stroke-width="0.8" opacity="0.28"/>
+    </pattern>
+    <pattern id="woodHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10 M7 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+
+    <path d="M54 126 H278 V215 H54 Z" fill="#C5A78B" stroke="none"/>
+    <path d="M54 215 H278 V304 H54 Z" fill="#A98068" stroke="none"/>
+    <path d="M54 126 H278 V304 H54 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M54 126 H278 V304 H54 Z" fill="none" stroke-width="2.8"/>
+    <path d="M54 215 C110 213, 222 217, 278 215"
+          fill="none" stroke-width="3"/>
+
+    <g fill="#A9856E" stroke-width="1.5">
+      <rect x="48" y="119" width="14" height="14" rx="2"/>
+      <rect x="270" y="119" width="14" height="14" rx="2"/>
+      <rect x="48" y="297" width="14" height="14" rx="2"/>
+      <rect x="270" y="297" width="14" height="14" rx="2"/>
+    </g>
+
+    <path d="M254 176 H458 V270 H254 Z" fill="#B9977A" stroke="none"/>
+    <path d="M254 270 H458 V364 H254 Z" fill="#9F725B" stroke="none"/>
+    <path d="M254 176 H458 V364 H254 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M254 176 H458 V364 H254 Z" fill="none" stroke-width="2.8"/>
+    <path d="M254 270 C305 268, 407 272, 458 270"
+          fill="none" stroke-width="3"/>
+
+    <g fill="#A9856E" stroke-width="1.5">
+      <rect x="248" y="169" width="14" height="14" rx="2"/>
+      <rect x="450" y="169" width="14" height="14" rx="2"/>
+      <rect x="248" y="357" width="14" height="14" rx="2"/>
+      <rect x="450" y="357" width="14" height="14" rx="2"/>
+    </g>
+
+    <path d="M60 304 H272 L266 336 H66 Z" fill="#9B7560" stroke-width="2"/>
+    <path d="M104 304 H146 L143 334 H108 Z" fill="#654B3E" stroke-width="1.7"/>
+    <!-- Barn doors and hay loft hatch. -->
+    <path d="M313 364 H399 L394 420 H318 Z" fill="#745344" stroke-width="2.1"/>
+    <path d="M356 364 V417 M318 369 L394 415 M394 369 L318 415" fill="none" stroke-width="1.4"/>
+    <path d="M334 196 H378 V235 H334 Z" fill="#715244" stroke-width="1.8"/>
+    <path d="M337 201 L375 231 M375 201 L337 231" fill="none" stroke-width="1.2"/>
+    <!-- Round granary/silo and hay stack. -->
+    <circle cx="378" cy="112" r="51" fill="#918D83" stroke-width="2.5"/>
+    <circle cx="378" cy="112" r="39" fill="#AAA59A" stroke-width="1.6"/>
+    <path d="M378 61 V163 M327 112 H429 M342 76 L414 148 M414 76 L342 148" fill="none" stroke-width="1" opacity="0.55"/>
+    <path d="M96 382 Q116 357 137 379 Q157 354 181 383 Q195 380 205 406
+             Q175 421 140 416 Q111 421 96 382 Z" fill="#D1AD59" stroke-width="2"/>
+    <path d="M108 389 L177 407 M122 376 L187 397 M132 413 L153 367" fill="none" stroke="#997837" stroke-width="1.1"/>
+
+  </g>
+</svg>

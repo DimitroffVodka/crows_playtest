@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Beacon institution — Default village style</title>
+  <desc id="desc">Near-orthographic exterior map asset for the Beacon institution.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.18"/>
+    </pattern>
+    <pattern id="stoneHatch" width="16" height="13" patternUnits="userSpaceOnUse">
+      <path d="M0 6 H16 M5 0 V6 M12 6 V13" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Stone service hall attached to the tower. -->
+    <path d="M138 258 H374 V354 H146 Z" fill="#8A8278" stroke-width="2.5"/>
+    <path d="M138 258 H374 V354 H146 Z" fill="url(#stoneHatch)" stroke="none"/>
+    <path d="M138 258 H374 V354 H146 Z" fill="none" stroke-width="2.5"/>
+    <path d="M228 324 H285 L281 363 H232 Z" fill="#5C5046" stroke-width="2"/>
+    <!-- Octagonal tower footprint and buttresses. -->
+    <path d="M195 132 L229 108 H283 L317 132 L336 196 L317 260 L283 284 H229 L195 260 L176 196 Z" fill="#8D8A82" stroke-width="3"/>
+    <path d="M195 132 L229 108 H283 L317 132 L336 196 L317 260 L283 284 H229 L195 260 L176 196 Z" fill="url(#stoneHatch)" stroke="none"/>
+    <path d="M195 132 L229 108 H283 L317 132 L336 196 L317 260 L283 284 H229 L195 260 L176 196 Z" fill="none" stroke-width="3"/>
+    <!-- Open brazier crown and enormous flame. -->
+    <ellipse cx="256" cy="194" rx="57" ry="47" fill="#4B4540" stroke-width="3"/>
+    <ellipse cx="256" cy="194" rx="43" ry="34" fill="#211F1D" stroke-width="2"/>
+    <path d="M256 224 C226 207 232 184 244 169 C241 151 253 137 265 153 C281 168 286 191 273 206 C269 218 262 224 256 224 Z" fill="#D56C3F" stroke-width="2"/>
+    <path d="M257 213 C243 202 246 188 254 178 C253 168 260 163 267 176 C275 188 272 204 257 213 Z" fill="#F1B35E" stroke-width="1.5"/>
+    <path d="M205 136 L184 119 M307 136 L328 119 M184 248 L165 266 M328 248 L347 266" fill="none" stroke-width="5"/>
+
+  </g>
+</svg>

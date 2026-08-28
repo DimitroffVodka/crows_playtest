@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Auction House institution — Default village style</title>
+  <desc id="desc">Grand octagonal bidding amphitheater with cupola skylight, reinforced vault wing, colonnaded portico steps, and locked relic dais.</desc>
+
+  <defs>
+    <pattern id="auctionHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 L2 10" fill="none" stroke="#010206" stroke-width="0.8" opacity="0.2"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Reinforced Security Vault Wing (North Annex) -->
+    <rect x="195" y="65" width="122" height="42" rx="2" fill="#5F605B" stroke-width="2.4"/>
+    <line x1="195" y1="86" x2="317" y2="86" stroke="#010206" stroke-width="2"/>
+    <rect x="205" y="55" width="16" height="14" fill="#333536" stroke-width="1.5"/>
+
+    <!-- Grand Octagonal Main Bidding Amphitheater -->
+    <polygon points="180,95 332,95 390,153 390,265 332,323 180,323 122,265 122,153" fill="#C47A5A" stroke-width="3"/>
+    <polygon points="256,209 390,153 390,265" fill="#AB5E40" stroke-width="1.2"/>
+    <polygon points="256,209 390,265 332,323" fill="#8C462B" stroke-width="1.2"/>
+    <polygon points="256,209 332,323 180,323" fill="#8C462B" stroke-width="1.2"/>
+    <polygon points="256,209 180,323 122,265" fill="#AB5E40" stroke-width="1.2"/>
+
+    <!-- Central Octagonal Glass Cupola / Skylight -->
+    <polygon points="230,183 282,183 302,209 282,235 230,235 210,209" fill="#8AC4C7" stroke-width="2.2" opacity="0.9"/>
+    <polygon points="230,183 256,209 282,183" fill="#D9A84E" stroke-width="1.5"/>
+    <circle cx="256" cy="209" r="5" fill="#FFF" stroke="#010206" stroke-width="1.5"/>
+
+    <!-- Colonnaded Entrance Portico Steps (South) -->
+    <rect x="170" y="315" width="172" height="28" rx="2" fill="#9E9A91" stroke-width="2.2"/>
+    <circle cx="185" cy="326" r="5" fill="#D4D0C7" stroke="#010206" stroke-width="1.5"/>
+    <circle cx="232" cy="326" r="5" fill="#D4D0C7" stroke="#010206" stroke-width="1.5"/>
+    <circle cx="280" cy="326" r="5" fill="#D4D0C7" stroke="#010206" stroke-width="1.5"/>
+    <circle cx="327" cy="326" r="5" fill="#D4D0C7" stroke="#010206" stroke-width="1.5"/>
+
+    <!-- PROPS -->
+    <!-- 1. Velvet Draped Relic Display Dais with Locked Glass Vitrine (Left) -->
+    <g id="relic-vitrine">
+      <circle cx="145" cy="385" r="18" fill="#8A2828" stroke-width="2"/>
+      <rect x="135" y="375" width="20" height="20" rx="2" fill="#8AC4C7" stroke="#D9A84E" stroke-width="1.5" opacity="0.85"/>
+      <circle cx="145" cy="385" r="4" fill="#D9A84E"/>
+    </g>
+
+    <!-- 2. Decorative Brass Stanchions with Red Velvet Rope (Center) -->
+    <g id="velvet-stanchions">
+      <rect x="195" y="378" width="122" height="14" fill="none"/>
+      <path d="M205 385 Q256 395 307 385" fill="none" stroke="#8A2828" stroke-width="3"/>
+      <circle cx="205" cy="385" r="4" fill="#D9A84E" stroke="#010206" stroke-width="1.2"/>
+      <circle cx="256" cy="388" r="4" fill="#D9A84E" stroke="#010206" stroke-width="1.2"/>
+      <circle cx="307" cy="385" r="4" fill="#D9A84E" stroke="#010206" stroke-width="1.2"/>
+    </g>
+
+    <!-- 3. Carriage Hitching Block & Stone Plinth (Right) -->
+    <g id="hitching-block">
+      <rect x="350" y="372" width="32" height="26" rx="2" fill="#75726B" stroke-width="2"/>
+      <circle cx="366" cy="385" r="4" fill="#3D4042" stroke-width="1.5"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Blacksmith institution — Default village style</title>
+  <desc id="desc">Native vector, near-orthographic blacksmith map asset with a gabled workshop, forge lean-to, chimney, anvil, charcoal, and metal stock.</desc>
+
+  <!-- Native vector artwork: no image elements or embedded raster data. -->
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 L2 12" fill="none" stroke="#010206" stroke-width="1" opacity="0.24"/>
+      <path d="M8 0 L8 12" fill="none" stroke="#010206" stroke-width="0.55" opacity="0.12"/>
+    </pattern>
+    <pattern id="leanHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 L2 10" fill="none" stroke="#010206" stroke-width="0.8" opacity="0.22"/>
+    </pattern>
+  </defs>
+
+  <g id="building" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Minimal southern wall visible beneath the roof. -->
+    <path d="M101 297 L368 297 L361 322 L108 322 Z"
+          fill="#9F7D68" stroke-width="2.2"/>
+    <path d="M116 300 L116 320 M137 300 L137 320 M158 300 L158 320
+             M179 300 L179 320 M200 300 L200 320 M221 300 L221 320
+             M242 300 L242 320 M263 300 L263 320 M284 300 L284 320
+             M305 300 L305 320 M326 300 L326 320 M347 300 L347 320"
+          fill="none" stroke-width="0.8" opacity="0.44"/>
+
+    <!-- Main gable roof. -->
+    <path d="M99 127 L368 127 L368 215 L99 215 Z" fill="#C4A68F" stroke="none"/>
+    <path d="M99 215 L368 215 L368 302 L99 302 Z" fill="#B58F78" stroke="none"/>
+    <path d="M99 127 H368 V302 H99 Z" fill="url(#roofHatch)" stroke="none"/>
+    <path d="M99 127 H368 V302 H99 Z" fill="none" stroke-width="2.8"/>
+    <path d="M99 215 C163 213, 302 217, 368 215" fill="none" stroke-width="3.2"/>
+    <path d="M104 132 C167 130, 298 133, 363 131" fill="none" stroke="#5F4A40" stroke-width="1" opacity="0.42"/>
+    <path d="M104 297 C174 299, 298 295, 363 298" fill="none" stroke="#5F4A40" stroke-width="1" opacity="0.42"/>
+
+    <!-- Roof pegs and repaired corners. -->
+    <g fill="#A9856E" stroke-width="1.7">
+      <rect x="93" y="120" width="16" height="15" rx="2"/>
+      <rect x="358" y="120" width="16" height="15" rx="2"/>
+      <rect x="93" y="294" width="16" height="15" rx="2"/>
+      <rect x="358" y="294" width="16" height="15" rx="2"/>
+    </g>
+
+    <!-- Front door and iron hinges. -->
+    <path d="M217 300 L251 300 L248 327 L220 327 Z" fill="#745846" stroke-width="1.8"/>
+    <path d="M222 307 H246 M223 316 H246" fill="none" stroke-width="1.2"/>
+    <circle cx="243" cy="319" r="2" fill="#010206" stroke="none"/>
+
+    <!-- Straight Masonry Chimney (Option 2 - Straight Proportioned) -->
+    <g id="chimney">
+      <!-- Lower Straight Shaft -->
+      <rect x="68" y="180" width="40" height="90" fill="#87857D" stroke-width="2.4"/>
+      
+      <!-- Staggered Courses -->
+      <path d="M68 200 H108 M68 220 H108 M68 240 H108 M68 260 H108
+               M88 180 V200 M78 200 V220 M98 200 V220 M88 220 V240
+               M78 240 V260 M98 240 V260 M88 260 V270"
+            fill="none" stroke-width="1.1" opacity="0.65"/>
+      
+      <!-- Stepped Lead Flashing at Roofline (x=99) -->
+      <rect x="99" y="180" width="5" height="90" fill="#52585E" stroke="none" opacity="0.3"/>
+
+      <!-- Symmetrical Chimney Crown -->
+      <g id="chimney-crown">
+        <rect x="66" y="142" width="44" height="38" rx="2" fill="#5F605B" stroke="none"/>
+
+        <!-- Centered Dark Flue Opening -->
+        <rect x="76" y="151" width="24" height="20" fill="#0F1112" stroke-width="1.8"/>
+
+        <!-- Masonry Border Blocks -->
+        <path d="M66 142 H77 V151 H66 Z" fill="#D2CEC5" stroke-width="1.1"/>
+        <path d="M77 142 H88 V151 H77 Z" fill="#BDB9B0" stroke-width="1.1"/>
+        <path d="M88 142 H99 V151 H88 Z" fill="#D7D3CA" stroke-width="1.1"/>
+        <path d="M99 142 H110 V151 H99 Z" fill="#C6C2B9" stroke-width="1.1"/>
+
+        <path d="M66 151 H76 V161 H66 Z" fill="#C7C3BA" stroke-width="1.1"/>
+        <path d="M66 161 H76 V171 H66 Z" fill="#D8D4CB" stroke-width="1.1"/>
+
+        <path d="M100 151 H110 V161 H100 Z" fill="#D5D1C8" stroke-width="1.1"/>
+        <path d="M100 161 H110 V171 H100 Z" fill="#BBB7AE" stroke-width="1.1"/>
+
+        <path d="M66 171 H77 V180 H66 Z" fill="#D5D1C8" stroke-width="1.1"/>
+        <path d="M77 171 H88 V180 H77 Z" fill="#BEBAB1" stroke-width="1.1"/>
+        <path d="M88 171 H99 V180 H88 Z" fill="#D8D4CB" stroke-width="1.1"/>
+        <path d="M99 171 H110 V180 H99 Z" fill="#D0CCC3" stroke-width="1.1"/>
+
+        <rect x="66" y="142" width="44" height="38" rx="2" fill="none" stroke-width="2.4"/>
+      </g>
+    </g>
+
+    <!-- Attached forge lean-to. -->
+    <path d="M368 174 L461 174 L461 301 L368 301 Z" fill="#95A5A5" stroke="none"/>
+    <path d="M368 174 L461 174 L461 301 L368 301 Z" fill="url(#leanHatch)" stroke="none"/>
+    <path d="M368 174 H461 V301 H368 Z" fill="none" stroke-width="2.6"/>
+    <path d="M368 237 C395 235, 434 239, 461 237" fill="none" stroke-width="2.8"/>
+    <path d="M367 299 L463 299 L458 332 L375 332 Z" fill="#96765F" stroke-width="2.1"/>
+    <path d="M378 302 V330 M451 302 V330" fill="none" stroke-width="3"/>
+
+    <!-- Forge hearth inset under the lean-to. -->
+    <path d="M390 278 L438 278 L441 322 L387 322 Z" fill="#77746D" stroke-width="2.1"/>
+    <path d="M397 289 L431 289 L433 314 L395 314 Z" fill="#262423" stroke-width="1.7"/>
+    <g fill="#6F392B" stroke="none">
+      <circle cx="404" cy="305" r="3.3"/>
+      <circle cx="413" cy="300" r="3.5"/>
+      <circle cx="422" cy="306" r="3.1"/>
+      <circle cx="416" cy="309" r="2.6"/>
+    </g>
+
+    <!-- Tongs and hammer beside the hearth. -->
+    <path d="M447 282 C442 292, 442 305, 447 318
+             M455 282 C460 292, 460 305, 455 318
+             M447 282 L451 277 L455 282"
+          fill="none" stroke-width="2.5"/>
+    <path d="M448 319 L444 329 M454 319 L459 329" fill="none" stroke-width="2"/>
+
+    <!-- Detached anvil on a ringed chopping-block stump. -->
+    <g id="anvil">
+      <ellipse cx="141" cy="398" rx="27" ry="12" fill="#9A7658" stroke-width="2"/>
+      <path d="M114 398 Q141 409 168 398 L164 423 Q142 435 119 423 Z"
+            fill="#876449" stroke-width="2"/>
+      <path d="M120 407 Q141 416 163 407 M120 417 Q141 426 163 417"
+            fill="none" stroke="#5F4434" stroke-width="1" opacity="0.7"/>
+      <path d="M121 399 L124 424 M160 400 L158 425"
+            fill="none" stroke="#4D4B47" stroke-width="2.4"/>
+
+      <!-- Recognizable anvil: pointed horn left, broad face, square heel right. -->
+      <path d="M102 365 L125 360 L133 353 L158 353 L164 359 L178 359
+               L178 370 L160 372 L153 379 L132 379 L126 372 L111 372 Z"
+            fill="#55595B" stroke-width="2.4"/>
+      <path d="M111 365 L134 358 L158 358 L164 363 L176 363"
+            fill="none" stroke="#858B8D" stroke-width="1.6"/>
+      <rect x="162" y="362" width="6" height="6" rx="0.8"
+            fill="#202223" stroke-width="1"/>
+      <!-- Narrow waist and flared foot anchor the anvil to the stump. -->
+      <path d="M133 378 L153 378 L150 389 L160 394 L124 394 L135 389 Z"
+            fill="#3F4345" stroke-width="2.1"/>
+      <path d="M123 393 Q142 398 161 393" fill="none" stroke-width="2.2"/>
+    </g>
+
+    <!-- Small, irregular charcoal chunks rather than uniform round pieces. -->
+    <g id="charcoal" stroke="#010206" stroke-width="0.9" stroke-linejoin="round">
+      <path d="M220 397 L224 391 L231 390 L235 395 L232 401 L225 402 Z" fill="#242627"/>
+      <path d="M234 388 L238 382 L245 383 L248 389 L244 394 L237 393 Z" fill="#303234"/>
+      <path d="M248 394 L252 387 L260 386 L264 392 L261 399 L253 400 Z" fill="#202223"/>
+      <path d="M263 386 L268 381 L275 384 L277 390 L272 395 L265 393 Z" fill="#2D2F30"/>
+      <path d="M277 394 L283 390 L289 394 L289 400 L284 404 L278 401 Z" fill="#1F2122"/>
+      <path d="M226 407 L231 402 L238 404 L240 410 L235 415 L228 413 Z" fill="#313335"/>
+      <path d="M241 402 L247 398 L253 403 L252 410 L246 413 L240 409 Z" fill="#202223"/>
+      <path d="M255 407 L260 400 L267 402 L270 408 L266 414 L259 414 Z" fill="#292B2C"/>
+      <path d="M270 402 L276 398 L282 402 L283 409 L277 413 L271 410 Z" fill="#333536"/>
+      <path d="M285 407 L290 403 L295 407 L294 413 L289 416 L284 412 Z" fill="#202223"/>
+      <path d="M219 413 L223 409 L228 413 L227 418 L222 420 L218 417 Z" fill="#2E3031"/>
+      <path d="M234 416 L239 411 L245 414 L246 420 L240 423 L235 421 Z" fill="#1E2021"/>
+      <path d="M249 417 L254 412 L260 416 L259 422 L253 424 L248 421 Z" fill="#303234"/>
+      <path d="M264 418 L269 413 L275 416 L276 421 L271 425 L265 423 Z" fill="#222425"/>
+      <path d="M279 417 L284 413 L289 416 L290 421 L285 424 L280 422 Z" fill="#2B2D2E"/>
+      <path d="M229 385 L232 381 L236 383 L235 388 Z" fill="#1D1F20"/>
+      <path d="M290 398 L294 395 L298 398 L297 402 L293 403 Z" fill="#2C2E2F"/>
+    </g>
+
+    <!-- Bundled iron and steel stock. -->
+    <g id="metal-stock" stroke-width="1.6">
+      <path d="M320 374 L367 374 L370 418 L317 418 Z" fill="#6E6963"/>
+      <path d="M319 384 H368 M319 397 H369 M318 409 H370" fill="none"/>
+      <path d="M326 370 L330 421 M361 371 L357 421" fill="none" stroke="#775B45" stroke-width="4"/>
+
+      <path d="M384 374 L431 374 L437 418 L383 418 Z" fill="#879396"/>
+      <path d="M384 384 L432 382 M384 397 L434 395 M383 410 L436 408" fill="none"/>
+      <path d="M391 370 L394 421 M426 371 L423 421" fill="none" stroke="#775B45" stroke-width="4"/>
+    </g>
+  </g>
+</svg>

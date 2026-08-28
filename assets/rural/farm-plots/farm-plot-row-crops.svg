@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Row-Crop Field</title>
+  <desc id="desc">Fenced plowed field with eight planted rows, visible gate, and scarecrow.</desc>
+  <!-- Native vector artwork only: no embedded or linked raster content. -->
+
+  <defs>
+    <pattern id="roofHatch" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V12 M8 0 V12" fill="none" stroke="#010206" stroke-width="0.75" opacity="0.17"/>
+    </pattern>
+    <pattern id="soilHatch" width="18" height="18" patternUnits="userSpaceOnUse">
+      <path d="M0 5 Q9 1 18 5 M0 14 Q9 10 18 14" fill="none" stroke="#5D4637" stroke-width="0.8" opacity="0.28"/>
+    </pattern>
+    <pattern id="woodHatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M2 0 V10 M7 0 V10" fill="none" stroke="#010206" stroke-width="0.65" opacity="0.16"/>
+    </pattern>
+  </defs>
+
+  <g id="terrain" stroke="#010206" stroke-linecap="round" stroke-linejoin="round">
+
+    <path d="M78 92 Q253 74 434 99 L425 421 Q250 439 82 415 Z" fill="#8A664D" stroke-width="2.2"/>
+    <path d="M78 92 Q253 74 434 99 L425 421 Q250 439 82 415 Z" fill="url(#soilHatch)" stroke="none"/>
+<path d="M102 126 C182 118, 330 134, 410 126" fill="none" stroke="#496B3E" stroke-width="7"/>
+    <ellipse cx="118" cy="122" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="160" cy="122" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="202" cy="122" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="244" cy="122" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="286" cy="122" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="328" cy="122" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="370" cy="122" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <path d="M102 160 C182 152, 330 168, 410 160" fill="none" stroke="#496B3E" stroke-width="7"/>
+    <ellipse cx="118" cy="156" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="160" cy="156" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="202" cy="156" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="244" cy="156" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="286" cy="156" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="328" cy="156" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="370" cy="156" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <path d="M102 194 C182 186, 330 202, 410 194" fill="none" stroke="#496B3E" stroke-width="7"/>
+    <ellipse cx="118" cy="190" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="160" cy="190" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="202" cy="190" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="244" cy="190" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="286" cy="190" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="328" cy="190" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="370" cy="190" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <path d="M102 228 C182 220, 330 236, 410 228" fill="none" stroke="#496B3E" stroke-width="7"/>
+    <ellipse cx="118" cy="224" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="160" cy="224" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="202" cy="224" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="244" cy="224" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="286" cy="224" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="328" cy="224" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="370" cy="224" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <path d="M102 262 C182 254, 330 270, 410 262" fill="none" stroke="#496B3E" stroke-width="7"/>
+    <ellipse cx="118" cy="258" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="160" cy="258" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="202" cy="258" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="244" cy="258" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="286" cy="258" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="328" cy="258" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="370" cy="258" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <path d="M102 296 C182 288, 330 304, 410 296" fill="none" stroke="#496B3E" stroke-width="7"/>
+    <ellipse cx="118" cy="292" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="160" cy="292" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="202" cy="292" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="244" cy="292" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="286" cy="292" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="328" cy="292" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="370" cy="292" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <path d="M102 330 C182 322, 330 338, 410 330" fill="none" stroke="#496B3E" stroke-width="7"/>
+    <ellipse cx="118" cy="326" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="160" cy="326" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="202" cy="326" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="244" cy="326" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="286" cy="326" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="328" cy="326" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="370" cy="326" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <path d="M102 364 C182 356, 330 372, 410 364" fill="none" stroke="#496B3E" stroke-width="7"/>
+    <ellipse cx="118" cy="360" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="160" cy="360" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="202" cy="360" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="244" cy="360" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="286" cy="360" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="328" cy="360" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <ellipse cx="370" cy="360" rx="7" ry="4" fill="#73965B" stroke="#334F31" stroke-width="0.8"/>
+    <path d="M72 84 H440 M72 84 V428 M440 84 V428 M72 428 H238 M290 428 H440"
+          fill="none" stroke="#654D40" stroke-width="4"/>
+    <path d="M72 77 V91 M72 421 V435 M133 77 V91 M133 421 V435 M194 77 V91 M194 421 V435 M255 77 V91 M255 421 V435 M316 77 V91 M316 421 V435 M377 77 V91 M377 421 V435 M438 77 V91 M438 421 V435 M65 84 H79 M433 84 H447 M65 170 H79 M433 170 H447 M65 256 H79 M433 256 H447 M65 342 H79 M433 342 H447 M65 428 H79 M433 428 H447" fill="none" stroke="#4F3B31" stroke-width="4.5"/>
+
+    <!-- Scarecrow centered at the open gate. -->
+    <circle cx="264" cy="376" r="10" fill="#B78C68" stroke-width="1.5"/>
+    <path d="M264 386 V438 M236 400 H292 M244 400 L264 416 L284 400"
+          fill="none" stroke="#654536" stroke-width="5"/>
+    <path d="M246 366 H282 L277 374 H251 Z" fill="#8B6C43" stroke-width="1.5"/>
+
+  </g>
+</svg>

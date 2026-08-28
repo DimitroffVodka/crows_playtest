@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Crypt shadow — Default village style</title>
+  <desc id="desc">Separate native-vector cast shadow aligned to the Crypt building SVG.</desc>
+  <g id="shadow" transform="translate(28 16)" fill="#9699AE" opacity="0.46">
+    <path d="M151 168 Q151 132 184 116 H328 Q361 132 361 168 V305 H291 L286 340 H295 L310 365 H202 L217 340 H226 L221 305 H151 Z"/>
+    <path d="M82 342 L94 330 H116 L128 342 L123 389 H87 Z M384 338 L396 326 H418 L430 338 L425 386 H389 Z"/>
+    <path d="M127 402 Q127 389 140 385 Q153 389 153 402 V433 H127 Z M359 400 Q359 387 372 383 Q385 387 385 400 V431 H359 Z"/>
+
+  </g>
+</svg>
