@@ -17,6 +17,7 @@ import {
   clampProsperity,
   defaultVillage,
   effectiveInstitutionLevel,
+  findLiveInstitution,
   getActiveVillageGM,
   getVillage,
   isVillageDesignatedWriter,
@@ -27,10 +28,15 @@ import {
 } from "./village.mjs";
 import { VILLAGE_ART_SET } from "./village-art.mjs";
 import {
-  buildVillagePlan,
-  planPositionForHousing,
-  planPositionForInstitution
-} from "./village-plan.mjs";
+  CANONICAL_DRESSING_SLOTS,
+  CANONICAL_FARMLAND_SLOTS,
+  CANONICAL_HOUSING_SLOTS,
+  CANONICAL_INSTITUTION_SLOTS,
+  CANONICAL_UNBUILT_PLOT,
+  CANONICAL_VILLAGE_BACKGROUND,
+  CANONICAL_VILLAGE_SIZE,
+  canonicalPrefixCount
+} from "./canonical-village-layout.mjs";
 import { villageBackgroundSvg } from "./village-plan-draw.mjs";
 import { BUILDING_SHAPES, materialForInstitution, shapeSvg } from "./village-plan-art.mjs";
 import {
@@ -46,7 +52,7 @@ import {
   stampShadowBody
 } from "./village-stamp-art.mjs";
 
-export const VILLAGE_MAP_GENERATOR_VERSION = "village-map-1";
+export const VILLAGE_MAP_GENERATOR_VERSION = "canonical-village-1";
 export const GENERATOR_VERSION = VILLAGE_MAP_GENERATOR_VERSION;
 
 /**
@@ -57,8 +63,8 @@ export const GENERATOR_VERSION = VILLAGE_MAP_GENERATOR_VERSION;
 export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
 export const SCENE_DEFAULTS = Object.freeze({
-  width: 4800,
-  height: 6600,
+  width: CANONICAL_VILLAGE_SIZE,
+  height: CANONICAL_VILLAGE_SIZE,
   // Zero, so that projection space IS background space.
   //
   // Foundry places Tiles in canvas coordinates, but padding shifts the
@@ -319,6 +325,9 @@ export function generatedVillageTiles(scene, villageId) {
 
 function tileIdentityKey(flag) {
   if (!flag || typeof flag !== "object") return null;
+  if (flag.slotId != null && flag.kind != null) {
+    return `${String(flag.kind)}:${String(flag.slotId)}`;
+  }
   if (flag.kind === "institution" && flag.institutionId != null) {
     return `institution:${String(flag.institutionId)}`;
   }
@@ -532,12 +541,7 @@ export function institutionPosition(village, institution, options = {}) {
   if (typeof options.positionForInstitution === "function") {
     return clone(options.positionForInstitution({ village: clone(village), institution: clone(institution) }));
   }
-  // A plan places buildings on streets; the grid below is the fallback for a
-  // village that has none, and for anything the plan could not fit.
-  if (options.plan) {
-    const at = planPositionForInstitution(options.plan, String(institution?.id ?? institution?.type ?? ""));
-    if (at) return tilePositionFromPlan(at);
-  }
+
   const layout = settlementLayout(village, {
     ...options,
     ...(options.tileWidth != null ? { institutionWidth: options.tileWidth } : {}),
@@ -564,12 +568,7 @@ export function housingPosition(village, index, options = {}) {
   if (typeof options.positionForHousing === "function") {
     return clone(options.positionForHousing({ village: clone(village), index }));
   }
-  // Taken before the MAX_HOUSING_TILES clamp below: a plan houses a prosperous
-  // village in dozens of homes, and clamping would stack them all on the fifth.
-  if (options.plan) {
-    const at = planPositionForHousing(options.plan, Math.max(0, Math.floor(Number(index) || 0)));
-    if (at) return tilePositionFromPlan(at);
-  }
+
   const layout = settlementLayout(village, {
     ...options,
     ...(options.tileWidth != null ? { housingWidth: options.tileWidth } : {}),
@@ -902,13 +901,21 @@ function assetForHousing(artSet, visualState = "operating", index = 0) {
   };
 }
 
-/** Monotonic, bounded presentation tier; Prosperity remains Village state. */
+/** Legacy five-step presentation tier retained for UI compatibility. */
 export function housingTierForProsperity(prosperity = 0) {
   const value = clampProsperity(prosperity);
   return Math.max(0, Math.min(5, Math.floor((value + 10) / 4)));
 }
 
-export const housingCountForProsperity = housingTierForProsperity;
+/** Compatibility alias retained for callers that use the old 0..5 display tier. */
+export function housingCountForProsperity(prosperity = 0) {
+  return housingTierForProsperity(prosperity);
+}
+
+/** Number of canonical housing plots selected at this Prosperity. */
+export function canonicalHousingCountForProsperity(prosperity = 0) {
+  return canonicalPrefixCount(prosperity, CANONICAL_HOUSING_SLOTS.length);
+}
 
 function institutionModifiers(village, institution) {
   return (village?.activeEffects ?? []).filter(effect =>
@@ -983,14 +990,15 @@ function baseTileData({ name, asset, position, width, height, sort, flag, rotati
 
 export function institutionTileData(village, institution, options = {}) {
   const effective = effectiveInstitutionForMap(institution, village);
-  const placedAt = options.plan
-    ? planPositionForInstitution(options.plan, String(institution?.id ?? institution?.type ?? ""))
-    : null;
-  const fitted = fitTileToPlot(
-    placedAt,
-    tileDimensionFor(options, "institution", "Width"),
-    tileDimensionFor(options, "institution", "Height")
-  );
+  const slot = options.slot ?? null;
+  const placedAt = null;
+  const fitted = slot
+    ? { width: slot.width, height: slot.height }
+    : fitTileToPlot(
+        placedAt,
+        tileDimensionFor(options, "institution", "Width"),
+        tileDimensionFor(options, "institution", "Height")
+      );
   const tileWidth = fitted.width;
   const tileHeight = fitted.height;
   const asset = assetForInstitution({
@@ -1000,13 +1008,15 @@ export function institutionTileData(village, institution, options = {}) {
     artSet: options.artSet ?? configuredArtSet
   });
   const version = generatorVersion(options);
-  const position = institutionPosition(village, institution, {
-    ...options,
-    width: options.sceneWidth ?? options.width,
-    height: options.sceneHeight ?? options.height,
-    tileWidth,
-    tileHeight
-  });
+  const position = slot
+    ? { x: slot.x, y: slot.y }
+    : institutionPosition(village, institution, {
+        ...options,
+        width: options.sceneWidth ?? options.width,
+        height: options.sceneHeight ?? options.height,
+        tileWidth,
+        tileHeight
+      });
   const name = text(institution?.name) || institutionLabel(institution?.type);
   return baseTileData({
     name: `${name} [${asset.visualState}]`,
@@ -1014,12 +1024,14 @@ export function institutionTileData(village, institution, options = {}) {
     position,
     width: tileWidth,
     height: tileHeight,
-    rotation: options.rotateToStreet === false ? 0 : planRotationFor(placedAt),
+    rotation: options.rotateToStreet === false ? 0 : (slot?.rotation ?? planRotationFor(placedAt)),
     sort: options.sort ?? 100,
     flag: villageTileFlag({
       kind: "institution",
       villageId: village?.villageId,
       generatorVersion: version,
+      slotId: slot?.id ?? null,
+      institutionType: String(institution?.type ?? ""),
       institutionId: String(institution?.id ?? institution?.type ?? ""),
       assetKey: asset.assetKey,
       stateAssetKey: asset.stateAssetKey,
@@ -1032,35 +1044,53 @@ export function institutionTileData(village, institution, options = {}) {
 }
 
 export function housingTileData(village, index, options = {}) {
-  const placedAt = options.plan ? planPositionForHousing(options.plan, index) : null;
-  const fitted = fitTileToPlot(
-    placedAt,
-    tileDimensionFor(options, "housing", "Width"),
-    tileDimensionFor(options, "housing", "Height")
-  );
+  const slot = options.slot ?? null;
+  const placedAt = null;
+  const fitted = slot
+    ? { width: slot.width, height: slot.height }
+    : fitTileToPlot(
+        placedAt,
+        tileDimensionFor(options, "housing", "Width"),
+        tileDimensionFor(options, "housing", "Height")
+      );
   const tileWidth = fitted.width;
   const tileHeight = fitted.height;
-  const asset = assetForHousing(options.artSet ?? configuredArtSet, "operating", index);
+  const useCanonicalHousing = Boolean(slot?.asset)
+    && (options.canonicalHousing === true || !options.artSet);
+  const asset = useCanonicalHousing
+    ? {
+        src: slot.asset,
+        assetKey: slot.sourceId ?? slot.id,
+        stateAssetKey: slot.sourceId ?? slot.id,
+        visualState: "operating",
+        substituted: false,
+        substitutionReason: null,
+        unsupported: false
+      }
+    : assetForHousing(options.artSet ?? configuredArtSet, "operating", index);
   const version = generatorVersion(options);
-  const position = housingPosition(village, index, {
-    ...options,
-    width: options.sceneWidth ?? options.width,
-    height: options.sceneHeight ?? options.height,
-    tileWidth,
-    tileHeight
-  });
+  const position = slot
+    ? { x: slot.x, y: slot.y }
+    : housingPosition(village, index, {
+        ...options,
+        width: options.sceneWidth ?? options.width,
+        height: options.sceneHeight ?? options.height,
+        tileWidth,
+        tileHeight
+      });
   return baseTileData({
     name: `Housing ${index + 1}`,
     asset,
     position,
     width: tileWidth,
     height: tileHeight,
-    rotation: options.rotateToStreet === false ? 0 : planRotationFor(placedAt),
+    rotation: options.rotateToStreet === false ? 0 : (slot?.rotation ?? planRotationFor(placedAt)),
     sort: options.housingSort ?? 1000 + index,
     flag: villageTileFlag({
       kind: "housing",
       villageId: village?.villageId,
       generatorVersion: version,
+      slotId: slot?.id ?? null,
       housingIndex: index,
       assetKey: asset.assetKey,
       stateAssetKey: asset.stateAssetKey,
@@ -1072,28 +1102,9 @@ export function housingTileData(village, index, options = {}) {
   });
 }
 
-/**
- * Resolve the spatial plan for a projection, if one is wanted.
- *
- * Opt-in: without `plan` or `usePlan` the projection lays tiles out exactly as
- * it always has. Pass `previousPlan` when growing an existing village, so the
- * planner keeps every building where it already stands.
- */
-export function villagePlanFor(village, options = {}) {
-  if (options.plan) return options.plan;
-  if (!options.usePlan) return null;
-  try {
-    return buildVillagePlan(village, {
-      seed: options.planSeed ?? village?.sceneSeed,
-      params: options.planParams,
-      previous: options.previousPlan ?? null,
-      locks: options.planLocks
-    });
-  } catch (error) {
-    // A failed plan must not cost the Ref their map; fall back to the grid.
-    console.error("crows | village plan failed, falling back to grid layout", error);
-    return null;
-  }
+/** @deprecated Runtime planning is disabled; caller-supplied plans pass through for compatibility. */
+export function villagePlanFor(_village, options = {}) {
+  return options.plan ?? null;
 }
 
 /**
@@ -1352,31 +1363,99 @@ export async function writeVillagePlanArt({ worldId = null, style = null, size =
   return drawnVillageArtSet(paths);
 }
 
+/** Build one immutable canonical field/tree tile. */
+function canonicalDressingTileData(village, slot, index, kind, options = {}) {
+  const tile = baseTileData({
+    name: `${kind === "farmland" ? "Field" : "Dressing"} ${index + 1}`,
+    asset: { src: slot.asset },
+    position: slot,
+    width: slot.width,
+    height: slot.height,
+    rotation: slot.rotation ?? 0,
+    sort: (kind === "farmland" ? 10 : 3000) + index,
+    flag: villageTileFlag({
+      kind,
+      villageId: village?.villageId,
+      generatorVersion: generatorVersion(options),
+      slotId: slot.id,
+      sourceId: slot.sourceId,
+      assetKey: slot.asset,
+      visualState: "operating",
+      unsupported: false
+    })
+  });
+  return tile;
+}
+
+function unbuiltInstitutionTileData(village, type, slot, index, options = {}) {
+  return baseTileData({
+    name: `Unbuilt ${institutionLabel(type)} plot`,
+    asset: { src: CANONICAL_UNBUILT_PLOT },
+    position: slot,
+    width: slot.width,
+    height: slot.height,
+    rotation: slot.rotation,
+    sort: 100 + index,
+    flag: villageTileFlag({
+      kind: "institution",
+      villageId: village?.villageId,
+      generatorVersion: generatorVersion(options),
+      slotId: slot.id,
+      institutionType: type,
+      institutionId: null,
+      assetKey: "unbuilt-plot",
+      stateAssetKey: "unbuilt-plot",
+      visualState: "unbuilt",
+      substituted: false,
+      substitutionReason: null,
+      unsupported: false
+    })
+  });
+}
+
 /** Build all desired generated data without touching Foundry documents. */
 export function buildVillageProjection(village, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
-  const plan = villagePlanFor(source, options);
-  const opts = plan ? { ...options, plan } : options;
-  const institutions = source.institutions.map((institution, index) =>
-    institutionTileData(source, institution, { ...opts, sort: options.sort ?? 100 + index })
-  );
+  const institutionTypes = Object.keys(CANONICAL_INSTITUTION_SLOTS);
+  const institutions = institutionTypes.map((type, index) => {
+    const slot = CANONICAL_INSTITUTION_SLOTS[type];
+    const institution = findLiveInstitution(type, source)
+      ?? source.institutions.find(candidate => String(candidate?.type ?? "") === type)
+      ?? null;
+    return institution
+      ? institutionTileData(source, institution, { ...options, slot, sort: options.sort ?? 100 + index })
+      : unbuiltInstitutionTileData(source, type, slot, index, options);
+  });
+
   const housingTier = housingTierForProsperity(source.prosperity);
-  // A plan houses the village properly; the tier is a five-tile stand-in for
-  // when there is no plan to say how many homes there actually are.
-  const housingCount = plan ? plan.assignment.housing.length : housingTier;
-  const housing = Array.from({ length: housingCount }, (_, index) =>
-    housingTileData(source, index, opts)
+  const housingCount = canonicalHousingCountForProsperity(source.prosperity);
+  const housing = CANONICAL_HOUSING_SLOTS.slice(0, housingCount).map((slot, index) =>
+    housingTileData(source, index, { ...options, slot })
   );
+  const farmlandCount = canonicalPrefixCount(source.prosperity, CANONICAL_FARMLAND_SLOTS.length);
+  const farmland = CANONICAL_FARMLAND_SLOTS.slice(0, farmlandCount).map((slot, index) =>
+    canonicalDressingTileData(source, slot, index, "farmland", options)
+  );
+  const dressingCount = canonicalPrefixCount(source.prosperity, CANONICAL_DRESSING_SLOTS.length);
+  const dressing = CANONICAL_DRESSING_SLOTS.slice(0, dressingCount).map((slot, index) =>
+    canonicalDressingTileData(source, slot, index, "dressing", options)
+  );
+  const tiles = [...farmland, ...institutions, ...housing, ...dressing];
+
   return {
     villageId: source.villageId,
     sceneSeed: source.sceneSeed,
-    plan,
+    plan: null,
     housingTier,
     housingCount: housing.length,
+    farmlandCount: farmland.length,
+    dressingCount: dressing.length,
     institutions,
     housing,
-    tiles: [...institutions, ...housing],
-    unsupported: [...institutions, ...housing]
+    farmland,
+    dressing,
+    tiles,
+    unsupported: tiles
       .filter(tile => tile.flags?.crows?.village?.unsupported)
       .map(tile => ({
         kind: tile.flags.crows.village.kind,
@@ -1408,9 +1487,9 @@ function projectionState(village) {
   const source = normalizeVillage(village ?? {});
   return {
     institutions: new Map(source.institutions.map(institution => [
-      String(institution?.id ?? institution?.type ?? ""), institutionProjection(institution, source)
+      String(institution?.type ?? ""), institutionProjection(institution, source)
     ])),
-    housingTier: housingTierForProsperity(source.prosperity)
+    prosperity: clampProsperity(source.prosperity)
   };
 }
 
@@ -1418,7 +1497,7 @@ function projectionScope(next, previous, options = {}) {
   if (options.force === true || options.cacheMiss === true || previous == null) {
     return {
       all: true,
-      institutions: new Set(next.institutions.map(institution => String(institution?.id ?? institution?.type ?? ""))),
+      institutions: new Set(next.institutions.map(institution => String(institution?.type ?? ""))),
       housing: true
     };
   }
@@ -1432,7 +1511,7 @@ function projectionScope(next, previous, options = {}) {
   return {
     all: false,
     institutions,
-    housing: current.housingTier !== prior.housingTier
+    housing: current.prosperity !== prior.prosperity
   };
 }
 
@@ -1515,6 +1594,70 @@ function resultError(message, details = {}) {
   };
 }
 
+function sceneInitialLevelDocument(scene) {
+  const source = scene?.toObject?.() ?? scene ?? {};
+  const id = source.initialLevel ?? scene?.initialLevel ?? DEFAULT_LEVEL_ID;
+  return scene?.levels?.get?.(id)
+    ?? scenesFrom(scene?.levels).find(level => String(level?.id ?? level?._id ?? "") === String(id))
+    ?? null;
+}
+
+/** Migrate only the generated Scene envelope; manual placeables remain inert. */
+async function ensureCanonicalSceneEnvelope(scene, village, options = {}) {
+  const source = scene?.toObject?.() ?? scene ?? {};
+  const existingFlag = villageSceneFlag(scene);
+  const persistedCustomBackground = existingFlag?.backgroundKey === "custom"
+    ? text(existingFlag?.backgroundSrc)
+    : "";
+  const desired = villageSceneData(village, operationToken(options.operationId), persistedCustomBackground
+    ? { ...options, backgroundSrc: text(options.backgroundSrc) || persistedCustomBackground }
+    : options);
+  const flag = villageSceneFlag(scene);
+  const staleVersion = flag?.generatorVersion !== VILLAGE_MAP_GENERATOR_VERSION;
+  const widthMismatch = Number(source.width) !== desired.width;
+  const heightMismatch = Number(source.height) !== desired.height;
+  const backgroundSrc = desired.background?.src ?? desired.levels?.[0]?.background?.src ?? null;
+  const level = sceneInitialLevelDocument(scene);
+  const levelSource = level?.toObject?.() ?? level ?? {};
+  const backgroundMismatch = Boolean(backgroundSrc) && levelSource.background?.src !== backgroundSrc;
+  if (!staleVersion && !widthMismatch && !heightMismatch && !backgroundMismatch) {
+    return { ok: true, writes: [] };
+  }
+
+  const writes = [];
+  if (staleVersion || widthMismatch || heightMismatch) {
+    if (typeof scene?.update !== "function") {
+      return resultError("Scene envelope migration is unavailable", { operation: "scene-update" });
+    }
+    try {
+      await scene.update({
+        width: desired.width,
+        height: desired.height,
+        "flags.crows.village": clone(desired.flags.crows.village)
+      });
+      writes.push({ operation: "scene-update", count: 1 });
+    } catch (error) {
+      return resultError(error?.message ?? error, { operation: "scene-update", count: 1 });
+    }
+  }
+
+  if (backgroundMismatch) {
+    if (typeof level?.update !== "function") {
+      return resultError("Scene Level background migration is unavailable", {
+        operation: "level-update",
+        writes
+      });
+    }
+    try {
+      await level.update({ background: { src: backgroundSrc } });
+      writes.push({ operation: "level-update", count: 1 });
+    } catch (error) {
+      return resultError(error?.message ?? error, { operation: "level-update", count: 1, writes });
+    }
+  }
+  return { ok: true, writes };
+}
+
 const projectionFlights = new Map();
 
 function withProjectionFlight(villageId, task) {
@@ -1533,17 +1676,7 @@ async function reconcileVillageSceneInternal(nextInput, previousInput, options =
   if (authority) return authority;
   const next = normalizeVillage(nextInput ?? getVillage());
   const previous = previousInput == null ? null : normalizeVillage(previousInput);
-  const scope = projectionScope(next, previous, options);
-  if (!scope.all && !scope.housing && scope.institutions.size === 0) {
-    return {
-      ok: true,
-      skipped: true,
-      reason: "unrelated-village-change",
-      villageId: next.villageId,
-      writes: [],
-      tileIds: generatedVillageTiles(options.scene, next.villageId).map(tileId).filter(Boolean)
-    };
-  }
+  let scope = projectionScope(next, previous, options);
 
   let scene = options.scene ?? sceneById(next.sceneId, options.scenes ?? globalThis.game?.scenes);
   if (!scene) {
@@ -1570,6 +1703,29 @@ async function reconcileVillageSceneInternal(nextInput, previousInput, options =
       villageId: next.villageId
     };
   }
+
+  const staleGenerated = generatedVillageTiles(scene, next.villageId)
+    .some(tile => tileFlag(tile)?.generatorVersion !== VILLAGE_MAP_GENERATOR_VERSION);
+  if (staleGenerated || villageSceneFlag(scene)?.generatorVersion !== VILLAGE_MAP_GENERATOR_VERSION) {
+    scope = {
+      all: true,
+      institutions: new Set(next.institutions.map(institution => String(institution?.type ?? ""))),
+      housing: true
+    };
+  }
+  if (!scope.all && !scope.housing && scope.institutions.size === 0) {
+    return {
+      ok: true,
+      skipped: true,
+      reason: "unrelated-village-change",
+      villageId: next.villageId,
+      writes: [],
+      tileIds: generatedVillageTiles(scene, next.villageId).map(tileId).filter(Boolean)
+    };
+  }
+
+  const envelope = await ensureCanonicalSceneEnvelope(scene, next, options);
+  if (!envelope.ok) return { ...envelope, villageId: next.villageId, sceneId: sceneId(scene) };
 
   const projection = buildVillageProjection(next, options);
   const desired = new Map(projection.tiles.map(tile => [tileIdentityKey(tileFlag(tile)), tile]));
@@ -1613,7 +1769,7 @@ async function reconcileVillageSceneInternal(nextInput, previousInput, options =
     if (shouldTouch) deletes.push(tileId(tile));
   }
 
-  const writes = [];
+  const writes = [...envelope.writes];
   const failed = [];
   if (creates.length) {
     try {
@@ -1701,11 +1857,10 @@ function sceneGridData(options = {}) {
 export function villageSceneData(village, operationId, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
   const version = generatorVersion(options);
-  // A drawn backdrop wins over the shipped catalogue: it was generated from
-  // this village's own plan, so the streets under the buildings are the streets
-  // the buildings were placed on.
+  // An explicit/configured backdrop remains an additive Ref override; otherwise
+  // the canonical background set is selected through the late-bound resolver.
   const background = text(options.backgroundSrc)
-    ? { src: text(options.backgroundSrc), variant: "plan", key: "plan" }
+    ? { src: text(options.backgroundSrc), variant: "custom", key: "custom" }
     : resolveVillageBackground({
         variant: options.backgroundVariant ?? SCENE_DEFAULTS.backgroundVariant,
         artSet: options.artSet,
@@ -1713,9 +1868,10 @@ export function villageSceneData(village, operationId, options = {}) {
       });
   return {
     name: source.name || "Village",
-    width: options.width ?? SCENE_DEFAULTS.width,
-    height: options.height ?? SCENE_DEFAULTS.height,
-    padding: options.padding ?? SCENE_DEFAULTS.padding,
+    // Canonical slot coordinates are authored against this one square canvas.
+    width: SCENE_DEFAULTS.width,
+    height: SCENE_DEFAULTS.height,
+    padding: 0,
     grid: sceneGridData(options),
     // A v14 Scene has NO `background` field: the backdrop moved onto the Level
     // documents in `Scene#levels`, and `Scene#background` survives only as a
@@ -1757,7 +1913,8 @@ export function villageSceneData(village, operationId, options = {}) {
           generatorVersion: version,
           bootstrap: String(operationId ?? source.bootstrap?.txId ?? ""),
           backgroundVariant: background.variant,
-          backgroundKey: background.key
+          backgroundKey: background.key,
+          backgroundSrc: background.src
         }
       }
     }
@@ -1941,56 +2098,20 @@ async function uncertainBootstrap(current, operationId, details = {}) {
   }
 }
 
-/**
- * Resolve the plan and draw its backdrop, returning options the rest of the
- * saga can use unchanged.
- *
- * Opt-in through `usePlan` (or a caller-supplied `plan`): an existing world's
- * villages keep the layout they already have until a Ref asks for the new one.
- *
- * A backdrop that cannot be written is not fatal. The Scene falls back to the
- * shipped catalogue art and the buildings still land on their planned
- * positions — a missing image is worth far less than a missing village.
- */
-async function preparePlannedMap(village, options = {}) {
-  const plan = villagePlanFor(village, options);
-  if (!plan) return options;
-  let next = { ...options, plan };
-
-  // The stamps are drawn on a square canvas, but institution Tiles default to
-  // 4x3 grid units — which would stretch every one of them a third wider than
-  // it was drawn. Squared off here rather than in the defaults because it is a
-  // fact about this art set, not about institutions.
-  if (next.stampArt !== false && !next.artSet && next.institutionHeightGrid == null) {
-    next = { ...next, institutionHeightGrid: next.institutionWidthGrid ?? SCENE_DEFAULTS.institutionWidthGrid };
-  }
-
-  if (!text(next.backgroundSrc)) {
-    const backgroundSrc = await writeVillagePlanBackground({
-      plan,
-      villageId: village?.villageId,
-      style: options.planStyle ?? null,
-      showTitle: options.planTitle !== false,
-      tileOptions: next
-    });
-    if (backgroundSrc) next = { ...next, backgroundSrc };
-  }
-
-  // Drawn buildings, so the tiles and the ground they stand on are one style
-  // rather than watercolour assets over a parchment map. Opt out with
-  // `drawnArt: false` to keep the shipped PNG catalogue.
-  //
-  // The hand-drawn stamps are then composed over the drawn set: an institution
-  // with real art gets its identity, and everything the stamps do not cover —
-  // every ruin, every shape without an asset — still resolves to drawn art in
-  // the same style. Opt out with `stampArt: false` to see the drawn buildings
-  // on their own.
-  if (options.drawnArt !== false && !options.artSet) {
-    const artSet = await writeVillagePlanArt({ style: options.planStyle ?? null });
-    if (artSet) next = { ...next, artSet };
-  }
-  if (options.stampArt !== false && !options.artSet) {
-    next = { ...next, artSet: composeStampArtSet(next.artSet ?? null) };
+/** Resolve immutable canonical art without planning or uploading world assets. */
+async function prepareCanonicalMap(_village, options = {}) {
+  const baseArtSet = options.artSet ?? configuredArtSet;
+  const next = {
+    ...options,
+    plan: null,
+    backgroundSet: options.backgroundSet ?? configuredBackgroundSet,
+    // Explicit/configured art sets remain an additive override. The default
+    // catalogue keeps the source-extracted housing that defines this layout.
+    canonicalHousing: options.canonicalHousing ?? (!options.artSet && configuredArtSet === VILLAGE_ART_SET)
+  };
+  if (!text(options.backgroundSrc)) delete next.backgroundSrc;
+  if (!options.artSet && options.stampArt !== false) {
+    next.artSet = composeStampArtSet(baseArtSet);
   }
   return next;
 }
@@ -2084,11 +2205,11 @@ async function bootstrapVillageSceneInternal(options = {}) {
     if (attached && villageSceneFlag(attached)?.villageId === current.villageId) scene = attached;
   }
 
-  // Plan and draw before anything is created, so the Scene is made carrying its
-  // own map rather than being created against the stock backdrop and repainted
-  // a moment later. Both the Scene payload and the tile reconciliation below
-  // read from the same options, so they agree on one plan.
-  const mapOptions = await preparePlannedMap(current, options);
+  // Resolve the canonical background before anything is created, so the Scene
+  // and its Tiles are committed against the same immutable layout rather than
+  // being created against one backdrop and repainted a moment later. Both the
+  // Scene payload and tile reconciliation read from the same options.
+  const mapOptions = await prepareCanonicalMap(current, options);
 
   if (!scene) {
     const createScene = sceneCreateFunction(options);
@@ -2236,11 +2357,19 @@ export const bootstrapVillage = bootstrapVillageScene;
 export const createVillageScene = bootstrapVillageScene;
 export const createVillage = bootstrapVillageScene;
 
+const CANONICAL_BACKGROUND_SET = Object.freeze({
+  defaultVariant: "day",
+  day: Object.freeze({ key: "canonical", src: CANONICAL_VILLAGE_BACKGROUND }),
+  night: Object.freeze({ key: "canonical", src: CANONICAL_VILLAGE_BACKGROUND })
+});
+
 let configuredArtSet = VILLAGE_ART_SET;
-let configuredBackgroundSet = VILLAGE_ART_SET.backgrounds;
+let configuredBackgroundSet = CANONICAL_BACKGROUND_SET;
 export function configureVillageArtSet(artSet) {
   configuredArtSet = artSet ?? VILLAGE_ART_SET;
-  configuredBackgroundSet = configuredArtSet?.backgrounds ?? VILLAGE_ART_SET.backgrounds;
+  configuredBackgroundSet = artSet && artSet !== VILLAGE_ART_SET
+    ? (configuredArtSet?.backgrounds ?? CANONICAL_BACKGROUND_SET)
+    : CANONICAL_BACKGROUND_SET;
   return configuredArtSet;
 }
 
@@ -2248,7 +2377,7 @@ export const setVillageArtSet = configureVillageArtSet;
 export const getVillageArtSet = () => configuredArtSet;
 
 export function configureVillageBackgroundSet(backgroundSet) {
-  configuredBackgroundSet = backgroundSet ?? VILLAGE_ART_SET.backgrounds;
+  configuredBackgroundSet = backgroundSet ?? CANONICAL_BACKGROUND_SET;
   return configuredBackgroundSet;
 }
 
@@ -2260,9 +2389,11 @@ let mapHooksRegistered = false;
 
 export function villageMapReadModel(village = null, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
+  const selectedArtSet = options.artSet ?? configuredArtSet;
   const projection = buildVillageProjection(source, {
     ...options,
-    artSet: options.artSet ?? configuredArtSet
+    artSet: selectedArtSet,
+    canonicalHousing: options.canonicalHousing ?? selectedArtSet === VILLAGE_ART_SET
   });
   return {
     village: clone(source),
@@ -2293,9 +2424,11 @@ export const subscribeVillageMap = registerVillageMapListener;
 export function registerVillageMapHooks({ artSet = null, backgroundSet = null, onRefresh = null } = {}) {
   if (artSet !== null) {
     configuredArtSet = artSet ?? VILLAGE_ART_SET;
-    configuredBackgroundSet = configuredArtSet?.backgrounds ?? VILLAGE_ART_SET.backgrounds;
+    configuredBackgroundSet = configuredArtSet !== VILLAGE_ART_SET
+      ? (configuredArtSet?.backgrounds ?? CANONICAL_BACKGROUND_SET)
+      : CANONICAL_BACKGROUND_SET;
   }
-  if (backgroundSet !== null) configuredBackgroundSet = backgroundSet ?? VILLAGE_ART_SET.backgrounds;
+  if (backgroundSet !== null) configuredBackgroundSet = backgroundSet ?? CANONICAL_BACKGROUND_SET;
   const unsubscribeRefresh = onRefresh ? registerVillageMapListener(onRefresh) : () => {};
   if (mapHooksRegistered) return unsubscribeRefresh;
   mapHooksRegistered = true;
@@ -2310,6 +2443,8 @@ export function registerVillageMapHooks({ artSet = null, backgroundSet = null, o
     if (!isVillageDesignatedWriter()) return mapAuthorityFailure();
     return reconcileVillageScene(next, previous, {
       artSet: configuredArtSet,
+      backgroundSet: configuredBackgroundSet,
+      canonicalHousing: configuredArtSet === VILLAGE_ART_SET,
       cacheMiss: metadata.cacheMiss === true,
       operationId: metadata.operationId
     });
@@ -2409,6 +2544,7 @@ export async function openVillageCreator(options = {}) {
     ...options,
     ...result,
     artSet: options.artSet ?? configuredArtSet,
+    canonicalHousing: options.canonicalHousing ?? ((options.artSet ?? configuredArtSet) === VILLAGE_ART_SET),
     operationId: options.operationId ?? null
   });
 }

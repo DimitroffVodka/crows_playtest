@@ -1,19 +1,8 @@
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
-import {
-  SCENE_DEFAULTS,
-  buildVillageProjection,
-  housingPosition,
-  institutionPosition,
-  planRotationFor,
-  villageBackgroundPath,
-  villagePlanFor,
-  villageSceneData,
-  writeVillagePlanBackground
-} from "../module/helpers/village-map.mjs";
-import { buildVillagePlan } from "../module/helpers/village-plan.mjs";
-import { renderPlanToSvg, villageBackgroundSvg } from "../module/helpers/village-plan-draw.mjs";
+import { buildVillageProjection } from "../module/helpers/village-map.mjs";
 
 /** Gadwick, from the playtest material. */
 function gadwick(overrides = {}) {
@@ -30,256 +19,143 @@ function gadwick(overrides = {}) {
   };
 }
 
-// x/y is the middle of a v14 Tile, so its extent runs half a tile either side.
-const insideScene = tile =>
-  tile.x - tile.width / 2 >= 0 && tile.y - tile.height / 2 >= 0
-  && tile.x + tile.width / 2 <= SCENE_DEFAULTS.width
-  && tile.y + tile.height / 2 <= SCENE_DEFAULTS.height;
+const slotCoordinates = projection => Object.fromEntries(projection.institutions.map(tile => [
+  tile.flags.crows.village.institutionType,
+  { x: tile.x, y: tile.y, width: tile.width, height: tile.height, rotation: tile.rotation }
+]));
 
-describe("village map | plan is opt-in", () => {
-  it("lays out on the grid when no plan is asked for", () => {
-    const projection = buildVillageProjection(gadwick());
-    assert.equal(projection.plan, null);
-    assert.equal(projection.housingCount, projection.housingTier);
-    for (const tile of projection.tiles) assert.equal(tile.rotation, 0);
+const identities = entries => entries.map(tile => tile.flags.crows.village.slotId);
+
+describe("village map | canonical projection", () => {
+  it("uses the same twelve institution plots for every village state", () => {
+    const expected = {
+      alchemist: { x: 3145, y: 1823 },
+      auctionHouse: { x: 4406, y: 2636 },
+      barracks: { x: 2332, y: 2265 },
+      beacon: { x: 5012, y: 3162 },
+      blacksmith: { x: 1564, y: 4548 },
+      bookseller: { x: 1762, y: 3651 },
+      crypt: { x: 2834, y: 1226 },
+      enchanter: { x: 3647, y: 3157 },
+      generalStore: { x: 1725, y: 2655 },
+      inn: { x: 2385, y: 3887 },
+      stables: { x: 3264, y: 5394 },
+      temple: { x: 3657, y: 2593 }
+    };
+    const source = gadwick();
+    const first = buildVillageProjection(source);
+    const changed = buildVillageProjection(gadwick({
+      sceneSeed: "a different village cannot move the streets",
+      prosperity: 10,
+      institutions: [...source.institutions].reverse().map((institution, index) => ({
+        ...institution,
+        id: `different-record-${index}`,
+        level: 5
+      }))
+    }));
+
+    assert.equal(first.plan, null, "runtime planning survived the canonical selector");
+    assert.equal(first.institutions.length, 12);
+    assert.equal(changed.institutions.length, 12);
+    assert.deepEqual(slotCoordinates(changed), slotCoordinates(first));
+    for (const tile of first.institutions) {
+      const type = tile.flags.crows.village.institutionType;
+      assert.deepEqual({ x: tile.x, y: tile.y }, expected[type], `${type} moved off its frozen plot`);
+      assert.equal(tile.width, tile.height, `${type} stamp was stretched`);
+    }
   });
 
-  it("produces identical tiles with and without the option absent", () => {
-    // The plan must not change any existing behaviour by merely existing.
-    assert.deepEqual(buildVillageProjection(gadwick()), buildVillageProjection(gadwick(), {}));
+  it("renders an in-fiction waiting plot until its institution is founded", () => {
+    const before = buildVillageProjection(gadwick());
+    const waiting = before.institutions.find(tile => tile.flags.crows.village.institutionType === "beacon");
+    assert.ok(waiting);
+    assert.equal(waiting.flags.crows.village.visualState, "unbuilt");
+    assert.match(waiting.texture.src, /unbuilt-plot\.svg$/);
+
+    const after = buildVillageProjection(gadwick({
+      institutions: [...gadwick().institutions, { id: "new-beacon", type: "beacon", level: 1 }]
+    }));
+    const founded = after.institutions.find(tile => tile.flags.crows.village.institutionType === "beacon");
+    assert.equal(founded.flags.crows.village.institutionId, "new-beacon");
+    assert.equal(founded.flags.crows.village.visualState, "operating");
+    assert.deepEqual({ x: founded.x, y: founded.y }, { x: waiting.x, y: waiting.y });
+
+    const empty = buildVillageProjection(gadwick({ institutions: [] }));
+    assert.equal(empty.institutions.length, 12);
+    assert.ok(empty.institutions.every(tile => tile.flags.crows.village.visualState === "unbuilt"));
   });
 
-  it("uses a plan when asked", () => {
-    const projection = buildVillageProjection(gadwick(), { usePlan: true });
-    assert.ok(projection.plan, "no plan was built");
-    assert.equal(projection.institutions.length, 11);
-  });
-
-  it("accepts a plan built by the caller", () => {
-    const plan = buildVillagePlan(gadwick());
-    const projection = buildVillageProjection(gadwick(), { plan });
-    assert.equal(projection.plan, plan);
-  });
-
-  it("falls back to the grid rather than losing the map if planning throws", () => {
-    const projection = buildVillageProjection(gadwick(), {
-      usePlan: true,
-      // An impossible plan space; the planner should fail rather than cope.
-      planParams: { width: Number.NaN, height: Number.NaN }
+  it("prefers a surviving institution over a later tombstone of the same type", () => {
+    const village = gadwick();
+    village.institutions.find(institution => institution.type === "blacksmith").id = "blacksmith-live";
+    village.institutions.push({
+      id: "blacksmith-old-ruin",
+      type: "blacksmith",
+      level: 2,
+      destroyed: true,
+      destroyedOnCycle: 3
     });
-    assert.ok(projection.tiles.length > 0, "the Ref lost their map");
-  });
-});
-
-describe("village map | tiles sit on their plots", () => {
-  const village = gadwick();
-  const projection = buildVillageProjection(village, { usePlan: true });
-  const plan = projection.plan;
-
-  it("centres each institution tile on its plot", () => {
-    // A v14 Tile is anchored at its middle, so x/y IS the centre of the art.
-    // This used to subtract half the tile, which stood every building half its
-    // own size up and left of its plot — visibly clear of its own cast shadow.
-    for (const tile of projection.institutions) {
-      const id = tile.flags.crows.village.institutionId;
-      const placed = plan.assignment.institutions.find(a => a.institutionId === id);
-      assert.ok(placed, `${id} is not in the plan`);
-      assert.ok(Math.hypot(tile.x - placed.center.x, tile.y - placed.center.y) < 2,
-        `${id} is off its plot`);
-    }
+    const tile = buildVillageProjection(village).institutions.find(candidate =>
+      candidate.flags.crows.village.institutionType === "blacksmith");
+    assert.equal(tile.flags.crows.village.institutionId, "blacksmith-live");
+    assert.notEqual(tile.flags.crows.village.visualState, "destroyed");
   });
 
-  it("keeps every tile inside the scene", () => {
-    for (const tile of projection.tiles) {
-      assert.ok(insideScene(tile), `${tile.name} escapes the scene at ${tile.x},${tile.y}`);
-    }
-  });
-
-  it("scales tile art down to the plot it was given", () => {
-    // Institution art is configured at 4x3 grid squares — 1200x900 — which is
-    // many times the area of a plot. Drawn unscaled every building would swamp
-    // its neighbours and hang off the map.
-    for (const tile of projection.institutions) {
-      assert.ok(tile.width < 1200 && tile.height < 900, `${tile.name} was not scaled to its plot`);
-      assert.ok(tile.width > 0 && tile.height > 0);
-    }
-  });
-
-  it("preserves the art's aspect ratio while fitting", () => {
-    const wanted = SCENE_DEFAULTS.institutionWidthGrid / SCENE_DEFAULTS.institutionHeightGrid;
-    for (const tile of projection.institutions) {
-      assert.ok(Math.abs(tile.width / tile.height - wanted) < 0.02, `${tile.name} was distorted`);
-    }
-  });
-
-  it("turns tiles to face their streets", () => {
-    assert.ok(new Set(projection.tiles.map(t => t.rotation)).size > 1, "every tile has the same rotation");
-  });
-
-  it("leaves tiles upright when rotation is declined", () => {
-    const upright = buildVillageProjection(village, { usePlan: true, rotateToStreet: false });
-    for (const tile of upright.tiles) assert.equal(tile.rotation, 0);
-  });
-
-  it("never overlaps two institution tiles", () => {
-    const boxes = projection.institutions.map(t => t);
-    for (let i = 0; i < boxes.length; i++) {
-      for (let j = i + 1; j < boxes.length; j++) {
-        const a = boxes[i], b = boxes[j];
-        const apart = a.x + a.width <= b.x || b.x + b.width <= a.x
-          || a.y + a.height <= b.y || b.y + b.height <= a.y;
-        assert.ok(apart, `${a.name} overlaps ${b.name}`);
-      }
-    }
-  });
-});
-
-describe("village map | housing follows the plan", () => {
-  it("houses the village beyond the five-tile tier", () => {
-    // Without a plan the projection caps housing at MAX_HOUSING_TILES.
-    const gridded = buildVillageProjection(gadwick({ prosperity: 10 }));
-    const planned = buildVillageProjection(gadwick({ prosperity: 10 }), { usePlan: true });
-    assert.ok(gridded.housing.length <= 5);
-    assert.ok(planned.housing.length > gridded.housing.length, "the plan added no homes");
-  });
-
-  it("gives every home its own position", () => {
-    const planned = buildVillageProjection(gadwick({ prosperity: 8 }), { usePlan: true });
-    const seen = new Set(planned.housing.map(t => `${t.x},${t.y}`));
-    assert.equal(seen.size, planned.housing.length, "homes are stacked on each other");
-  });
-
-  it("resolves a plan position directly through the exported seams", () => {
-    const plan = buildVillagePlan(gadwick());
-    const at = institutionPosition(gadwick(), { id: "temple", type: "temple" }, {
-      plan, tileWidth: 300, tileHeight: 225
-    });
-    const placed = plan.assignment.institutions.find(a => a.institutionId === "temple");
-    // The centre passes straight through: a v14 Tile is placed by its middle.
-    assert.equal(at.x, Math.round(placed.center.x));
-    assert.equal(at.y, Math.round(placed.center.y));
-  });
-
-  it("falls back to the grid for anything the plan could not place", () => {
-    const plan = buildVillagePlan(gadwick());
-    const at = institutionPosition(gadwick(), { id: "nowhere", type: "nowhere" }, {
-      plan, tileWidth: 300, tileHeight: 225
-    });
-    assert.ok(Number.isFinite(at.x) && Number.isFinite(at.y));
-  });
-
-  it("keeps housing off the clamp when the plan runs past five", () => {
-    const plan = buildVillagePlan(gadwick({ prosperity: 10 }));
-    const seventh = housingPosition(gadwick({ prosperity: 10 }), 7, {
-      plan, tileWidth: 300, tileHeight: 300
-    });
-    const placed = plan.assignment.housing[7];
-    assert.ok(placed, "this test needs at least eight homes");
-    assert.equal(seventh.x, Math.round(placed.center.x));
-  });
-});
-
-describe("village map | growing through the projection", () => {
-  it("keeps every tile in place while the village grows", () => {
-    const start = buildVillageProjection(gadwick(), { usePlan: true });
-    const grown = buildVillageProjection(gadwick({ prosperity: 10 }), {
-      usePlan: true,
-      previousPlan: start.plan
-    });
-    for (const before of start.institutions) {
-      const id = before.flags.crows.village.institutionId;
-      const after = grown.institutions.find(t => t.flags.crows.village.institutionId === id);
-      assert.equal(after.x, before.x, `${id} moved`);
-      assert.equal(after.y, before.y, `${id} moved`);
-    }
-    assert.ok(grown.housing.length > start.housing.length, "no villagers were housed");
-  });
-
-  it("keeps a founded institution from displacing anyone", () => {
-    const start = buildVillageProjection(gadwick(), { usePlan: true });
-    const grown = buildVillageProjection(
-      gadwick({ institutions: [...gadwick().institutions, { id: "beacon", type: "beacon", level: 1 }] }),
-      { usePlan: true, previousPlan: start.plan }
+  it("selects exact ordered prefixes for growth and decline", () => {
+    const poor = buildVillageProjection(gadwick({ prosperity: -10 }));
+    const middle = buildVillageProjection(gadwick({ prosperity: 0 }));
+    const rich = buildVillageProjection(gadwick({ prosperity: 10 }));
+    assert.deepEqual(
+      [poor.housing.length, middle.housing.length, rich.housing.length],
+      [0, 35, 69]
     );
-    assert.equal(grown.institutions.length, 12);
-    for (const before of start.institutions) {
-      const id = before.flags.crows.village.institutionId;
-      const after = grown.institutions.find(t => t.flags.crows.village.institutionId === id);
-      assert.equal(after.x, before.x, `${id} moved when the beacon was founded`);
+    assert.deepEqual(
+      [poor.farmland.length, middle.farmland.length, rich.farmland.length],
+      [0, 11, 22]
+    );
+    assert.deepEqual(
+      [poor.dressing.length, middle.dressing.length, rich.dressing.length],
+      [0, 39, 77]
+    );
+
+    for (let prosperity = -10; prosperity <= 10; prosperity += 1) {
+      const projection = buildVillageProjection(gadwick({ prosperity }));
+      assert.deepEqual(identities(projection.housing), identities(rich.housing).slice(0, projection.housing.length));
+      assert.deepEqual(identities(projection.farmland), identities(rich.farmland).slice(0, projection.farmland.length));
+      assert.deepEqual(identities(projection.dressing), identities(rich.dressing).slice(0, projection.dressing.length));
+      const revisited = buildVillageProjection(gadwick({ prosperity }));
+      assert.deepEqual(identities(revisited.tiles), identities(projection.tiles), `Prosperity ${prosperity} did not restore its exact prefix`);
     }
   });
-});
 
-describe("village map | drawn backdrop", () => {
-  const plan = buildVillagePlan(gadwick());
-
-  it("draws the ground without the buildings", () => {
-    // On a Scene the buildings are Tiles. Drawing them into the backdrop too
-    // would render every building twice, once in the floor and once standing.
-    const backdrop = villageBackgroundSvg(plan);
-    assert.ok(!backdrop.includes('id="buildings"'), "the backdrop drew buildings");
-    assert.ok(backdrop.includes('id="streets"'), "the backdrop has no streets");
-    assert.ok(backdrop.includes('id="boundary"'), "the backdrop has no shell");
+  it("keeps every selected body inside the square canonical background", () => {
+    const projection = buildVillageProjection(gadwick({ prosperity: 10 }));
+    for (const tile of [
+      ...projection.institutions,
+      ...projection.housing,
+      ...projection.farmland,
+      ...projection.dressing
+    ]) {
+      assert.ok(tile.x - tile.width / 2 >= 0, `${tile.name} crosses the left edge`);
+      assert.ok(tile.y - tile.height / 2 >= 0, `${tile.name} crosses the top edge`);
+      assert.ok(tile.x + tile.width / 2 <= 6000, `${tile.name} crosses the right edge`);
+      assert.ok(tile.y + tile.height / 2 <= 6000, `${tile.name} crosses the bottom edge`);
+    }
   });
 
-  it("is smaller than the full map it comes from", () => {
-    assert.ok(villageBackgroundSvg(plan).length < renderPlanToSvg(plan).length);
-  });
+  it("ships every canonical texture through the release payload", () => {
+    const payload = readFileSync("release.sh", "utf8").match(/^PAYLOAD=\((.*)\)$/m)?.[1]?.split(/\s+/) ?? [];
+    assert.ok(payload.includes("assets"), "assets/ missing from release payload");
 
-  it("is a self-contained SVG sized to the scene", () => {
-    const backdrop = villageBackgroundSvg(plan);
-    assert.match(backdrop, new RegExp(`width="${SCENE_DEFAULTS.width}" height="${SCENE_DEFAULTS.height}"`));
-    assert.match(backdrop, /<\/svg>$/);
-  });
-
-  it("puts a village's backdrop under the world's own assets", () => {
-    const at = villageBackgroundPath("gadwick", "crowfresh");
-    assert.equal(at.path, "worlds/crowfresh/assets/crows-village/gadwick.svg");
-  });
-
-  it("sanitises a villageId that would escape the directory", () => {
-    const at = villageBackgroundPath("../../etc/passwd", "w");
-    assert.ok(!at.path.includes(".."), `path escapes: ${at.path}`);
-    assert.equal(at.file, "etc-passwd.svg");
-    assert.equal(at.path, "worlds/w/assets/crows-village/etc-passwd.svg");
-  });
-
-  it("never writes a hidden file or an empty name", () => {
-    assert.equal(villageBackgroundPath(".hidden", "w").file, "hidden.svg");
-    assert.equal(villageBackgroundPath("", "w").file, "village.svg");
-    assert.equal(villageBackgroundPath("...", "w").file, "village.svg");
-  });
-
-  it("uses a drawn backdrop on the Scene when given one", () => {
-    const scene = villageSceneData(gadwick(), "op", { backgroundSrc: "worlds/w/assets/crows-village/g.svg" });
-    // v14 stores the backdrop on the Level; both must agree.
-    assert.equal(scene.levels[0].background.src, "worlds/w/assets/crows-village/g.svg");
-    assert.equal(scene.background.src, "worlds/w/assets/crows-village/g.svg");
-    assert.equal(scene.flags.crows.village.backgroundVariant, "plan");
-  });
-
-  it("falls back to the shipped catalogue without one", () => {
-    const scene = villageSceneData(gadwick(), "op", {});
-    assert.notEqual(scene.flags?.crows?.village?.backgroundVariant, "plan");
-  });
-
-  it("returns null rather than throwing where no FilePicker exists", async () => {
-    // Node has none; a missing backdrop must not stop a Scene being made.
-    assert.equal(await writeVillagePlanBackground({ plan, villageId: "g" }), null);
-    assert.equal(await writeVillagePlanBackground({ plan: null, villageId: "g" }), null);
-  });
-});
-
-describe("village map | plan helpers", () => {
-  it("returns no plan unless one is wanted", () => {
-    assert.equal(villagePlanFor(gadwick(), {}), null);
-    assert.ok(villagePlanFor(gadwick(), { usePlan: true }));
-  });
-
-  it("turns a placement angle into whole degrees", () => {
-    assert.equal(planRotationFor(null), 0);
-    assert.equal(planRotationFor({ angle: 0 }), 90);
-    assert.equal(planRotationFor({ angle: Math.PI / 2 }), 180);
-    assert.equal(planRotationFor({ angle: Number.NaN }), 0);
+    const projection = buildVillageProjection(gadwick({ prosperity: 10 }));
+    const canonicalTextures = projection.tiles
+      .map(tile => tile.texture.src)
+      .filter(src => src.startsWith("systems/crows/assets/village/canonical/"));
+    canonicalTextures.push("systems/crows/assets/village/canonical/background.svg");
+    assert.ok(canonicalTextures.length > 150, "canonical texture coverage is suspiciously narrow");
+    assert.deepEqual(
+      canonicalTextures.filter(src => !existsSync(src.replace("systems/crows/", ""))),
+      []
+    );
   });
 });

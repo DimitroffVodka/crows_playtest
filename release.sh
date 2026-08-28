@@ -29,9 +29,10 @@ STAGE="$DIST/.stage"
 
 # Everything Foundry needs at runtime, and nothing else.
 #   fonts/  IS required — css/crows.css references all four woff2 files.
+#   assets/ IS required — the canonical Village and institution stamps are runtime textures.
 #   playtest-packet/  is NOT — 73M of MCDM art and maps that nothing references.
 #   src/ test/ docs/ .planning/  are contributor material, not runtime.
-PAYLOAD=(system.json module css fonts icons lang packs templates LICENSE NOTICE.md README.md)
+PAYLOAD=(system.json module css fonts icons assets lang packs templates LICENSE NOTICE.md README.md)
 
 say() { printf '  %s\n' "$*"; }
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
@@ -115,6 +116,7 @@ z=zipfile.ZipFile('$ZIP')
 top=collections.Counter(n.split('/')[0] for n in z.namelist())
 print('  %d files:' % len(z.namelist()), ', '.join(f'{k} ({v})' for k,v in sorted(top.items())))
 assert 'system.json' in z.namelist(), 'system.json must be at the archive root'
+assert 'assets/village/canonical/background.svg' in z.namelist(), 'canonical Village background missing from release'
 print('  system.json at archive root: yes')
 "
 say ""

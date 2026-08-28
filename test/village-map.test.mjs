@@ -26,6 +26,7 @@ import {
   getVillageBackgroundSet,
   getVillageArtSet,
   housingCountForProsperity,
+  openVillageCreator,
   reconcileVillageScene,
   resolveVillageBackground,
   validateVillageCreatorInput,
@@ -53,6 +54,20 @@ let loseSceneAck;
 let loseTileAck;
 
 function makeScene(id, data = {}) {
+  const villageFlag = data.flags?.crows?.village;
+  const canonicalBackground = "systems/crows/assets/village/canonical/background.svg";
+  const sourceLevels = data.levels ?? (villageFlag ? [{
+    _id: DEFAULT_LEVEL_ID,
+    background: { src: canonicalBackground }
+  }] : []);
+  const levelDocuments = sourceLevels.map(levelData => {
+    const level = { ...clone(levelData), id: levelData.id ?? levelData._id };
+    level.update = async update => {
+      if (update.background) level.background = clone(update.background);
+      return level;
+    };
+    return level;
+  });
   const scene = {
     id,
     _id: id,
@@ -60,10 +75,24 @@ function makeScene(id, data = {}) {
     navigation: data.navigation,
     ownership: clone(data.ownership ?? {}),
     flags: clone(data.flags ?? {}),
+    width: data.width ?? (villageFlag ? 6000 : undefined),
+    height: data.height ?? (villageFlag ? 6000 : undefined),
+    initialLevel: data.initialLevel ?? (villageFlag ? DEFAULT_LEVEL_ID : undefined),
+    levels: {
+      contents: levelDocuments,
+      get: levelId => levelDocuments.find(level => level.id === levelId)
+    },
     tiles: [],
     failCreate: false,
     failUpdate: false,
     failDelete: false,
+    async update(update) {
+      for (const [key, value] of Object.entries(update)) {
+        if (key === "flags.crows.village") scene.flags.crows.village = clone(value);
+        else scene[key] = clone(value);
+      }
+      return scene;
+    },
     async createEmbeddedDocuments(kind, entries) {
       assert.equal(kind, "Tile");
       sceneTileCalls.push({ operation: "create", entries: clone(entries) });
@@ -350,13 +379,16 @@ describe("Village Scene projection", () => {
     const second = buildVillageProjection(village, { artSet });
     assert.deepEqual(first, second);
     assert.equal(first.housingTier, 2);
-    assert.equal(first.tiles.length, 7);
+    assert.equal(first.tiles.length, 97);
+    assert.ok(first.housing.every(tile => tile.texture.src === "/art/housing.png"));
     for (const tile of first.tiles) {
       const flag = tile.flags.crows.village;
       assert.equal(flag.villageId, "village-test");
       assert.equal(flag.generatorVersion, VILLAGE_MAP_GENERATOR_VERSION);
-      assert.ok(["institution", "housing"].includes(flag.kind));
-      assert.ok(flag.kind === "institution" ? flag.institutionId : Number.isInteger(flag.housingIndex));
+      assert.ok(["farmland", "institution", "housing", "dressing"].includes(flag.kind));
+      assert.ok(flag.slotId);
+      if (flag.kind === "institution") assert.ok(flag.institutionType);
+      if (flag.kind === "housing") assert.ok(Number.isInteger(flag.housingIndex));
     }
   });
 
@@ -378,20 +410,7 @@ describe("Village Scene projection", () => {
       height: SCENE_DEFAULTS.height
     });
     assert.equal(projection.institutions.length, 12);
-    assert.equal(projection.housingCount, 3);
-    const gridSize = SCENE_DEFAULTS.grid.size;
-    assert.equal(SCENE_DEFAULTS.institutionWidthGrid, 4);
-    assert.equal(SCENE_DEFAULTS.institutionHeightGrid, 3);
-    assert.equal(SCENE_DEFAULTS.housingWidthGrid, 2);
-    assert.equal(SCENE_DEFAULTS.housingHeightGrid, 2);
-    for (const tile of projection.institutions) {
-      assert.equal(tile.width, 4 * gridSize);
-      assert.equal(tile.height, 3 * gridSize);
-    }
-    for (const tile of projection.housing) {
-      assert.equal(tile.width, 2 * gridSize);
-      assert.equal(tile.height, 2 * gridSize);
-    }
+    assert.equal(projection.housingCount, 45);
     // x/y is the middle of a v14 Tile; its extent runs half a tile either side.
     for (const tile of projection.tiles) {
       assert.ok(tile.x - tile.width / 2 >= 0);
@@ -399,40 +418,28 @@ describe("Village Scene projection", () => {
       assert.ok(tile.x + tile.width / 2 <= SCENE_DEFAULTS.width, `${tile.name} exceeds scene width`);
       assert.ok(tile.y + tile.height / 2 <= SCENE_DEFAULTS.height, `${tile.name} exceeds scene height`);
     }
-    const institutionLeft = Math.min(...projection.institutions.map(tile => tile.x));
-    const institutionRight = Math.max(...projection.institutions.map(tile => tile.x + tile.width));
-    const institutionTop = Math.min(...projection.institutions.map(tile => tile.y));
-    const institutionBottom = Math.max(...projection.institutions.map(tile => tile.y + tile.height));
-    assert.ok(institutionRight - institutionLeft <= 3900, "institutions are not clustered");
-    assert.ok(institutionBottom - institutionTop <= 4050, "institutions are not clustered");
-    const housingTop = Math.min(...projection.housing.map(tile => tile.y));
-    assert.ok(housingTop >= institutionBottom);
-    assert.ok(housingTop - institutionBottom <= gridSize);
+    assert.equal(new Set(projection.institutions.map(tile => `${tile.x},${tile.y}`)).size, 12);
   });
 
-  test("projection dimensions follow a Ref-supplied grid size", () => {
+  test("canonical projection stays fixed while grid size remains a Scene option", () => {
     const village = defaultVillage();
     village.sceneSeed = "custom-grid-seed";
     village.prosperity = 3;
+    const baseline = buildVillageProjection(village);
     const projection = buildVillageProjection(village, {
       width: 2400,
       height: 3600,
       grid: { type: 1, size: 150 }
     });
-    assert.ok(projection.institutions.every(tile => tile.width === 4 * 150 && tile.height === 3 * 150));
-    assert.ok(projection.housing.every(tile => tile.width === 2 * 150 && tile.height === 2 * 150));
-    // x/y is the middle of a v14 Tile; the extent runs half a tile either side.
-    assert.ok(projection.tiles.every(tile =>
-      tile.x - tile.width / 2 >= 0 && tile.y - tile.height / 2 >= 0
-      && tile.x + tile.width / 2 <= 2400 && tile.y + tile.height / 2 <= 3600));
+    assert.deepEqual(projection.tiles, baseline.tiles);
 
     const scene = villageSceneData(village, "custom-grid", {
       width: 2400,
       height: 3600,
       grid: { type: 1, size: 150 }
     });
-    assert.equal(scene.width, 2400);
-    assert.equal(scene.height, 3600);
+    assert.equal(scene.width, 6000);
+    assert.equal(scene.height, 6000);
     assert.equal(scene.grid.size, 150);
     assert.equal(scene.grid.type, 1);
   });
@@ -440,21 +447,19 @@ describe("Village Scene projection", () => {
   test("Scene data explicitly grants Observer visibility and navigation", () => {
     const village = defaultVillage();
     const data = villageSceneData(village, "boot-1");
-    assert.equal(SCENE_DEFAULTS.width, 4800);
-    assert.equal(SCENE_DEFAULTS.height, 6600);
+    assert.equal(SCENE_DEFAULTS.width, 6000);
+    assert.equal(SCENE_DEFAULTS.height, 6000);
     assert.equal(SCENE_DEFAULTS.grid.size, 300);
-    assert.equal(data.width, 4800);
-    assert.equal(data.height, 6600);
+    assert.equal(data.width, 6000);
+    assert.equal(data.height, 6000);
     assert.equal(data.grid.type, 1);
     assert.equal(data.grid.size, 300);
     assert.equal(data.grid.distance, 5);
     assert.equal(data.grid.units, "sq");
-    assert.equal(data.background.src,
-      `${VILLAGE_ART_ASSET_ROOT}backgrounds/Meadow Picnic - Spring - Day - 16x22 - 300 DPI.jpg`);
+    assert.equal(data.background.src, "systems/crows/assets/village/canonical/background.svg");
     assert.equal(data.flags.crows.village.backgroundVariant, "day");
     const night = villageSceneData(village, "boot-night", { backgroundVariant: "night" });
-    assert.equal(night.background.src,
-      `${VILLAGE_ART_ASSET_ROOT}backgrounds/Meadow Picnic - Spring - Night - 16x22 - 300 DPI.jpg`);
+    assert.equal(night.background.src, "systems/crows/assets/village/canonical/background.svg");
     assert.equal(night.flags.crows.village.backgroundVariant, "night");
     assert.equal(data.navigation, true);
     assert.equal(data.ownership.default, 2);
@@ -480,6 +485,7 @@ describe("Village Scene projection", () => {
     // did live, with the crypt and inn off the edge of the meadow.
     assert.equal(SCENE_DEFAULTS.padding, 0);
     assert.equal(villageSceneData(defaultVillage(), "boot-pad").padding, 0);
+    assert.equal(villageSceneData(defaultVillage(), "boot-pad", { padding: 0.25 }).padding, 0);
 
     // With no offset, every tile must land inside the background image itself.
     const village = defaultVillage();
@@ -539,7 +545,7 @@ describe("Village Scene projection", () => {
         "worlds/custom-village-day.jpg"
       );
     } finally {
-      configureVillageBackgroundSet(VILLAGE_ART_SET.backgrounds);
+      configureVillageBackgroundSet(null);
     }
   });
 });
@@ -562,17 +568,209 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     assert.equal(store.sceneId, "scene-1");
     assert.equal(sceneCreateCalls[0].navigation, true);
     assert.equal(sceneCreateCalls[0].ownership.default, 2);
-    assert.equal(sceneCreateCalls[0].width, 4800);
-    assert.equal(sceneCreateCalls[0].height, 6600);
+    assert.equal(sceneCreateCalls[0].width, 6000);
+    assert.equal(sceneCreateCalls[0].height, 6000);
     assert.equal(sceneCreateCalls[0].background.src,
-      `${VILLAGE_ART_ASSET_ROOT}backgrounds/Meadow Picnic - Spring - Day - 16x22 - 300 DPI.jpg`);
-    assert.equal(scenes[0].tiles.length, 8);
+      "systems/crows/assets/village/canonical/background.svg");
+    assert.equal(sceneCreateCalls[0].initialLevel, DEFAULT_LEVEL_ID);
+    assert.equal(sceneCreateCalls[0].levels[0]._id, DEFAULT_LEVEL_ID);
+    assert.equal(sceneCreateCalls[0].levels[0].background.src,
+      "systems/crows/assets/village/canonical/background.svg");
+    assert.equal(scenes[0].tiles.length, 97);
 
     const retry = await bootstrapVillageScene({ operationId: "boot-1", artSet });
     assert.equal(retry.ok, true);
     assert.equal(retry.replayed, true);
     assert.equal(sceneCreateCalls.length, 1);
     assert.equal(sceneTileCalls.filter(call => call.operation === "create").length, 1);
+  });
+
+  test("the normal creator path keeps canonical source housing", async () => {
+    const priorFoundry = globalThis.foundry;
+    globalThis.foundry = {
+      ...priorFoundry,
+      applications: {
+        ...priorFoundry?.applications,
+        api: {
+          ...priorFoundry?.applications?.api,
+          DialogV2: {
+            wait: async () => ({
+              name: "Rookery",
+              groupInstitution: "barracks",
+              connectionName: "Mara",
+              connectionRelationship: "mentor",
+              connectionBenefit: "crafty",
+              connectionNotes: ""
+            })
+          }
+        }
+      }
+    };
+    try {
+      const result = await openVillageCreator({ operationId: "creator-canonical-housing" });
+      assert.equal(result.ok, true);
+      const housing = scenes[0].tiles.filter(tile => tile.flags?.crows?.village?.kind === "housing");
+      assert.equal(housing.length, 35);
+      assert.ok(housing.every(tile => tile.texture.src.startsWith("systems/crows/assets/village/canonical/housing/")));
+    } finally {
+      globalThis.foundry = priorFoundry;
+    }
+  });
+
+  test("migrates a legacy generated Scene envelope before replacing its generated Tiles", async () => {
+    const village = defaultVillage();
+    village.villageId = "legacy-village";
+    village.sceneId = "legacy-scene";
+    const scene = makeScene("legacy-scene", {
+      flags: { crows: { village: { villageId: village.villageId, generatorVersion: "village-map-1" } } }
+    });
+    scene.width = 4800;
+    scene.height = 6600;
+    scene.initialLevel = DEFAULT_LEVEL_ID;
+    const levelUpdates = [];
+    const level = {
+      id: DEFAULT_LEVEL_ID,
+      background: { src: "/legacy-village.svg" },
+      async update(data) {
+        levelUpdates.push(clone(data));
+        level.background = clone(data.background);
+      }
+    };
+    scene.levels = { get: id => id === DEFAULT_LEVEL_ID ? level : null, contents: [level] };
+    const sceneUpdates = [];
+    const updateScene = scene.update;
+    scene.update = async data => {
+      sceneUpdates.push(clone(data));
+      return updateScene(data);
+    };
+    scene.tiles = buildVillageProjection(village, { artSet }).tiles.map((tile, index) => ({
+      ...clone(tile),
+      id: `legacy-${index}`,
+      flags: { crows: { village: { ...tile.flags.crows.village, generatorVersion: "village-map-1" } } }
+    }));
+    const refTile = { id: "ref-lamp", name: "Ref lamp", texture: { src: "/ref/lamp.svg" }, x: 42, y: 84 };
+    scene.tiles.push(clone(refTile));
+    scenes.push(scene);
+
+    const result = await reconcileVillageScene(village, null, { scene, artSet });
+
+    assert.equal(result.ok, true);
+    assert.deepEqual(sceneUpdates, [{
+      width: 6000,
+      height: 6000,
+      "flags.crows.village": {
+        villageId: village.villageId,
+        generatorVersion: VILLAGE_MAP_GENERATOR_VERSION,
+        bootstrap: "",
+        backgroundVariant: "day",
+        backgroundKey: "day",
+        backgroundSrc: "systems/crows/assets/village/canonical/background.svg"
+      }
+    }]);
+    assert.deepEqual(levelUpdates, [{
+      background: { src: "systems/crows/assets/village/canonical/background.svg" }
+    }]);
+    assert.equal(scene.tiles.length, 98);
+    assert.ok(scene.tiles.filter(tile => tile.id !== refTile.id)
+      .every(tile => tile.flags.crows.village.generatorVersion === VILLAGE_MAP_GENERATOR_VERSION));
+    assert.deepEqual(scene.tiles.find(tile => tile.id === refTile.id), refTile);
+    assert.ok(result.writes.some(write => write.operation === "scene-update"));
+    assert.ok(result.writes.some(write => write.operation === "level-update"));
+  });
+
+  test("retries a failed Level background repair on an otherwise current Scene", async () => {
+    const village = defaultVillage();
+    village.villageId = "background-retry-village";
+    village.sceneId = "background-retry-scene";
+    const scene = makeScene(village.sceneId, {
+      width: 6000,
+      height: 6000,
+      initialLevel: DEFAULT_LEVEL_ID,
+      levels: [{ _id: DEFAULT_LEVEL_ID, background: { src: "/wrong-background.svg" } }],
+      flags: { crows: { village: {
+        villageId: village.villageId,
+        generatorVersion: VILLAGE_MAP_GENERATOR_VERSION
+      } } }
+    });
+    scene.tiles = buildVillageProjection(village, { artSet }).tiles.map((tile, index) => ({
+      ...clone(tile), id: `current-${index}`
+    }));
+    const level = scene.levels.get(DEFAULT_LEVEL_ID);
+    let failLevelUpdate = true;
+    level.update = async data => {
+      if (failLevelUpdate) {
+        failLevelUpdate = false;
+        throw new Error("level update rejected");
+      }
+      level.background = clone(data.background);
+      return level;
+    };
+    scenes.push(scene);
+
+    const first = await reconcileVillageScene(village, null, { scene, artSet });
+    assert.equal(first.ok, false);
+    assert.equal(first.operation, "level-update");
+    assert.equal(sceneTileCalls.length, 0);
+
+    const retry = await reconcileVillageScene(village, null, { scene, artSet });
+    assert.equal(retry.ok, true);
+    assert.equal(level.background.src, "systems/crows/assets/village/canonical/background.svg");
+  });
+
+  test("persists an explicit custom background across later Village reconciliation", async () => {
+    const village = defaultVillage();
+    village.villageId = "custom-background-village";
+    village.sceneId = "scene-custom-background";
+    const customBackground = "/custom/village-background.svg";
+    const data = villageSceneData(village, "custom-background-policy", {
+      artSet,
+      backgroundSrc: customBackground
+    });
+    const scene = makeScene(village.sceneId, data);
+    scene.tiles = buildVillageProjection(village, { artSet }).tiles.map((tile, index) => ({
+      ...clone(tile),
+      id: `custom-background-tile-${index}`
+    }));
+    scenes.push(scene);
+
+    const previous = clone(village);
+    village.prosperity += 1;
+    sceneTileCalls = [];
+    const result = await reconcileVillageScene(village, previous, { scene, artSet });
+
+    assert.equal(result.ok, true);
+    assert.equal(scene.levels.get(DEFAULT_LEVEL_ID).background.src, customBackground);
+    assert.equal(result.writes.some(write => write.operation === "level-update"), false);
+  });
+
+  test("stamps complete canonical identity when the legacy Scene version is missing", async () => {
+    const village = defaultVillage();
+    village.villageId = "missing-version-village";
+    village.sceneId = "missing-version-scene";
+    const scene = makeScene(village.sceneId, {
+      width: 6000,
+      height: 6000,
+      initialLevel: DEFAULT_LEVEL_ID,
+      levels: [{ _id: DEFAULT_LEVEL_ID, background: { src: "systems/crows/assets/village/canonical/background.svg" } }],
+      flags: { crows: { village: { villageId: village.villageId } } }
+    });
+    scene.tiles = buildVillageProjection(village, { artSet }).tiles.map((tile, index) => ({
+      ...clone(tile), id: `missing-version-${index}`
+    }));
+    const updates = [];
+    const updateScene = scene.update;
+    scene.update = async data => {
+      updates.push(clone(data));
+      return updateScene(data);
+    };
+    scenes.push(scene);
+
+    const result = await reconcileVillageScene(village, null, { scene, artSet });
+
+    assert.equal(result.ok, true);
+    assert.equal(updates.length, 1);
+    assert.equal(updates[0]["flags.crows.village"].generatorVersion, VILLAGE_MAP_GENERATOR_VERSION);
+    assert.equal(scene.flags.crows.village.villageId, village.villageId);
   });
 
   test("classifies duplicate flagged Scenes without deleting either", () => {
@@ -607,7 +805,7 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     const retry = await bootstrapVillageScene({ operationId: "lost-prepared", artSet });
     assert.equal(retry.ok, true);
     assert.equal(sceneCreateCalls.length, 1);
-    assert.equal(scenes[0].tiles.length, 8);
+    assert.equal(scenes[0].tiles.length, 97);
   });
 
   test("same token reuses a Scene whose create acknowledgement was lost", async () => {
@@ -628,7 +826,7 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     const retry = await bootstrapVillageScene({ operationId: "lost-scene", artSet });
     assert.equal(retry.ok, true);
     assert.equal(sceneCreateCalls.length, 1);
-    assert.equal(scenes[0].tiles.length, 8);
+    assert.equal(scenes[0].tiles.length, 97);
   });
 
   test("same token repairs a flagged Tile set whose create acknowledgement was lost", async () => {
@@ -644,7 +842,7 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     assert.equal(first.ok, false);
     assert.equal(first.reconciliationRequired, true);
     assert.equal(scenes.length, 1);
-    assert.equal(scenes[0].tiles.length, 8);
+    assert.equal(scenes[0].tiles.length, 97);
 
     const createsBeforeRetry = sceneTileCalls.filter(call => call.operation === "create").length;
     const retry = await bootstrapVillageScene({ operationId: "lost-tiles", artSet });
@@ -669,7 +867,7 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     const afterScenePhaseLoss = await bootstrapVillageScene({ operationId: "lost-scene-phase", artSet });
     assert.equal(afterScenePhaseLoss.ok, true);
     assert.equal(sceneCreateCalls.length, 1);
-    assert.equal(scenes[0].tiles.length, 8);
+    assert.equal(scenes[0].tiles.length, 97);
 
     // New world/setting state is installed for the second half of this test.
     installWorld();
@@ -684,7 +882,7 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     });
     assert.equal(tilePhase.ok, false);
     assert.equal(scenes.length, 1);
-    assert.equal(scenes[0].tiles.length, 8);
+    assert.equal(scenes[0].tiles.length, 97);
     const tilePhaseRetry = await bootstrapVillageScene({ operationId: "lost-tile-phase", artSet });
     assert.equal(tilePhaseRetry.ok, true);
     assert.equal(sceneCreateCalls.length, 1);
@@ -702,6 +900,10 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     scenes.push(scene);
     const initial = await reconcileVillageScene(village, null, { scene, artSet });
     assert.equal(initial.ok, true);
+    const changedInstitutionId = village.institutions[0].id;
+    const changedTileId = scene.tiles.find(tile =>
+      tile.flags?.crows?.village?.institutionId === changedInstitutionId)?.id;
+    assert.ok(changedTileId);
     const decoration = { id: "ref-tree", name: "Ref decoration", texture: {src: "/ref/tree.png"}, x: 17, y: 29 };
     scene.tiles.push(clone(decoration));
     const beforeScene = clone(decoration);
@@ -713,8 +915,48 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     assert.equal(sceneTileCalls.filter(call => call.operation === "update").length, 1);
     assert.deepEqual(scene.tiles.find(tile => tile.id === "ref-tree"), beforeScene);
     const update = sceneTileCalls.find(call => call.operation === "update").entries[0];
-    assert.equal(update._id, "scene-existing-tile-1");
+    assert.equal(update._id, changedTileId);
     assert.equal(update.flags.crows.village.kind, "institution");
+  });
+
+  test("founds an institution by updating its waiting plot in place", async () => {
+    const village = defaultVillage();
+    village.villageId = "village-founding-plot";
+    village.sceneSeed = "founding-plot-seed";
+    village.sceneId = "scene-founding-plot";
+    const scene = makeScene(village.sceneId, {
+      flags: { crows: { village: { villageId: village.villageId, generatorVersion: VILLAGE_MAP_GENERATOR_VERSION } } }
+    });
+    scenes.push(scene);
+    await reconcileVillageScene(village, null, { scene, artSet });
+    const waiting = scene.tiles.find(tile => tile.flags?.crows?.village?.institutionType === "beacon");
+    assert.equal(waiting.flags.crows.village.visualState, "unbuilt");
+    const waitingId = waiting.id;
+
+    const previous = clone(village);
+    village.institutions.push({ id: "beacon-built", type: "beacon", name: "Beacon", level: 1, steward: "" });
+    sceneTileCalls = [];
+    const result = await reconcileVillageScene(village, previous, { scene, artSet });
+
+    assert.equal(result.ok, true);
+    assert.equal(sceneTileCalls.filter(call => call.operation === "update").length, 1);
+    assert.equal(sceneTileCalls.filter(call => call.operation === "create").length, 0);
+    assert.equal(sceneTileCalls.filter(call => call.operation === "delete").length, 0);
+    const founded = scene.tiles.find(tile => tile.flags?.crows?.village?.institutionType === "beacon");
+    assert.equal(founded.id, waitingId);
+    assert.equal(founded.flags.crows.village.institutionId, "beacon-built");
+    assert.notEqual(founded.flags.crows.village.visualState, "unbuilt");
+
+    const beforeRemoval = clone(village);
+    village.institutions = village.institutions.filter(institution => institution.type !== "beacon");
+    sceneTileCalls = [];
+    const removed = await reconcileVillageScene(village, beforeRemoval, { scene, artSet });
+    assert.equal(removed.ok, true);
+    assert.equal(sceneTileCalls.filter(call => call.operation === "update").length, 1);
+    assert.equal(sceneTileCalls.filter(call => call.operation === "delete").length, 0);
+    const returnedWaiting = scene.tiles.find(tile => tile.flags?.crows?.village?.institutionType === "beacon");
+    assert.equal(returnedWaiting.id, waitingId);
+    assert.equal(returnedWaiting.flags.crows.village.visualState, "unbuilt");
   });
 
   test("tombstoned institutions keep their flagged Tile and switch to a ruin asset", async () => {
@@ -760,7 +1002,7 @@ describe("Village bootstrap saga and flagged-only reconciliation", () => {
     assert.equal(shrink.ok, true);
     const deletion = sceneTileCalls.find(call => call.operation === "delete");
     assert.ok(deletion);
-    assert.equal(deletion.ids.length, 2);
+    assert.equal(deletion.ids.length, 85);
     assert.ok(deletion.ids.every(id => id.includes("tile")));
     assert.ok(scene.tiles.some(tile => tile.id === "ref-lamp"));
 
