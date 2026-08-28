@@ -17,6 +17,39 @@ const freezeRecord = record => Object.freeze(Object.fromEntries(
   Object.entries(record).map(([key, value]) => [key, Object.freeze(value)])
 ));
 
+/**
+ * Which drawing stands on each institution plot.
+ *
+ * Named here rather than left to the art-set resolver. A slot carrying no art
+ * falls through to whatever catalogue happens to be configured, and that
+ * default is the legacy 2 Minute Tabletop PNG set — so every institution on the
+ * canonical map rendered as watercolour raster over source vector, three of
+ * them through the old substitutions: a crypt drawn as a cave mouth, a stables
+ * as a straw hut, a general store as market tents.
+ *
+ * These point at the authored institution set because a village map has to be
+ * *read*: a player looking for the smithy needs it to look like a smithy. The
+ * twelve source buildings standing on these same plots are shipped and
+ * available — each slot's `sourceId` names one, alchemist `B12` being
+ * `canonical/housing/building-12.svg` — and they match the surrounding art
+ * exactly, but they are undifferentiated houses. Preferring them is a change of
+ * these values and nothing else.
+ */
+export const CANONICAL_INSTITUTION_ART = Object.freeze({
+  alchemist: "systems/crows/assets/institutions/alchemist.svg",
+  auctionHouse: "systems/crows/assets/institutions/auction-house.svg",
+  barracks: "systems/crows/assets/institutions/barracks.svg",
+  beacon: "systems/crows/assets/institutions/beacon.svg",
+  blacksmith: "systems/crows/assets/institutions/blacksmith.svg",
+  bookseller: "systems/crows/assets/institutions/bookseller.svg",
+  crypt: "systems/crows/assets/institutions/crypt.svg",
+  enchanter: "systems/crows/assets/institutions/enchanter.svg",
+  generalStore: "systems/crows/assets/institutions/general-store.svg",
+  inn: "systems/crows/assets/institutions/inn.svg",
+  stables: "systems/crows/assets/institutions/stables.svg",
+  temple: "systems/crows/assets/institutions/temple.svg"
+});
+
 export const CANONICAL_INSTITUTION_SLOTS = freezeRecord({
   "alchemist": {
     "id": "alchemist",

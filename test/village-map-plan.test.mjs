@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import { buildVillageProjection } from "../module/helpers/village-map.mjs";
+import { VILLAGE_ART_SET } from "../module/helpers/village-art.mjs";
+import { composeStampArtSet } from "../module/helpers/village-stamp-art.mjs";
 
 /** Gadwick, from the playtest material. */
 function gadwick(overrides = {}) {
@@ -157,5 +159,79 @@ describe("village map | canonical projection", () => {
       canonicalTextures.filter(src => !existsSync(src.replace("systems/crows/", ""))),
       []
     );
+  });
+});
+
+describe("village map | canonical art wiring", () => {
+  const institutionSrc = projection => Object.fromEntries(projection.institutions.map(tile => [
+    tile.flags.crows.village.institutionType, tile.texture.src
+  ]));
+
+  it("dresses institutions from the authored set, not the legacy catalogue", () => {
+    // The plots named no art, so they fell through to whatever catalogue was
+    // configured. That default is the 2 Minute Tabletop PNG set, which also
+    // carries the old substitutions: a crypt as a cave mouth, a stables as a
+    // straw hut, a general store as market tents.
+    const src = institutionSrc(buildVillageProjection(gadwick()));
+    for (const [type, path] of Object.entries(src)) {
+      if (type === "beacon") continue;                    // unbuilt in this fixture
+      assert.match(path, /^systems\/crows\/assets\/institutions\/.*\.svg$/, `${type} is off-catalogue`);
+    }
+    assert.match(src.crypt, /crypt\.svg$/);
+    assert.match(src.stables, /stables\.svg$/);
+    assert.match(src.generalStore, /general-store\.svg$/);
+  });
+
+  it("agrees with the art the scene bootstrap actually composes", () => {
+    // The bootstrap path composed the authored stamps while the bare projection
+    // did not, so one village had two appearances depending on the entry point.
+    const direct = institutionSrc(buildVillageProjection(gadwick()));
+    const composed = institutionSrc(buildVillageProjection(gadwick(), {
+      artSet: composeStampArtSet(VILLAGE_ART_SET), canonicalHousing: true
+    }));
+    assert.deepEqual(direct, composed);
+  });
+
+  it("lets an explicit art set still override the plot's art", () => {
+    const override = { resolve: ({ type }) => ({ src: `/override/${type}.png` }) };
+    const src = institutionSrc(buildVillageProjection(gadwick(), { artSet: override }));
+    assert.equal(src.temple, "/override/temple.png");
+  });
+
+  it("keeps canonical housing when an override carries no housing art", () => {
+    // Supplying an art set used to disable canonical housing outright. A caller
+    // overriding only institution art supplies a set with no housing entry, so
+    // all sixty-nine houses resolved to an empty texture: no art, no error.
+    const institutionsOnly = {
+      resolve: ({ type, kind }) => kind === "housing" || !type ? null : { src: `/override/${type}.png` }
+    };
+    const projection = buildVillageProjection(gadwick({ prosperity: 10 }), { artSet: institutionsOnly });
+    assert.equal(projection.housing.length, 69);
+    assert.deepEqual(projection.housing.filter(tile => !tile.texture?.src), []);
+    for (const tile of projection.housing) {
+      assert.match(tile.texture.src, /\/canonical\/housing\/building-\d+\.svg$/);
+    }
+  });
+
+  it("still lets an art set that does carry housing art supply it", () => {
+    // The override is only ignored when it has nothing to offer; a set that
+    // genuinely provides housing keeps winning, as it always did.
+    const withHousing = { assets: { housing: "/override/housing.png" } };
+    const projection = buildVillageProjection(gadwick({ prosperity: 10 }), { artSet: withHousing });
+    assert.ok(projection.housing.every(tile => tile.texture.src === "/override/housing.png"));
+
+    // And opting out entirely stays available.
+    const opted = buildVillageProjection(gadwick({ prosperity: 10 }), { canonicalHousing: false });
+    assert.ok(opted.housing.every(tile => !/\/canonical\/housing\//.test(tile.texture?.src ?? "")));
+  });
+
+  it("carries no white shading pixels into the canonical background", () => {
+    // The shading layer is a 128x128 bitmap emitted one path per pixel and
+    // composited with mix-blend-mode: multiply, under which white is a no-op.
+    // Foundry rasterises the background as a texture without applying the blend
+    // mode, so every white pixel painted opaque and fogged the terrain.
+    const svg = readFileSync("assets/village/canonical/background.svg", "utf8");
+    assert.equal((svg.match(/<path\b[^>]*?fill="#FFFFFF"/g) ?? []).length, 0);
+    assert.ok(svg.length < 2_000_000, "background is heavier than a scene texture should be");
   });
 });

@@ -31,6 +31,7 @@ import {
   CANONICAL_DRESSING_SLOTS,
   CANONICAL_FARMLAND_SLOTS,
   CANONICAL_HOUSING_SLOTS,
+  CANONICAL_INSTITUTION_ART,
   CANONICAL_INSTITUTION_SLOTS,
   CANONICAL_UNBUILT_PLOT,
   CANONICAL_VILLAGE_BACKGROUND,
@@ -988,6 +989,34 @@ function baseTileData({ name, asset, position, width, height, sort, flag, rotati
   };
 }
 
+/**
+ * The art a canonical institution plot uses when the caller names none.
+ *
+ * `prepareCanonicalMap` already composes the authored stamps for the scene
+ * bootstrap, so a Ref's map looks right. Calling `buildVillageProjection`
+ * directly did not — it fell through to the configured catalogue, the legacy
+ * PNG set — so the same village rendered with different buildings depending on
+ * which entry point asked, and the tests asserted against the entry point that
+ * disagreed with what ships. This closes that gap.
+ *
+ * Non-operating states delegate onward: the authored set has no ruin art and
+ * the catalogue does, so a destroyed institution keeps resolving as before.
+ */
+const canonicalInstitutionArtSet = {
+  id: "crows-canonical-institutions",
+  resolve(context = {}) {
+    const { type, visualState } = context;
+    const standing = !visualState || visualState === "operating" || visualState === "closed";
+    const src = standing ? CANONICAL_INSTITUTION_ART[String(type ?? "")] : null;
+    if (src) return { src, label: institutionLabel(type) };
+    return typeof configuredArtSet?.resolve === "function"
+      ? configuredArtSet.resolve(context)
+      : null;
+  },
+  get assets() { return configuredArtSet?.assets; },
+  get housingPool() { return configuredArtSet?.housingPool; }
+};
+
 export function institutionTileData(village, institution, options = {}) {
   const effective = effectiveInstitutionForMap(institution, village);
   const slot = options.slot ?? null;
@@ -1005,7 +1034,12 @@ export function institutionTileData(village, institution, options = {}) {
     type: institution?.type,
     effectiveLevel: effective,
     destroyed: institution?.destroyed === true,
-    artSet: options.artSet ?? configuredArtSet
+    // A canonical plot names the drawing that stands on it, the same way a
+    // housing slot does. Without this the twelve institutions fell through to
+    // whatever catalogue was configured — the legacy PNG set — and landed on
+    // the canonical map as raster over vector. An explicitly supplied art set
+    // still wins, so a Ref's override and the tests' fixtures behave as before.
+    artSet: options.artSet ?? (slot ? canonicalInstitutionArtSet : configuredArtSet)
   });
   const version = generatorVersion(options);
   const position = slot
@@ -1055,8 +1089,26 @@ export function housingTileData(village, index, options = {}) {
       );
   const tileWidth = fitted.width;
   const tileHeight = fitted.height;
-  const useCanonicalHousing = Boolean(slot?.asset)
-    && (options.canonicalHousing === true || !options.artSet);
+  // Which art a canonical housing plot uses is decided per plot, not by whether
+  // an art set was supplied at all.
+  //
+  // The old rule was that any `artSet` turned canonical housing off. That reads
+  // as "an explicit override wins", and for a set that actually carries housing
+  // art it should. But a caller overriding only *institution* art supplies a set
+  // with no housing entry, and every one of the sixty-nine houses then resolved
+  // to an empty texture — no art, no error, no way to notice except by looking.
+  //
+  // So an override wins only when it has something to offer. Otherwise the plot
+  // keeps the source building the layout named for it. `canonicalHousing: false`
+  // still forces the old behaviour outright.
+  // `canonicalHousing` is three-state: true demands the source buildings, false
+  // refuses them, and unset lets the art on offer decide.
+  const demanded = options.canonicalHousing;
+  const overrideAsset = demanded === true ? null
+    : (options.artSet || demanded === false)
+      ? assetForHousing(options.artSet ?? configuredArtSet, "operating", index)
+      : null;
+  const useCanonicalHousing = Boolean(slot?.asset) && demanded !== false && !overrideAsset?.src;
   const asset = useCanonicalHousing
     ? {
         src: slot.asset,
@@ -1067,7 +1119,7 @@ export function housingTileData(village, index, options = {}) {
         substitutionReason: null,
         unsupported: false
       }
-    : assetForHousing(options.artSet ?? configuredArtSet, "operating", index);
+    : overrideAsset ?? assetForHousing(options.artSet ?? configuredArtSet, "operating", index);
   const version = generatorVersion(options);
   const position = slot
     ? { x: slot.x, y: slot.y }
