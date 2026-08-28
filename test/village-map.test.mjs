@@ -392,11 +392,12 @@ describe("Village Scene projection", () => {
       assert.equal(tile.width, 2 * gridSize);
       assert.equal(tile.height, 2 * gridSize);
     }
+    // x/y is the middle of a v14 Tile; its extent runs half a tile either side.
     for (const tile of projection.tiles) {
-      assert.ok(tile.x >= 0);
-      assert.ok(tile.y >= 0);
-      assert.ok(tile.x + tile.width <= SCENE_DEFAULTS.width, `${tile.name} exceeds scene width`);
-      assert.ok(tile.y + tile.height <= SCENE_DEFAULTS.height, `${tile.name} exceeds scene height`);
+      assert.ok(tile.x - tile.width / 2 >= 0);
+      assert.ok(tile.y - tile.height / 2 >= 0);
+      assert.ok(tile.x + tile.width / 2 <= SCENE_DEFAULTS.width, `${tile.name} exceeds scene width`);
+      assert.ok(tile.y + tile.height / 2 <= SCENE_DEFAULTS.height, `${tile.name} exceeds scene height`);
     }
     const institutionLeft = Math.min(...projection.institutions.map(tile => tile.x));
     const institutionRight = Math.max(...projection.institutions.map(tile => tile.x + tile.width));
@@ -420,8 +421,10 @@ describe("Village Scene projection", () => {
     });
     assert.ok(projection.institutions.every(tile => tile.width === 4 * 150 && tile.height === 3 * 150));
     assert.ok(projection.housing.every(tile => tile.width === 2 * 150 && tile.height === 2 * 150));
-    assert.ok(projection.tiles.every(tile => tile.x >= 0 && tile.y >= 0
-      && tile.x + tile.width <= 2400 && tile.y + tile.height <= 3600));
+    // x/y is the middle of a v14 Tile; the extent runs half a tile either side.
+    assert.ok(projection.tiles.every(tile =>
+      tile.x - tile.width / 2 >= 0 && tile.y - tile.height / 2 >= 0
+      && tile.x + tile.width / 2 <= 2400 && tile.y + tile.height / 2 <= 3600));
 
     const scene = villageSceneData(village, "custom-grid", {
       width: 2400,
@@ -482,10 +485,11 @@ describe("Village Scene projection", () => {
     const village = defaultVillage();
     const { width, height } = SCENE_DEFAULTS;
     for (const tile of buildVillageProjection(village).tiles) {
-      assert.ok(tile.x >= 0 && tile.x + tile.width <= width,
-        `${tile.name} spans ${tile.x}..${tile.x + tile.width}, outside 0..${width}`);
-      assert.ok(tile.y >= 0 && tile.y + tile.height <= height,
-        `${tile.name} spans ${tile.y}..${tile.y + tile.height}, outside 0..${height}`);
+      // x/y is the middle of a v14 Tile, so the span is half a tile either side.
+      const [x0, x1] = [tile.x - tile.width / 2, tile.x + tile.width / 2];
+      const [y0, y1] = [tile.y - tile.height / 2, tile.y + tile.height / 2];
+      assert.ok(x0 >= 0 && x1 <= width, `${tile.name} spans ${x0}..${x1}, outside 0..${width}`);
+      assert.ok(y0 >= 0 && y1 <= height, `${tile.name} spans ${y0}..${y1}, outside 0..${height}`);
     }
   });
 

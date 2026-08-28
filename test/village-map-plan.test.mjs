@@ -30,10 +30,11 @@ function gadwick(overrides = {}) {
   };
 }
 
+// x/y is the middle of a v14 Tile, so its extent runs half a tile either side.
 const insideScene = tile =>
-  tile.x >= 0 && tile.y >= 0
-  && tile.x + tile.width <= SCENE_DEFAULTS.width
-  && tile.y + tile.height <= SCENE_DEFAULTS.height;
+  tile.x - tile.width / 2 >= 0 && tile.y - tile.height / 2 >= 0
+  && tile.x + tile.width / 2 <= SCENE_DEFAULTS.width
+  && tile.y + tile.height / 2 <= SCENE_DEFAULTS.height;
 
 describe("village map | plan is opt-in", () => {
   it("lays out on the grid when no plan is asked for", () => {
@@ -76,15 +77,15 @@ describe("village map | tiles sit on their plots", () => {
   const plan = projection.plan;
 
   it("centres each institution tile on its plot", () => {
-    // Foundry places a Tile by its top-left corner but the plan works in
-    // centres; getting this wrong offsets every building by half its own size.
+    // A v14 Tile is anchored at its middle, so x/y IS the centre of the art.
+    // This used to subtract half the tile, which stood every building half its
+    // own size up and left of its plot — visibly clear of its own cast shadow.
     for (const tile of projection.institutions) {
       const id = tile.flags.crows.village.institutionId;
       const placed = plan.assignment.institutions.find(a => a.institutionId === id);
       assert.ok(placed, `${id} is not in the plan`);
-      const cx = tile.x + tile.width / 2;
-      const cy = tile.y + tile.height / 2;
-      assert.ok(Math.hypot(cx - placed.center.x, cy - placed.center.y) < 2, `${id} is off its plot`);
+      assert.ok(Math.hypot(tile.x - placed.center.x, tile.y - placed.center.y) < 2,
+        `${id} is off its plot`);
     }
   });
 
@@ -154,8 +155,9 @@ describe("village map | housing follows the plan", () => {
       plan, tileWidth: 300, tileHeight: 225
     });
     const placed = plan.assignment.institutions.find(a => a.institutionId === "temple");
-    assert.equal(at.x, Math.round(placed.center.x - 150));
-    assert.equal(at.y, Math.round(placed.center.y - 112.5));
+    // The centre passes straight through: a v14 Tile is placed by its middle.
+    assert.equal(at.x, Math.round(placed.center.x));
+    assert.equal(at.y, Math.round(placed.center.y));
   });
 
   it("falls back to the grid for anything the plan could not place", () => {
@@ -173,7 +175,7 @@ describe("village map | housing follows the plan", () => {
     });
     const placed = plan.assignment.housing[7];
     assert.ok(placed, "this test needs at least eight homes");
-    assert.equal(seventh.x, Math.round(placed.center.x - 150));
+    assert.equal(seventh.x, Math.round(placed.center.x));
   });
 });
 

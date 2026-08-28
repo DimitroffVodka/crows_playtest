@@ -476,14 +476,19 @@ function settlementLayout(village, options = {}) {
 /**
  * Turn a plan's placement into Tile coordinates.
  *
- * The plan works in centres — a building sits *at* a point on its plot — while
- * Foundry places a Tile by its top-left corner. Handing a centre straight to a
- * Tile offsets every building by half its own size.
+ * Both the plan and a Foundry v14 Tile work in centres — the Tile's mesh is
+ * anchored at 0.5/0.5 and positioned on `x`/`y`, so `x`/`y` *is* where the
+ * middle of the art lands. The centre therefore passes through untouched.
+ *
+ * This used to subtract half the tile, which was right when a Tile was placed
+ * by its top-left corner. Against v14 that offset every building up and left by
+ * half its own size — a whole grid square for an institution — which showed up
+ * as buildings sitting beside their plots and clear of their own cast shadows.
+ * The system declares v14 as both minimum and verified, so there is no older
+ * behaviour left to support.
  */
-function tilePositionFromPlan(at, options) {
-  const width = Math.max(0, Number(options.tileWidth) || 0);
-  const height = Math.max(0, Number(options.tileHeight) || 0);
-  return { x: Math.round(at.x - width / 2), y: Math.round(at.y - height / 2) };
+function tilePositionFromPlan(at) {
+  return { x: Math.round(at.x), y: Math.round(at.y) };
 }
 
 /**
@@ -531,7 +536,7 @@ export function institutionPosition(village, institution, options = {}) {
   // village that has none, and for anything the plan could not fit.
   if (options.plan) {
     const at = planPositionForInstitution(options.plan, String(institution?.id ?? institution?.type ?? ""));
-    if (at) return tilePositionFromPlan(at, options);
+    if (at) return tilePositionFromPlan(at);
   }
   const layout = settlementLayout(village, {
     ...options,
@@ -544,9 +549,14 @@ export function institutionPosition(village, institution, options = {}) {
   const resolvedSlot = slot >= 0 ? slot : fallback;
   const column = resolvedSlot % INSTITUTION_CLUSTER_COLUMNS;
   const row = Math.floor(resolvedSlot / INSTITUTION_CLUSTER_COLUMNS);
+  // The grid is laid out in cell corners while a Tile is placed by its centre,
+  // so half a cell is added here rather than leaving this fallback half a tile
+  // out of step with the planned path beside it.
   return {
-    x: Math.round(layout.left + column * (layout.institutionWidth + layout.institutionGap)),
-    y: Math.round(layout.top + row * (layout.institutionHeight + layout.institutionGap))
+    x: Math.round(layout.left + column * (layout.institutionWidth + layout.institutionGap)
+      + layout.institutionWidth / 2),
+    y: Math.round(layout.top + row * (layout.institutionHeight + layout.institutionGap)
+      + layout.institutionHeight / 2)
   };
 }
 
@@ -558,7 +568,7 @@ export function housingPosition(village, index, options = {}) {
   // village in dozens of homes, and clamping would stack them all on the fifth.
   if (options.plan) {
     const at = planPositionForHousing(options.plan, Math.max(0, Math.floor(Number(index) || 0)));
-    if (at) return tilePositionFromPlan(at, options);
+    if (at) return tilePositionFromPlan(at);
   }
   const layout = settlementLayout(village, {
     ...options,
@@ -573,8 +583,10 @@ export function housingPosition(village, index, options = {}) {
     + (activeHousingCount - 1) * layout.housingGap;
   const housingLeft = layout.left + (layout.settlementWidth - activeRowWidth) / 2;
   return {
-    x: Math.round(housingLeft + resolvedIndex * (layout.housingWidth + layout.housingGap)),
-    y: Math.round(layout.top + layout.clusterHeight + layout.settlementGap)
+    x: Math.round(housingLeft + resolvedIndex * (layout.housingWidth + layout.housingGap)
+      + layout.housingWidth / 2),
+    y: Math.round(layout.top + layout.clusterHeight + layout.settlementGap
+      + layout.housingHeight / 2)
   };
 }
 
@@ -959,8 +971,8 @@ function baseTileData({ name, asset, position, width, height, sort, flag, rotati
     height: Math.max(0, Math.round(Number(height) || 0)),
     elevation: 0,
     sort: Math.round(Number(sort) || 0),
-    // Foundry rotates a Tile about its centre and leaves x/y as the unrotated
-    // top-left, so a tile centred on its plot stays centred when turned.
+    // A v14 Tile is anchored at its middle, so x/y above is the centre of the
+    // art and rotation turns it about that same point.
     rotation: Math.round(Number(rotation) || 0),
     alpha: 1,
     hidden: false,
