@@ -167,26 +167,34 @@ describe("village map | canonical art wiring", () => {
     tile.flags.crows.village.institutionType, tile.texture.src
   ]));
 
-  it("draws every institution from the supplied village export", () => {
-    // The whole map has to be one drawing. The plots named no art, so they fell
-    // through to whatever catalogue was configured — the 2 Minute Tabletop PNG
-    // set, raster over vector, with old substitutions besides.
+  it("draws every institution from the authored institution set", () => {
+    // The village export draws houses and nothing else, so none of its 81
+    // buildings reads as a temple or a smithy. These are the only assets in the
+    // project that do.
     const src = institutionSrc(buildVillageProjection(gadwick()));
     for (const [type, path] of Object.entries(src)) {
       if (type === "beacon") continue;                    // unbuilt in this fixture
-      assert.match(path, /^systems\/crows\/assets\/village\/canonical\//, `${type} is off-source`);
+      assert.match(path, /^systems\/crows\/assets\/institutions\/[a-z-]+\.svg$/, `${type} is off-set`);
     }
-    // Each plot takes the source building its own sourceId names.
-    assert.match(src.alchemist, /building-12\.svg$/);
-    assert.match(src.temple, /building-32\.svg$/);
-    assert.match(src.blacksmith, /building-69\.svg$/);
+    assert.match(src.temple, /\/temple\.svg$/);
+    assert.match(src.blacksmith, /\/blacksmith\.svg$/);
+    assert.match(src.crypt, /\/crypt\.svg$/);
   });
 
-  it("puts nothing from the older art sets on the canonical map", () => {
+  it("never places a shadow companion as a building", () => {
+    const projection = buildVillageProjection(gadwick({ prosperity: 10 }));
+    const shadows = projection.tiles
+      .map(tile => tile.texture?.src ?? "")
+      .filter(src => src.includes(".shadow."));
+    assert.deepEqual(shadows, []);
+  });
+
+  it("puts nothing from the legacy catalogue on the canonical map", () => {
     const projection = buildVillageProjection(gadwick({ prosperity: 10 }));
     const strays = projection.tiles
       .map(tile => tile.texture?.src ?? "")
-      .filter(src => !src.startsWith("systems/crows/assets/village/canonical/"));
+      .filter(src => !src.startsWith("systems/crows/assets/village/canonical/")
+        && !src.startsWith("systems/crows/assets/institutions/"));
     assert.deepEqual(strays, []);
   });
 
@@ -200,10 +208,22 @@ describe("village map | canonical art wiring", () => {
     assert.deepEqual(direct, bootstrapped);
   });
 
-  it("lets an explicit art set still override the plot's art", () => {
+  it("does not let a forwarded catalogue repaint the canonical institutions", () => {
+    // This is how the legacy PNGs kept coming back. `villageMapReadModel` named
+    // the configured catalogue when it built a projection, so merely reading the
+    // map — opening the Village UI does it — re-dressed all twelve institutions
+    // in watercolour raster on a vector map.
     const override = { resolve: ({ type }) => ({ src: `/override/${type}.png` }) };
     const src = institutionSrc(buildVillageProjection(gadwick(), { artSet: override }));
-    assert.equal(src.temple, "/override/temple.png");
+    assert.match(src.temple, /\/assets\/institutions\/temple\.svg$/);
+    assert.match(src.blacksmith, /\/assets\/institutions\/blacksmith\.svg$/);
+
+    // The legacy set specifically, which is what gets forwarded in practice.
+    const legacy = institutionSrc(buildVillageProjection(gadwick(), { artSet: VILLAGE_ART_SET }));
+    assert.deepEqual(
+      Object.values(legacy).filter(path => path.endsWith(".png")),
+      []
+    );
   });
 
   it("keeps canonical housing when an override carries no housing art", () => {
@@ -250,7 +270,11 @@ describe("village map | canonical art wiring", () => {
     for (const projection of projections) {
       for (const tile of projection.tiles) {
         const src = tile.texture?.src ?? "";
-        if (!src.startsWith("systems/crows/assets/village/canonical/") || src.endsWith("background.svg")) continue;
+        // Institutions come from the authored set; everything else from the
+        // village export. Both are placed, so both must be exercised here.
+        const placeable = src.startsWith("systems/crows/assets/village/canonical/")
+          || src.startsWith("systems/crows/assets/institutions/");
+        if (!placeable || src.endsWith("background.svg")) continue;
         const prior = largestPlacementBySrc.get(src) ?? { width: 0, height: 0 };
         largestPlacementBySrc.set(src, {
           width: Math.max(prior.width, tile.width),
@@ -287,7 +311,8 @@ describe("village map | canonical art wiring", () => {
     const placeableSources = new Set([
       ...buildVillageProjection(founded).tiles.map(tile => tile.texture?.src),
       ...buildVillageProjection(gadwick({ institutions: [] })).tiles.map(tile => tile.texture?.src)
-    ].filter(src => src?.startsWith("systems/crows/assets/village/canonical/")));
+    ].filter(src => src?.startsWith("systems/crows/assets/village/canonical/")
+      || src?.startsWith("systems/crows/assets/institutions/")));
 
     assert.equal(placeableSources.size, 181, "not every placeable canonical SVG was exercised");
     for (const src of placeableSources) {

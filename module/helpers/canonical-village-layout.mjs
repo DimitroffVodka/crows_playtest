@@ -20,30 +20,37 @@ const freezeRecord = record => Object.freeze(Object.fromEntries(
 /**
  * Which drawing stands on each institution plot.
  *
- * Every one is a building lifted from the supplied village export, named by the
- * slot's own `sourceId` — alchemist `B12` is `housing/building-12.svg`. The map
- * is therefore one drawing throughout: institutions, houses, fields, trees and
- * ground all come from the same source, in the same hand.
+ * The authored institution set, one drawing per institution. These are the only
+ * buildings in the project that read as what they are: the village export draws
+ * houses and nothing else, so every one of its eighty-one buildings is a
+ * rectangle or a gabled block. Standing a house on the temple plot and calling
+ * it a temple is not a choice between assets — there is no temple in that set
+ * to choose.
  *
- * A slot carrying no art at all falls through to whatever catalogue happens to
+ * Shadows are not used. Each of these ships an aligned `.shadow.svg` companion,
+ * but the canonical map paints no shadow layer, and a shadow that travelled on
+ * the Tile would turn with the building and light the map from twelve
+ * directions at once.
+ *
+ * A plot carrying no art at all falls through to whatever catalogue happens to
  * be configured, and that default is the legacy 2 Minute Tabletop PNG set —
- * which put watercolour raster over source vector, three of them through old
- * substitutions that drew a crypt as a cave mouth and a stables as a straw hut.
- * Naming the art here is what stops that.
+ * watercolour raster over vector, three of them through old substitutions that
+ * drew a crypt as a cave mouth and a stables as a straw hut. Naming the art
+ * here is what stops that.
  */
 export const CANONICAL_INSTITUTION_ART = Object.freeze({
-  alchemist: "systems/crows/assets/village/canonical/housing/building-12.svg",
-  auctionHouse: "systems/crows/assets/village/canonical/housing/building-29.svg",
-  barracks: "systems/crows/assets/village/canonical/housing/building-49.svg",
-  beacon: "systems/crows/assets/village/canonical/housing/building-03.svg",
-  blacksmith: "systems/crows/assets/village/canonical/housing/building-69.svg",
-  bookseller: "systems/crows/assets/village/canonical/housing/building-65.svg",
-  crypt: "systems/crows/assets/village/canonical/housing/building-02.svg",
-  enchanter: "systems/crows/assets/village/canonical/housing/building-23.svg",
-  generalStore: "systems/crows/assets/village/canonical/housing/building-53.svg",
-  inn: "systems/crows/assets/village/canonical/housing/building-37.svg",
-  stables: "systems/crows/assets/village/canonical/housing/building-01.svg",
-  temple: "systems/crows/assets/village/canonical/housing/building-32.svg"
+  alchemist: "systems/crows/assets/institutions/alchemist.svg",
+  auctionHouse: "systems/crows/assets/institutions/auction-house.svg",
+  barracks: "systems/crows/assets/institutions/barracks.svg",
+  beacon: "systems/crows/assets/institutions/beacon.svg",
+  blacksmith: "systems/crows/assets/institutions/blacksmith.svg",
+  bookseller: "systems/crows/assets/institutions/bookseller.svg",
+  crypt: "systems/crows/assets/institutions/crypt.svg",
+  enchanter: "systems/crows/assets/institutions/enchanter.svg",
+  generalStore: "systems/crows/assets/institutions/general-store.svg",
+  inn: "systems/crows/assets/institutions/inn.svg",
+  stables: "systems/crows/assets/institutions/stables.svg",
+  temple: "systems/crows/assets/institutions/temple.svg"
 });
 
 export const CANONICAL_INSTITUTION_SLOTS = freezeRecord({

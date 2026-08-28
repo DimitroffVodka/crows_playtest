@@ -1001,20 +1001,19 @@ function baseTileData({ name, asset, position, width, height, sort, flag, rotati
  * Non-operating states delegate onward: the authored set has no ruin art and
  * the catalogue does, so a destroyed institution keeps resolving as before.
  */
-const canonicalInstitutionArtSet = {
+const canonicalInstitutionArtSet = (fallback = null) => ({
   id: "crows-canonical-institutions",
   resolve(context = {}) {
     const { type, visualState } = context;
     const standing = !visualState || visualState === "operating" || visualState === "closed";
     const src = standing ? CANONICAL_INSTITUTION_ART[String(type ?? "")] : null;
     if (src) return { src, label: institutionLabel(type) };
-    return typeof configuredArtSet?.resolve === "function"
-      ? configuredArtSet.resolve(context)
-      : null;
+    const next = fallback ?? configuredArtSet;
+    return typeof next?.resolve === "function" ? next.resolve(context) : null;
   },
-  get assets() { return configuredArtSet?.assets; },
-  get housingPool() { return configuredArtSet?.housingPool; }
-};
+  get assets() { return (fallback ?? configuredArtSet)?.assets; },
+  get housingPool() { return (fallback ?? configuredArtSet)?.housingPool; }
+});
 
 export function institutionTileData(village, institution, options = {}) {
   const effective = effectiveInstitutionForMap(institution, village);
@@ -1033,12 +1032,18 @@ export function institutionTileData(village, institution, options = {}) {
     type: institution?.type,
     effectiveLevel: effective,
     destroyed: institution?.destroyed === true,
-    // A canonical plot names the drawing that stands on it, the same way a
-    // housing slot does. Without this the twelve institutions fell through to
-    // whatever catalogue was configured — the legacy PNG set — and landed on
-    // the canonical map as raster over vector. An explicitly supplied art set
-    // still wins, so a Ref's override and the tests' fixtures behave as before.
-    artSet: options.artSet ?? (slot ? canonicalInstitutionArtSet : configuredArtSet)
+    // A canonical plot names the drawing that stands on it, and that art wins.
+    //
+    // It used to be the other way round — a supplied art set took precedence —
+    // which meant any caller forwarding the configured catalogue re-dressed all
+    // twelve institutions in the legacy PNG set. `villageMapReadModel` forwards
+    // exactly that, so simply opening the Village UI put watercolour buildings
+    // back on a vector map. The canonical map is one drawing; a catalogue does
+    // not get to repaint twelve buildings in it. Anything the canonical set has
+    // no entry for — a ruin, say — still falls through to the supplied set.
+    artSet: slot
+      ? canonicalInstitutionArtSet(options.artSet ?? configuredArtSet)
+      : (options.artSet ?? configuredArtSet)
   });
   const version = generatorVersion(options);
   const position = slot
@@ -2443,12 +2448,10 @@ let mapHooksRegistered = false;
 
 export function villageMapReadModel(village = null, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
-  const selectedArtSet = options.artSet ?? configuredArtSet;
-  const projection = buildVillageProjection(source, {
-    ...options,
-    artSet: selectedArtSet,
-    canonicalHousing: options.canonicalHousing ?? selectedArtSet === VILLAGE_ART_SET
-  });
+  // Forwards only what the caller actually asked for. Naming the configured
+  // catalogue here made every read of the map — opening the Village UI is one —
+  // re-dress the canonical institutions in the legacy PNG set.
+  const projection = buildVillageProjection(source, options);
   return {
     village: clone(source),
     sceneId: source.sceneId,
