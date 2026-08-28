@@ -233,6 +233,49 @@ describe("village map | canonical art wiring", () => {
     assert.ok(opted.housing.every(tile => !/\/canonical\/housing\//.test(tile.texture?.src ?? "")));
   });
 
+  it("rasterizes every placeable SVG at twice its largest canonical display size", () => {
+    const founded = gadwick({
+      prosperity: 10,
+      institutions: [
+        ...gadwick().institutions,
+        { id: "beacon", type: "beacon", level: 1 }
+      ]
+    });
+    const projections = [
+      buildVillageProjection(founded),
+      buildVillageProjection(gadwick({ institutions: [] }))
+    ];
+    const largestPlacementBySrc = new Map();
+
+    for (const projection of projections) {
+      for (const tile of projection.tiles) {
+        const src = tile.texture?.src ?? "";
+        if (!src.startsWith("systems/crows/assets/village/canonical/") || src.endsWith("background.svg")) continue;
+        const prior = largestPlacementBySrc.get(src) ?? { width: 0, height: 0 };
+        largestPlacementBySrc.set(src, {
+          width: Math.max(prior.width, tile.width),
+          height: Math.max(prior.height, tile.height)
+        });
+      }
+    }
+
+    assert.equal(largestPlacementBySrc.size, 181, "not every placeable canonical SVG was exercised");
+    for (const [src, placement] of largestPlacementBySrc) {
+      const svg = readFileSync(src.replace("systems/crows/", ""), "utf8");
+      const root = svg.match(/<svg\b[^>]*>/)?.[0] ?? "";
+      const intrinsicWidth = Number(root.match(/\bwidth="([^"]+)"/)?.[1]);
+      const intrinsicHeight = Number(root.match(/\bheight="([^"]+)"/)?.[1]);
+      assert.ok(
+        intrinsicWidth >= placement.width * 2,
+        `${src} rasterizes ${intrinsicWidth}px wide for a ${placement.width}px Tile`
+      );
+      assert.ok(
+        intrinsicHeight >= placement.height * 2,
+        `${src} rasterizes ${intrinsicHeight}px high for a ${placement.height}px Tile`
+      );
+    }
+  });
+
   it("carries no white shading pixels into the canonical background", () => {
     // The shading layer is a 128x128 bitmap emitted one path per pixel and
     // composited with mix-blend-mode: multiply, under which white is a no-op.
