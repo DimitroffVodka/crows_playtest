@@ -167,29 +167,37 @@ describe("village map | canonical art wiring", () => {
     tile.flags.crows.village.institutionType, tile.texture.src
   ]));
 
-  it("dresses institutions from the authored set, not the legacy catalogue", () => {
-    // The plots named no art, so they fell through to whatever catalogue was
-    // configured. That default is the 2 Minute Tabletop PNG set, which also
-    // carries the old substitutions: a crypt as a cave mouth, a stables as a
-    // straw hut, a general store as market tents.
+  it("draws every institution from the supplied village export", () => {
+    // The whole map has to be one drawing. The plots named no art, so they fell
+    // through to whatever catalogue was configured — the 2 Minute Tabletop PNG
+    // set, raster over vector, with old substitutions besides.
     const src = institutionSrc(buildVillageProjection(gadwick()));
     for (const [type, path] of Object.entries(src)) {
       if (type === "beacon") continue;                    // unbuilt in this fixture
-      assert.match(path, /^systems\/crows\/assets\/institutions\/.*\.svg$/, `${type} is off-catalogue`);
+      assert.match(path, /^systems\/crows\/assets\/village\/canonical\//, `${type} is off-source`);
     }
-    assert.match(src.crypt, /crypt\.svg$/);
-    assert.match(src.stables, /stables\.svg$/);
-    assert.match(src.generalStore, /general-store\.svg$/);
+    // Each plot takes the source building its own sourceId names.
+    assert.match(src.alchemist, /building-12\.svg$/);
+    assert.match(src.temple, /building-32\.svg$/);
+    assert.match(src.blacksmith, /building-69\.svg$/);
   });
 
-  it("agrees with the art the scene bootstrap actually composes", () => {
-    // The bootstrap path composed the authored stamps while the bare projection
-    // did not, so one village had two appearances depending on the entry point.
+  it("puts nothing from the older art sets on the canonical map", () => {
+    const projection = buildVillageProjection(gadwick({ prosperity: 10 }));
+    const strays = projection.tiles
+      .map(tile => tile.texture?.src ?? "")
+      .filter(src => !src.startsWith("systems/crows/assets/village/canonical/"));
+    assert.deepEqual(strays, []);
+  });
+
+  it("keeps the bootstrap and the bare projection on the same drawing", () => {
+    // The bootstrap used to layer the separately-drawn stamp set over the map,
+    // so one village had two appearances depending on the entry point.
     const direct = institutionSrc(buildVillageProjection(gadwick()));
-    const composed = institutionSrc(buildVillageProjection(gadwick(), {
-      artSet: composeStampArtSet(VILLAGE_ART_SET), canonicalHousing: true
+    const bootstrapped = institutionSrc(buildVillageProjection(gadwick(), {
+      plan: null, canonicalHousing: true
     }));
-    assert.deepEqual(direct, composed);
+    assert.deepEqual(direct, bootstrapped);
   });
 
   it("lets an explicit art set still override the plot's art", () => {

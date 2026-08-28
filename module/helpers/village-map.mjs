@@ -45,7 +45,6 @@ import {
   HOUSING_STAMPS,
   INSTITUTION_STAMPS,
   TREE_STAMPS,
-  composeStampArtSet,
   contentBoxFor,
   shadowSrcFor,
   slugFor,
@@ -2150,21 +2149,24 @@ async function uncertainBootstrap(current, operationId, details = {}) {
   }
 }
 
-/** Resolve immutable canonical art without planning or uploading world assets. */
+/**
+ * Resolve immutable canonical art without planning or uploading world assets.
+ *
+ * Composes nothing. The canonical map is a single supplied drawing — ground,
+ * houses, fields, trees and the twelve institutions all cut from the same
+ * export — and every plot names its own art, so there is no gap for a catalogue
+ * to fill. This used to layer the separately-drawn stamp set over the top,
+ * which put a second hand on the map for the twelve buildings players look at
+ * most, and made the bootstrap disagree with the plain projection besides.
+ */
 async function prepareCanonicalMap(_village, options = {}) {
-  const baseArtSet = options.artSet ?? configuredArtSet;
   const next = {
     ...options,
     plan: null,
     backgroundSet: options.backgroundSet ?? configuredBackgroundSet,
-    // Explicit/configured art sets remain an additive override. The default
-    // catalogue keeps the source-extracted housing that defines this layout.
-    canonicalHousing: options.canonicalHousing ?? (!options.artSet && configuredArtSet === VILLAGE_ART_SET)
+    canonicalHousing: options.canonicalHousing ?? true
   };
   if (!text(options.backgroundSrc)) delete next.backgroundSrc;
-  if (!options.artSet && options.stampArt !== false) {
-    next.artSet = composeStampArtSet(baseArtSet);
-  }
   return next;
 }
 
