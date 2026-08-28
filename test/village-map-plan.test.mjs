@@ -276,6 +276,26 @@ describe("village map | canonical art wiring", () => {
     }
   });
 
+  it("does not embed cast-shadow blobs in placeable canonical art", () => {
+    const founded = gadwick({
+      prosperity: 10,
+      institutions: [
+        ...gadwick().institutions,
+        { id: "beacon", type: "beacon", level: 1 }
+      ]
+    });
+    const placeableSources = new Set([
+      ...buildVillageProjection(founded).tiles.map(tile => tile.texture?.src),
+      ...buildVillageProjection(gadwick({ institutions: [] })).tiles.map(tile => tile.texture?.src)
+    ].filter(src => src?.startsWith("systems/crows/assets/village/canonical/")));
+
+    assert.equal(placeableSources.size, 181, "not every placeable canonical SVG was exercised");
+    for (const src of placeableSources) {
+      const svg = readFileSync(src.replace("systems/crows/", ""), "utf8");
+      assert.doesNotMatch(svg, /#9699AE|<g\b[^>]*(?:id="shadow"|opacity="0\.55")/i, `${src} still embeds a cast shadow`);
+    }
+  });
+
   it("carries no white shading pixels into the canonical background", () => {
     // The shading layer is a 128x128 bitmap emitted one path per pixel and
     // composited with mix-blend-mode: multiply, under which white is a no-op.
