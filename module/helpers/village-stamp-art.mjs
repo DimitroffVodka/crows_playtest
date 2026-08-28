@@ -42,6 +42,24 @@ export const VILLAGE_STAMP_ASSET_ROOT = "systems/crows/assets/";
 /** Light angle the whole set is drawn to; shadow SVGs bake this as a translate. */
 export const STAMP_SHADOW_OFFSET = Object.freeze({ dx: 28, dy: 16 });
 
+/**
+ * Softening applied to cast shadows, as a fraction of a building's width.
+ *
+ * The set draws its shadows as hard-edged flat silhouettes, which is right for
+ * a single asset viewed on its own — the design package's preview composites
+ * them exactly that way. On a village map it is not: a hard copy displaced 5.5%
+ * of the building's width reads as a misregistered duplicate rather than as a
+ * shadow, and it sits next to drawn buildings that *are* softened, so the two
+ * halves of the map disagree about what a shadow looks like.
+ *
+ * The value keeps the drawn map's own blur-to-offset proportion. That path uses
+ * `dx 4 / dy 6 / blur 2` scaled by 6, so its blur is a little over a quarter of
+ * its offset; at the stamps' 32/512 offset that lands near 0.018 of the width.
+ * Matching the ratio rather than the absolute blur is what keeps the two
+ * consistent as buildings change size.
+ */
+export const STAMP_SHADOW_BLUR_RATIO = 0.018;
+
 /** The ink and shadow contract every asset in this set is drawn against. */
 export const STAMP_PALETTE = Object.freeze({
   ink: "#010206",

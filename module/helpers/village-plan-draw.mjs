@@ -18,6 +18,7 @@ import {
   HOUSING_SLUGS,
   INSTITUTION_SLUGS,
   STAMP_CANVAS,
+  STAMP_SHADOW_BLUR_RATIO,
   STAMP_SHADOW_OFFSET
 } from "./village-stamp-art.mjs";
 
@@ -433,7 +434,20 @@ function drawStampShadows(out, plan, s, opts = {}) {
     );
   }
   if (!shadows.length) return;
-  out.push(`<g id="stamp-shadows">${shadows.join("")}</g>`);
+  // One blur over the layer, not one per building: the softening is isotropic,
+  // so it has none of the directional trouble that forces the offset outside
+  // each rotation, and a single filter is one raster pass instead of thirty.
+  // Sized from the median building so it tracks how big buildings are on this
+  // map rather than being a constant that suits one scale and no other.
+  const widths = footprints.map(f => f.width).sort((a, b) => a - b);
+  const median = widths[Math.floor(widths.length / 2)] ?? 0;
+  const blur = median * STAMP_SHADOW_BLUR_RATIO;
+  const filter = blur > 0
+    ? `<defs><filter id="vp-stamp-shadow" x="-12%" y="-12%" width="124%" height="124%">`
+      + `<feGaussianBlur stdDeviation="${fmt(blur)}"/></filter></defs>`
+    : "";
+  out.push(`${filter}<g id="stamp-shadows"${blur > 0 ? ` filter="url(#vp-stamp-shadow)"` : ""}>`
+    + `${shadows.join("")}</g>`);
 }
 
 /**

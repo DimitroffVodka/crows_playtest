@@ -18,6 +18,7 @@ import {
   HOUSING_STAMPS,
   INSTITUTION_STAMPS,
   STAMP_PALETTE,
+  STAMP_SHADOW_BLUR_RATIO,
   STAMP_SHADOW_OFFSET,
   TREE_STAMPS,
   VILLAGE_STAMP_ASSET_ROOT,
@@ -281,6 +282,29 @@ describe("village stamp art — the dressing and shadow layers", () => {
       assert.ok(Math.abs(dx - (STAMP_SHADOW_OFFSET.dx / 512) * spot.width) < 0.02);
       assert.ok(Math.abs(dy - (STAMP_SHADOW_OFFSET.dy / 512) * spot.height) < 0.02);
     }
+  });
+
+  test("cast shadows are softened, so they read as shadows not as duplicates", () => {
+    // A hard-edged silhouette displaced 5.5% of a building's width reads as a
+    // misregistered copy, and it would sit beside drawn buildings that are
+    // softened by the layer's own feDropShadow.
+    const plan = openPlan();
+    const footprints = stampFootprints(plan, {});
+    const svg = villageBackgroundSvg(plan, { sprites: sprites(), footprints });
+    assert.match(svg, /<filter id="vp-stamp-shadow"/);
+    assert.match(svg, /id="stamp-shadows" filter="url\(#vp-stamp-shadow\)"/);
+    const blur = Number(svg.match(/id="vp-stamp-shadow"[\s\S]*?stdDeviation="([\d.]+)"/)[1]);
+    const widths = footprints.map(f => f.width).sort((a, b) => a - b);
+    const median = widths[Math.floor(widths.length / 2)];
+    assert.ok(Math.abs(blur - median * STAMP_SHADOW_BLUR_RATIO) < 0.01);
+    // Softening must stay well under the offset, or the shadow smears into a halo.
+    assert.ok(blur < Math.hypot(STAMP_SHADOW_OFFSET.dx, STAMP_SHADOW_OFFSET.dy) / 512 * median);
+  });
+
+  test("no shadows means no filter left dangling", () => {
+    const plan = openPlan();
+    const svg = villageBackgroundSvg(plan, { sprites: sprites(), footprints: [] });
+    assert.doesNotMatch(svg, /vp-stamp-shadow/);
   });
 
   test("the baked-in offset is stripped so it cannot be applied twice", () => {
