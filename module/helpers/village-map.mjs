@@ -26,6 +26,25 @@ import {
   setVillageSceneReconciliationEnqueuer
 } from "./village.mjs";
 import { VILLAGE_ART_SET } from "./village-art.mjs";
+import {
+  buildVillagePlan,
+  planPositionForHousing,
+  planPositionForInstitution
+} from "./village-plan.mjs";
+import { villageBackgroundSvg } from "./village-plan-draw.mjs";
+import { BUILDING_SHAPES, materialForInstitution, shapeSvg } from "./village-plan-art.mjs";
+import {
+  FARM_PLOT_STAMPS,
+  HOUSING_STAMPS,
+  INSTITUTION_STAMPS,
+  TREE_STAMPS,
+  composeStampArtSet,
+  contentBoxFor,
+  shadowSrcFor,
+  slugFor,
+  stampBody,
+  stampShadowBody
+} from "./village-stamp-art.mjs";
 
 export const VILLAGE_MAP_GENERATOR_VERSION = "village-map-1";
 export const GENERATOR_VERSION = VILLAGE_MAP_GENERATOR_VERSION;
@@ -454,9 +473,65 @@ function settlementLayout(village, options = {}) {
   };
 }
 
+/**
+ * Turn a plan's placement into Tile coordinates.
+ *
+ * The plan works in centres — a building sits *at* a point on its plot — while
+ * Foundry places a Tile by its top-left corner. Handing a centre straight to a
+ * Tile offsets every building by half its own size.
+ */
+function tilePositionFromPlan(at, options) {
+  const width = Math.max(0, Number(options.tileWidth) || 0);
+  const height = Math.max(0, Number(options.tileHeight) || 0);
+  return { x: Math.round(at.x - width / 2), y: Math.round(at.y - height / 2) };
+}
+
+/**
+ * Fit configured tile art inside the plot the plan gave it.
+ *
+ * The shipped institution art is 4×3 grid squares — 1200×900 — while a plot is
+ * around 300×270. Drawn at its configured size every building would be sixteen
+ * times the area of its own plot, overlapping its neighbours and hanging off
+ * the map; and the arithmetic rules out simply enlarging the scene, since forty
+ * buildings at twelve squares each need 480 against the background's 352.
+ *
+ * So the art is scaled to the ground it was given, preserving its aspect ratio.
+ * A temple on a large plot still renders larger than a cottage — size now
+ * follows from the plan rather than from a constant.
+ *
+ * The plot's frontage runs along its street while the tile is turned a quarter
+ * turn to face it, so frontage bounds the tile's *height* and depth its width.
+ */
+function fitTileToPlot(at, width, height) {
+  const frontage = Number(at?.frontage);
+  const depth = Number(at?.depth);
+  if (!Number.isFinite(frontage) || !Number.isFinite(depth) || frontage <= 0 || depth <= 0) {
+    return { width, height };
+  }
+  if (width <= 0 || height <= 0) return { width, height };
+  const scale = Math.min(depth / width, frontage / height);
+  if (!Number.isFinite(scale) || scale <= 0 || scale >= 1) return { width, height };
+  return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
+}
+
+/** Degrees a tile turns to face the street its plot fronts on. */
+export function planRotationFor(at) {
+  const angle = Number(at?.angle);
+  if (!Number.isFinite(angle)) return 0;
+  // +90° matches the drawn map, where a building's local frame faces the
+  // street with -y; without it tiles sit broadside to their own frontage.
+  return Math.round(((angle + Math.PI / 2) * 180) / Math.PI);
+}
+
 export function institutionPosition(village, institution, options = {}) {
   if (typeof options.positionForInstitution === "function") {
     return clone(options.positionForInstitution({ village: clone(village), institution: clone(institution) }));
+  }
+  // A plan places buildings on streets; the grid below is the fallback for a
+  // village that has none, and for anything the plan could not fit.
+  if (options.plan) {
+    const at = planPositionForInstitution(options.plan, String(institution?.id ?? institution?.type ?? ""));
+    if (at) return tilePositionFromPlan(at, options);
   }
   const layout = settlementLayout(village, {
     ...options,
@@ -478,6 +553,12 @@ export function institutionPosition(village, institution, options = {}) {
 export function housingPosition(village, index, options = {}) {
   if (typeof options.positionForHousing === "function") {
     return clone(options.positionForHousing({ village: clone(village), index }));
+  }
+  // Taken before the MAX_HOUSING_TILES clamp below: a plan houses a prosperous
+  // village in dozens of homes, and clamping would stack them all on the fifth.
+  if (options.plan) {
+    const at = planPositionForHousing(options.plan, Math.max(0, Math.floor(Number(index) || 0)));
+    if (at) return tilePositionFromPlan(at, options);
   }
   const layout = settlementLayout(village, {
     ...options,
@@ -868,7 +949,7 @@ function villageTileFlag({ kind, villageId, generatorVersion: version, ...identi
   };
 }
 
-function baseTileData({ name, asset, position, width, height, sort, flag }) {
+function baseTileData({ name, asset, position, width, height, sort, flag, rotation = 0 }) {
   return {
     name,
     texture: textureFor(asset),
@@ -878,7 +959,9 @@ function baseTileData({ name, asset, position, width, height, sort, flag }) {
     height: Math.max(0, Math.round(Number(height) || 0)),
     elevation: 0,
     sort: Math.round(Number(sort) || 0),
-    rotation: 0,
+    // Foundry rotates a Tile about its centre and leaves x/y as the unrotated
+    // top-left, so a tile centred on its plot stays centred when turned.
+    rotation: Math.round(Number(rotation) || 0),
     alpha: 1,
     hidden: false,
     locked: false,
@@ -888,8 +971,16 @@ function baseTileData({ name, asset, position, width, height, sort, flag }) {
 
 export function institutionTileData(village, institution, options = {}) {
   const effective = effectiveInstitutionForMap(institution, village);
-  const tileWidth = tileDimensionFor(options, "institution", "Width");
-  const tileHeight = tileDimensionFor(options, "institution", "Height");
+  const placedAt = options.plan
+    ? planPositionForInstitution(options.plan, String(institution?.id ?? institution?.type ?? ""))
+    : null;
+  const fitted = fitTileToPlot(
+    placedAt,
+    tileDimensionFor(options, "institution", "Width"),
+    tileDimensionFor(options, "institution", "Height")
+  );
+  const tileWidth = fitted.width;
+  const tileHeight = fitted.height;
   const asset = assetForInstitution({
     type: institution?.type,
     effectiveLevel: effective,
@@ -911,6 +1002,7 @@ export function institutionTileData(village, institution, options = {}) {
     position,
     width: tileWidth,
     height: tileHeight,
+    rotation: options.rotateToStreet === false ? 0 : planRotationFor(placedAt),
     sort: options.sort ?? 100,
     flag: villageTileFlag({
       kind: "institution",
@@ -928,8 +1020,14 @@ export function institutionTileData(village, institution, options = {}) {
 }
 
 export function housingTileData(village, index, options = {}) {
-  const tileWidth = tileDimensionFor(options, "housing", "Width");
-  const tileHeight = tileDimensionFor(options, "housing", "Height");
+  const placedAt = options.plan ? planPositionForHousing(options.plan, index) : null;
+  const fitted = fitTileToPlot(
+    placedAt,
+    tileDimensionFor(options, "housing", "Width"),
+    tileDimensionFor(options, "housing", "Height")
+  );
+  const tileWidth = fitted.width;
+  const tileHeight = fitted.height;
   const asset = assetForHousing(options.artSet ?? configuredArtSet, "operating", index);
   const version = generatorVersion(options);
   const position = housingPosition(village, index, {
@@ -945,6 +1043,7 @@ export function housingTileData(village, index, options = {}) {
     position,
     width: tileWidth,
     height: tileHeight,
+    rotation: options.rotateToStreet === false ? 0 : planRotationFor(placedAt),
     sort: options.housingSort ?? 1000 + index,
     flag: villageTileFlag({
       kind: "housing",
@@ -961,19 +1060,305 @@ export function housingTileData(village, index, options = {}) {
   });
 }
 
+/**
+ * Resolve the spatial plan for a projection, if one is wanted.
+ *
+ * Opt-in: without `plan` or `usePlan` the projection lays tiles out exactly as
+ * it always has. Pass `previousPlan` when growing an existing village, so the
+ * planner keeps every building where it already stands.
+ */
+export function villagePlanFor(village, options = {}) {
+  if (options.plan) return options.plan;
+  if (!options.usePlan) return null;
+  try {
+    return buildVillagePlan(village, {
+      seed: options.planSeed ?? village?.sceneSeed,
+      params: options.planParams,
+      previous: options.previousPlan ?? null,
+      locks: options.planLocks
+    });
+  } catch (error) {
+    // A failed plan must not cost the Ref their map; fall back to the grid.
+    console.error("crows | village plan failed, falling back to grid layout", error);
+    return null;
+  }
+}
+
+/**
+ * Where a village's drawn backdrop lives.
+ *
+ * Under the world's own assets rather than the system's: the file is generated
+ * from *this* world's Village record, so it belongs with the world's data and
+ * not in a directory that a system update would replace. One stable name per
+ * village, so regenerating overwrites rather than accumulating orphans.
+ */
+export function villageBackgroundPath(villageId, worldId = null) {
+  const world = text(worldId) || text(globalThis.game?.world?.id) || "world";
+  // Separators are already gone once anything outside this set becomes a dash,
+  // so no traversal survives; the dot rules exist so a villageId cannot produce
+  // a filename that merely *looks* like one ("..-..-etc-passwd") or a hidden
+  // dotfile the Ref cannot see in their own assets folder.
+  const id = (text(villageId) || "village")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/\.{2,}/g, ".")
+    .replace(/^[.\-]+/, "")
+    || "village";
+  const dir = `worlds/${world}/assets/crows-village`;
+  return { dir, file: `${id}.svg`, path: `${dir}/${id}.svg` };
+}
+
+/**
+ * Draw the plan's ground and write it into the world as an SVG.
+ *
+ * SVG rather than a raster: Foundry accepts it as an image, it stays sharp at
+ * any zoom, and a whole village is ~60KB where a 4800x6600 PNG is megabytes.
+ * Written as a file rather than embedded as a data URI because the backdrop
+ * would otherwise live inside the Scene document and be pushed to every client
+ * on every update — ~120KB of base64 in a field that syncs.
+ *
+ * Returns the path to use as a backdrop, or null if it could not be written;
+ * a failed backdrop must not stop a Scene being made.
+ */
+/**
+ * Where every stamped building will actually stand, in plan coordinates.
+ *
+ * Exported so the backdrop's shadow layer can be laid out from the same numbers
+ * the Tiles are built from. A shadow that guesses at its building's size or
+ * angle is worse than no shadow at all, and the sizing rules — the grid
+ * defaults, the fit into the plot, the quarter-turn onto the street — all live
+ * here with the tiles rather than with the renderer.
+ */
+export function stampFootprints(plan, options = {}) {
+  const plotById = new Map((plan?.plots ?? []).map(plot => [plot.id, plot]));
+  const footprints = [];
+
+  const push = (kind, placement, extra) => {
+    const plot = plotById.get(placement?.plotId);
+    if (!plot || plot.use === "vacant" || plot.destroyed) return;
+    const fitted = fitTileToPlot(
+      { frontage: plot.frontage, depth: plot.depth },
+      tileDimensionFor(options, kind, "Width"),
+      tileDimensionFor(options, kind, "Height")
+    );
+    const angle = Number(placement.angle);
+    footprints.push({
+      kind,
+      ...extra,
+      center: placement.center,
+      // The same quarter-turn `planRotationFor` applies to the Tile.
+      angle: (Number.isFinite(angle) ? angle : 0) + Math.PI / 2,
+      width: fitted.width,
+      height: fitted.height
+    });
+  };
+
+  for (const placement of plan?.assignment?.institutions ?? []) {
+    const plot = plotById.get(placement?.plotId);
+    push("institution", placement, {
+      type: plot?.institutionType ?? null,
+      level: plot?.institutionLevel ?? 1
+    });
+  }
+  (plan?.assignment?.housing ?? []).forEach((placement, index) => {
+    push("housing", placement, { index });
+  });
+  return footprints;
+}
+
+/**
+ * Load the dressing stamps and prepare them for inlining into the backdrop.
+ *
+ * They have to be inlined rather than referenced: the backdrop is uploaded as
+ * one file and used as a Scene texture, and an SVG loaded as an image will not
+ * resolve an external `href`. Fetched here, in the async wrapper, so
+ * `renderPlanToSvg` stays a pure string function.
+ *
+ * Returns null when nothing loads — the renderer falls back to drawing the
+ * dressing itself, so a failed fetch costs detail, never a backdrop.
+ */
+export async function loadVillageDressingSprites() {
+  const bodies = {};
+  const boxes = {};
+  const order = [];
+
+  const load = async (src, id, extract) => {
+    try {
+      const route = globalThis.foundry?.utils?.getRoute?.(src) ?? src;
+      const response = await fetch(route);
+      if (!response?.ok) return;
+      const body = extract(await response.text());
+      if (!body) return;
+      bodies[id] = { body };
+      boxes[id] = contentBoxFor(src);
+      order.push(id);
+    } catch { /* a sprite that will not load is simply not drawn */ }
+  };
+
+  // Dressing: inlined into the ground because the backdrop is one file.
+  for (const entry of [...TREE_STAMPS, ...FARM_PLOT_STAMPS]) {
+    await load(entry.src, `vp-${slugFor(entry.src)}`, stampBody);
+  }
+  // Building shadows: the buildings themselves are Tiles, but a Tile takes no
+  // SVG filter, so their shadows are painted onto the ground they fall on.
+  for (const entry of [...Object.values(INSTITUTION_STAMPS), ...HOUSING_STAMPS]) {
+    const shadow = shadowSrcFor(entry.src);
+    if (shadow) await load(shadow, `vp-shadow-${slugFor(entry.src)}`, stampShadowBody);
+  }
+  return order.length ? { bodies, boxes, order } : null;
+}
+
+export async function writeVillagePlanBackground({
+  plan, villageId, style = null, worldId = null, showTitle = true, sprites = undefined,
+  // Tile sizing, so the shadows painted onto the ground match the Tiles that
+  // will stand on it.
+  tileOptions = {}
+} = {}) {
+  if (!plan) return null;
+  const picker = globalThis.foundry?.applications?.apps?.FilePicker?.implementation
+    ?? globalThis.FilePicker;
+  if (typeof picker?.upload !== "function") return null;
+
+  const { dir, file, path } = villageBackgroundPath(villageId, worldId);
+  try {
+    const resolved = sprites === undefined ? await loadVillageDressingSprites() : sprites;
+    const svg = villageBackgroundSvg(plan, {
+      style,
+      showTitle,
+      sprites: resolved,
+      footprints: stampFootprints(plan, tileOptions)
+    });
+    try {
+      await picker.createDirectory("data", dir);
+    } catch { /* already present, which is the common case */ }
+    const upload = new File([svg], file, { type: "image/svg+xml" });
+    const result = await picker.upload("data", dir, upload, {}, { notify: false });
+    return text(result?.path) || path;
+  } catch (error) {
+    console.error("crows | could not write the village backdrop", error);
+    return null;
+  }
+}
+
+/**
+ * The drawn building art, as one file per shape.
+ *
+ * One file per *shape* rather than per institution: `INSTITUTION_SHAPES` already
+ * collapses twelve institutions and their level bands onto fourteen shapes, and
+ * a church is the same drawing whichever village it stands in. Housing gets a
+ * few material variants so a street is not a row of identical roofs.
+ *
+ * Names are stable, so regenerating overwrites in place.
+ */
+export const DRAWN_HOUSING_VARIANTS = Object.freeze(["thatch", "wood", "thatch", "wood", "wood"]);
+
+export function drawnArtPath(name, worldId = null) {
+  const world = text(worldId) || text(globalThis.game?.world?.id) || "world";
+  const dir = `worlds/${world}/assets/crows-village/art`;
+  return { dir, file: `${name}.svg`, path: `${dir}/${name}.svg` };
+}
+
+/**
+ * An art set that resolves the shipped logical keys onto drawn SVG files.
+ *
+ * The logical keys and the drawn shapes already agree by design, except that
+ * the catalogue marks the two it has no art for — `unsupported.crypt` and
+ * `unsupported.stables` — which map onto the shapes drawn for exactly them.
+ */
+export function drawnVillageArtSet(paths) {
+  const forKey = key => paths[text(key).replace(/^unsupported\./, "")] ?? null;
+  return {
+    resolve({ key, assetKey, visualState, kind }) {
+      if (kind === "background") return null;
+      if (visualState === "destroyed" && paths.ruin) {
+        return { src: paths.ruin, label: "Ruin" };
+      }
+      const src = forKey(assetKey ?? key);
+      return src ? { src, label: text(assetKey ?? key) } : null;
+    },
+    housingPool: DRAWN_HOUSING_VARIANTS.map((_, i) => paths[`house-${i}`]).filter(Boolean)
+  };
+}
+
+/**
+ * Draw every building shape once and write it into the world.
+ *
+ * Returns an art set ready to hand to the projection, or null if nothing could
+ * be written — in which case the shipped PNG catalogue is still there.
+ */
+export async function writeVillagePlanArt({ worldId = null, style = null, size = 512 } = {}) {
+  const picker = globalThis.foundry?.applications?.apps?.FilePicker?.implementation
+    ?? globalThis.FilePicker;
+  if (typeof picker?.upload !== "function") return null;
+
+  const { dir } = drawnArtPath("probe", worldId);
+  // Materials follow the institution that uses the shape, so a temple is slate
+  // and a smithy clay just as they are on the drawn map. Every level band is
+  // walked, not just the last, or the first-level shapes (smith, church) would
+  // be drawn in the fallback material.
+  const materialByShape = {};
+  for (const [type, def] of Object.entries(INSTITUTION_ART_KEYS)) {
+    for (const band of def.levels ?? []) {
+      const shape = text(band.key).replace(/^unsupported\./, "");
+      if (shape && !(shape in materialByShape)) materialByShape[shape] = materialForInstitution(type);
+    }
+  }
+
+  const jobs = [];
+  for (const shape of BUILDING_SHAPES) {
+    if (shape === "house") continue;
+    jobs.push([shape, { material: materialByShape[shape] ?? null }]);
+  }
+  DRAWN_HOUSING_VARIANTS.forEach((material, i) => jobs.push([`house-${i}`, { shape: "house", material, institution: false }]));
+  jobs.push(["ruin", { shape: "cathedral", destroyed: true }]);
+
+  const paths = {};
+  try {
+    try { await picker.createDirectory("data", dir); } catch { /* already present */ }
+    for (const [name, opts] of jobs) {
+      const svg = shapeSvg(opts.shape ?? name, {
+        ...opts,
+        style,
+        size,
+        // Never bake a shadow into Tile art; the Tile rotates and the shadow
+        // would rotate with it.
+        shadow: false,
+        // The drawn backdrop already supplies the ground, so a filled yard here
+        // would sit on the map as a pale card under the building.
+        ground: false,
+        // `drawBuilding` already insets to 0.94; padding on top of that leaves
+        // buildings visibly smaller than the plots they were fitted to.
+        padding: 0
+      });
+      const { dir: d, file, path } = drawnArtPath(name, worldId);
+      const result = await picker.upload("data", d, new File([svg], file, { type: "image/svg+xml" }), {}, { notify: false });
+      paths[name] = text(result?.path) || path;
+    }
+  } catch (error) {
+    console.error("crows | could not write the drawn building art", error);
+    return Object.keys(paths).length ? drawnVillageArtSet(paths) : null;
+  }
+  return drawnVillageArtSet(paths);
+}
+
 /** Build all desired generated data without touching Foundry documents. */
 export function buildVillageProjection(village, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
+  const plan = villagePlanFor(source, options);
+  const opts = plan ? { ...options, plan } : options;
   const institutions = source.institutions.map((institution, index) =>
-    institutionTileData(source, institution, { ...options, sort: options.sort ?? 100 + index })
+    institutionTileData(source, institution, { ...opts, sort: options.sort ?? 100 + index })
   );
   const housingTier = housingTierForProsperity(source.prosperity);
-  const housing = Array.from({ length: housingTier }, (_, index) =>
-    housingTileData(source, index, options)
+  // A plan houses the village properly; the tier is a five-tile stand-in for
+  // when there is no plan to say how many homes there actually are.
+  const housingCount = plan ? plan.assignment.housing.length : housingTier;
+  const housing = Array.from({ length: housingCount }, (_, index) =>
+    housingTileData(source, index, opts)
   );
   return {
     villageId: source.villageId,
     sceneSeed: source.sceneSeed,
+    plan,
     housingTier,
     housingCount: housing.length,
     institutions,
@@ -1304,11 +1689,16 @@ function sceneGridData(options = {}) {
 export function villageSceneData(village, operationId, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
   const version = generatorVersion(options);
-  const background = resolveVillageBackground({
-    variant: options.backgroundVariant ?? SCENE_DEFAULTS.backgroundVariant,
-    artSet: options.artSet,
-    backgroundSet: options.backgroundSet
-  });
+  // A drawn backdrop wins over the shipped catalogue: it was generated from
+  // this village's own plan, so the streets under the buildings are the streets
+  // the buildings were placed on.
+  const background = text(options.backgroundSrc)
+    ? { src: text(options.backgroundSrc), variant: "plan", key: "plan" }
+    : resolveVillageBackground({
+        variant: options.backgroundVariant ?? SCENE_DEFAULTS.backgroundVariant,
+        artSet: options.artSet,
+        backgroundSet: options.backgroundSet
+      });
   return {
     name: source.name || "Village",
     width: options.width ?? SCENE_DEFAULTS.width,
@@ -1539,6 +1929,60 @@ async function uncertainBootstrap(current, operationId, details = {}) {
   }
 }
 
+/**
+ * Resolve the plan and draw its backdrop, returning options the rest of the
+ * saga can use unchanged.
+ *
+ * Opt-in through `usePlan` (or a caller-supplied `plan`): an existing world's
+ * villages keep the layout they already have until a Ref asks for the new one.
+ *
+ * A backdrop that cannot be written is not fatal. The Scene falls back to the
+ * shipped catalogue art and the buildings still land on their planned
+ * positions — a missing image is worth far less than a missing village.
+ */
+async function preparePlannedMap(village, options = {}) {
+  const plan = villagePlanFor(village, options);
+  if (!plan) return options;
+  let next = { ...options, plan };
+
+  // The stamps are drawn on a square canvas, but institution Tiles default to
+  // 4x3 grid units — which would stretch every one of them a third wider than
+  // it was drawn. Squared off here rather than in the defaults because it is a
+  // fact about this art set, not about institutions.
+  if (next.stampArt !== false && !next.artSet && next.institutionHeightGrid == null) {
+    next = { ...next, institutionHeightGrid: next.institutionWidthGrid ?? SCENE_DEFAULTS.institutionWidthGrid };
+  }
+
+  if (!text(next.backgroundSrc)) {
+    const backgroundSrc = await writeVillagePlanBackground({
+      plan,
+      villageId: village?.villageId,
+      style: options.planStyle ?? null,
+      showTitle: options.planTitle !== false,
+      tileOptions: next
+    });
+    if (backgroundSrc) next = { ...next, backgroundSrc };
+  }
+
+  // Drawn buildings, so the tiles and the ground they stand on are one style
+  // rather than watercolour assets over a parchment map. Opt out with
+  // `drawnArt: false` to keep the shipped PNG catalogue.
+  //
+  // The hand-drawn stamps are then composed over the drawn set: an institution
+  // with real art gets its identity, and everything the stamps do not cover —
+  // every ruin, every shape without an asset — still resolves to drawn art in
+  // the same style. Opt out with `stampArt: false` to see the drawn buildings
+  // on their own.
+  if (options.drawnArt !== false && !options.artSet) {
+    const artSet = await writeVillagePlanArt({ style: options.planStyle ?? null });
+    if (artSet) next = { ...next, artSet };
+  }
+  if (options.stampArt !== false && !options.artSet) {
+    next = { ...next, artSet: composeStampArtSet(next.artSet ?? null) };
+  }
+  return next;
+}
+
 async function bootstrapVillageSceneInternal(options = {}) {
   let current = normalizeVillage(options.village ?? getVillage());
   const authority = mapAuthorityFailure();
@@ -1628,6 +2072,12 @@ async function bootstrapVillageSceneInternal(options = {}) {
     if (attached && villageSceneFlag(attached)?.villageId === current.villageId) scene = attached;
   }
 
+  // Plan and draw before anything is created, so the Scene is made carrying its
+  // own map rather than being created against the stock backdrop and repainted
+  // a moment later. Both the Scene payload and the tile reconciliation below
+  // read from the same options, so they agree on one plan.
+  const mapOptions = await preparePlannedMap(current, options);
+
   if (!scene) {
     const createScene = sceneCreateFunction(options);
     if (!createScene) {
@@ -1637,7 +2087,7 @@ async function bootstrapVillageSceneInternal(options = {}) {
       });
     }
     try {
-      scene = await createScene(villageSceneData(current, operationId, options));
+      scene = await createScene(villageSceneData(current, operationId, mapOptions));
       if (Array.isArray(scene)) scene = scene[0];
     } catch (error) {
       return uncertainBootstrap(current, operationId, {
@@ -1686,7 +2136,7 @@ async function bootstrapVillageSceneInternal(options = {}) {
   }
 
   const reconciled = await reconcileVillageScene(current, null, {
-    ...options,
+    ...mapOptions,
     scene,
     force: true,
     generatorVersion: generatorVersion(options)
