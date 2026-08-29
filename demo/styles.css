@@ -1,0 +1,648 @@
+/* The system's own display serif, for the name written across the map. Declared
+   here rather than pulled from `css/crows.css`, which is a Foundry stylesheet
+   full of sheet layout this page has no use for. */
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../fonts/eb-garamond.woff2") format("woff2");
+}
+
+/* Palette lifted from the map's own `crows` style, so the page and the thing it
+   shows are the same set of colours. */
+:root {
+  --paper: #f4eee3;
+  --ink: #2a221b;
+  --wilds: #cfc6b4;
+  --road: #e8decb;
+  --edge: #baa991;
+  --wall: #806f5d;
+  --accent: #7e8f99;
+  --ember: #b8722c;
+  --panel: #fbf8f2;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(42, 34, 27, .09), 0 6px 18px rgba(42, 34, 27, .07);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--wilds);
+  color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+a { color: var(--ember); }
+
+.masthead {
+  padding: 28px 24px 20px;
+  background: var(--paper);
+  border-bottom: 2px solid var(--edge);
+}
+
+.masthead > div { max-width: 1360px; margin: 0 auto; }
+
+.crumb {
+  margin: 0 0 6px;
+  font-size: 13.5px;
+}
+
+.crumb a { text-decoration: none; }
+.crumb a:hover { text-decoration: underline; }
+
+.masthead h1 {
+  margin: 0;
+  font: 600 30px/1.15 Georgia, "Iowan Old Style", serif;
+  letter-spacing: .01em;
+}
+
+.masthead p {
+  margin: 6px 0 0;
+  max-width: 62ch;
+  color: #6a5c4c;
+}
+
+main {
+  max-width: 1360px;
+  margin: 0 auto;
+  /* The map page has no masthead, so the top padding is the whole top margin. */
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* -------------------------------------------- */
+/*  Control panel                               */
+/* -------------------------------------------- */
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.field { margin-bottom: 18px; }
+.field:last-of-type { margin-bottom: 0; }
+
+label, .label {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #6a5c4c;
+  margin-bottom: 6px;
+}
+
+.readout {
+  float: right;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--wall);
+}
+
+.hint {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #7d6f5e;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+}
+
+input[type="text"]:focus-visible,
+button:focus-visible,
+input[type="range"]:focus-visible,
+.chip input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--ember);
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.switch input { accent-color: var(--ember); }
+
+.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* -------------------------------------------- */
+/*  Buttons                                     */
+/* -------------------------------------------- */
+
+button {
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+button:hover { background: var(--road); }
+
+button.primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+}
+
+button.primary:hover { background: #3d332a; }
+
+button.link {
+  border: 0;
+  background: none;
+  padding: 2px 0;
+  font-size: 12.5px;
+  color: var(--ember);
+  text-decoration: underline;
+}
+
+button.link:hover { background: none; }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.actions:last-child { margin-bottom: 0; }
+
+.inline-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.segmented { display: flex; }
+
+.segmented button {
+  flex: 1;
+  border-radius: 0;
+  margin-left: -1px;
+}
+
+.segmented button:first-child { border-radius: 6px 0 0 6px; margin-left: 0; }
+.segmented button:last-child { border-radius: 0 6px 6px 0; }
+
+.segmented button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  position: relative;
+}
+
+/* -------------------------------------------- */
+/*  Institution chips                           */
+/* -------------------------------------------- */
+
+.institutions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+/* Two chip shapes wearing one face: the planner uses a checkbox in a <label>,
+   the map page a <button> that cycles through the levels. The label rules are
+   scoped to `label.chip` so they cannot reach inside the button's own spans. */
+label.chip input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+label.chip span {
+  display: block;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  text-align: center;
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+
+label.chip span:hover { background: var(--road); }
+
+label.chip input:checked + span {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: #fff;
+}
+
+button.chip:hover { background: var(--road); }
+
+button.chip.founded {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button.chip.founded:hover { background: #6d7d87; }
+
+button.chip.current {
+  outline: 2px solid var(--ember);
+  outline-offset: 1px;
+}
+
+.chip-level {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .25);
+}
+
+button.chip:not(.founded) .chip-level { display: none; }
+
+/* -------------------------------------------- */
+/*  Map                                         */
+/* -------------------------------------------- */
+
+.stage { min-width: 0; }
+
+.map-wrap { position: relative; }
+
+.map {
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  min-height: 320px;
+}
+
+.map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* -------------------------------------------- */
+/*  Hover and selection                         */
+/* -------------------------------------------- */
+
+.map .institution { cursor: pointer; }
+
+/* A drop shadow rather than an outline: the tiles are rotated square canvases
+   with the building sitting somewhere inside, so an outline would box the
+   canvas rather than trace the building. */
+.map .institution.hovered {
+  filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px var(--ember));
+}
+
+.tip {
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+  padding: 5px 9px;
+  transform: translate(14px, -34px);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--paper);
+  background: rgba(30, 24, 19, .93);
+  border-radius: 5px;
+}
+
+/* -------------------------------------------- */
+/*  Interior panel                              */
+/* -------------------------------------------- */
+
+.detail {
+  margin-top: 16px;
+  padding: 14px 16px 16px;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detail-head h2 {
+  margin: 0;
+  font: 600 19px/1.2 Georgia, serif;
+}
+
+.detail-source {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: #7d6f5e;
+}
+
+/* Side by side where there is room: the room and the ladder are read together,
+   and stacking them puts the decision below the fold. */
+.detail-body {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 780px) {
+  .detail-body { grid-template-columns: minmax(0, 1fr); }
+}
+
+button.icon {
+  border: 0;
+  background: none;
+  font-size: 22px;
+  line-height: 1;
+  padding: 0 4px;
+  color: #7d6f5e;
+}
+
+button.icon:hover { background: none; color: var(--ink); }
+
+.detail-view {
+  margin: 12px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.detail-view img {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border-radius: 6px;
+}
+
+.detail-view .empty {
+  margin: 24px 0;
+  max-width: 40ch;
+  text-align: center;
+  color: #7d6f5e;
+}
+
+.detail-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--edge);
+}
+
+.detail-level {
+  margin: 0;
+  font: 600 15px/1.3 Georgia, serif;
+}
+
+/* -------------------------------------------- */
+/*  Advancement ladder                          */
+/* -------------------------------------------- */
+
+.ladder {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.ladder caption {
+  caption-side: top;
+  text-align: left;
+  padding-bottom: 8px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #7d6f5e;
+}
+
+.ladder th[scope="col"] {
+  font-size: 11px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #7d6f5e;
+  text-align: left;
+  padding: 0 8px 4px 0;
+  font-weight: 600;
+}
+
+.ladder td,
+.ladder th[scope="row"] {
+  padding: 5px 8px 5px 0;
+  border-top: 1px solid var(--edge);
+  vertical-align: top;
+  text-align: left;
+}
+
+.ladder th[scope="row"] {
+  width: 1.5em;
+  font-weight: 600;
+  color: #7d6f5e;
+}
+
+.ladder .price {
+  white-space: nowrap;
+  color: #6a5c4c;
+}
+
+/* Prices alone, for the two whose level is its own effect. */
+.ladder-narrow { max-width: 220px; }
+
+.ladder tr.current {
+  background: #efe7d8;
+}
+
+.ladder tr.current th[scope="row"],
+.ladder tr.current td {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.capstone {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  font-size: 13px;
+  line-height: 1.45;
+  border-radius: 6px;
+  background: #f6f0e2;
+  border: 1px solid var(--edge);
+}
+
+.capstone.met {
+  background: #fdf3e4;
+  border-color: #e0c79a;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+button:disabled:hover { background: #fff; }
+button.primary:disabled:hover { background: var(--ink); }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1px;
+  margin: 16px 0 0;
+  background: var(--edge);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* Inside the control panel there is one narrow column, so the readouts run
+   down it as rows rather than wrapping into ragged cells. */
+.stats-stacked {
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 0 18px;
+}
+
+.stats-stacked > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stats-stacked dd { font-size: 15px; }
+
+.stats > div {
+  background: var(--panel);
+  padding: 10px 12px;
+}
+
+.stats dt {
+  font-size: 11.5px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #7d6f5e;
+}
+
+.stats dd {
+  margin: 2px 0 0;
+  font: 600 17px/1.2 Georgia, serif;
+}
+
+.warn, .note {
+  margin: 12px 0 0;
+  padding: 9px 12px;
+  font-size: 13px;
+  background: #fdf3e4;
+  border: 1px solid #e0c79a;
+  border-radius: 6px;
+  color: #6b4f22;
+}
+
+.note { margin-top: 14px; }
+
+/* -------------------------------------------- */
+/*  Footer                                      */
+/* -------------------------------------------- */
+
+footer {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 8px 24px 56px;
+  color: #5f5245;
+}
+
+footer h2 {
+  font: 600 20px/1.2 Georgia, serif;
+  margin: 24px 0 8px;
+}
+
+footer p { max-width: 74ch; }
+
+.stages {
+  max-width: 74ch;
+  padding-left: 20px;
+}
+
+.stages li { margin-bottom: 5px; }
+
+/* The map page carries no page furniture — the only pointer off it is one
+   line at the foot of the control panel. */
+.colophon {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--edge);
+  font-size: 12px;
+  color: #8b7d6a;
+}
+
+@media (max-width: 900px) {
+  main { grid-template-columns: minmax(0, 1fr); }
+  /* Stacked, the map goes first: the controls are twice the height of the
+     viewport, so leading with them puts the thing being demonstrated off the
+     bottom of the page. */
+  .stage { order: 1; }
+  .panel { order: 2; position: static; max-height: none; }
+}

@@ -20,6 +20,28 @@ This system implements those rules. You need the packet to read what the game *i
 
 ---
 
+## See the village map
+
+**[Live demo →](https://dimitroffvodka.github.io/crows_playtest/)** — no install, no Foundry.
+
+[![Balhaunis in daylight, choked by the Miasma, and at night](demo/preview.png)](https://dimitroffvodka.github.io/crows_playtest/)
+
+Balhaunis is authored, not generated — the roads, the ground and every plot are fixed. Found an
+institution and it appears on the plot that was being held for it; move Prosperity and the homes,
+fields and woodland fill in behind it, always in the same order, so a village that falls on hard
+times and recovers gets the identical village back.
+
+Hover a building to name it, click it to see the room inside and what its next level costs, and
+raise it to watch it grow on its plot — levels have no art of their own, so size is what an upgrade
+looks like. Name the village and it is written across the map. Roll in the **Miasma** and it chokes
+everything the ruin does not enclose (C:2218), which is the whole point of living inside one.
+
+The page calls the system's own `buildVillageProjection()` for every frame rather than a copy of it.
+See [`demo/`](demo/) for how that is wired, how to run it locally, and for the separate procedural
+layout engine that plans a settlement from a seed.
+
+---
+
 ## Install (Foundry VTT)
 
 In Foundry → Game Systems → Install System → paste this manifest URL:
@@ -49,7 +71,7 @@ Or download a release zip directly from the [Releases page](https://github.com/D
 ### Downtime systems
 - **Miasma** — outdoor 24h resist test (2d10 + M + Endurance), Effects table dispatch with effect-id dedup, cruelty accumulation, catastrophic result → permanent NPC.
 - **Crypt boons** — 10-boon institution with internment registry, once-per-cycle prayer, mechanical hooks for Vitality / Fury / Swiftness boons; chat-card scaffolds for the rest.
-- **Village** — Prosperity tracker (−10..+10), 10-day cycles, institution registry, end-of-cycle event roll (d10 + Prosperity), GM management dialog.
+- **Village** — Prosperity tracker (−10..+10), 10-day cycles, institution registry, end-of-cycle event roll (d10 + Prosperity), GM management dialog, and an authored village map projected onto a Scene as Tiles, filling in with Prosperity ([see it in the browser](https://dimitroffvodka.github.io/crows_playtest/)).
 - **Crafting** — projects with prereqs/materials/goal, special-Mind crafting roll (doom=0, crit=re-roll, min 1), Identify Item 2d10+M tiered test.
 - **Advancement** — TXP threshold table for expertise/stamina and characteristic bonuses, trait-tree purchase UI (4×3 grid per tree, `connectsTo` gating), XP-grant macros.
 - **Pets** — taming, bonding, ownership transfer, and combat commands, with the command test the rules require.

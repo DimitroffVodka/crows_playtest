@@ -1687,3 +1687,120 @@ export function canonicalPrefixCount(prosperity, capacity) {
   const value = Math.max(-10, Math.min(10, Math.floor(Number(prosperity) || 0)));
   return Math.round(((value + 10) / 20) * Math.max(0, Math.floor(Number(capacity) || 0)));
 }
+
+/**
+ * How much larger an institution draws once fully raised.
+ *
+ * Upgrading an institution has no art of its own — the authored set is one
+ * drawing per type, and `INSTITUTION_LEVEL_STAMPS` is empty — so a level 3
+ * blacksmith and a level 1 blacksmith are the same picture. Size is what
+ * distinguishes them: the building grows on its plot as the village invests in
+ * it, which is legible at a glance and needs no second drawing.
+ *
+ * It also fixes a legibility problem the levels are incidental to. The export
+ * sized every building to its footprint, and a blacksmith's plot is 229 against
+ * a 295-wide house — so the buildings a player actually needs to find are
+ * smaller than the houses either side of them. A raised institution reads.
+ *
+ * An unfounded plot and a closed institution have no growth and draw at the
+ * authored size.
+ *
+ * 1.25 is the most the composition takes: at that scale every institution still
+ * clears the canvas on all sides and none reaches another. A few of the larger
+ * ones overlap a neighbouring house's *box*, but the art fills about three
+ * quarters of its box, so the drawings stay clear of each other.
+ */
+/**
+ * The line the palisade holds, as a closed ring in map units.
+ *
+ * C:2218 — "In Cornath every village is contained within a ruin. These
+ * structures are enclosed, protecting the people within from the Miasma and the
+ * monsters wandering the wilds." Inside this ring is sheltered ground; outside
+ * it is not. That division is drawn in the background art and was nowhere in the
+ * data, so nothing could ask where the Miasma begins.
+ *
+ * Traced from the background rather than authored beside it: the wall is one
+ * shape in a 1.4 MB flattened export with no boundary path to lift, so this is
+ * 96 rays cast from the village centre to the outermost near-black pixel, then
+ * smoothed. It follows the drawn palisade to within a few units the whole way
+ * round. Frozen here because a ring that is re-derived at load time would drift
+ * the moment the art is re-exported, and silently.
+ */
+export const CANONICAL_VILLAGE_SHELTER = Object.freeze([
+  [5065, 3050], [5025, 3181], [4986, 3309], [4943, 3432], [4896, 3553], [4847, 3670],
+  [4796, 3786], [4743, 3900], [4687, 4012], [4625, 4123], [4559, 4231], [4490, 4339],
+  [4417, 4447], [4339, 4554], [4255, 4660], [4165, 4764], [4068, 4866], [3964, 4964],
+  [3851, 5057], [3732, 5146], [3604, 5231], [3469, 5309], [3327, 5381], [3177, 5446],
+  [3020, 5503], [2856, 5549], [2687, 5582], [2513, 5600], [2337, 5597], [2165, 5570],
+  [1997, 5519], [1838, 5447], [1688, 5357], [1549, 5252], [1419, 5136], [1299, 5012],
+  [1189, 4881], [1089, 4743], [999, 4601], [916, 4456], [839, 4309], [774, 4158],
+  [725, 4000], [694, 3840], [677, 3678], [670, 3518], [671, 3359], [678, 3203],
+  [691, 3050], [708, 2898], [728, 2748], [755, 2599], [793, 2453], [842, 2311],
+  [904, 2174], [987, 2047], [1093, 1937], [1213, 1843], [1336, 1758], [1460, 1682],
+  [1585, 1615], [1707, 1553], [1827, 1495], [1944, 1439], [2061, 1388], [2179, 1345],
+  [2299, 1308], [2418, 1276], [2537, 1247], [2656, 1222], [2777, 1205], [2898, 1193],
+  [3020, 1184], [3143, 1180], [3266, 1181], [3391, 1186], [3516, 1197], [3643, 1214],
+  [3772, 1235], [3902, 1261], [4033, 1295], [4164, 1338], [4295, 1388], [4428, 1444],
+  [4563, 1507], [4700, 1577], [4835, 1658], [4961, 1753], [5069, 1867], [5150, 2000],
+  [5197, 2148], [5213, 2306], [5203, 2465], [5177, 2621], [5143, 2771], [5104, 2913]
+].map(point => Object.freeze(point)));
+
+/** The shelter ring as SVG path data. */
+export function canonicalShelterPath() {
+  return `M${CANONICAL_VILLAGE_SHELTER.map(([x, y]) => `${x} ${y}`).join("L")}Z`;
+}
+
+export const CANONICAL_INSTITUTION_MAX_GROWTH = 0.25;
+
+/**
+ * An institution's slot as it should be drawn, given how far it has been raised.
+ *
+ * Takes a fraction rather than a level because the twelve do not share a ladder:
+ * the General Store tops out at 3, the Bookseller and Temple at 6. A fixed table
+ * of per-level sizes would make the same level mean different things across
+ * institutions, and would stop showing upgrades entirely past whatever length it
+ * was written for. A fraction of the way up its own advancement means every
+ * institution starts at its authored footprint and every one of them ends the
+ * same amount larger, whatever it took to get there.
+ *
+ * The centre and facing are the authored ones — only the extent grows, and it
+ * grows about that centre, so a building enlarges in place rather than drifting
+ * off its plot.
+ *
+ * @param {string} type
+ * @param {number} growth  0 at first level, 1 at the institution's top level.
+ */
+export function canonicalInstitutionSlot(type, growth = 0) {
+  const slot = CANONICAL_INSTITUTION_SLOTS[type];
+  if (!slot) return null;
+  const fraction = Math.max(0, Math.min(1, Number(growth) || 0));
+  if (fraction === 0) return slot;
+  const scale = 1 + CANONICAL_INSTITUTION_MAX_GROWTH * fraction;
+  return Object.freeze({
+    ...slot,
+    width: Math.round(slot.width * scale),
+    height: Math.round(slot.height * scale)
+  });
+}
+
+/**
+ * The room behind each institution's door.
+ *
+ * Interiors are not placed on the village map — they are a separate top-down
+ * view of one building, drawn on their own 500 square with their own title. The
+ * map holds the pointer to them so the two sets stay named by the same key.
+ */
+export const CANONICAL_INSTITUTION_INTERIOR = Object.freeze({
+  alchemist: "systems/crows/assets/institutions/interiors/alchemist.svg",
+  auctionHouse: "systems/crows/assets/institutions/interiors/auction-house.svg",
+  barracks: "systems/crows/assets/institutions/interiors/barracks.svg",
+  beacon: "systems/crows/assets/institutions/interiors/beacon.svg",
+  blacksmith: "systems/crows/assets/institutions/interiors/blacksmith.svg",
+  bookseller: "systems/crows/assets/institutions/interiors/bookseller.svg",
+  crypt: "systems/crows/assets/institutions/interiors/crypt.svg",
+  enchanter: "systems/crows/assets/institutions/interiors/enchanter.svg",
+  generalStore: "systems/crows/assets/institutions/interiors/general-store.svg",
+  inn: "systems/crows/assets/institutions/interiors/inn.svg",
+  stables: "systems/crows/assets/institutions/interiors/stables.svg",
+  temple: "systems/crows/assets/institutions/interiors/temple.svg"
+});

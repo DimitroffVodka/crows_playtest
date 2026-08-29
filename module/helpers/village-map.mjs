@@ -20,6 +20,7 @@ import {
   findLiveInstitution,
   getActiveVillageGM,
   getVillage,
+  institutionMaxLevel,
   isVillageDesignatedWriter,
   normalizeVillage,
   registerVillageChangeListener,
@@ -36,6 +37,7 @@ import {
   CANONICAL_UNBUILT_PLOT,
   CANONICAL_VILLAGE_BACKGROUND,
   CANONICAL_VILLAGE_SIZE,
+  canonicalInstitutionSlot,
   canonicalPrefixCount
 } from "./canonical-village-layout.mjs";
 import { villageBackgroundSvg } from "./village-plan-draw.mjs";
@@ -810,6 +812,20 @@ function levelValue(effectiveLevel) {
   return Math.floor(Number(effectiveLevel) || 0);
 }
 
+/**
+ * How far up its own advancement an institution stands, as 0..1.
+ *
+ * First level is 0 and top level is 1, so `canonicalInstitutionSlot` can size a
+ * building without knowing how many rungs that particular institution has.
+ * Level 0 — closed, or destroyed — is 0 as well: a shut institution has nothing
+ * to show off.
+ */
+export function institutionGrowth(type, level) {
+  const top = institutionMaxLevel(type);
+  if (!(top > 1)) return 0;
+  return Math.max(0, Math.min(1, (Math.floor(Number(level) || 0) - 1) / (top - 1)));
+}
+
 function visualStateFor(effectiveLevel, destroyed) {
   if (destroyed === true || effectiveLevel?.destroyed === true) return "destroyed";
   if (effectiveLevel?.closed === true || levelValue(effectiveLevel) <= 0) return "closed";
@@ -1017,7 +1033,18 @@ const canonicalInstitutionArtSet = (fallback = null) => ({
 
 export function institutionTileData(village, institution, options = {}) {
   const effective = effectiveInstitutionForMap(institution, village);
-  const slot = options.slot ?? null;
+  // Raising an institution enlarges its building. The authored set has one
+  // drawing per type, so without this an upgrade changes nothing a player can
+  // see on the map; with it, the buildings that have been invested in are the
+  // ones that read against the housing around them.
+  //
+  // Measured as a fraction of the institution's own ladder rather than by level
+  // number: they run from three rungs to six, so level 3 is the top for a
+  // General Store and halfway for a Bookseller.
+  const slot = options.slot
+    ? canonicalInstitutionSlot(institution?.type, institutionGrowth(institution?.type, levelValue(effective)))
+      ?? options.slot
+    : null;
   const placedAt = null;
   const fitted = slot
     ? { width: slot.width, height: slot.height }
@@ -1474,6 +1501,8 @@ export function buildVillageProjection(village, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
   const institutionTypes = Object.keys(CANONICAL_INSTITUTION_SLOTS);
   const institutions = institutionTypes.map((type, index) => {
+    // The authored slot, unscaled: `institutionTileData` grows it by the
+    // institution's level, and a plot with nothing on it has no level to grow by.
     const slot = CANONICAL_INSTITUTION_SLOTS[type];
     const institution = findLiveInstitution(type, source)
       ?? source.institutions.find(candidate => String(candidate?.type ?? "") === type)

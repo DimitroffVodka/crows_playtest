@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Balhaunis — Crows Village Map</title>
+<meta name="description" content="The village map from the MCDM Crows Foundry VTT system. Found institutions, move Prosperity, and watch the settlement fill in.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23f4eee3'/><path d='M6 22h20M10 22v-7l6-4 6 4v7' stroke='%232a221b' stroke-width='2.5' fill='none' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<main>
+  <section class="panel" aria-label="Controls">
+
+    <div class="field">
+      <label for="village-name">Village</label>
+      <input id="village-name" type="text" autocomplete="off" spellcheck="false" maxlength="28" placeholder="Balhaunis">
+    </div>
+
+    <div class="field">
+      <label for="prosperity">Prosperity <span class="readout" id="prosperity-value"></span></label>
+      <input id="prosperity" type="range" min="-10" max="10" step="1">
+      <p class="hint">The village's fortunes, −10 to +10. Homes, fields and dressing are taken in order from the map's slot lists, so a village that falls and recovers gets the same buildings back in the same places.</p>
+    </div>
+
+    <div class="field">
+      <span class="label">Conditions</span>
+      <label class="switch"><input id="miasma" type="checkbox"> Miasma beyond the walls</label>
+      <label class="switch"><input id="night" type="checkbox"> Night</label>
+    </div>
+
+    <div class="field">
+      <span class="label">Institutions</span>
+      <div class="institutions" id="institutions"></div>
+      <div class="inline-actions">
+        <button id="starting-six" type="button" class="link">Starting six</button>
+        <button id="all-institutions" type="button" class="link">All twelve</button>
+        <button id="max-institutions" type="button" class="link">All at level 3</button>
+        <button id="no-institutions" type="button" class="link">None</button>
+      </div>
+      <p class="hint">Click a chip to found it, again to raise it, again past level 3 to clear the plot. Every institution has a plot whether or not it has been founded — an unfounded one shows the empty plot being held for it, and the map never rearranges itself to make room.</p>
+      <p class="hint">Hover a building on the map to name it; click it to look inside.</p>
+    </div>
+
+    <dl id="stats" class="stats stats-stacked"></dl>
+
+    <div class="actions">
+      <button id="download" type="button">Download PNG</button>
+      <button id="copy-link" type="button">Copy link</button>
+    </div>
+
+    <p class="colophon">
+      <a href="https://github.com/DimitroffVodka/crows_playtest">MCDM Crows for Foundry VTT</a> ·
+      <a href="planner/">procedural generator</a>
+    </p>
+  </section>
+
+  <section class="stage" aria-label="Map">
+    <div class="map-wrap">
+      <div id="map" class="map"></div>
+      <p id="tip" class="tip" role="status" hidden></p>
+    </div>
+
+    <aside id="detail" class="detail" hidden>
+      <div class="detail-head">
+        <div>
+          <h2 id="detail-name"></h2>
+          <p id="detail-source" class="detail-source"></p>
+        </div>
+        <button id="detail-close" type="button" class="icon" aria-label="Close">×</button>
+      </div>
+
+      <div class="detail-body">
+        <div id="detail-view" class="detail-view"></div>
+        <div class="detail-rules">
+          <div id="detail-rules"></div>
+          <div class="detail-foot">
+            <p id="detail-level" class="detail-level"></p>
+            <div class="detail-actions">
+              <button id="detail-down" type="button">Lower</button>
+              <button id="detail-up" type="button" class="primary">Raise</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script type="module" src="main.mjs"></script>
+</body>
+</html>
