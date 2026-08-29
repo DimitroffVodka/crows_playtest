@@ -20,6 +20,22 @@ This system implements those rules. You need the packet to read what the game *i
 
 ---
 
+## Try the village generator
+
+**[Live demo →](https://dimitroffvodka.github.io/crows_playtest/)** — no install, no Foundry.
+
+[![A ruin village and an open village generated from the same seed](demo/preview.png)](https://dimitroffvodka.github.io/crows_playtest/)
+
+Pick a seed, choose which institutions the village has founded, and watch the plan settle: a ruin
+shell with breaches and towers, streets grown out from a gate, plots laid along their frontages, and
+each institution scored onto the ground it wants — the crypt out at the edge, the stables by a gate,
+the general store on the busiest corner. Both forms above are the same seed.
+
+The page runs the shipped generator directly rather than a copy of it; see [`demo/`](demo/) for how
+that is wired and how to run it locally.
+
+---
+
 ## Install (Foundry VTT)
 
 In Foundry → Game Systems → Install System → paste this manifest URL:
@@ -49,7 +65,7 @@ Or download a release zip directly from the [Releases page](https://github.com/D
 ### Downtime systems
 - **Miasma** — outdoor 24h resist test (2d10 + M + Endurance), Effects table dispatch with effect-id dedup, cruelty accumulation, catastrophic result → permanent NPC.
 - **Crypt boons** — 10-boon institution with internment registry, once-per-cycle prayer, mechanical hooks for Vitality / Fury / Swiftness boons; chat-card scaffolds for the rest.
-- **Village** — Prosperity tracker (−10..+10), 10-day cycles, institution registry, end-of-cycle event roll (d10 + Prosperity), GM management dialog.
+- **Village** — Prosperity tracker (−10..+10), 10-day cycles, institution registry, end-of-cycle event roll (d10 + Prosperity), GM management dialog, and a procedural map generator that lays the settlement out and projects it onto a Scene ([try it in the browser](https://dimitroffvodka.github.io/crows_playtest/)).
 - **Crafting** — projects with prereqs/materials/goal, special-Mind crafting roll (doom=0, crit=re-roll, min 1), Identify Item 2d10+M tiered test.
 - **Advancement** — TXP threshold table for expertise/stamina and characteristic bonuses, trait-tree purchase UI (4×3 grid per tree, `connectsTo` gating), XP-grant macros.
 - **Pets** — taming, bonding, ownership transfer, and combat commands, with the command test the rules require.

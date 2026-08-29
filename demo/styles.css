@@ -1,0 +1,336 @@
+/* Palette lifted from the map's own `crows` style, so the page and the thing it
+   shows are the same set of colours. */
+:root {
+  --paper: #f4eee3;
+  --ink: #2a221b;
+  --wilds: #cfc6b4;
+  --road: #e8decb;
+  --edge: #baa991;
+  --wall: #806f5d;
+  --accent: #7e8f99;
+  --ember: #b8722c;
+  --panel: #fbf8f2;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(42, 34, 27, .09), 0 6px 18px rgba(42, 34, 27, .07);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--wilds);
+  color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+a { color: var(--ember); }
+
+.masthead {
+  padding: 28px 24px 20px;
+  background: var(--paper);
+  border-bottom: 2px solid var(--edge);
+}
+
+.masthead > div { max-width: 1360px; margin: 0 auto; }
+
+.masthead h1 {
+  margin: 0;
+  font: 600 30px/1.15 Georgia, "Iowan Old Style", serif;
+  letter-spacing: .01em;
+}
+
+.masthead p {
+  margin: 6px 0 0;
+  max-width: 62ch;
+  color: #6a5c4c;
+}
+
+main {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* -------------------------------------------- */
+/*  Control panel                               */
+/* -------------------------------------------- */
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.field { margin-bottom: 18px; }
+.field:last-of-type { margin-bottom: 0; }
+
+label, .label {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #6a5c4c;
+  margin-bottom: 6px;
+}
+
+.readout {
+  float: right;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--wall);
+}
+
+.hint {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #7d6f5e;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+}
+
+input[type="text"]:focus-visible,
+button:focus-visible,
+input[type="range"]:focus-visible,
+.chip input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--ember);
+}
+
+.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* -------------------------------------------- */
+/*  Buttons                                     */
+/* -------------------------------------------- */
+
+button {
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+button:hover { background: var(--road); }
+
+button.primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+}
+
+button.primary:hover { background: #3d332a; }
+
+button.link {
+  border: 0;
+  background: none;
+  padding: 2px 0;
+  font-size: 12.5px;
+  color: var(--ember);
+  text-decoration: underline;
+}
+
+button.link:hover { background: none; }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.actions:last-child { margin-bottom: 0; }
+
+.inline-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.segmented { display: flex; }
+
+.segmented button {
+  flex: 1;
+  border-radius: 0;
+  margin-left: -1px;
+}
+
+.segmented button:first-child { border-radius: 6px 0 0 6px; margin-left: 0; }
+.segmented button:last-child { border-radius: 0 6px 6px 0; }
+
+.segmented button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  position: relative;
+}
+
+/* -------------------------------------------- */
+/*  Institution chips                           */
+/* -------------------------------------------- */
+
+.institutions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.chip input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.chip span {
+  display: block;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  text-align: center;
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+
+.chip span:hover { background: var(--road); }
+
+.chip input:checked + span {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* -------------------------------------------- */
+/*  Map                                         */
+/* -------------------------------------------- */
+
+.stage { min-width: 0; }
+
+.map {
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  min-height: 320px;
+}
+
+.map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1px;
+  margin: 16px 0 0;
+  background: var(--edge);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.stats > div {
+  background: var(--panel);
+  padding: 10px 12px;
+}
+
+.stats dt {
+  font-size: 11.5px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #7d6f5e;
+}
+
+.stats dd {
+  margin: 2px 0 0;
+  font: 600 17px/1.2 Georgia, serif;
+}
+
+.warn, .note {
+  margin: 12px 0 0;
+  padding: 9px 12px;
+  font-size: 13px;
+  background: #fdf3e4;
+  border: 1px solid #e0c79a;
+  border-radius: 6px;
+  color: #6b4f22;
+}
+
+.note { margin-top: 14px; }
+
+/* -------------------------------------------- */
+/*  Footer                                      */
+/* -------------------------------------------- */
+
+footer {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 8px 24px 56px;
+  color: #5f5245;
+}
+
+footer h2 {
+  font: 600 20px/1.2 Georgia, serif;
+  margin: 24px 0 8px;
+}
+
+footer p { max-width: 74ch; }
+
+.stages {
+  max-width: 74ch;
+  padding-left: 20px;
+}
+
+.stages li { margin-bottom: 5px; }
+
+@media (max-width: 900px) {
+  main { grid-template-columns: minmax(0, 1fr); }
+  /* Stacked, the map goes first: the controls are twice the height of the
+     viewport, so leading with them puts the thing being demonstrated off the
+     bottom of the page. */
+  .stage { order: 1; }
+  .panel { order: 2; position: static; max-height: none; }
+}

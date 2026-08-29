@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crows Village Generator</title>
+<meta name="description" content="A procedural village generator: boundary, streets, plots, institutions. Runs entirely in the browser.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23f4eee3'/><path d='M6 22h20M10 22v-7l6-4 6 4v7' stroke='%232a221b' stroke-width='2.5' fill='none' stroke-linejoin='round'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div>
+    <h1>Village Generator</h1>
+    <p>Procedural settlements for the <a href="https://github.com/DimitroffVodka/crows_playtest">MCDM Crows</a> Foundry VTT system. This page runs the shipped generator directly — no server, no build step, no Foundry.</p>
+  </div>
+</header>
+
+<main>
+  <section class="panel" aria-label="Controls">
+
+    <div class="actions">
+      <button id="new-village" class="primary" type="button">New village</button>
+      <button id="reroll-streets" type="button" title="Keep the boundary, redraw everything inside it">New streets</button>
+      <button id="reroll-plots" type="button" title="Keep the boundary and streets, redraw the plots and who stands where">New plots</button>
+    </div>
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" type="text" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="field">
+      <label for="seed">Seed</label>
+      <input id="seed" type="text" autocomplete="off" spellcheck="false">
+      <p class="hint">The same seed and settings always produce the same village.</p>
+    </div>
+
+    <div class="field">
+      <span class="label">Form</span>
+      <div class="segmented" id="form-group" data-segmented="form" role="group">
+        <button type="button" data-value="ruin" aria-pressed="true">Ruin</button>
+        <button type="button" data-value="open" aria-pressed="false">Open</button>
+      </div>
+      <p class="hint">In Cornath every village shelters inside a ruin. <em>Open</em> drops the shell and gives the settlement fields, water and woodland instead.</p>
+    </div>
+
+    <div class="field">
+      <label for="prosperity">Prosperity <span class="readout" id="prosperity-value"></span></label>
+      <input id="prosperity" type="range" min="0" max="10" step="1">
+      <p class="hint">Drives how much housing the plan has to find room for.</p>
+    </div>
+
+    <div class="field">
+      <span class="label">Institutions <span class="readout" id="institution-count"></span></span>
+      <div class="institutions" id="institutions"></div>
+      <div class="inline-actions">
+        <button id="starting-six" type="button" class="link">Starting six</button>
+        <button id="all-institutions" type="button" class="link">All twelve</button>
+      </div>
+      <p class="hint">Each type wants different ground — the crypt is scored away from the centre, the stables toward a gate, the general store onto the busiest frontage.</p>
+    </div>
+
+    <div class="field">
+      <span class="label">Buildings</span>
+      <div class="segmented" id="art-group" data-segmented="stamps" role="group">
+        <button type="button" data-value="true" aria-pressed="true">Authored art</button>
+        <button type="button" data-value="false" aria-pressed="false">Drawn</button>
+      </div>
+      <p class="hint">Foundry stands the authored stamps on the map as Tiles. <em>Drawn</em> is the procedural fallback, fitted to whatever plot it was given.</p>
+    </div>
+
+    <div class="field">
+      <span class="label">Palette</span>
+      <div class="segmented" id="style-group" data-segmented="style" role="group">
+        <button type="button" data-value="crows" aria-pressed="true">Day</button>
+        <button type="button" data-value="slate" aria-pressed="false">Night</button>
+      </div>
+      <p class="hint">Repaints everything the map draws. The authored stamps carry their own colour, so they keep it — switch to <em>Drawn</em> to see the whole map in one palette.</p>
+    </div>
+
+    <div class="field checkbox">
+      <label><input id="title" type="checkbox"> Draw the name on the map</label>
+    </div>
+
+    <div class="actions">
+      <button id="download" type="button">Download SVG</button>
+      <button id="copy-link" type="button">Copy link</button>
+    </div>
+
+    <p class="note" id="art-note" hidden></p>
+  </section>
+
+  <section class="stage" aria-label="Map">
+    <div id="map" class="map"></div>
+    <p class="warn" id="shortfall" hidden></p>
+    <dl id="stats" class="stats"></dl>
+  </section>
+</main>
+
+<footer>
+  <h2>How it works</h2>
+  <p>
+    The planner answers one question — <em>where does everything physically go?</em> — in five stages,
+    each drawing from its own random stream so any one of them can be redrawn without disturbing the others.
+  </p>
+  <ol class="stages">
+    <li><strong>Boundary</strong> — a ruin shell with breaches and towers, or an open extent with water and fields.</li>
+    <li><strong>Streets</strong> — a main road from a gate, then lanes grown off it and truncated where they crowd a neighbour.</li>
+    <li><strong>Plots</strong> — frontages laid along each street, rejected where they cross a wall, a road, or each other.</li>
+    <li><strong>Assignment</strong> — institutions score every free plot on centrality, gate distance, frontage, area and quiet; the pickiest choose first.</li>
+    <li><strong>Dressing</strong> — wells, debris and rubble inside the shell; farmsteads, orchards and woodland outside it.</li>
+  </ol>
+  <p>
+    The plan is serializable data. Drawing it is a separate step, which is why the same village can be a
+    Scene backdrop, a handout, or the SVG on this page. Source:
+    <a href="https://github.com/DimitroffVodka/crows_playtest/blob/master/module/helpers/village-plan.mjs">village-plan.mjs</a>,
+    <a href="https://github.com/DimitroffVodka/crows_playtest/blob/master/module/helpers/village-plan-draw.mjs">village-plan-draw.mjs</a>.
+  </p>
+</footer>
+
+<script type="module" src="main.mjs"></script>
+</body>
+</html>
