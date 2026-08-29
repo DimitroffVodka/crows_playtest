@@ -17,7 +17,7 @@ import {
   toPng,
   updateMap
 } from "./village.mjs";
-import { institutionPurchasableMaxLevel, institutionRules } from "./rules.mjs";
+import { institutionPurchasableMaxLevel, institutionRules, institutionServices } from "./rules.mjs";
 
 /** C:2232 — the six a village is founded with. */
 const STARTING_SIX = ["blacksmith", "crypt", "generalStore", "inn", "temple", "stables"];
@@ -210,7 +210,9 @@ function paintDetail() {
     view.innerHTML = `<p class="empty">No interior has been drawn for the ${escape(label)} yet.</p>`;
   }
 
-  el("detail-rules").innerHTML = rules ? rulesTable(rules, type, level) : "";
+  el("detail-rules").innerHTML = rules
+    ? servicesList(type, level, rules) + rulesTable(rules, type, level)
+    : "";
 
   el("detail-level").textContent = level === null ? "Not founded" : `Level ${level} of ${rules.top}`;
   el("detail-down").disabled = level === null;
@@ -218,6 +220,31 @@ function paintDetail() {
   el("detail-up").textContent = level === null
     ? `Found — ${gc(rules.foundingPrice)}`
     : rules.nextPrice != null ? `Raise — ${gc(rules.nextPrice)}` : "Fully raised";
+}
+
+/**
+ * What you can walk in and do, before what another level would buy.
+ *
+ * First in the panel because it is the question actually being asked of a
+ * building on a map: the ladder underneath is a spending decision, and only
+ * matters once you know what the place is for.
+ */
+function servicesList(type, level, rules) {
+  if (level == null) {
+    return `<p class="hint services-empty">Founding the ${escape(rules.label)} costs ${gc(rules.foundingPrice)}. Nothing stands here yet.</p>`;
+  }
+  const services = institutionServices(type, level, state.prosperity);
+  if (!services.length) return "";
+
+  const rows = services.map(service => {
+    const boons = service.boons ? `
+      <ul class="boons">
+        ${service.boons.map(b => `<li><b>${escape(b.label.replace(/^Boon of /, ""))}</b> — ${escape(b.summary)}</li>`).join("")}
+      </ul>` : "";
+    return `<div><dt>${escape(service.name)}</dt><dd>${escape(service.detail)}${boons}</dd></div>`;
+  }).join("");
+
+  return `<dl class="services">${rows}</dl>`;
 }
 
 /**
@@ -249,8 +276,9 @@ function rulesTable(rules, type, level) {
     <p class="hint">Level ${rules.top} has no price: Prosperity grants it, gold cannot buy it.</p>` : "";
 
   return `
+    <h3 class="ladder-heading">What another level buys</h3>
     <table class="ladder${rules.ladderNote ? " ladder-narrow" : ""}">
-      <caption>Founding costs ${gc(rules.foundingPrice)}. Pay now, gain a Prosperity at once, and the level opens next cycle.</caption>
+      <caption>Pay now, gain a Prosperity at once, and the level opens next cycle.</caption>
       <thead><tr>
         <th scope="col">Lv</th><th scope="col">To reach</th>
         ${rules.ladderNote ? "" : '<th scope="col">What it buys</th>'}
