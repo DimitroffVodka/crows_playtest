@@ -17,13 +17,17 @@ What varies is only how much of it is standing, and
 
 - **Institutions** — a founded one gets its authored art, an unfounded one gets
   `unbuilt-plot.svg` on the plot being held for it. The slot never moves.
-- **Levels** — raising an institution enlarges its building: level 1 draws at the
-  authored footprint, level 2 at 15% larger, level 3 at 25%
-  (`CANONICAL_INSTITUTION_LEVEL_SCALE`). The authored set is one drawing per
-  type, so there is no upgraded art to switch to; size is the whole visual
-  difference. It also solves a legibility problem the levels are incidental to —
-  a blacksmith's plot is 229 units against a 295-wide house, so the buildings
-  players need to find were smaller than the houses beside them.
+- **Levels** — raising an institution enlarges its building. The authored set is
+  one drawing per type, so there is no upgraded art to switch to; size is the
+  whole visual difference. Growth is a fraction of each institution's *own*
+  advancement (`institutionGrowth` × `CANONICAL_INSTITUTION_MAX_GROWTH`), not a
+  table of per-level sizes: the twelve run from 3 rungs (General Store) to 6
+  (Bookseller, Temple), so a fixed table would make the same level mean different
+  things and would stop showing upgrades past whatever length it was written for.
+  Every institution starts at its authored footprint and ends 25% larger. It also
+  solves a legibility problem the levels are incidental to — a blacksmith's plot
+  is 229 units against a 295-wide house, so the buildings players need to find
+  were smaller than the houses beside them.
 - **Homes, fields, dressing** — an ordered prefix of each list, sized by
   Prosperity via `canonicalPrefixCount`. Prefixes rather than a random draw, so
   a village that loses Prosperity and regains it gets the identical village back.
@@ -36,6 +40,15 @@ top-down room drawn on its own 500 square, from
 `assets/institutions/interiors/`, pointed to by `CANONICAL_INSTITUTION_INTERIOR`.
 Interiors are never placed on the village map, so no projection names them; the
 deploy checks them separately or they would 404 in silence.
+
+Alongside the room, the panel shows what the levels actually buy: founding price,
+the advancement ladder with the price to reach each level and what that level
+grants, and the Prosperity 10 capstone. None of that is written in the demo — it
+is read from `INSTITUTIONS` in [`village.mjs`](../module/helpers/village.mjs),
+the same table the system charges against, each row carrying its rulebook
+citation. [`rules.mjs`](rules.mjs) only turns a row into a sentence, and does it
+per `availability.axis` rather than per institution so twelve hand-written
+descriptions cannot drift from the numbers.
 
 Prosperity, the founded institutions and their levels, and the open panel all
 live in the URL hash, so a link opens on the same village with the same building

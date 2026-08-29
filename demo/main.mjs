@@ -8,14 +8,14 @@
 
 import { INSTITUTION_STAMPS } from "../module/helpers/village-stamp-art.mjs";
 import {
-  CANONICAL_INSTITUTION_LEVEL_SCALE,
   INSTITUTION_TYPES,
-  MAX_INSTITUTION_LEVEL,
   createMap,
+  growthPercent,
   interiorUrl,
   toPng,
   updateMap
 } from "./village.mjs";
+import { institutionPurchasableMaxLevel, institutionRules } from "./rules.mjs";
 
 /** C:2232 — the six a village is founded with. */
 const STARTING_SIX = ["blacksmith", "crypt", "generalStore", "inn", "temple", "stables"];
@@ -27,8 +27,20 @@ const INSTITUTIONS = INSTITUTION_TYPES.map(type => ({
 
 const LABELS = new Map(INSTITUTIONS.map(({ type, label }) => [type, label]));
 
-/** What each level does to the building, as a percentage for the UI. */
-const GROWTH = CANONICAL_INSTITUTION_LEVEL_SCALE.map(scale => Math.round((scale - 1) * 100));
+/**
+ * How far a chip will raise an institution.
+ *
+ * The purchasable top, not the table's last row: the temple has a sixth level
+ * that Prosperity grants and gold cannot buy, and offering it as a click would
+ * be selling something the rules do not.
+ */
+const topLevel = type => institutionPurchasableMaxLevel(type);
+
+const gc = value => `${Number(value).toLocaleString("en-GB")} gc`;
+
+const escape = value => String(value).replace(/[&<>"]/g, c => (
+  { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]
+));
 
 const state = {
   prosperity: 4,
@@ -64,7 +76,7 @@ function readHash() {
     const [type, level] = entry.split(":");
     if (!known.has(type)) return [];
     const value = Math.round(Number(level));
-    return [[type, Number.isFinite(value) ? Math.max(1, Math.min(MAX_INSTITUTION_LEVEL, value)) : 1]];
+    return [[type, Number.isFinite(value) ? Math.max(1, Math.min(topLevel(type), value)) : 1]];
   }));
 }
 
@@ -127,7 +139,7 @@ function buildInstitutionChips() {
     // and a checkbox plus a stepper for each of twelve is a wall of controls.
     const level = state.founded.get(type);
     if (level === undefined) state.founded.set(type, 1);
-    else if (level < MAX_INSTITUTION_LEVEL) state.founded.set(type, level + 1);
+    else if (level < topLevel(type)) state.founded.set(type, level + 1);
     else state.founded.delete(type);
     select(type);
   });
@@ -142,7 +154,7 @@ function paintChips() {
     chip.querySelector(".chip-level").textContent = level === undefined ? "" : `L${level}`;
     chip.title = level === undefined
       ? `${LABELS.get(type)} — not founded. Click to found it.`
-      : `${LABELS.get(type)} — level ${level}, drawn ${GROWTH[level]}% larger. Click to raise it.`;
+      : `${LABELS.get(type)} — level ${level} of ${topLevel(type)}, drawn ${growthPercent(type, level)}% larger. Click to raise it.`;
   }
 }
 
@@ -163,33 +175,79 @@ function paintDetail() {
     return;
   }
 
-  const level = state.founded.get(type);
+  const level = state.founded.get(type) ?? null;
   const label = LABELS.get(type);
+  const rules = institutionRules(type, level);
   panel.hidden = false;
   el("detail-name").textContent = label;
+  el("detail-source").textContent = rules
+    ? [rules.roles.map(titleCase).join(" · "), rules.source].filter(Boolean).join(" — ")
+    : "";
 
   const interior = interiorUrl(type);
   const view = el("detail-view");
-  if (level === undefined) {
+  if (level === null) {
     // Nothing has been built, so there is no room to look into.
-    view.innerHTML = `<p class="empty">This plot is being held for the ${label}. Found it to see inside.</p>`;
+    view.innerHTML = `<p class="empty">This plot is being held for the ${escape(label)}. Found it to see inside.</p>`;
   } else if (interior) {
-    view.innerHTML = `<img src="${interior}" alt="Interior of the ${label}" loading="lazy">`;
+    view.innerHTML = `<img src="${interior}" alt="Interior of the ${escape(label)}" loading="lazy">`;
   } else {
-    view.innerHTML = `<p class="empty">No interior has been drawn for the ${label} yet.</p>`;
+    view.innerHTML = `<p class="empty">No interior has been drawn for the ${escape(label)} yet.</p>`;
   }
 
-  el("detail-level").textContent = level === undefined ? "Not founded" : `Level ${level} of ${MAX_INSTITUTION_LEVEL}`;
-  el("detail-growth").textContent = level === undefined
-    ? "The plot draws at its authored size."
-    : GROWTH[level] === 0
-      ? "Drawn at its authored size."
-      : `Drawn ${GROWTH[level]}% larger on the map.`;
+  el("detail-rules").innerHTML = rules ? rulesTable(rules, type, level) : "";
 
-  el("detail-down").disabled = level === undefined;
-  el("detail-up").disabled = level !== undefined && level >= MAX_INSTITUTION_LEVEL;
-  el("detail-up").textContent = level === undefined ? "Found it" : "Raise";
+  el("detail-level").textContent = level === null ? "Not founded" : `Level ${level} of ${rules.top}`;
+  el("detail-down").disabled = level === null;
+  el("detail-up").disabled = level !== null && level >= topLevel(type);
+  el("detail-up").textContent = level === null
+    ? `Found — ${gc(rules.foundingPrice)}`
+    : rules.nextPrice != null ? `Raise — ${gc(rules.nextPrice)}` : "Fully raised";
 }
+
+/**
+ * The institution's advancement table, from the system's own rules data.
+ *
+ * Shown in full rather than only the current row: the point of the panel is the
+ * decision — what the next level costs and what it buys — and that is only
+ * legible against the rows either side of it.
+ */
+function rulesTable(rules, type, level) {
+  const grown = growthPercent(type, level);
+  // The crypt and the temple have no stocked axis — their level *is* the
+  // effect — so the ladder carries prices alone and says why once underneath,
+  // rather than repeating one sentence down every row.
+  const rows = rules.rows.map(row => `
+    <tr${row.current ? ' class="current"' : ""}>
+      <th scope="row">${row.level}</th>
+      <td class="price">${row.level === 1 ? "founding" : row.price == null ? "—" : gc(row.price)}</td>
+      ${rules.ladderNote ? "" : `<td>${escape(row.effect ?? "—")}</td>`}
+    </tr>`).join("");
+
+  const capstone = rules.capstone ? `
+    <p class="capstone${rules.capstone.met ? " met" : ""}">
+      <strong>Level ${rules.capstone.atLevel} at Prosperity 10</strong> —
+      ${escape(rules.capstone.text)} <span class="cite">${rules.capstone.source}</span>
+    </p>` : "";
+
+  const unbuyable = rules.purchasableTop < rules.top ? `
+    <p class="hint">Level ${rules.top} has no price: Prosperity grants it, gold cannot buy it.</p>` : "";
+
+  return `
+    <table class="ladder${rules.ladderNote ? " ladder-narrow" : ""}">
+      <caption>Founding costs ${gc(rules.foundingPrice)}. Pay now, gain a Prosperity at once, and the level opens next cycle.</caption>
+      <thead><tr>
+        <th scope="col">Lv</th><th scope="col">To reach</th>
+        ${rules.ladderNote ? "" : '<th scope="col">What it buys</th>'}
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${rules.ladderNote ? `<p class="hint">${escape(rules.ladderNote)}</p>` : ""}
+    ${capstone}${unbuyable}
+    <p class="hint">On the map this one is drawn ${grown === 0 ? "at its authored size" : `${grown}% larger`} — upgrading has no art of its own, so size is the visual difference.</p>`;
+}
+
+const titleCase = value => String(value).replace(/^./, c => c.toUpperCase());
 
 /* -------------------------------------------- */
 /*  Hover                                       */
@@ -256,13 +314,13 @@ function wire() {
   });
 
   el("max-institutions").addEventListener("click", () => {
-    state.founded = new Map(INSTITUTION_TYPES.map(type => [type, MAX_INSTITUTION_LEVEL]));
+    state.founded = new Map(INSTITUTION_TYPES.map(type => [type, topLevel(type)]));
     render();
   });
 
   el("detail-up").addEventListener("click", () => {
     const level = state.founded.get(state.selected);
-    state.founded.set(state.selected, level === undefined ? 1 : Math.min(MAX_INSTITUTION_LEVEL, level + 1));
+    state.founded.set(state.selected, level === undefined ? 1 : Math.min(topLevel(state.selected), level + 1));
     render();
   });
 

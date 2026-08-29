@@ -1689,7 +1689,7 @@ export function canonicalPrefixCount(prosperity, capacity) {
 }
 
 /**
- * How much larger an institution draws for each level it has been raised to.
+ * How much larger an institution draws once fully raised.
  *
  * Upgrading an institution has no art of its own — the authored set is one
  * drawing per type, and `INSTITUTION_LEVEL_STAMPS` is empty — so a level 3
@@ -1702,30 +1702,40 @@ export function canonicalPrefixCount(prosperity, capacity) {
  * a 295-wide house — so the buildings a player actually needs to find are
  * smaller than the houses either side of them. A raised institution reads.
  *
- * Indexed by level, so `[0]` covers the unfounded plot and a closed
- * institution, both of which draw at the authored size.
+ * An unfounded plot and a closed institution have no growth and draw at the
+ * authored size.
  *
  * 1.25 is the most the composition takes: at that scale every institution still
  * clears the canvas on all sides and none reaches another. A few of the larger
  * ones overlap a neighbouring house's *box*, but the art fills about three
  * quarters of its box, so the drawings stay clear of each other.
  */
-export const CANONICAL_INSTITUTION_LEVEL_SCALE = Object.freeze([1, 1, 1.15, 1.25]);
+export const CANONICAL_INSTITUTION_MAX_GROWTH = 0.25;
 
 /**
- * An institution's slot as it should be drawn at this level.
+ * An institution's slot as it should be drawn, given how far it has been raised.
+ *
+ * Takes a fraction rather than a level because the twelve do not share a ladder:
+ * the General Store tops out at 3, the Bookseller and Temple at 6. A fixed table
+ * of per-level sizes would make the same level mean different things across
+ * institutions, and would stop showing upgrades entirely past whatever length it
+ * was written for. A fraction of the way up its own advancement means every
+ * institution starts at its authored footprint and every one of them ends the
+ * same amount larger, whatever it took to get there.
  *
  * The centre and facing are the authored ones — only the extent grows, and it
  * grows about that centre, so a building enlarges in place rather than drifting
- * off its plot. Levels past the table hold at its last step rather than growing
- * without bound.
+ * off its plot.
+ *
+ * @param {string} type
+ * @param {number} growth  0 at first level, 1 at the institution's top level.
  */
-export function canonicalInstitutionSlot(type, level = 1) {
+export function canonicalInstitutionSlot(type, growth = 0) {
   const slot = CANONICAL_INSTITUTION_SLOTS[type];
   if (!slot) return null;
-  const step = Math.max(0, Math.min(CANONICAL_INSTITUTION_LEVEL_SCALE.length - 1, Math.floor(Number(level) || 0)));
-  const scale = CANONICAL_INSTITUTION_LEVEL_SCALE[step];
-  if (scale === 1) return slot;
+  const fraction = Math.max(0, Math.min(1, Number(growth) || 0));
+  if (fraction === 0) return slot;
+  const scale = 1 + CANONICAL_INSTITUTION_MAX_GROWTH * fraction;
   return Object.freeze({
     ...slot,
     width: Math.round(slot.width * scale),

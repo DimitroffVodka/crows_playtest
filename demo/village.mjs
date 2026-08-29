@@ -19,13 +19,12 @@
 import { buildVillageProjection } from "../module/helpers/village-map.mjs";
 import {
   CANONICAL_INSTITUTION_INTERIOR,
-  CANONICAL_INSTITUTION_LEVEL_SCALE,
+  CANONICAL_INSTITUTION_MAX_GROWTH,
   CANONICAL_INSTITUTION_SLOTS,
   CANONICAL_VILLAGE_BACKGROUND,
   CANONICAL_VILLAGE_SIZE
 } from "../module/helpers/canonical-village-layout.mjs";
-
-export { CANONICAL_INSTITUTION_LEVEL_SCALE };
+import { institutionGrowth } from "../module/helpers/village-map.mjs";
 
 /** The room behind an institution's door, as a URL this page can load. */
 export function interiorUrl(type) {
@@ -33,8 +32,11 @@ export function interiorUrl(type) {
   return src ? assetUrl(src) : null;
 }
 
-/** The top of the level ramp — how far the upgrade control can go. */
-export const MAX_INSTITUTION_LEVEL = CANONICAL_INSTITUTION_LEVEL_SCALE.length - 1;
+/** How much larger this institution draws at this level, as a percentage. */
+export function growthPercent(type, level) {
+  if (level == null) return 0;
+  return Math.round(institutionGrowth(type, level) * CANONICAL_INSTITUTION_MAX_GROWTH * 100);
+}
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const XLINK_NS = "http://www.w3.org/1999/xlink";

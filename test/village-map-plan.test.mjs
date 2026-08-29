@@ -3,7 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import { buildVillageProjection } from "../module/helpers/village-map.mjs";
-import { CANONICAL_INSTITUTION_LEVEL_SCALE } from "../module/helpers/canonical-village-layout.mjs";
+import { CANONICAL_INSTITUTION_MAX_GROWTH } from "../module/helpers/canonical-village-layout.mjs";
+import { institutionMaxLevel } from "../module/helpers/village.mjs";
 import { VILLAGE_ART_SET } from "../module/helpers/village-art.mjs";
 import { composeStampArtSet } from "../module/helpers/village-stamp-art.mjs";
 
@@ -86,23 +87,38 @@ describe("village map | canonical projection", () => {
     );
 
     const one = at(1);
-    const two = at(2);
-    const three = at(3);
 
     // Level 1 is the authored footprint, unscaled.
     assert.equal(one.blacksmith, 229);
     assert.equal(one.temple, 456);
 
+    // The twelve run from three rungs to six, so growth is a fraction of each
+    // institution's own ladder — level 3 tops out a General Store and is
+    // halfway up a Bookseller. Level alone would mean different things.
     for (const type of Object.keys(one)) {
-      // The beacon is founded by nobody in this record, so it stays an unbuilt
-      // plot at every level and has no growth to check.
+      // Nobody founds the beacon in this record, so its plot never grows.
       if (type === "beacon") continue;
-      assert.equal(two[type], Math.round(one[type] * 1.15), `${type} did not grow at level 2`);
-      assert.equal(three[type], Math.round(one[type] * 1.25), `${type} did not grow at level 3`);
+      const top = institutionMaxLevel(type);
+      const expected = level => Math.round(
+        one[type] * (1 + CANONICAL_INSTITUTION_MAX_GROWTH * ((level - 1) / (top - 1)))
+      );
+      assert.equal(at(top)[type], Math.round(one[type] * 1.25), `${type} is not 25% larger at its top level`);
+      const middle = Math.ceil((1 + top) / 2);
+      assert.equal(at(middle)[type], expected(middle), `${type} did not grow evenly at level ${middle}`);
     }
 
+    // A longer ladder is climbed in smaller steps: the General Store is fully
+    // grown at 3 while the Bookseller has four rungs still to go.
+    assert.equal(institutionMaxLevel("generalStore"), 3);
+    assert.equal(institutionMaxLevel("bookseller"), 6);
+    assert.equal(at(3).generalStore, Math.round(one.generalStore * 1.25));
+    assert.ok(
+      at(3).bookseller < Math.round(one.bookseller * 1.25),
+      "a level 3 Bookseller is already fully grown, so later upgrades show nothing"
+    );
+
     // Past the table the ramp holds rather than growing without bound.
-    assert.deepEqual(at(9), three);
+    assert.deepEqual(at(99), at(6));
   });
 
   it("leaves an unfounded plot at its authored size", () => {
@@ -316,7 +332,8 @@ describe("village map | canonical art wiring", () => {
     });
     const projections = [
       buildVillageProjection(founded(1)),
-      buildVillageProjection(founded(CANONICAL_INSTITUTION_LEVEL_SCALE.length - 1)),
+      // Past every institution's top rung, so each is at its full growth.
+      buildVillageProjection(founded(99)),
       buildVillageProjection(gadwick({ institutions: [] }))
     ];
     const largestPlacementBySrc = new Map();

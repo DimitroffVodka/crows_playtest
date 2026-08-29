@@ -364,6 +364,25 @@ button.chip:not(.founded) .chip-level { display: none; }
   font: 600 19px/1.2 Georgia, serif;
 }
 
+.detail-source {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: #7d6f5e;
+}
+
+/* Side by side where there is room: the room and the ladder are read together,
+   and stacking them puts the decision below the fold. */
+.detail-body {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 780px) {
+  .detail-body { grid-template-columns: minmax(0, 1fr); }
+}
+
 button.icon {
   border: 0;
   background: none;
@@ -398,10 +417,13 @@ button.icon:hover { background: none; color: var(--ink); }
 
 .detail-foot {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--edge);
 }
 
 .detail-level {
@@ -409,7 +431,86 @@ button.icon:hover { background: none; color: var(--ink); }
   font: 600 15px/1.3 Georgia, serif;
 }
 
-.detail-foot .hint { margin-top: 2px; }
+/* -------------------------------------------- */
+/*  Advancement ladder                          */
+/* -------------------------------------------- */
+
+.ladder {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.ladder caption {
+  caption-side: top;
+  text-align: left;
+  padding-bottom: 8px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #7d6f5e;
+}
+
+.ladder th[scope="col"] {
+  font-size: 11px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #7d6f5e;
+  text-align: left;
+  padding: 0 8px 4px 0;
+  font-weight: 600;
+}
+
+.ladder td,
+.ladder th[scope="row"] {
+  padding: 5px 8px 5px 0;
+  border-top: 1px solid var(--edge);
+  vertical-align: top;
+  text-align: left;
+}
+
+.ladder th[scope="row"] {
+  width: 1.5em;
+  font-weight: 600;
+  color: #7d6f5e;
+}
+
+.ladder .price {
+  white-space: nowrap;
+  color: #6a5c4c;
+}
+
+/* Prices alone, for the two whose level is its own effect. */
+.ladder-narrow { max-width: 220px; }
+
+.ladder tr.current {
+  background: #efe7d8;
+}
+
+.ladder tr.current th[scope="row"],
+.ladder tr.current td {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.capstone {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  font-size: 13px;
+  line-height: 1.45;
+  border-radius: 6px;
+  background: #f6f0e2;
+  border: 1px solid var(--edge);
+}
+
+.capstone.met {
+  background: #fdf3e4;
+  border-color: #e0c79a;
+}
+
+.cite {
+  font-size: 11.5px;
+  color: #8b7d6a;
+}
 
 .detail-actions {
   display: flex;
