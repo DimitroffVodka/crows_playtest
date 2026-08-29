@@ -1687,3 +1687,70 @@ export function canonicalPrefixCount(prosperity, capacity) {
   const value = Math.max(-10, Math.min(10, Math.floor(Number(prosperity) || 0)));
   return Math.round(((value + 10) / 20) * Math.max(0, Math.floor(Number(capacity) || 0)));
 }
+
+/**
+ * How much larger an institution draws for each level it has been raised to.
+ *
+ * Upgrading an institution has no art of its own — the authored set is one
+ * drawing per type, and `INSTITUTION_LEVEL_STAMPS` is empty — so a level 3
+ * blacksmith and a level 1 blacksmith are the same picture. Size is what
+ * distinguishes them: the building grows on its plot as the village invests in
+ * it, which is legible at a glance and needs no second drawing.
+ *
+ * It also fixes a legibility problem the levels are incidental to. The export
+ * sized every building to its footprint, and a blacksmith's plot is 229 against
+ * a 295-wide house — so the buildings a player actually needs to find are
+ * smaller than the houses either side of them. A raised institution reads.
+ *
+ * Indexed by level, so `[0]` covers the unfounded plot and a closed
+ * institution, both of which draw at the authored size.
+ *
+ * 1.25 is the most the composition takes: at that scale every institution still
+ * clears the canvas on all sides and none reaches another. A few of the larger
+ * ones overlap a neighbouring house's *box*, but the art fills about three
+ * quarters of its box, so the drawings stay clear of each other.
+ */
+export const CANONICAL_INSTITUTION_LEVEL_SCALE = Object.freeze([1, 1, 1.15, 1.25]);
+
+/**
+ * An institution's slot as it should be drawn at this level.
+ *
+ * The centre and facing are the authored ones — only the extent grows, and it
+ * grows about that centre, so a building enlarges in place rather than drifting
+ * off its plot. Levels past the table hold at its last step rather than growing
+ * without bound.
+ */
+export function canonicalInstitutionSlot(type, level = 1) {
+  const slot = CANONICAL_INSTITUTION_SLOTS[type];
+  if (!slot) return null;
+  const step = Math.max(0, Math.min(CANONICAL_INSTITUTION_LEVEL_SCALE.length - 1, Math.floor(Number(level) || 0)));
+  const scale = CANONICAL_INSTITUTION_LEVEL_SCALE[step];
+  if (scale === 1) return slot;
+  return Object.freeze({
+    ...slot,
+    width: Math.round(slot.width * scale),
+    height: Math.round(slot.height * scale)
+  });
+}
+
+/**
+ * The room behind each institution's door.
+ *
+ * Interiors are not placed on the village map — they are a separate top-down
+ * view of one building, drawn on their own 500 square with their own title. The
+ * map holds the pointer to them so the two sets stay named by the same key.
+ */
+export const CANONICAL_INSTITUTION_INTERIOR = Object.freeze({
+  alchemist: "systems/crows/assets/institutions/interiors/alchemist.svg",
+  auctionHouse: "systems/crows/assets/institutions/interiors/auction-house.svg",
+  barracks: "systems/crows/assets/institutions/interiors/barracks.svg",
+  beacon: "systems/crows/assets/institutions/interiors/beacon.svg",
+  blacksmith: "systems/crows/assets/institutions/interiors/blacksmith.svg",
+  bookseller: "systems/crows/assets/institutions/interiors/bookseller.svg",
+  crypt: "systems/crows/assets/institutions/interiors/crypt.svg",
+  enchanter: "systems/crows/assets/institutions/interiors/enchanter.svg",
+  generalStore: "systems/crows/assets/institutions/interiors/general-store.svg",
+  inn: "systems/crows/assets/institutions/interiors/inn.svg",
+  stables: "systems/crows/assets/institutions/interiors/stables.svg",
+  temple: "systems/crows/assets/institutions/interiors/temple.svg"
+});

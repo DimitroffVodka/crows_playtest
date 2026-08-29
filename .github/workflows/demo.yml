@@ -108,6 +108,9 @@ jobs:
             const sources = new Set([
               layout.CANONICAL_VILLAGE_BACKGROUND,
               layout.CANONICAL_UNBUILT_PLOT,
+              // Interiors are never placed on the map, so no projection names
+              // them; the demo opens them on click and would 404 in silence.
+              ...Object.values(layout.CANONICAL_INSTITUTION_INTERIOR),
               ...projection.tiles.map(tile => tile.texture.src)
             ]);
             const missing = [...sources]

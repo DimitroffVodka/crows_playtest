@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Shadows & Lighting -->
+    <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="3" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+    <filter id="soft-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <!-- Floor Patterns -->
+    <pattern id="flagstone" width="50" height="50" patternUnits="userSpaceOnUse">
+      <rect width="50" height="50" fill="#2b2826"/>
+      <path d="M 0,0 L 50,0 M 0,25 L 50,25 M 0,50 L 50,50 M 25,0 L 25,25 M 0,25 L 0,50 M 50,25 L 50,50 M 12.5,25 L 12.5,50 M 37.5,0 L 37.5,25" 
+            stroke="#1a1817" stroke-width="2" fill="none" opacity="0.4"/>
+      <rect x="2" y="2" width="21" height="21" fill="#383431" rx="2" opacity="0.3"/>
+      <rect x="27" y="27" width="21" height="21" fill="#22201e" rx="2" opacity="0.4"/>
+    </pattern>
+
+    <pattern id="wood-floor" width="60" height="30" patternUnits="userSpaceOnUse">
+      <rect width="60" height="30" fill="#422c1b"/>
+      <line x1="0" y1="0" x2="60" y2="0" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="0" y1="15" x2="60" y2="15" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="0" y1="30" x2="60" y2="30" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="30" y1="0" x2="30" y2="15" stroke="#2b1a0e" stroke-width="1.5"/>
+      <line x1="15" y1="15" x2="15" y2="30" stroke="#2b1a0e" stroke-width="1.5"/>
+      <line x1="45" y1="15" x2="45" y2="30" stroke="#2b1a0e" stroke-width="1.5"/>
+    </pattern>
+
+    <pattern id="temple-tiles" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#333036"/>
+      <path d="M 0,0 L 40,40 M 40,0 L 0,40" stroke="#221f24" stroke-width="1.5"/>
+      <rect x="10" y="10" width="20" height="20" fill="#3d3942" stroke="#221f24" stroke-width="1"/>
+    </pattern>
+
+    <pattern id="dirt-straw" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#36291a"/>
+      <line x1="5" y1="8" x2="18" y2="12" stroke="#826636" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="22" y1="25" x2="35" y2="28" stroke="#826636" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="12" y1="32" x2="25" y2="30" stroke="#634d26" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="28" y1="8" x2="36" y2="15" stroke="#634d26" stroke-width="1.5" stroke-linecap="round"/>
+    </pattern>
+
+    <!-- Gradients -->
+    <linearGradient id="iron-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6e747a"/>
+      <stop offset="50%" stop-color="#464a4e"/>
+      <stop offset="100%" stop-color="#2a2d30"/>
+    </linearGradient>
+    <linearGradient id="gold-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5d77f"/>
+      <stop offset="50%" stop-color="#c99e32"/>
+      <stop offset="100%" stop-color="#7a5d14"/>
+    </linearGradient>
+    <linearGradient id="wood-grain" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#543821"/>
+      <stop offset="50%" stop-color="#694629"/>
+      <stop offset="100%" stop-color="#432c1a"/>
+    </linearGradient>
+    <linearGradient id="water-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a5c6e"/>
+      <stop offset="100%" stop-color="#14313b"/>
+    </linearGradient>
+    <linearGradient id="holy-water" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#48a9c5"/>
+      <stop offset="100%" stop-color="#1c5566"/>
+    </linearGradient>
+
+    <!-- Ambient Gradients -->
+    <radialGradient id="fire-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff7a8"/>
+      <stop offset="30%" stop-color="#ff8c1a"/>
+      <stop offset="70%" stop-color="#cc2900"/>
+      <stop offset="100%" stop-color="#400a00"/>
+    </radialGradient>
+    <radialGradient id="arcane-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c3e8ff"/>
+      <stop offset="40%" stop-color="#63a4ff"/>
+      <stop offset="75%" stop-color="#4d32a8"/>
+      <stop offset="100%" stop-color="#130830"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outdoor Ground -->
+  <rect width="500" height="500" fill="#141312"/>
+
+  
+  <!-- Interior Floor -->
+  <rect x="60" y="60" width="380" height="380" fill="url(#flagstone)" rx="6"/>
+
+  <!-- Interior Workstations & Props -->
+  
+    <!-- Chemical Distillation Workbench (North Wall) -->
+    <g filter="url(#drop-shadow)">
+      <rect x="90" y="75" width="220" height="50" rx="3" fill="url(#wood-grain)" stroke="#23170e" stroke-width="2.5"/>
+      <!-- Glass Alembic & Retort Flasks (Green & Purple Fluids) -->
+      <circle cx="120" cy="100" r="12" fill="#3bd99f" opacity="0.8" stroke="#1a6e4e" stroke-width="1.5"/>
+      <circle cx="120" cy="100" r="5" fill="#fff" opacity="0.7"/>
+      <!-- Connecting Glass Tubing -->
+      <path d="M 132,95 Q 160,70 180,95" fill="none" stroke="#a4e8d8" stroke-width="3"/>
+      <circle cx="185" cy="100" r="10" fill="#a44fd9" opacity="0.8" stroke="#521f73" stroke-width="1.5"/>
+      <!-- Bunsen Burner Flame -->
+      <circle cx="120" cy="115" r="4" fill="#ffd15c" filter="url(#soft-glow)"/>
+      <!-- Mortar and Pestle -->
+      <circle cx="230" cy="100" r="9" fill="#75706b" stroke="#222" stroke-width="2"/>
+      <circle cx="230" cy="100" r="4" fill="#3d3a37"/>
+      <line x1="226" y1="96" x2="238" y2="108" stroke="#999" stroke-width="2.5"/>
+      <!-- Open Grimoire / Recipe Book -->
+      <rect x="265" y="88" width="28" height="22" rx="1" fill="#d9c398" stroke="#4a3619" stroke-width="1.5"/>
+      <line x1="279" y1="88" x2="279" y2="110" stroke="#4a3619" stroke-width="1.5"/>
+    </g>
+
+    <!-- Bubbling Alchemy Cauldron (North-East) -->
+    <g filter="url(#drop-shadow)">
+      <circle cx="370" cy="110" r="28" fill="#1f1d1c" stroke="#111" stroke-width="3"/>
+      <circle cx="370" cy="110" r="22" fill="#2dd478" filter="url(#soft-glow)"/>
+      <circle cx="362" cy="105" r="5" fill="#a8ffce"/>
+      <circle cx="378" cy="116" r="4" fill="#a8ffce"/>
+      <circle cx="374" cy="102" r="3" fill="#ffffff"/>
+    </g>
+
+    <!-- Herb Drying Racks & Specimen Jars (West Wall) -->
+    <g filter="url(#drop-shadow)">
+      <rect x="75" y="150" width="45" height="150" rx="3" fill="url(#wood-grain)" stroke="#23170e" stroke-width="2.5"/>
+      <!-- Bundles of dried herbs -->
+      <ellipse cx="97" cy="175" rx="14" ry="7" fill="#69824f"/>
+      <ellipse cx="97" cy="205" rx="14" ry="7" fill="#857a44"/>
+      <ellipse cx="97" cy="235" rx="14" ry="7" fill="#7a4485"/>
+      <ellipse cx="97" cy="265" rx="14" ry="7" fill="#447e85"/>
+    </g>
+
+    <!-- Indoor Greenhouse Soil Bed / Rare Reagent Plants (East Wall) -->
+    <g filter="url(#drop-shadow)">
+      <rect x="335" y="180" width="90" height="140" rx="4" fill="#3b2b1d" stroke="#1c140d" stroke-width="3"/>
+      <rect x="343" y="188" width="74" height="124" fill="#291c12"/>
+      <!-- Glowing magical fungi & plants -->
+      <circle cx="365" cy="210" r="10" fill="#3bd9c8" filter="url(#soft-glow)"/>
+      <circle cx="395" cy="235" r="12" fill="#d93b95" filter="url(#soft-glow)"/>
+      <circle cx="365" cy="275" r="14" fill="#75d93b" filter="url(#soft-glow)"/>
+      <circle cx="395" cy="285" r="8" fill="#d9b63b" filter="url(#soft-glow)"/>
+    </g>
+
+    <!-- Central Testing Desk -->
+    <g filter="url(#drop-shadow)">
+      <rect x="180" y="210" width="95" height="50" rx="3" fill="url(#wood-grain)" stroke="#23170e" stroke-width="2"/>
+      <!-- Vials in rack -->
+      <rect x="195" y="222" width="30" height="10" rx="1" fill="#444"/>
+      <circle cx="202" cy="227" r="3" fill="#ff4d4d"/>
+      <circle cx="210" cy="227" r="3" fill="#4da6ff"/>
+      <circle cx="218" cy="227" r="3" fill="#ffd11a"/>
+      <!-- Glass Beaker -->
+      <circle cx="245" cy="232" r="7" fill="#70d6ff" opacity="0.8"/>
+    </g>
+        
+
+  <!-- Ambient Light Overlay -->
+  <radialGradient id="alch-amb" cx="370" cy="110" r="220" gradientUnits="userSpaceOnUse">
+             <stop offset="0%" stop-color="#36f59b" stop-opacity="0.25"/>
+             <stop offset="60%" stop-color="#ab47bc" stop-opacity="0.15"/>
+             <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+           </radialGradient>
+           <rect x="60" y="60" width="380" height="380" fill="url(#alch-amb)" pointer-events="none"/>
+
+  <!-- Walls & Door -->
+  <g filter="url(#drop-shadow)">
+    
+          <rect x="45" y="45" width="410" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="45" y="45" width="25" height="410" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="430" y="45" width="25" height="410" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="45" y="430" width="155" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="300" y="430" width="155" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <!-- Door threshold & leaves -->
+          <rect x="200" y="433" width="100" height="20" fill="#262422" stroke="#151413" stroke-width="2"/>
+          <rect x="198" y="385" width="8" height="50" rx="1" fill="#523218" stroke="#1a0f07" stroke-width="2" transform="rotate(-15 198 435)"/>
+          <rect x="294" y="385" width="8" height="50" rx="1" fill="#523218" stroke="#1a0f07" stroke-width="2" transform="rotate(15 294 435)"/>
+        
+    <!-- Wall Brick Texture Lines -->
+    <path d="M 100,45 L 100,70 M 180,45 L 180,70 M 260,45 L 260,70 M 340,45 L 340,70 M 420,45 L 420,70
+             M 45,120 L 70,120 M 45,200 L 70,200 M 45,280 L 70,280 M 45,360 L 70,360
+             M 430,120 L 455,120 M 430,200 L 455,200 M 430,280 L 455,280 M 430,360 L 455,360
+             M 120,430 L 120,455 M 370,430 L 370,455" stroke="#211f1d" stroke-width="2"/>
+  </g>
+
+
+  <!-- Header Plaque -->
+  <g filter="url(#drop-shadow)" transform="translate(150.0, 15)">
+    <rect width="200" height="26" rx="4" fill="#1e1c1a" stroke="#8c6d3f" stroke-width="2"/>
+    <text x="100" y="17" fill="#d9c398" font-family="'Cinzel', 'Georgia', serif" font-size="13" font-weight="bold" text-anchor="middle" letter-spacing="2">ALCHEMIST</text>
+  </g>
+</svg>

@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Shadows & Lighting -->
+    <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="3" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+    <filter id="soft-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <!-- Floor Patterns -->
+    <pattern id="flagstone" width="50" height="50" patternUnits="userSpaceOnUse">
+      <rect width="50" height="50" fill="#2b2826"/>
+      <path d="M 0,0 L 50,0 M 0,25 L 50,25 M 0,50 L 50,50 M 25,0 L 25,25 M 0,25 L 0,50 M 50,25 L 50,50 M 12.5,25 L 12.5,50 M 37.5,0 L 37.5,25" 
+            stroke="#1a1817" stroke-width="2" fill="none" opacity="0.4"/>
+      <rect x="2" y="2" width="21" height="21" fill="#383431" rx="2" opacity="0.3"/>
+      <rect x="27" y="27" width="21" height="21" fill="#22201e" rx="2" opacity="0.4"/>
+    </pattern>
+
+    <pattern id="wood-floor" width="60" height="30" patternUnits="userSpaceOnUse">
+      <rect width="60" height="30" fill="#422c1b"/>
+      <line x1="0" y1="0" x2="60" y2="0" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="0" y1="15" x2="60" y2="15" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="0" y1="30" x2="60" y2="30" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="30" y1="0" x2="30" y2="15" stroke="#2b1a0e" stroke-width="1.5"/>
+      <line x1="15" y1="15" x2="15" y2="30" stroke="#2b1a0e" stroke-width="1.5"/>
+      <line x1="45" y1="15" x2="45" y2="30" stroke="#2b1a0e" stroke-width="1.5"/>
+    </pattern>
+
+    <pattern id="temple-tiles" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#333036"/>
+      <path d="M 0,0 L 40,40 M 40,0 L 0,40" stroke="#221f24" stroke-width="1.5"/>
+      <rect x="10" y="10" width="20" height="20" fill="#3d3942" stroke="#221f24" stroke-width="1"/>
+    </pattern>
+
+    <pattern id="dirt-straw" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#36291a"/>
+      <line x1="5" y1="8" x2="18" y2="12" stroke="#826636" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="22" y1="25" x2="35" y2="28" stroke="#826636" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="12" y1="32" x2="25" y2="30" stroke="#634d26" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="28" y1="8" x2="36" y2="15" stroke="#634d26" stroke-width="1.5" stroke-linecap="round"/>
+    </pattern>
+
+    <!-- Gradients -->
+    <linearGradient id="iron-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6e747a"/>
+      <stop offset="50%" stop-color="#464a4e"/>
+      <stop offset="100%" stop-color="#2a2d30"/>
+    </linearGradient>
+    <linearGradient id="gold-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5d77f"/>
+      <stop offset="50%" stop-color="#c99e32"/>
+      <stop offset="100%" stop-color="#7a5d14"/>
+    </linearGradient>
+    <linearGradient id="wood-grain" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#543821"/>
+      <stop offset="50%" stop-color="#694629"/>
+      <stop offset="100%" stop-color="#432c1a"/>
+    </linearGradient>
+    <linearGradient id="water-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a5c6e"/>
+      <stop offset="100%" stop-color="#14313b"/>
+    </linearGradient>
+    <linearGradient id="holy-water" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#48a9c5"/>
+      <stop offset="100%" stop-color="#1c5566"/>
+    </linearGradient>
+
+    <!-- Ambient Gradients -->
+    <radialGradient id="fire-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff7a8"/>
+      <stop offset="30%" stop-color="#ff8c1a"/>
+      <stop offset="70%" stop-color="#cc2900"/>
+      <stop offset="100%" stop-color="#400a00"/>
+    </radialGradient>
+    <radialGradient id="arcane-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c3e8ff"/>
+      <stop offset="40%" stop-color="#63a4ff"/>
+      <stop offset="75%" stop-color="#4d32a8"/>
+      <stop offset="100%" stop-color="#130830"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outdoor Ground -->
+  <rect width="500" height="500" fill="#141312"/>
+
+  
+  <!-- Interior Floor -->
+  <rect x="60" y="60" width="380" height="380" fill="url(#flagstone)" rx="6"/>
+
+  <!-- Interior Workstations & Props -->
+  
+    <!-- Forge -->
+    <g filter="url(#drop-shadow)">
+      <path d="M 60,60 L 170,60 L 170,110 Q 140,160 60,170 Z" fill="#423e3b" stroke="#1f1d1c" stroke-width="4"/>
+      <path d="M 70,70 L 155,70 L 155,105 Q 130,145 70,155 Z" fill="#2d2a29"/>
+      <path d="M 80,80 L 140,80 L 140,105 Q 120,135 80,140 Z" fill="url(#fire-glow)" filter="url(#soft-glow)"/>
+      <circle cx="105" cy="105" r="7" fill="#fff" opacity="0.8"/>
+      <circle cx="95" cy="120" r="5" fill="#ffd15c"/>
+      <circle cx="125" cy="95" r="6" fill="#ff5d22"/>
+      <circle cx="105" cy="105" r="18" fill="none" stroke="#181716" stroke-width="5" opacity="0.7"/>
+    </g>
+    <!-- Quenching Trough -->
+    <g filter="url(#drop-shadow)">
+      <rect x="75" y="210" width="45" height="90" rx="4" fill="url(#wood-grain)" stroke="#23170e" stroke-width="3"/>
+      <rect x="82" y="217" width="31" height="76" rx="2" fill="url(#water-grad)"/>
+      <line x1="86" y1="225" x2="108" y2="225" stroke="#7ac4db" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    </g>
+    <!-- Coal / Ore Bins -->
+    <g filter="url(#drop-shadow)">
+      <rect x="330" y="75" width="95" height="55" fill="url(#wood-grain)" stroke="#23170e" stroke-width="3" rx="2"/>
+      <line x1="378" y1="75" x2="378" y2="130" stroke="#23170e" stroke-width="3"/>
+      <ellipse cx="355" cy="102" rx="16" ry="12" fill="#18191a"/>
+      <rect x="388" y="85" width="28" height="10" rx="1" fill="url(#iron-metal)" stroke="#1a1c1e"/>
+      <rect x="392" y="98" width="28" height="10" rx="1" fill="url(#iron-metal)" stroke="#1a1c1e"/>
+      <rect x="385" y="110" width="28" height="10" rx="1" fill="url(#iron-metal)" stroke="#1a1c1e"/>
+    </g>
+    <!-- Anvil on Stump -->
+    <g filter="url(#drop-shadow)">
+      <circle cx="215" cy="215" r="32" fill="#523924" stroke="#2b1c10" stroke-width="3"/>
+      <path d="M 190,215 L 202,205 L 232,205 L 246,215 L 232,225 L 202,225 Z" fill="url(#iron-metal)" stroke="#151718" stroke-width="2.5"/>
+      <path d="M 232,205 L 248,215 L 232,225 Z" fill="#697075"/>
+      <rect x="210" y="212" width="16" height="4" fill="#8c582d" transform="rotate(-25 210 212)"/>
+      <rect x="222" y="206" width="6" height="10" fill="#202224" rx="1" transform="rotate(-25 222 206)"/>
+    </g>
+    <!-- Workbench -->
+    <g filter="url(#drop-shadow)">
+      <rect x="375" y="170" width="55" height="140" fill="url(#wood-grain)" stroke="#23170e" stroke-width="3" rx="3"/>
+      <path d="M 388,180 L 392,240 L 390,246 L 388,240 Z" fill="url(#iron-metal)" stroke="#1c1d1f"/>
+      <path d="M 405,190 L 415,225 M 418,190 L 408,225" stroke="#222" stroke-width="2"/>
+    </g>
+    <!-- Grindstone -->
+    <g filter="url(#drop-shadow)">
+      <rect x="80" y="340" width="35" height="50" fill="url(#wood-grain)" stroke="#23170e" stroke-width="2" rx="2"/>
+      <ellipse cx="97" cy="365" rx="7" ry="20" fill="#75706b" stroke="#3d3a37" stroke-width="2"/>
+      <line x1="85" y1="365" x2="110" y2="365" stroke="#111" stroke-width="3"/>
+    </g>
+    <!-- Barrels & Crate -->
+    <g filter="url(#drop-shadow)">
+      <circle cx="345" cy="365" r="20" fill="#543821" stroke="#23170e" stroke-width="3"/>
+      <circle cx="380" cy="375" r="14" fill="#543821" stroke="#23170e" stroke-width="2.5"/>
+      <rect x="330" y="315" width="30" height="30" fill="#694629" stroke="#261608" stroke-width="2.5"/>
+      <line x1="330" y1="315" x2="360" y2="345" stroke="#261608" stroke-width="1.5"/>
+    </g>
+        
+
+  <!-- Ambient Light Overlay -->
+  <radialGradient id="forge-amb" cx="110" cy="110" r="220" gradientUnits="userSpaceOnUse">
+             <stop offset="0%" stop-color="#ff7700" stop-opacity="0.35"/>
+             <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+           </radialGradient>
+           <rect x="60" y="60" width="380" height="380" fill="url(#forge-amb)" pointer-events="none"/>
+
+  <!-- Walls & Door -->
+  <g filter="url(#drop-shadow)">
+    
+          <rect x="45" y="45" width="410" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="45" y="45" width="25" height="410" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="430" y="45" width="25" height="410" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="45" y="430" width="155" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="300" y="430" width="155" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <!-- Door threshold & leaves -->
+          <rect x="200" y="433" width="100" height="20" fill="#262422" stroke="#151413" stroke-width="2"/>
+          <rect x="198" y="385" width="8" height="50" rx="1" fill="#523218" stroke="#1a0f07" stroke-width="2" transform="rotate(-15 198 435)"/>
+          <rect x="294" y="385" width="8" height="50" rx="1" fill="#523218" stroke="#1a0f07" stroke-width="2" transform="rotate(15 294 435)"/>
+        
+    <!-- Wall Brick Texture Lines -->
+    <path d="M 100,45 L 100,70 M 180,45 L 180,70 M 260,45 L 260,70 M 340,45 L 340,70 M 420,45 L 420,70
+             M 45,120 L 70,120 M 45,200 L 70,200 M 45,280 L 70,280 M 45,360 L 70,360
+             M 430,120 L 455,120 M 430,200 L 455,200 M 430,280 L 455,280 M 430,360 L 455,360
+             M 120,430 L 120,455 M 370,430 L 370,455" stroke="#211f1d" stroke-width="2"/>
+  </g>
+
+
+  <!-- Header Plaque -->
+  <g filter="url(#drop-shadow)" transform="translate(150.0, 15)">
+    <rect width="200" height="26" rx="4" fill="#1e1c1a" stroke="#8c6d3f" stroke-width="2"/>
+    <text x="100" y="17" fill="#d9c398" font-family="'Cinzel', 'Georgia', serif" font-size="13" font-weight="bold" text-anchor="middle" letter-spacing="2">BLACKSMITH</text>
+  </g>
+</svg>

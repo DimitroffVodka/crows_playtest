@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Shadows & Lighting -->
+    <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="3" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+    <filter id="soft-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <!-- Floor Patterns -->
+    <pattern id="flagstone" width="50" height="50" patternUnits="userSpaceOnUse">
+      <rect width="50" height="50" fill="#2b2826"/>
+      <path d="M 0,0 L 50,0 M 0,25 L 50,25 M 0,50 L 50,50 M 25,0 L 25,25 M 0,25 L 0,50 M 50,25 L 50,50 M 12.5,25 L 12.5,50 M 37.5,0 L 37.5,25" 
+            stroke="#1a1817" stroke-width="2" fill="none" opacity="0.4"/>
+      <rect x="2" y="2" width="21" height="21" fill="#383431" rx="2" opacity="0.3"/>
+      <rect x="27" y="27" width="21" height="21" fill="#22201e" rx="2" opacity="0.4"/>
+    </pattern>
+
+    <pattern id="wood-floor" width="60" height="30" patternUnits="userSpaceOnUse">
+      <rect width="60" height="30" fill="#422c1b"/>
+      <line x1="0" y1="0" x2="60" y2="0" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="0" y1="15" x2="60" y2="15" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="0" y1="30" x2="60" y2="30" stroke="#2b1a0e" stroke-width="2"/>
+      <line x1="30" y1="0" x2="30" y2="15" stroke="#2b1a0e" stroke-width="1.5"/>
+      <line x1="15" y1="15" x2="15" y2="30" stroke="#2b1a0e" stroke-width="1.5"/>
+      <line x1="45" y1="15" x2="45" y2="30" stroke="#2b1a0e" stroke-width="1.5"/>
+    </pattern>
+
+    <pattern id="temple-tiles" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#333036"/>
+      <path d="M 0,0 L 40,40 M 40,0 L 0,40" stroke="#221f24" stroke-width="1.5"/>
+      <rect x="10" y="10" width="20" height="20" fill="#3d3942" stroke="#221f24" stroke-width="1"/>
+    </pattern>
+
+    <pattern id="dirt-straw" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#36291a"/>
+      <line x1="5" y1="8" x2="18" y2="12" stroke="#826636" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="22" y1="25" x2="35" y2="28" stroke="#826636" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="12" y1="32" x2="25" y2="30" stroke="#634d26" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="28" y1="8" x2="36" y2="15" stroke="#634d26" stroke-width="1.5" stroke-linecap="round"/>
+    </pattern>
+
+    <!-- Gradients -->
+    <linearGradient id="iron-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6e747a"/>
+      <stop offset="50%" stop-color="#464a4e"/>
+      <stop offset="100%" stop-color="#2a2d30"/>
+    </linearGradient>
+    <linearGradient id="gold-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5d77f"/>
+      <stop offset="50%" stop-color="#c99e32"/>
+      <stop offset="100%" stop-color="#7a5d14"/>
+    </linearGradient>
+    <linearGradient id="wood-grain" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#543821"/>
+      <stop offset="50%" stop-color="#694629"/>
+      <stop offset="100%" stop-color="#432c1a"/>
+    </linearGradient>
+    <linearGradient id="water-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a5c6e"/>
+      <stop offset="100%" stop-color="#14313b"/>
+    </linearGradient>
+    <linearGradient id="holy-water" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#48a9c5"/>
+      <stop offset="100%" stop-color="#1c5566"/>
+    </linearGradient>
+
+    <!-- Ambient Gradients -->
+    <radialGradient id="fire-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff7a8"/>
+      <stop offset="30%" stop-color="#ff8c1a"/>
+      <stop offset="70%" stop-color="#cc2900"/>
+      <stop offset="100%" stop-color="#400a00"/>
+    </radialGradient>
+    <radialGradient id="arcane-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c3e8ff"/>
+      <stop offset="40%" stop-color="#63a4ff"/>
+      <stop offset="75%" stop-color="#4d32a8"/>
+      <stop offset="100%" stop-color="#130830"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outdoor Ground -->
+  <rect width="500" height="500" fill="#141312"/>
+
+  
+  <!-- Interior Floor -->
+  <rect x="60" y="60" width="380" height="380" fill="url(#flagstone)" rx="6"/>
+
+  <!-- Interior Workstations & Props -->
+  
+    <!-- Descending Stone Stairs from Entrance (South Wall) -->
+    <g filter="url(#drop-shadow)">
+      <rect x="200" y="340" width="100" height="85" fill="#24211e" stroke="#151413" stroke-width="2"/>
+      <line x1="200" y1="355" x2="300" y2="355" stroke="#111" stroke-width="2"/>
+      <line x1="200" y1="370" x2="300" y2="370" stroke="#111" stroke-width="2"/>
+      <line x1="200" y1="385" x2="300" y2="385" stroke="#111" stroke-width="2"/>
+      <line x1="200" y1="400" x2="300" y2="400" stroke="#111" stroke-width="2"/>
+      <line x1="200" y1="415" x2="300" y2="415" stroke="#111" stroke-width="2"/>
+    </g>
+
+    <!-- Central Hero Sarcophagus & Stone Effigy (North-Center) -->
+    <g filter="url(#drop-shadow)">
+      <rect x="205" y="110" width="90" height="150" rx="6" fill="#474340" stroke="#1f1d1c" stroke-width="4"/>
+      <rect x="215" y="120" width="70" height="130" rx="4" fill="#302d2b" stroke="#151413" stroke-width="2"/>
+      <!-- Carved Knight/Crow Effigy on Tomb Lid -->
+      <ellipse cx="250" cy="145" rx="14" ry="12" fill="#5e5955"/> <!-- Helm/Head -->
+      <polygon points="235,165 265,165 260,225 240,225" fill="#5e5955"/> <!-- Body Armor -->
+      <line x1="250" y1="165" x2="250" y2="235" stroke="#888" stroke-width="3"/> <!-- Carved Sword -->
+      <line x1="240" y1="180" x2="260" y2="180" stroke="#888" stroke-width="2"/> <!-- Crossguard -->
+    </g>
+
+    <!-- Side Wall Sarcophagi / Tombs of the Fallen -->
+    <g filter="url(#drop-shadow)">
+      <!-- West Tombs -->
+      <rect x="75" y="100" width="55" height="90" rx="3" fill="#3d3936" stroke="#181615" stroke-width="2.5"/>
+      <line x1="75" y1="145" x2="130" y2="145" stroke="#181615" stroke-width="2"/>
+      <rect x="75" y="215" width="55" height="90" rx="3" fill="#3d3936" stroke="#181615" stroke-width="2.5"/>
+      <line x1="75" y1="260" x2="130" y2="260" stroke="#181615" stroke-width="2"/>
+      <!-- East Tombs -->
+      <rect x="370" y="100" width="55" height="90" rx="3" fill="#3d3936" stroke="#181615" stroke-width="2.5"/>
+      <line x1="370" y1="145" x2="425" y2="145" stroke="#181615" stroke-width="2"/>
+      <rect x="370" y="215" width="55" height="90" rx="3" fill="#3d3936" stroke="#181615" stroke-width="2.5"/>
+      <line x1="370" y1="260" x2="425" y2="260" stroke="#181615" stroke-width="2"/>
+    </g>
+
+    <!-- Eternal Memorial Torches & Braziers -->
+    <g filter="url(#drop-shadow)">
+      <circle cx="170" cy="115" r="10" fill="url(#iron-metal)" stroke="#111"/>
+      <circle cx="170" cy="115" r="6" fill="#75b2ff" filter="url(#soft-glow)"/> <!-- Soul fire -->
+      <circle cx="330" cy="115" r="10" fill="url(#iron-metal)" stroke="#111"/>
+      <circle cx="330" cy="115" r="6" fill="#75b2ff" filter="url(#soft-glow)"/>
+      <circle cx="170" cy="250" r="10" fill="url(#iron-metal)" stroke="#111"/>
+      <circle cx="170" cy="250" r="6" fill="#75b2ff" filter="url(#soft-glow)"/>
+      <circle cx="330" cy="250" r="10" fill="url(#iron-metal)" stroke="#111"/>
+      <circle cx="330" cy="250" r="6" fill="#75b2ff" filter="url(#soft-glow)"/>
+    </g>
+        
+
+  <!-- Ambient Light Overlay -->
+  <radialGradient id="crypt-amb" cx="250" cy="185" r="230" gradientUnits="userSpaceOnUse">
+             <stop offset="0%" stop-color="#548ca8" stop-opacity="0.25"/>
+             <stop offset="70%" stop-color="#1b303d" stop-opacity="0.15"/>
+             <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+           </radialGradient>
+           <rect x="60" y="60" width="380" height="380" fill="url(#crypt-amb)" pointer-events="none"/>
+
+  <!-- Walls & Door -->
+  <g filter="url(#drop-shadow)">
+    
+          <rect x="45" y="45" width="410" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="45" y="45" width="25" height="410" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="430" y="45" width="25" height="410" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="45" y="430" width="155" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <rect x="300" y="430" width="155" height="25" fill="#363330" stroke="#1c1a19" stroke-width="3"/>
+          <!-- Door threshold & leaves -->
+          <rect x="200" y="433" width="100" height="20" fill="#262422" stroke="#151413" stroke-width="2"/>
+          <rect x="198" y="385" width="8" height="50" rx="1" fill="#523218" stroke="#1a0f07" stroke-width="2" transform="rotate(-15 198 435)"/>
+          <rect x="294" y="385" width="8" height="50" rx="1" fill="#523218" stroke="#1a0f07" stroke-width="2" transform="rotate(15 294 435)"/>
+        
+    <!-- Wall Brick Texture Lines -->
+    <path d="M 100,45 L 100,70 M 180,45 L 180,70 M 260,45 L 260,70 M 340,45 L 340,70 M 420,45 L 420,70
+             M 45,120 L 70,120 M 45,200 L 70,200 M 45,280 L 70,280 M 45,360 L 70,360
+             M 430,120 L 455,120 M 430,200 L 455,200 M 430,280 L 455,280 M 430,360 L 455,360
+             M 120,430 L 120,455 M 370,430 L 370,455" stroke="#211f1d" stroke-width="2"/>
+  </g>
+
+
+  <!-- Header Plaque -->
+  <g filter="url(#drop-shadow)" transform="translate(150.0, 15)">
+    <rect width="200" height="26" rx="4" fill="#1e1c1a" stroke="#8c6d3f" stroke-width="2"/>
+    <text x="100" y="17" fill="#d9c398" font-family="'Cinzel', 'Georgia', serif" font-size="13" font-weight="bold" text-anchor="middle" letter-spacing="2">THE CRYPT</text>
+  </g>
+</svg>

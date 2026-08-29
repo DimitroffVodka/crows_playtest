@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import { buildVillageProjection } from "../module/helpers/village-map.mjs";
+import { CANONICAL_INSTITUTION_LEVEL_SCALE } from "../module/helpers/canonical-village-layout.mjs";
 import { VILLAGE_ART_SET } from "../module/helpers/village-art.mjs";
 import { composeStampArtSet } from "../module/helpers/village-stamp-art.mjs";
 
@@ -21,9 +22,16 @@ function gadwick(overrides = {}) {
   };
 }
 
+/**
+ * Where a plot is, not how much of it is filled.
+ *
+ * Extent is deliberately excluded: an institution grows with its level, so a
+ * level 1 village and a level 3 one draw the same buildings at different sizes
+ * on the same ground. `institution extent follows its level` covers that.
+ */
 const slotCoordinates = projection => Object.fromEntries(projection.institutions.map(tile => [
   tile.flags.crows.village.institutionType,
-  { x: tile.x, y: tile.y, width: tile.width, height: tile.height, rotation: tile.rotation }
+  { x: tile.x, y: tile.y, rotation: tile.rotation }
 ]));
 
 const identities = entries => entries.map(tile => tile.flags.crows.village.slotId);
@@ -65,6 +73,48 @@ describe("village map | canonical projection", () => {
       assert.deepEqual({ x: tile.x, y: tile.y }, expected[type], `${type} moved off its frozen plot`);
       assert.equal(tile.width, tile.height, `${type} stamp was stretched`);
     }
+  });
+
+  it("grows an institution's building with its level", () => {
+    // The authored set is one drawing per institution, so an upgrade has no art
+    // of its own to switch to. Size carries it instead: without this, raising an
+    // institution changes nothing anyone can see on the map.
+    const at = level => Object.fromEntries(
+      buildVillageProjection(gadwick({
+        institutions: gadwick().institutions.map(institution => ({ ...institution, level }))
+      })).institutions.map(tile => [tile.flags.crows.village.institutionType, tile.width])
+    );
+
+    const one = at(1);
+    const two = at(2);
+    const three = at(3);
+
+    // Level 1 is the authored footprint, unscaled.
+    assert.equal(one.blacksmith, 229);
+    assert.equal(one.temple, 456);
+
+    for (const type of Object.keys(one)) {
+      // The beacon is founded by nobody in this record, so it stays an unbuilt
+      // plot at every level and has no growth to check.
+      if (type === "beacon") continue;
+      assert.equal(two[type], Math.round(one[type] * 1.15), `${type} did not grow at level 2`);
+      assert.equal(three[type], Math.round(one[type] * 1.25), `${type} did not grow at level 3`);
+    }
+
+    // Past the table the ramp holds rather than growing without bound.
+    assert.deepEqual(at(9), three);
+  });
+
+  it("leaves an unfounded plot at its authored size", () => {
+    // Nothing stands there, so there is no investment to show. A plot that grew
+    // would also promise room the founded building does not take.
+    const none = buildVillageProjection(gadwick({ institutions: [] }));
+    const sizes = Object.fromEntries(
+      none.institutions.map(tile => [tile.flags.crows.village.institutionType, tile.width])
+    );
+    assert.equal(sizes.blacksmith, 229);
+    assert.equal(sizes.temple, 456);
+    assert.ok(none.institutions.every(tile => tile.flags.crows.village.visualState === "unbuilt"));
   });
 
   it("renders an in-fiction waiting plot until its institution is founded", () => {
@@ -254,15 +304,19 @@ describe("village map | canonical art wiring", () => {
   });
 
   it("rasterizes every placeable SVG at twice its largest canonical display size", () => {
-    const founded = gadwick({
+    // Every institution founded, and at the top of the level ramp: that is the
+    // largest any of them is ever drawn, so it is the size the art has to carry.
+    // Checking level 1 alone would pass while a raised temple went soft.
+    const founded = level => gadwick({
       prosperity: 10,
       institutions: [
-        ...gadwick().institutions,
-        { id: "beacon", type: "beacon", level: 1 }
+        ...gadwick().institutions.map(institution => ({ ...institution, level })),
+        { id: "beacon", type: "beacon", level }
       ]
     });
     const projections = [
-      buildVillageProjection(founded),
+      buildVillageProjection(founded(1)),
+      buildVillageProjection(founded(CANONICAL_INSTITUTION_LEVEL_SCALE.length - 1)),
       buildVillageProjection(gadwick({ institutions: [] }))
     ];
     const largestPlacementBySrc = new Map();

@@ -17,12 +17,29 @@ What varies is only how much of it is standing, and
 
 - **Institutions** — a founded one gets its authored art, an unfounded one gets
   `unbuilt-plot.svg` on the plot being held for it. The slot never moves.
+- **Levels** — raising an institution enlarges its building: level 1 draws at the
+  authored footprint, level 2 at 15% larger, level 3 at 25%
+  (`CANONICAL_INSTITUTION_LEVEL_SCALE`). The authored set is one drawing per
+  type, so there is no upgraded art to switch to; size is the whole visual
+  difference. It also solves a legibility problem the levels are incidental to —
+  a blacksmith's plot is 229 units against a 295-wide house, so the buildings
+  players need to find were smaller than the houses beside them.
 - **Homes, fields, dressing** — an ordered prefix of each list, sized by
   Prosperity via `canonicalPrefixCount`. Prefixes rather than a random draw, so
   a village that loses Prosperity and regains it gets the identical village back.
 
 The page calls that function for every frame; the controls only build the record
 it takes.
+
+Hovering a building names it. Clicking one opens its interior — a separate
+top-down room drawn on its own 500 square, from
+`assets/institutions/interiors/`, pointed to by `CANONICAL_INSTITUTION_INTERIOR`.
+Interiors are never placed on the village map, so no projection names them; the
+deploy checks them separately or they would 404 in silence.
+
+Prosperity, the founded institutions and their levels, and the open panel all
+live in the URL hash, so a link opens on the same village with the same building
+showing.
 
 ## `planner/` — the procedural layout engine
 

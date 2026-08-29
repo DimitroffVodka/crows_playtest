@@ -36,6 +36,7 @@ import {
   CANONICAL_UNBUILT_PLOT,
   CANONICAL_VILLAGE_BACKGROUND,
   CANONICAL_VILLAGE_SIZE,
+  canonicalInstitutionSlot,
   canonicalPrefixCount
 } from "./canonical-village-layout.mjs";
 import { villageBackgroundSvg } from "./village-plan-draw.mjs";
@@ -1017,7 +1018,13 @@ const canonicalInstitutionArtSet = (fallback = null) => ({
 
 export function institutionTileData(village, institution, options = {}) {
   const effective = effectiveInstitutionForMap(institution, village);
-  const slot = options.slot ?? null;
+  // Raising an institution enlarges its building. The authored set has one
+  // drawing per type, so without this an upgrade changes nothing a player can
+  // see on the map; with it, the buildings that have been invested in are the
+  // ones that read against the housing around them.
+  const slot = options.slot
+    ? canonicalInstitutionSlot(institution?.type, levelValue(effective)) ?? options.slot
+    : null;
   const placedAt = null;
   const fitted = slot
     ? { width: slot.width, height: slot.height }
@@ -1474,6 +1481,8 @@ export function buildVillageProjection(village, options = {}) {
   const source = normalizeVillage(village ?? getVillage());
   const institutionTypes = Object.keys(CANONICAL_INSTITUTION_SLOTS);
   const institutions = institutionTypes.map((type, index) => {
+    // The authored slot, unscaled: `institutionTileData` grows it by the
+    // institution's level, and a plot with nothing on it has no level to grow by.
     const slot = CANONICAL_INSTITUTION_SLOTS[type];
     const institution = findLiveInstitution(type, source)
       ?? source.institutions.find(candidate => String(candidate?.type ?? "") === type)

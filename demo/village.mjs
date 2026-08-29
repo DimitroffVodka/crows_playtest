@@ -18,10 +18,23 @@
 
 import { buildVillageProjection } from "../module/helpers/village-map.mjs";
 import {
+  CANONICAL_INSTITUTION_INTERIOR,
+  CANONICAL_INSTITUTION_LEVEL_SCALE,
   CANONICAL_INSTITUTION_SLOTS,
   CANONICAL_VILLAGE_BACKGROUND,
   CANONICAL_VILLAGE_SIZE
 } from "../module/helpers/canonical-village-layout.mjs";
+
+export { CANONICAL_INSTITUTION_LEVEL_SCALE };
+
+/** The room behind an institution's door, as a URL this page can load. */
+export function interiorUrl(type) {
+  const src = CANONICAL_INSTITUTION_INTERIOR[type];
+  return src ? assetUrl(src) : null;
+}
+
+/** The top of the level ramp — how far the upgrade control can go. */
+export const MAX_INSTITUTION_LEVEL = CANONICAL_INSTITUTION_LEVEL_SCALE.length - 1;
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const XLINK_NS = "http://www.w3.org/1999/xlink";
@@ -102,17 +115,22 @@ export function createMap(container) {
 
   // Layer order follows the projection's `sort`: fields under the village,
   // buildings on the ground, dressing over everything.
-  const layers = {};
   const nodes = {};
   for (const kind of ["farmland", "institutions", "housing", "dressing"]) {
     const group = document.createElementNS(SVG_NS, "g");
     group.id = kind;
+    // Only institutions answer the pointer. Dressing draws above them, so a tree
+    // overhanging a roof would otherwise swallow every hover on that building.
+    if (kind !== "institutions") group.setAttribute("pointer-events", "none");
     nodes[kind] = FULL_PROJECTION[kind].map(tile => {
       const node = tileImage(tile);
+      if (kind === "institutions") {
+        node.dataset.type = tile.flags.crows.village.institutionType;
+        node.classList.add("institution");
+      }
       group.append(node);
       return node;
     });
-    layers[kind] = group;
     svg.append(group);
   }
 
@@ -123,13 +141,17 @@ export function createMap(container) {
 /**
  * Show the village at this Prosperity with these institutions standing.
  *
+ * @param {object} map
+ * @param {object} state
+ * @param {number} state.prosperity
+ * @param {Map<string, number>} state.founded  Institution type -> its level.
  * @returns {object} The projection, for whatever the page wants to report.
  */
 export function updateMap(map, { prosperity, founded }) {
   const projection = buildVillageProjection({
     villageId: "demo",
     prosperity,
-    institutions: [...founded].map((type, index) => ({ id: `${type}-${index}`, type, level: 1 }))
+    institutions: [...founded].map(([type, level], index) => ({ id: `${type}-${index}`, type, level }))
   });
 
   // Housing, fields and dressing are ordered prefixes, so slot N is the same

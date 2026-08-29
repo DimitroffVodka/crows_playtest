@@ -32,6 +32,9 @@ fields and woodland fill in behind it, always in the same order, so a village th
 times and recovers gets the identical village back. The three maps above are one village at
 Prosperity −6, +2 and +10.
 
+Hover a building to name it, click it to see the room inside, and raise it to watch it grow on its
+plot — levels have no art of their own, so size is what an upgrade looks like.
+
 The page calls the system's own `buildVillageProjection()` for every frame rather than a copy of it.
 See [`demo/`](demo/) for how that is wired, how to run it locally, and for the separate procedural
 layout engine that plans a settlement from a seed.
