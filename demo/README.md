@@ -41,9 +41,18 @@ top-down room drawn on its own 500 square, from
 Interiors are never placed on the village map, so no projection names them; the
 deploy checks them separately or they would 404 in silence.
 
-Alongside the room, the panel shows what the levels actually buy: founding price,
-the advancement ladder with the price to reach each level and what that level
-grants, and the Prosperity 10 capstone. None of that is written in the demo — it
+Alongside the room, the panel shows what the place is *for* — commissions,
+workshop rates, hireling Power, beacon reach, stakes at the inn, the crypt's ten
+boons — and then what another level would buy: the advancement ladder with the
+price to reach each level, and the Prosperity 10 capstone.
+
+The service phrasing is authored per institution, because the services genuinely
+differ and there is no axis to derive "rents you its forge" from. Every *number*
+in them comes from the system's own functions — `villageCraftingQuote`,
+`workshopRental`, `innMaxBet`, `beaconRadius`, `hireableMaxPower`,
+`sellPercentage`, `CRYPT_BOONS[x].summary(level)` — so the terms on this page and
+the terms the system charges cannot disagree, and they move with Prosperity as
+well as level. None of the level data is written in the demo either — it
 is read from `INSTITUTIONS` in [`village.mjs`](../module/helpers/village.mjs),
 the same table the system charges against. [`rules.mjs`](rules.mjs) only turns a
 row into a sentence, and does it per `availability.axis` rather than per

@@ -17,10 +17,17 @@
 import {
   INSTITUTIONS,
   advancementRow,
+  beaconRadius,
+  innMaxBet,
   institutionMaxLevel,
   institutionPurchasableMaxLevel,
-  upgradePrice
+  sellPercentage,
+  upgradePrice,
+  villageCraftingQuote,
+  workshopRental
 } from "../module/helpers/village.mjs";
+import { CRYPT_BOONS, BOON_IDS } from "../module/helpers/crypt.mjs";
+import { hireableMaxPower, hirelingStartingRations } from "../module/helpers/hirelings.mjs";
 
 export { institutionMaxLevel, institutionPurchasableMaxLevel };
 
@@ -68,11 +75,132 @@ export function levelEffect(type, level) {
   }
 }
 
-/** What the whole institution is for, when its levels have no stocked axis. */
+/**
+ * What the whole institution is for, when its levels have no stocked axis.
+ *
+ * The crypt's wording matters: every one of the ten boons is available at level
+ * 1. The level is what each boon is *worth* — `CRYPT_BOONS[x].value(level)` —
+ * so a ladder that read as unlocking more of them would be describing a
+ * different game.
+ */
 const UNAXED = Object.freeze({
-  crypt: "Each level opens another of the ten crypt boons.",
-  temple: "Each level deepens the services the temple can perform."
+  crypt: "All ten boons are available from the start; the level is how strong each one is.",
+  temple: "No stocked catalogue — the level scales the services directly."
 });
+
+/** Axes that describe a catalogue, as against a capacity. */
+const SHELF_AXES = new Set(["expertiseUses", "spellRank", "quality"]);
+
+/**
+ * `levelEffect` is phrased for the ladder's "what it buys" column, which reads
+ * as a sentence with its verb. Under a "Stocks" label the verb doubles up —
+ * "Stocks: Stocks masterwork goods" — and on an artisan it also repeats the
+ * Commissions line above it, so the leading verb comes off.
+ */
+function asShelf(effect) {
+  const trimmed = effect
+    .replace(/^Crafts and stocks /, "")
+    .replace(/^Stocks /, "");
+  return trimmed === effect ? effect : trimmed.replace(/^./, c => c.toUpperCase());
+}
+
+const list = items => {
+  const names = items.map(titleCase);
+  return names.length < 2 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+};
+
+/**
+ * What you can actually walk in and do, at this level and this Prosperity.
+ *
+ * The phrasing is authored per institution because the services genuinely
+ * differ — there is no axis to derive "rents you its forge" from. Every
+ * *number* in them is computed by the system's own functions, so the terms on
+ * this page and the terms the system charges cannot disagree.
+ */
+export function institutionServices(type, level, prosperity = 0) {
+  const def = INSTITUTIONS[type];
+  if (!def || level == null) return [];
+  const out = [];
+
+  if (def.roles.includes("artisan")) {
+    const quote = villageCraftingQuote(type, level, 0);
+    if (quote.ok) {
+      out.push({
+        name: "Commissions",
+        detail: `Crafts ${list(quote.crafts)} items. Full price up front plus materials, one roll a day at +${quote.craftingBonus}; pay double for two rolls a day.`
+      });
+    }
+  }
+
+  const workshop = workshopRental(type, level);
+  if (workshop.ok) {
+    out.push({
+      name: "Workshop",
+      detail: `${gc(workshop.pricePerDay)} a day to work there yourself, at +${workshop.craftingBonus} to ${list(workshop.expertises)}.`
+    });
+  }
+
+  switch (type) {
+    case "auctionHouse":
+      out.push({ name: "Auctions", detail: "Sells anything you bring for 1d10 × (10 + Prosperity)% of its value — a swing worth gambling on." });
+      out.push({ name: "Buy-back", detail: "Regret it and you can buy it back for the hammer price plus 10% of the item's value." });
+      out.push({ name: "Haggling", detail: "Its own stock costs 1d6 × 10% more or less than list, decided on the spot." });
+      break;
+    case "barracks": {
+      const rations = hirelingStartingRations(level, prosperity);
+      out.push({ name: "Hirelings", detail: `Hires out anyone up to Power ${hireableMaxPower(level)}. They follow every rule a crow does except gaining XP.` });
+      if (rations) out.push({ name: "Provisions", detail: `Each hireling arrives with ${rations} rations of their own.` });
+      break;
+    }
+    case "beacon":
+      out.push({ name: "Signal fire", detail: `Burns the Miasma back ${plural(beaconRadius(level, prosperity), "hex", "hexes")} around the village.` });
+      out.push({ name: "Transport", detail: `Carries up to ${def.transportCapacity} creatures, ${gc(def.transportCostPerHex)} a hex travelled.` });
+      break;
+    case "crypt":
+      out.push({ name: "Interment", detail: "Keeps your dead, and the register of who lies there." });
+      out.push({
+        name: "Prayer",
+        detail: "Once a cycle, one boon from the ten:",
+        boons: BOON_IDS.map(id => ({ label: CRYPT_BOONS[id].label, summary: CRYPT_BOONS[id].summary(level) }))
+      });
+      break;
+    case "inn":
+      out.push({ name: "Beds", detail: `${gc(def.nightlyRate)} a night, and a rest here skips the encounter check.` });
+      out.push({ name: "Games", detail: `Stakes from 1 gc up to ${gc(innMaxBet(level, prosperity))}.` });
+      break;
+    case "stables":
+      out.push({ name: "Animals", detail: `Sells and boards beasts up to Power ${advancementRow(type, level)?.maxPower ?? 0}.` });
+      break;
+    case "temple":
+      out.push({ name: "Healing", detail: "Tends wounds, blesses those setting out, and reaches back for the recently dead — all three scale with the level." });
+      break;
+    default:
+      break;
+  }
+
+  // What is on the shelf, for the merchants whose axis is a catalogue rather
+  // than a capacity. The others — hireling Power, stake size, beacon reach —
+  // already have their axis named by a line above, and would read twice.
+  if (SHELF_AXES.has(def.availability?.axis)) {
+    const effect = levelEffect(type, level);
+    if (effect) out.push({ name: "Stocks", detail: `${asShelf(effect)}.` });
+  }
+
+  if (def.sellsCraftingMaterials) {
+    out.push({ name: "Materials", detail: "Stocks the raw materials a commission needs." });
+  }
+
+  if (def.roles.includes("merchant") && type !== "auctionHouse") {
+    out.push({
+      name: "Buys from you",
+      detail: `Pays ${sellPercentage(prosperity)}% of value at Prosperity ${prosperity > 0 ? `+${prosperity}` : prosperity}.`
+    });
+  }
+
+  return out;
+}
+
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 /**
  * Everything the panel needs about one institution at one level.

@@ -76,6 +76,9 @@ jobs:
             const plan = await import("./module/helpers/village-plan.mjs");
             await import("./module/helpers/village-plan-draw.mjs");
             await import("./module/helpers/village-stamp-art.mjs");
+            // The panel reads its service terms from these two as well.
+            await import("./module/helpers/crypt.mjs");
+            await import("./module/helpers/hirelings.mjs");
 
             const projection = map.buildVillageProjection({
               villageId: "ci", prosperity: 5,

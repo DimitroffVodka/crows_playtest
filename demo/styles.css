@@ -462,6 +462,66 @@ button.icon:hover { background: none; color: var(--ink); }
 /*  Advancement ladder                          */
 /* -------------------------------------------- */
 
+/* -------------------------------------------- */
+/*  Services                                    */
+/* -------------------------------------------- */
+
+.services {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+}
+
+.services > div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--edge);
+}
+
+.services > div:first-child { border-top: 0; padding-top: 0; }
+
+.services dt {
+  font-size: 11.5px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #7d6f5e;
+  padding-top: 2px;
+}
+
+.services dd {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.boons {
+  margin: 7px 0 2px;
+  padding-left: 16px;
+  columns: 2;
+  column-gap: 20px;
+  font-size: 12.5px;
+  color: #5f5245;
+}
+
+.boons li {
+  margin-bottom: 3px;
+  break-inside: avoid;
+}
+
+@media (max-width: 900px) {
+  .boons { columns: 1; }
+}
+
+.services-empty { margin-bottom: 16px; }
+
+.ladder-heading {
+  margin: 0 0 8px;
+  font: 600 13px/1.3 system-ui, sans-serif;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #7d6f5e;
+}
+
 .ladder {
   width: 100%;
   border-collapse: collapse;
