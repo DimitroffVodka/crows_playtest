@@ -1,13 +1,13 @@
-name: Village generator demo
+name: Village map demo
 
-# Publishes docs/../demo as a GitHub Pages site.
+# Publishes `demo/` as a GitHub Pages site.
 #
 # The site is assembled rather than served straight from the repo so the demo is
 # the only thing published, and so its layout stays identical to the repo's:
-# `demo/main.mjs` imports `../module/helpers/...` and `../assets/...`, and those
-# same relative paths have to resolve both here and under a plain
+# the pages import `../module/helpers/...` and reference `../assets/...`, and
+# those same relative paths have to resolve both here and under a plain
 # `python3 -m http.server` at the repo root. Nothing is bundled or copied into
-# `demo/` — the page runs the shipped generator modules as they are.
+# `demo/` — the pages run the shipped modules and reference the shipped art.
 
 on:
   push:
@@ -17,6 +17,7 @@ on:
       - "module/**"
       - "assets/institutions/**"
       - "assets/rural/**"
+      - "assets/village/canonical/**"
       - ".github/workflows/demo.yml"
   workflow_dispatch:
 
@@ -39,9 +40,12 @@ jobs:
       - name: Assemble the site
         run: |
           set -euo pipefail
-          mkdir -p _site/assets
+          mkdir -p _site/assets/village
           cp -r demo _site/demo
           cp -r module _site/module
+          # The canonical map's own art, then the two sets its buildings are
+          # drawn from; the rural stamps are the planner demo's dressing.
+          cp -r assets/village/canonical _site/assets/village/canonical
           cp -r assets/institutions _site/assets/institutions
           cp -r assets/rural _site/assets/rural
           # Without this Pages runs the files through Jekyll, which ignores
@@ -52,28 +56,65 @@ jobs:
           printf '%s\n' \
             '<!doctype html>' \
             '<meta charset="utf-8">' \
-            '<title>Crows Village Generator</title>' \
+            '<title>Balhaunis — Crows Village Map</title>' \
             '<meta http-equiv="refresh" content="0; url=demo/">' \
             '<link rel="canonical" href="demo/">' \
-            '<p><a href="demo/">Village generator</a></p>' \
+            '<p><a href="demo/">Village map</a></p>' \
             > _site/index.html
 
-      # The demo imports these four straight from source. A Foundry global
-      # creeping into one of them at load time would break the page and nothing
-      # else, so it is checked here rather than discovered in a browser.
-      - name: Check the generator loads outside Foundry
+      # The pages call these straight from source, so a Foundry global creeping
+      # into one at load time — or a projection that stops returning tiles —
+      # breaks the demo and nothing else. Caught here rather than in a browser.
+      - name: Check the map code runs outside Foundry
         run: |
           node --input-type=module -e '
+            const map = await import("./module/helpers/village-map.mjs");
             const plan = await import("./module/helpers/village-plan.mjs");
             await import("./module/helpers/village-plan-draw.mjs");
-            await import("./module/helpers/village-map.mjs");
             await import("./module/helpers/village-stamp-art.mjs");
+
+            const projection = map.buildVillageProjection({
+              villageId: "ci", prosperity: 5,
+              institutions: [{ id: "a", type: "inn", level: 1 }]
+            });
+            if (!projection.tiles.length) throw new Error("the projection returned no tiles");
+            if (projection.unsupported.length) {
+              throw new Error(`${projection.unsupported.length} tile(s) resolved to no art`);
+            }
+            console.log(`projected ${projection.tiles.length} tiles`
+              + ` (${projection.housing.length} homes, ${projection.farmland.length} fields)`);
+
             const built = plan.buildVillagePlan({
               name: "CI", sceneSeed: "ci", prosperity: 5,
               institutions: [{ id: "a", type: "inn" }]
             });
             if (!built.plots.length) throw new Error("the planner produced no plots");
             console.log(`planned ${built.stats.plots} plots, ${built.stats.streets} streets`);
+          '
+
+      # Every path the projection names has to actually be in the artifact, or
+      # the map renders as gaps that nothing reports.
+      - name: Check every referenced asset was published
+        run: |
+          node --input-type=module -e '
+            const { existsSync } = await import("node:fs");
+            const map = await import("./module/helpers/village-map.mjs");
+            const layout = await import("./module/helpers/canonical-village-layout.mjs");
+            const types = Object.keys(layout.CANONICAL_INSTITUTION_SLOTS);
+            const projection = map.buildVillageProjection({
+              villageId: "ci", prosperity: 10,
+              institutions: types.map((type, i) => ({ id: `i${i}`, type, level: 1 }))
+            });
+            const sources = new Set([
+              layout.CANONICAL_VILLAGE_BACKGROUND,
+              layout.CANONICAL_UNBUILT_PLOT,
+              ...projection.tiles.map(tile => tile.texture.src)
+            ]);
+            const missing = [...sources]
+              .map(src => "_site/" + String(src).replace("systems/crows/", ""))
+              .filter(path => !existsSync(path));
+            if (missing.length) throw new Error(`missing from the site: ${missing.join(", ")}`);
+            console.log(`${sources.size} assets present`);
           '
 
       - uses: actions/upload-pages-artifact@v3

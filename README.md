@@ -20,19 +20,21 @@ This system implements those rules. You need the packet to read what the game *i
 
 ---
 
-## Try the village generator
+## See the village map
 
 **[Live demo →](https://dimitroffvodka.github.io/crows_playtest/)** — no install, no Foundry.
 
-[![A ruin village and an open village generated from the same seed](demo/preview.png)](https://dimitroffvodka.github.io/crows_playtest/)
+[![Balhaunis at Prosperity −6, +2 and +10 — the same roads and plots, filling in](demo/preview.png)](https://dimitroffvodka.github.io/crows_playtest/)
 
-Pick a seed, choose which institutions the village has founded, and watch the plan settle: a ruin
-shell with breaches and towers, streets grown out from a gate, plots laid along their frontages, and
-each institution scored onto the ground it wants — the crypt out at the edge, the stables by a gate,
-the general store on the busiest corner. Both forms above are the same seed.
+Balhaunis is authored, not generated — the roads, the ground and every plot are fixed. Found an
+institution and it appears on the plot that was being held for it; move Prosperity and the homes,
+fields and woodland fill in behind it, always in the same order, so a village that falls on hard
+times and recovers gets the identical village back. The three maps above are one village at
+Prosperity −6, +2 and +10.
 
-The page runs the shipped generator directly rather than a copy of it; see [`demo/`](demo/) for how
-that is wired and how to run it locally.
+The page calls the system's own `buildVillageProjection()` for every frame rather than a copy of it.
+See [`demo/`](demo/) for how that is wired, how to run it locally, and for the separate procedural
+layout engine that plans a settlement from a seed.
 
 ---
 
@@ -65,7 +67,7 @@ Or download a release zip directly from the [Releases page](https://github.com/D
 ### Downtime systems
 - **Miasma** — outdoor 24h resist test (2d10 + M + Endurance), Effects table dispatch with effect-id dedup, cruelty accumulation, catastrophic result → permanent NPC.
 - **Crypt boons** — 10-boon institution with internment registry, once-per-cycle prayer, mechanical hooks for Vitality / Fury / Swiftness boons; chat-card scaffolds for the rest.
-- **Village** — Prosperity tracker (−10..+10), 10-day cycles, institution registry, end-of-cycle event roll (d10 + Prosperity), GM management dialog, and a procedural map generator that lays the settlement out and projects it onto a Scene ([try it in the browser](https://dimitroffvodka.github.io/crows_playtest/)).
+- **Village** — Prosperity tracker (−10..+10), 10-day cycles, institution registry, end-of-cycle event roll (d10 + Prosperity), GM management dialog, and an authored village map projected onto a Scene as Tiles, filling in with Prosperity ([see it in the browser](https://dimitroffvodka.github.io/crows_playtest/)).
 - **Crafting** — projects with prereqs/materials/goal, special-Mind crafting roll (doom=0, crit=re-roll, min 1), Identify Item 2d10+M tiered test.
 - **Advancement** — TXP threshold table for expertise/stamina and characteristic bonuses, trait-tree purchase UI (4×3 grid per tree, `connectsTo` gating), XP-grant macros.
 - **Pets** — taming, bonding, ownership transfer, and combat commands, with the command test the rules require.

@@ -20,8 +20,8 @@
  * downloaded and opened anywhere.
  */
 
-import { renderPlanToSvg } from "../module/helpers/village-plan-draw.mjs";
-import { stampFootprints, SCENE_DEFAULTS } from "../module/helpers/village-map.mjs";
+import { renderPlanToSvg } from "../../module/helpers/village-plan-draw.mjs";
+import { stampFootprints, SCENE_DEFAULTS } from "../../module/helpers/village-map.mjs";
 import {
   FARM_PLOT_STAMPS,
   HOUSING_STAMPS,
@@ -33,11 +33,11 @@ import {
   slugFor,
   stampBody,
   stampShadowBody
-} from "../module/helpers/village-stamp-art.mjs";
+} from "../../module/helpers/village-stamp-art.mjs";
 
 /** Foundry's asset route, rewritten as a path relative to this page. */
 export function assetUrl(src) {
-  return String(src).replace(/^systems\/crows\//, "../");
+  return String(src).replace(/^systems\/crows\//, "../../");
 }
 
 /**

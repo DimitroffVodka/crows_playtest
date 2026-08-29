@@ -33,6 +33,14 @@ a { color: var(--ember); }
 
 .masthead > div { max-width: 1360px; margin: 0 auto; }
 
+.crumb {
+  margin: 0 0 6px;
+  font-size: 13.5px;
+}
+
+.crumb a { text-decoration: none; }
+.crumb a:hover { text-decoration: underline; }
+
 .masthead h1 {
   margin: 0;
   font: 600 30px/1.15 Georgia, "Iowan Old Style", serif;
@@ -272,6 +280,22 @@ button.link:hover { background: none; }
   overflow: hidden;
 }
 
+/* Inside the control panel there is one narrow column, so the readouts run
+   down it as rows rather than wrapping into ragged cells. */
+.stats-stacked {
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 0 18px;
+}
+
+.stats-stacked > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stats-stacked dd { font-size: 15px; }
+
 .stats > div {
   background: var(--panel);
   padding: 10px 12px;
@@ -325,6 +349,22 @@ footer p { max-width: 74ch; }
 }
 
 .stages li { margin-bottom: 5px; }
+
+.aside {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--edge);
+  font-size: 14px;
+  color: #7d6f5e;
+}
+
+footer code {
+  font-size: 13px;
+  background: var(--paper);
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
 
 @media (max-width: 900px) {
   main { grid-template-columns: minmax(0, 1fr); }
