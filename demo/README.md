@@ -45,10 +45,13 @@ Alongside the room, the panel shows what the levels actually buy: founding price
 the advancement ladder with the price to reach each level and what that level
 grants, and the Prosperity 10 capstone. None of that is written in the demo — it
 is read from `INSTITUTIONS` in [`village.mjs`](../module/helpers/village.mjs),
-the same table the system charges against, each row carrying its rulebook
-citation. [`rules.mjs`](rules.mjs) only turns a row into a sentence, and does it
-per `availability.axis` rather than per institution so twelve hand-written
-descriptions cannot drift from the numbers.
+the same table the system charges against. [`rules.mjs`](rules.mjs) only turns a
+row into a sentence, and does it per `availability.axis` rather than per
+institution so twelve hand-written descriptions cannot drift from the numbers.
+
+The rulebook citations each row carries stay behind: they are how the system's
+data stays checkable against the book, and on a page for someone looking at a map
+they are a reference number beside a sentence that already reads fine.
 
 **Miasma** and **Night** are two overlay layers on the same SVG.
 

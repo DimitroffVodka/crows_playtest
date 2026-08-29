@@ -534,11 +534,6 @@ button.icon:hover { background: none; color: var(--ink); }
   border-color: #e0c79a;
 }
 
-.cite {
-  font-size: 11.5px;
-  color: #8b7d6a;
-}
-
 .detail-actions {
   display: flex;
   gap: 8px;

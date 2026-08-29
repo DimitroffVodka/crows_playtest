@@ -95,9 +95,12 @@ export function institutionRules(type, level = null) {
     purchasable: row.level === 1 || row.price != null
   }));
 
+  // The rulebook citations on `def.source` and `def.prosperity10.source` are
+  // deliberately not carried out of here. They are how the system's own data
+  // stays checkable against the book; on a page for someone looking at a map
+  // they are a reference number next to a sentence they can already read.
   return {
     label: def.label,
-    source: def.source,
     roles: def.roles ?? [],
     foundingPrice: def.foundingPrice,
     top,
@@ -107,7 +110,11 @@ export function institutionRules(type, level = null) {
     ladderNote: UNAXED[type] ?? null,
     nextPrice: level == null ? def.foundingPrice : upgradePrice(type, level + 1),
     capstone: def.prosperity10
-      ? { ...def.prosperity10, met: level != null && level >= def.prosperity10.atLevel }
+      ? {
+          atLevel: def.prosperity10.atLevel,
+          text: def.prosperity10.text,
+          met: level != null && level >= def.prosperity10.atLevel
+        }
       : null
   };
 }

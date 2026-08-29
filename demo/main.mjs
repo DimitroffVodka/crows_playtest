@@ -197,9 +197,7 @@ function paintDetail() {
   const rules = institutionRules(type, level);
   panel.hidden = false;
   el("detail-name").textContent = label;
-  el("detail-source").textContent = rules
-    ? [rules.roles.map(titleCase).join(" · "), rules.source].filter(Boolean).join(" — ")
-    : "";
+  el("detail-source").textContent = rules ? rules.roles.map(titleCase).join(" · ") : "";
 
   const interior = interiorUrl(type);
   const view = el("detail-view");
@@ -244,7 +242,7 @@ function rulesTable(rules, type, level) {
   const capstone = rules.capstone ? `
     <p class="capstone${rules.capstone.met ? " met" : ""}">
       <strong>Level ${rules.capstone.atLevel} at Prosperity 10</strong> —
-      ${escape(rules.capstone.text)} <span class="cite">${rules.capstone.source}</span>
+      ${escape(rules.capstone.text)}
     </p>` : "";
 
   const unbuyable = rules.purchasableTop < rules.top ? `
