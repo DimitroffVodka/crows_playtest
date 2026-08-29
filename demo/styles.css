@@ -1,3 +1,14 @@
+/* The system's own display serif, for the name written across the map. Declared
+   here rather than pulled from `css/crows.css`, which is a Foundry stylesheet
+   full of sheet layout this page has no use for. */
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../fonts/eb-garamond.woff2") format("woff2");
+}
+
 /* Palette lifted from the map's own `crows` style, so the page and the thing it
    shows are the same set of colours. */
 :root {
@@ -56,6 +67,7 @@ a { color: var(--ember); }
 main {
   max-width: 1360px;
   margin: 0 auto;
+  /* The map page has no masthead, so the top padding is the whole top margin. */
   padding: 24px;
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
@@ -606,20 +618,14 @@ footer p { max-width: 74ch; }
 
 .stages li { margin-bottom: 5px; }
 
-.aside {
-  margin-top: 20px;
-  padding-top: 14px;
+/* The map page carries no page furniture — the only pointer off it is one
+   line at the foot of the control panel. */
+.colophon {
+  margin: 16px 0 0;
+  padding-top: 12px;
   border-top: 1px solid var(--edge);
-  font-size: 14px;
-  color: #7d6f5e;
-}
-
-footer code {
-  font-size: 13px;
-  background: var(--paper);
-  border: 1px solid var(--edge);
-  border-radius: 4px;
-  padding: 1px 5px;
+  font-size: 12px;
+  color: #8b7d6a;
 }
 
 @media (max-width: 900px) {

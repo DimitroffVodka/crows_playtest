@@ -136,8 +136,71 @@ export function createMap(container) {
     svg.append(group);
   }
 
+  // The name is drawn into the map rather than laid over it in HTML, so it
+  // travels with the PNG export and scales with everything else. Last in the
+  // document, so it sits above every layer; deaf to the pointer, so it can lie
+  // over a field without stealing a hover from whatever is under it.
+  const title = document.createElementNS(SVG_NS, "text");
+  title.setAttribute("x", TITLE.x);
+  title.setAttribute("y", TITLE.y);
+  title.setAttribute("font-family", TITLE.font);
+  title.setAttribute("font-size", TITLE.size);
+  title.setAttribute("letter-spacing", TITLE.tracking);
+  title.setAttribute("fill", TITLE.ink);
+  // A halo rather than a plaque: it keeps the name legible over a dark plowed
+  // field or a pale one without covering any of the map to do it.
+  title.setAttribute("stroke", TITLE.halo);
+  title.setAttribute("stroke-width", TITLE.haloWidth);
+  title.setAttribute("stroke-linejoin", "round");
+  title.setAttribute("paint-order", "stroke");
+  title.setAttribute("pointer-events", "none");
+  svg.append(title);
+
+  const rule = document.createElementNS(SVG_NS, "path");
+  rule.setAttribute("stroke", TITLE.ink);
+  rule.setAttribute("stroke-width", 7);
+  rule.setAttribute("fill", "none");
+  rule.setAttribute("pointer-events", "none");
+  svg.append(rule);
+
   container.replaceChildren(svg);
-  return { svg, nodes, size };
+  return { svg, nodes, size, title, rule };
+}
+
+/** Where the village's name sits, in map units. */
+const TITLE = Object.freeze({
+  x: 210,
+  y: 410,
+  size: 210,
+  tracking: 22,
+  ink: "#241d15",
+  halo: "#f4eee3",
+  // Garamond's strokes are fine, so the halo has to stay well under them or it
+  // reads as an outline around hollow letters rather than as separation.
+  haloWidth: 6,
+  font: "'EB Garamond', Georgia, serif"
+});
+
+/** The face the title is set in, for embedding into an exported SVG. */
+export const TITLE_FONT_URL = "../fonts/eb-garamond.woff2";
+
+/**
+ * Write the village's name across the top-left of the map.
+ *
+ * The rule under it is drawn to the text's measured width rather than a guess,
+ * so it ends with the name at any length. An empty name removes both.
+ */
+export function setMapName(map, name) {
+  const text = String(name ?? "").trim();
+  map.title.textContent = text;
+  if (!text) {
+    map.rule.setAttribute("d", "");
+    return;
+  }
+  const width = map.title.getComputedTextLength?.() ?? 0;
+  // Trailing tracking hangs off the last letter; the rule should not.
+  const end = TITLE.x + Math.max(0, width - TITLE.tracking);
+  map.rule.setAttribute("d", `M${TITLE.x} ${TITLE.y + 62}H${end.toFixed(1)}`);
 }
 
 /**
@@ -184,6 +247,18 @@ export async function toPng(map, { scale = 1 } = {}) {
   const clone = map.svg.cloneNode(true);
   const cache = new Map();
 
+  // The title's face has to travel too. An SVG rendered through an <img> is its
+  // own isolated document: the page's @font-face does not reach into it, and a
+  // relative font URL inside it resolves against nothing. Without this the
+  // exported map is set in whatever serif the renderer defaults to, which is
+  // not the one on screen.
+  const font = embedTitleFont().then(rule => {
+    if (!rule) return;
+    const style = document.createElementNS(SVG_NS, "style");
+    style.textContent = rule;
+    clone.prepend(style);
+  });
+
   await Promise.all([...clone.querySelectorAll("image")].map(async node => {
     if (node.style.display === "none") return node.remove();
     const src = node.getAttribute("href");
@@ -196,6 +271,7 @@ export async function toPng(map, { scale = 1 } = {}) {
     node.setAttribute("href", uri);
     node.setAttributeNS(XLINK_NS, "xlink:href", uri);
   }));
+  await font;
 
   const markup = new XMLSerializer().serializeToString(clone);
   const image = new Image();
@@ -210,4 +286,30 @@ export async function toPng(map, { scale = 1 } = {}) {
   const context = canvas.getContext("2d");
   context.drawImage(image, 0, 0, canvas.width, canvas.height);
   return new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+}
+
+/**
+ * The title face as a self-contained `@font-face` rule, or null if it will not
+ * load — in which case the export falls back to a plain serif, which is worse
+ * than the page but better than no map.
+ */
+let titleFontRule = null;
+async function embedTitleFont() {
+  if (titleFontRule !== null) return titleFontRule;
+  try {
+    const response = await fetch(TITLE_FONT_URL);
+    if (!response.ok) throw new Error(String(response.status));
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    let binary = "";
+    // Chunked: spreading 44 KB into String.fromCharCode at once overflows the
+    // argument limit in some engines.
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    }
+    titleFontRule = `@font-face{font-family:'EB Garamond';font-style:normal;font-weight:400 700;`
+      + `src:url(data:font/woff2;base64,${btoa(binary)}) format('woff2');}`;
+  } catch {
+    titleFontRule = "";
+  }
+  return titleFontRule;
 }

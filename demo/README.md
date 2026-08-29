@@ -50,9 +50,16 @@ citation. [`rules.mjs`](rules.mjs) only turns a row into a sentence, and does it
 per `availability.axis` rather than per institution so twelve hand-written
 descriptions cannot drift from the numbers.
 
-Prosperity, the founded institutions and their levels, and the open panel all
-live in the URL hash, so a link opens on the same village with the same building
-showing.
+The village's name is written across the top-left of the map in the system's own
+display serif, EB Garamond. It is a `<text>` node inside the SVG rather than an
+HTML overlay, so it scales with the map and travels into the PNG export — which
+means the export has to carry the face too: an SVG rendered through an `<img>`
+is its own document, and neither the page's `@font-face` nor a relative font URL
+reaches inside it, so `toPng` embeds the woff2 as a data URI.
+
+The page itself carries no prose. Name, Prosperity, the founded institutions and
+their levels, and the open panel all live in the URL hash, so a link opens on the
+same village with the same building showing.
 
 ## `planner/` — the procedural layout engine
 

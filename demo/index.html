@@ -10,15 +10,13 @@
 </head>
 <body>
 
-<header class="masthead">
-  <div>
-    <h1>Balhaunis</h1>
-    <p>The village map from the <a href="https://github.com/DimitroffVodka/crows_playtest">MCDM Crows</a> Foundry VTT system. Found an institution and it appears on the plot held for it; raise Prosperity and the homes, fields and woodland fill in behind it. This page runs the system's own map code — no server, no build step, no Foundry.</p>
-  </div>
-</header>
-
 <main>
   <section class="panel" aria-label="Controls">
+
+    <div class="field">
+      <label for="village-name">Village</label>
+      <input id="village-name" type="text" autocomplete="off" spellcheck="false" maxlength="28" placeholder="Balhaunis">
+    </div>
 
     <div class="field">
       <label for="prosperity">Prosperity <span class="readout" id="prosperity-value"></span></label>
@@ -45,6 +43,11 @@
       <button id="download" type="button">Download PNG</button>
       <button id="copy-link" type="button">Copy link</button>
     </div>
+
+    <p class="colophon">
+      <a href="https://github.com/DimitroffVodka/crows_playtest">MCDM Crows for Foundry VTT</a> ·
+      <a href="planner/">procedural generator</a>
+    </p>
   </section>
 
   <section class="stage" aria-label="Map">
@@ -78,60 +81,6 @@
     </aside>
   </section>
 </main>
-
-<footer>
-  <h2>How it works</h2>
-  <p>
-    Balhaunis is authored, not generated. The roads, the ground, and the position, size and facing of
-    every plot are frozen in
-    <a href="https://github.com/DimitroffVodka/crows_playtest/blob/master/module/helpers/canonical-village-layout.mjs">canonical-village-layout.mjs</a>
-    — twelve institution slots, sixty-nine homes, twenty-two fields and seventy-seven pieces of dressing,
-    each with a source ID tracing back to the vector export they were lifted from.
-  </p>
-  <p>
-    What the system decides at play time is only how much of that is standing.
-    <a href="https://github.com/DimitroffVodka/crows_playtest/blob/master/module/helpers/village-map.mjs"><code>buildVillageProjection()</code></a>
-    takes a village record and returns the Scene's tile list: the authored art for each founded
-    institution and a held plot for each that is not, then an ordered prefix of the homes, fields and
-    dressing sized by Prosperity. Because they are prefixes rather than a random draw, losing
-    Prosperity and regaining it restores the identical village — the same houses, on the same plots.
-  </p>
-  <p>
-    In Foundry each of those entries becomes a Tile on a 6000×6000 Scene. Here each one is an
-    <code>&lt;image&gt;</code> in an SVG, placed by the same centre, size and rotation. It is the same
-    function producing both.
-  </p>
-  <h2>Levels</h2>
-  <p>
-    Raising an institution has no art of its own to switch to: the authored set is one drawing per
-    type, so a level 3 blacksmith and a level 1 blacksmith are the same picture. Size carries the
-    difference instead. The plot itself never moves, and an unfounded one never grows, so the only
-    thing that changes is how much of its ground the building takes.
-  </p>
-  <p>
-    Growth is a fraction of each institution's <em>own</em> ladder rather than a table of per-level
-    sizes, because the twelve do not share one: the General Store tops out at 3, the Bookseller and
-    Temple at 6. Every institution starts at its authored footprint and every one ends 25% larger,
-    whatever it took to get there — so a longer ladder is simply climbed in smaller steps, and no
-    upgrade is ever invisible.
-  </p>
-  <p>
-    It also fixes a legibility problem the levels are incidental to. The export sized every building
-    to its footprint, and a blacksmith's plot is 229 units against a 295-wide house — so the
-    buildings a player actually needs to find were smaller than the houses either side of them.
-  </p>
-  <p>
-    The prices, the per-level effects and the Prosperity 10 capstones in each panel are not written
-    here: they are read from
-    <a href="https://github.com/DimitroffVodka/crows_playtest/blob/master/module/helpers/village.mjs"><code>INSTITUTIONS</code></a>,
-    the same table the system charges against, each row carrying its own rulebook citation.
-  </p>
-  <p class="aside">
-    Looking for the procedural side? An earlier layout engine that generates a village from a seed —
-    boundary, streets, plots, and institutions scored onto the ground they want — is still in the
-    repository and still has <a href="planner/">a demo of its own</a>.
-  </p>
-</footer>
 
 <script type="module" src="main.mjs"></script>
 </body>

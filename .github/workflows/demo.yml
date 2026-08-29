@@ -18,6 +18,7 @@ on:
       - "assets/institutions/**"
       - "assets/rural/**"
       - "assets/village/canonical/**"
+      - "fonts/**"
       - ".github/workflows/demo.yml"
   workflow_dispatch:
 
@@ -48,6 +49,9 @@ jobs:
           cp -r assets/village/canonical _site/assets/village/canonical
           cp -r assets/institutions _site/assets/institutions
           cp -r assets/rural _site/assets/rural
+          # The village's name is set in the system's own display serif, and the
+          # PNG export embeds the file, so it has to be reachable.
+          cp -r fonts _site/fonts
           # Without this Pages runs the files through Jekyll, which ignores
           # directories it does not recognise.
           touch _site/.nojekyll

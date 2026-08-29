@@ -12,6 +12,7 @@ import {
   createMap,
   growthPercent,
   interiorUrl,
+  setMapName,
   toPng,
   updateMap
 } from "./village.mjs";
@@ -42,7 +43,10 @@ const escape = value => String(value).replace(/[&<>"]/g, c => (
   { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]
 ));
 
+const DEFAULT_NAME = "Balhaunis";
+
 const state = {
+  name: DEFAULT_NAME,
   prosperity: 4,
   /** Institution type -> level. Absent means the plot is still waiting. */
   founded: new Map(STARTING_SIX.map(type => [type, 1])),
@@ -59,6 +63,7 @@ let map = null;
 
 function readHash() {
   const params = new URLSearchParams(location.hash.slice(1));
+  if (params.has("name")) state.name = params.get("name").slice(0, 28);
   if (!params.has("prosperity")) return;
   const prosperity = Number(params.get("prosperity"));
   if (Number.isFinite(prosperity)) state.prosperity = Math.max(-10, Math.min(10, Math.round(prosperity)));
@@ -82,6 +87,7 @@ function readHash() {
 
 function writeHash() {
   const params = new URLSearchParams({
+    name: state.name,
     prosperity: String(state.prosperity),
     founded: [...state.founded].map(([type, level]) => `${type}:${level}`).join(",")
   });
@@ -95,6 +101,8 @@ function writeHash() {
 
 function render() {
   const projection = updateMap(map, state);
+  setMapName(map, state.name);
+  document.title = state.name ? `${state.name} — Crows Village Map` : "Crows Village Map";
   showStats(projection);
   paintChips();
   paintDetail();
@@ -292,6 +300,11 @@ function buildHover() {
 /* -------------------------------------------- */
 
 function wire() {
+  el("village-name").addEventListener("input", event => {
+    state.name = event.target.value;
+    render();
+  });
+
   el("prosperity").addEventListener("input", event => {
     state.prosperity = Number(event.target.value);
     syncProsperity();
@@ -345,9 +358,10 @@ function wire() {
     try {
       const blob = await toPng(map, { scale: 0.5 });
       const url = URL.createObjectURL(blob);
+      const slug = (state.name || "village").toLowerCase().replace(/\W+/g, "-").replace(/^-|-$/g, "");
       Object.assign(document.createElement("a"), {
         href: url,
-        download: `balhaunis-prosperity-${state.prosperity}.png`
+        download: `${slug || "village"}-prosperity-${state.prosperity}.png`
       }).click();
       URL.revokeObjectURL(url);
     } catch {
@@ -381,6 +395,7 @@ function wire() {
 
 readHash();
 buildInstitutionChips();
+el("village-name").value = state.name;
 el("prosperity").value = String(state.prosperity);
 syncProsperity();
 map = createMap(el("map"));
