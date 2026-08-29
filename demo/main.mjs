@@ -13,6 +13,7 @@ import {
   growthPercent,
   interiorUrl,
   setMapName,
+  setWeather,
   toPng,
   updateMap
 } from "./village.mjs";
@@ -48,6 +49,9 @@ const DEFAULT_NAME = "Balhaunis";
 const state = {
   name: DEFAULT_NAME,
   prosperity: 4,
+  /** C:2218 — the ruin is what keeps this off the village. */
+  miasma: false,
+  night: false,
   /** Institution type -> level. Absent means the plot is still waiting. */
   founded: new Map(STARTING_SIX.map(type => [type, 1])),
   /** Which institution the detail panel is showing, if any. */
@@ -64,6 +68,8 @@ let map = null;
 function readHash() {
   const params = new URLSearchParams(location.hash.slice(1));
   if (params.has("name")) state.name = params.get("name").slice(0, 28);
+  state.miasma = params.get("miasma") === "1";
+  state.night = params.get("night") === "1";
   if (!params.has("prosperity")) return;
   const prosperity = Number(params.get("prosperity"));
   if (Number.isFinite(prosperity)) state.prosperity = Math.max(-10, Math.min(10, Math.round(prosperity)));
@@ -91,6 +97,8 @@ function writeHash() {
     prosperity: String(state.prosperity),
     founded: [...state.founded].map(([type, level]) => `${type}:${level}`).join(",")
   });
+  if (state.miasma) params.set("miasma", "1");
+  if (state.night) params.set("night", "1");
   if (state.selected) params.set("open", state.selected);
   history.replaceState(null, "", `#${params}`);
 }
@@ -102,6 +110,7 @@ function writeHash() {
 function render() {
   const projection = updateMap(map, state);
   setMapName(map, state.name);
+  setWeather(map, state);
   document.title = state.name ? `${state.name} — Crows Village Map` : "Crows Village Map";
   showStats(projection);
   paintChips();
@@ -311,6 +320,13 @@ function wire() {
     render();
   });
 
+  for (const key of ["miasma", "night"]) {
+    el(key).addEventListener("change", event => {
+      state[key] = event.target.checked;
+      render();
+    });
+  }
+
   el("starting-six").addEventListener("click", () => {
     state.founded = new Map(STARTING_SIX.map(type => [type, 1]));
     render();
@@ -396,6 +412,8 @@ function wire() {
 readHash();
 buildInstitutionChips();
 el("village-name").value = state.name;
+el("miasma").checked = state.miasma;
+el("night").checked = state.night;
 el("prosperity").value = String(state.prosperity);
 syncProsperity();
 map = createMap(el("map"));

@@ -1710,6 +1710,46 @@ export function canonicalPrefixCount(prosperity, capacity) {
  * ones overlap a neighbouring house's *box*, but the art fills about three
  * quarters of its box, so the drawings stay clear of each other.
  */
+/**
+ * The line the palisade holds, as a closed ring in map units.
+ *
+ * C:2218 — "In Cornath every village is contained within a ruin. These
+ * structures are enclosed, protecting the people within from the Miasma and the
+ * monsters wandering the wilds." Inside this ring is sheltered ground; outside
+ * it is not. That division is drawn in the background art and was nowhere in the
+ * data, so nothing could ask where the Miasma begins.
+ *
+ * Traced from the background rather than authored beside it: the wall is one
+ * shape in a 1.4 MB flattened export with no boundary path to lift, so this is
+ * 96 rays cast from the village centre to the outermost near-black pixel, then
+ * smoothed. It follows the drawn palisade to within a few units the whole way
+ * round. Frozen here because a ring that is re-derived at load time would drift
+ * the moment the art is re-exported, and silently.
+ */
+export const CANONICAL_VILLAGE_SHELTER = Object.freeze([
+  [5065, 3050], [5025, 3181], [4986, 3309], [4943, 3432], [4896, 3553], [4847, 3670],
+  [4796, 3786], [4743, 3900], [4687, 4012], [4625, 4123], [4559, 4231], [4490, 4339],
+  [4417, 4447], [4339, 4554], [4255, 4660], [4165, 4764], [4068, 4866], [3964, 4964],
+  [3851, 5057], [3732, 5146], [3604, 5231], [3469, 5309], [3327, 5381], [3177, 5446],
+  [3020, 5503], [2856, 5549], [2687, 5582], [2513, 5600], [2337, 5597], [2165, 5570],
+  [1997, 5519], [1838, 5447], [1688, 5357], [1549, 5252], [1419, 5136], [1299, 5012],
+  [1189, 4881], [1089, 4743], [999, 4601], [916, 4456], [839, 4309], [774, 4158],
+  [725, 4000], [694, 3840], [677, 3678], [670, 3518], [671, 3359], [678, 3203],
+  [691, 3050], [708, 2898], [728, 2748], [755, 2599], [793, 2453], [842, 2311],
+  [904, 2174], [987, 2047], [1093, 1937], [1213, 1843], [1336, 1758], [1460, 1682],
+  [1585, 1615], [1707, 1553], [1827, 1495], [1944, 1439], [2061, 1388], [2179, 1345],
+  [2299, 1308], [2418, 1276], [2537, 1247], [2656, 1222], [2777, 1205], [2898, 1193],
+  [3020, 1184], [3143, 1180], [3266, 1181], [3391, 1186], [3516, 1197], [3643, 1214],
+  [3772, 1235], [3902, 1261], [4033, 1295], [4164, 1338], [4295, 1388], [4428, 1444],
+  [4563, 1507], [4700, 1577], [4835, 1658], [4961, 1753], [5069, 1867], [5150, 2000],
+  [5197, 2148], [5213, 2306], [5203, 2465], [5177, 2621], [5143, 2771], [5104, 2913]
+].map(point => Object.freeze(point)));
+
+/** The shelter ring as SVG path data. */
+export function canonicalShelterPath() {
+  return `M${CANONICAL_VILLAGE_SHELTER.map(([x, y]) => `${x} ${y}`).join("L")}Z`;
+}
+
 export const CANONICAL_INSTITUTION_MAX_GROWTH = 0.25;
 
 /**

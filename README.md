@@ -24,16 +24,17 @@ This system implements those rules. You need the packet to read what the game *i
 
 **[Live demo →](https://dimitroffvodka.github.io/crows_playtest/)** — no install, no Foundry.
 
-[![Balhaunis at Prosperity −6, +2 and +10 — the same roads and plots, filling in](demo/preview.png)](https://dimitroffvodka.github.io/crows_playtest/)
+[![Balhaunis in daylight, choked by the Miasma, and at night](demo/preview.png)](https://dimitroffvodka.github.io/crows_playtest/)
 
 Balhaunis is authored, not generated — the roads, the ground and every plot are fixed. Found an
 institution and it appears on the plot that was being held for it; move Prosperity and the homes,
 fields and woodland fill in behind it, always in the same order, so a village that falls on hard
-times and recovers gets the identical village back. The three maps above are one village at
-Prosperity −6, +2 and +10.
+times and recovers gets the identical village back.
 
-Hover a building to name it, click it to see the room inside, and raise it to watch it grow on its
-plot — levels have no art of their own, so size is what an upgrade looks like.
+Hover a building to name it, click it to see the room inside and what its next level costs, and
+raise it to watch it grow on its plot — levels have no art of their own, so size is what an upgrade
+looks like. Name the village and it is written across the map. Roll in the **Miasma** and it chokes
+everything the ruin does not enclose (C:2218), which is the whole point of living inside one.
 
 The page calls the system's own `buildVillageProjection()` for every frame rather than a copy of it.
 See [`demo/`](demo/) for how that is wired, how to run it locally, and for the separate procedural

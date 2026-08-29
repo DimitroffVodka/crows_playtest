@@ -50,6 +50,28 @@ citation. [`rules.mjs`](rules.mjs) only turns a row into a sentence, and does it
 per `availability.axis` rather than per institution so twelve hand-written
 descriptions cannot drift from the numbers.
 
+**Miasma** and **Night** are two overlay layers on the same SVG.
+
+C:2218 — the ruin is what keeps the Miasma off the village — so the fog has to
+stop at the wall, and the wall was nowhere in the data: it is drawn inside a
+1.4 MB flattened background with no boundary path to lift. So it was traced,
+by casting 96 rays from the village centre to the outermost near-black pixel and
+smoothing the result, and frozen as `CANONICAL_VILLAGE_SHELTER`. It follows the
+drawn palisade to within a few units the whole way round. Re-deriving it at load
+time would let it drift silently the next time the art is re-exported.
+
+The fog is `feTurbulence` turned straight into density: `feColorMatrix` flattens
+the noise's RGB to one sickly green and drives its alpha off the red channel.
+The obvious build — turbulence displacing a filled rect — renders nothing, since
+a solid colour pushed around is still a solid colour. Two passes at different
+frequencies give it both broad banks and finer streamers, and the mask's edge is
+blurred so it reads as fog banking against the wall rather than a cut-out.
+
+Night multiplies the map through its own colours rather than laying a grey sheet
+over it, with a warm radial glow inside the walls and the name inverted to pale
+ink. Neither layer answers the pointer, so a building under the fog can still be
+hovered and opened, and both render into the PNG export.
+
 The village's name is written across the top-left of the map in the system's own
 display serif, EB Garamond. It is a `<text>` node inside the SVG rather than an
 HTML overlay, so it scales with the map and travels into the PNG export — which

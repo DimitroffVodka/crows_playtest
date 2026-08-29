@@ -22,7 +22,8 @@ import {
   CANONICAL_INSTITUTION_MAX_GROWTH,
   CANONICAL_INSTITUTION_SLOTS,
   CANONICAL_VILLAGE_BACKGROUND,
-  CANONICAL_VILLAGE_SIZE
+  CANONICAL_VILLAGE_SIZE,
+  canonicalShelterPath
 } from "../module/helpers/canonical-village-layout.mjs";
 import { institutionGrowth } from "../module/helpers/village-map.mjs";
 
@@ -136,6 +137,9 @@ export function createMap(container) {
     svg.append(group);
   }
 
+  const weather = weatherLayers(size);
+  svg.append(weather.defs, weather.miasma, weather.night);
+
   // The name is drawn into the map rather than laid over it in HTML, so it
   // travels with the PNG export and scales with everything else. Last in the
   // document, so it sits above every layer; deaf to the pointer, so it can lie
@@ -164,7 +168,102 @@ export function createMap(container) {
   svg.append(rule);
 
   container.replaceChildren(svg);
-  return { svg, nodes, size, title, rule };
+  return { svg, nodes, size, title, rule, weather };
+}
+
+/**
+ * The Miasma outside the walls, and night over everything.
+ *
+ * Built once and switched with `display`, like the tiles: both are static
+ * layers, and rebuilding them on every toggle would restart the turbulence.
+ *
+ * Both sit above the tiles and below the name, and neither answers the pointer,
+ * so a building under the fog can still be hovered and opened.
+ */
+function weatherLayers(size) {
+  const defs = document.createElementNS(SVG_NS, "defs");
+  defs.innerHTML = `
+    <!-- Everything the palisade does not enclose. The blur is what makes it
+         read as fog rolling against the wall rather than as a cut-out: the
+         mask's edge feathers inward over ~90 units of ground. -->
+    <mask id="beyond-the-wall">
+      <rect width="${size}" height="${size}" fill="#fff"/>
+      <path d="${canonicalShelterPath()}" fill="#000" filter="url(#wall-feather)"/>
+    </mask>
+    <filter id="wall-feather"><feGaussianBlur stdDeviation="90"/></filter>
+
+    <!-- Fractal noise turned straight into fog density.
+         The obvious build — turbulence displacing a filled rect — does nothing:
+         a solid colour pushed around is still a solid colour. So the noise is
+         the source, and feColorMatrix flattens its RGB to one sickly green
+         while driving alpha off the red channel, which is what makes the fog
+         thick in some places and thin in others. -->
+    <filter id="miasma-fog" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.00085" numOctaves="5" seed="11" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" result="fog" values="
+        0 0 0 0 0.463
+        0 0 0 0 0.529
+        0 0 0 0 0.435
+        1.9 0 0 0 -0.42"/>
+      <feGaussianBlur in="fog" stdDeviation="34"/>
+    </filter>
+
+    <!-- A second pass at a different scale and seed, so the fog has both broad
+         banks and finer streamers rather than one repeating texture. -->
+    <filter id="miasma-fog-fine" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0028" numOctaves="4" seed="47" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" result="fog" values="
+        0 0 0 0 0.60
+        0 0 0 0 0.65
+        0 0 0 0 0.56
+        1.5 0 0 0 -0.45"/>
+      <feGaussianBlur in="fog" stdDeviation="12"/>
+    </filter>
+
+    <!-- Lamplight and hearths inside the walls; the wilds get nothing. -->
+    <radialGradient id="village-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffc879" stop-opacity="0.30"/>
+      <stop offset="0.55" stop-color="#ffb45f" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#ffb45f" stop-opacity="0"/>
+    </radialGradient>`;
+
+  const miasma = document.createElementNS(SVG_NS, "g");
+  // Prefixed: the page's own toggles are `#miasma` and `#night`, and two
+  // elements sharing an id makes `getElementById` a coin toss on document order.
+  miasma.id = "weather-miasma";
+  miasma.setAttribute("mask", "url(#beyond-the-wall)");
+  miasma.setAttribute("pointer-events", "none");
+  miasma.style.display = "none";
+  // A flat wash first, so the wilds are choked even where the noise thins, then
+  // the two noise passes over it.
+  const cover = `x="-400" y="-400" width="${size + 800}" height="${size + 800}"`;
+  miasma.innerHTML = `
+    <rect ${cover} fill="#6f8069" opacity="0.55"/>
+    <rect ${cover} filter="url(#miasma-fog)" opacity="0.95"/>
+    <rect ${cover} filter="url(#miasma-fog-fine)" opacity="0.55"/>`;
+
+  const night = document.createElementNS(SVG_NS, "g");
+  night.id = "weather-night";
+  night.setAttribute("pointer-events", "none");
+  night.style.display = "none";
+  // Multiply, so the map darkens through its own colours instead of being
+  // flattened under a grey sheet; the glow is added back on top of that.
+  night.innerHTML = `
+    <rect width="${size}" height="${size}" fill="#2b3b57" style="mix-blend-mode:multiply" opacity="0.72"/>
+    <rect width="${size}" height="${size}" fill="#101a2c" style="mix-blend-mode:multiply" opacity="0.34"/>
+    <ellipse cx="2900" cy="3150" rx="2500" ry="2500" fill="url(#village-glow)" style="mix-blend-mode:screen"/>`;
+
+  return { defs, miasma, night };
+}
+
+/** Show or hide the Miasma and the night. */
+export function setWeather(map, { miasma = false, night = false } = {}) {
+  map.weather.miasma.style.display = miasma ? "" : "none";
+  map.weather.night.style.display = night ? "" : "none";
+  // The name is dark ink on a light halo, which disappears into a night map.
+  map.title.setAttribute("fill", night ? "#f2e7d2" : TITLE.ink);
+  map.title.setAttribute("stroke", night ? "#141d2c" : TITLE.halo);
+  map.rule.setAttribute("stroke", night ? "#f2e7d2" : TITLE.ink);
 }
 
 /** Where the village's name sits, in map units. */
